@@ -1,0 +1,251 @@
+<ion-header>
+    <app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+    <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print " vertical="bottom" horizontal="start" slot="fixed">
+        <div id="order-detail-page" style="position: absolute;"></div>
+
+        <ion-list>
+            <ion-list-header lines="full">
+                <ion-label color="dark">{{'erp.app.pages.hrm.checkin-gate.office-list' | translate}}</ion-label>
+                <!-- <ion-button size="small" (click)="addOffice()" *ngIf="pageConfig.canAdd">
+                    <ion-icon slot="icon-only" name="add"></ion-icon>
+                </ion-button> -->
+            </ion-list-header>
+            <ion-item lines="full">
+                <div class="c-control">
+                    <ng-select class="c-input no-check-dirty" (change)="changeOffice()" appendTo="#order-detail-page" labelForId="compareTo" [items]="officeList" [(ngModel)]="selectedOffice" bindLabel="Name" placeholder="{{'erp.app.pages.hrm.checkin-gate.office-placeholder' | translate}}">
+                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                            <div *ngIf="i">
+                                <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+                            </div>
+                        </ng-template>
+                    </ng-select>
+                </div>
+            </ion-item>
+        </ion-list>
+
+        <ion-list>
+            <ion-list-header lines="full">
+                <ion-label color="dark">{{'erp.app.pages.hrm.checkin-gate.checkin-gate' | translate}}</ion-label>
+                <ion-button size="small" (click)="changeGate({Id:0})" *ngIf="pageConfig.canAdd">
+                    <ion-icon slot="icon-only" name="add"></ion-icon>
+                </ion-button>
+            </ion-list-header>
+            <ion-item lines="full" button detail="true" class="clickable" (click)="changeGate(i)" [color]="i.Id == id? 'primary': '' " *ngFor="let i of gateList">
+                <ion-label class="ion-text-wrap">
+                    <ion-text [color]="i.Color">
+                        <h3>{{i.Name}}</h3>
+                    </ion-text>
+                    <p *ngIf="i.Remark">
+                        <small>{{i.GateType}}</small>
+                    </p>
+                </ion-label>
+            </ion-item>
+            <div class="ion-padding" *ngIf="!gateList.length">
+                <div class="c-control">
+                    <ion-button [disabled]="submitAttempt" color="primary" expand="block" (click)="changeGate({Id:0})"> {{'erp.app.pages.hrm.checkin-gate.add-gate' | translate}}</ion-button>
+                </div>
+            </div>
+        </ion-list>
+    </ion-fab>
+    <app-page-message *ngIf="!(id==0 || id)" [itemsLength]="0" [message]="selectedOffice?'Vui lòng chọn check-in gate':'Vui lòng chọn Office để bắt đầu'" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+
+    <div class="main-view ion-margin" *ngIf="item && pageConfig.showSpinner==false">
+        <div class="row-full shadow full-screen">
+            <div class="ion-padding">
+                <ion-grid fixed>
+                    <form [formGroup]="formGroup">
+                        <ion-row class="hr-group">
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+                                <ion-list-header class="ion-no-padding">
+                                    <ion-label color="primary">{{'erp.app.pages.hrm.checkin-gate.checkin-gate-list' | translate}}</ion-label>
+                                </ion-list-header>
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Name">{{'erp.app.pages.hrm.checkin-gate.name' | translate}} <small>{{'erp.app.pages.hrm.checkin-gate.id' | translate}}: {{id}}</small>
+                                        <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text">
+                                </div>
+
+
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Type">{{'erp.app.pages.hrm.checkin-gate.type' | translate}}
+                                        <span *ngIf="!formGroup.controls.Type.valid && !formGroup.controls.Type.pending && (formGroup.controls.Type.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <ng-select (change)="saveChange();" class="c-input" labelForId="Type" formControlName="Type" [items]="typeList" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.hrm.checkin-gate.search-placeholder' | translate}}">
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                            <div *ngIf="i">
+                                                <div [ngOptionHighlight]="search">{{i.Name}}</div>
+                                            </div>
+                                        </ng-template>
+                                    </ng-select>
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="IPAddress">{{'erp.app.pages.hrm.checkin-gate.ip-address' | translate}}</label>
+                                    <input (change)="saveChange()" class="c-input" id="IPAddress" formControlName="IPAddress" type="text">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Lat">{{'erp.app.pages.hrm.checkin-gate.lat' | translate}}</label>
+                                    <input (change)="saveChange()" class="c-input" id="Lat" formControlName="Lat" type="text">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Long">{{'erp.app.pages.hrm.checkin-gate.long' | translate}}</label>
+                                    <input (change)="saveChange()" class="c-input" id="Long" formControlName="Long" type="text">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="MaxDistance">{{'erp.app.pages.hrm.checkin-gate.max-distance' | translate}}</label>
+                                    <input (change)="saveChange()" class="c-input" id="MaxDistance" formControlName="MaxDistance" type="number">
+                                </div>
+
+                                <div class="c-control">
+                                    <span class="no-warp">
+                                        <input (change)="saveChange()" class="c-checkbox" id="IsVerifyLocation" formControlName="IsVerifyLocation" type="checkbox">
+                                        <label class="c-label checkbox" for="IsVerifyLocation">{{'erp.app.pages.hrm.checkin-gate.is-verifiy-location' | translate}}</label>
+                                    </span><br>
+                                </div>
+                                <div class="c-control">
+                                    <span class="no-warp">
+                                        <input (change)="saveChange()" class="c-checkbox" id="IsCateringService" formControlName="IsCateringService" type="checkbox">
+                                        <label class="c-label checkbox" for="IsCateringService">{{'erp.app.pages.hrm.checkin-gate.is-catering-service' | translate}}</label>
+                                    </span><br>
+                                </div>
+                            </ion-col>
+
+                        </ion-row>
+
+                        <ion-row class="hr-group" *ngIf="formGroup.controls.IsCateringService.value">
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+                                <ion-list-header class="ion-no-padding">
+                                    <ion-label color="primary">{{'erp.app.pages.hrm.checkin-gate.checkin-time' | translate}}</ion-label>
+                                </ion-list-header>
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+                                <div class="c-control">
+                                    <span class="no-warp">
+                                        <input (change)="saveChange()" class="c-checkbox" id="CanCheckinBreakfast" formControlName="CanCheckinBreakfast" type="checkbox">
+                                        <label class="c-label checkbox" for="CanCheckinBreakfast">{{'erp.app.pages.hrm.checkin-gate.can-checkin-breakfast' | translate}}</label>
+                                    </span>
+                                </div>
+
+                                <div class="c-control" *ngIf="formGroup.controls.CanCheckinBreakfast.value">
+                                    <label class="c-label" for="BreakfastStart">{{'erp.app.pages.hrm.checkin-gate.breakfast-start' | translate}}
+                                        <span *ngIf="!formGroup.controls.BreakfastStart.valid && !formGroup.controls.BreakfastStart.pending && (formGroup.controls.BreakfastStart.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="BreakfastStart" (change)="saveChange();" formControlName="BreakfastStart" type="time" step="7">
+                                </div>
+
+                                <div class="c-control" *ngIf="formGroup.controls.CanCheckinBreakfast.value">
+                                    <label class="c-label" for="BreakfastEnd">{{'erp.app.pages.hrm.checkin-gate.breakfast-end' | translate}}
+                                        <span *ngIf="!formGroup.controls.BreakfastEnd.valid && !formGroup.controls.BreakfastEnd.pending && (formGroup.controls.BreakfastEnd.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="BreakfastEnd" (change)="saveChange();" formControlName="BreakfastEnd" type="time" step="7">
+                                </div>
+
+
+
+                                <div class="c-control">
+                                    <span class="no-warp">
+                                        <input (change)="saveChange()" class="c-checkbox" id="CanCheckinLunch" formControlName="CanCheckinLunch" type="checkbox">
+                                        <label class="c-label checkbox" for="CanCheckinLunch"> {{'erp.app.pages.hrm.checkin-gate.can-checkin-lunch' | translate}}</label>
+                                    </span>
+                                </div>
+
+                                <div class="c-control" *ngIf="formGroup.controls.CanCheckinLunch.value">
+                                    <label class="c-label" for="LunchStart">{{'erp.app.pages.hrm.checkin-gate.lunch-start' | translate}}
+                                        <span *ngIf="!formGroup.controls.LunchStart.valid && !formGroup.controls.LunchStart.pending && (formGroup.controls.LunchStart.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="LunchStart" (change)="saveChange();" formControlName="LunchStart" type="time" step="7">
+                                </div>
+
+                                <div class="c-control" *ngIf="formGroup.controls.CanCheckinLunch.value">
+                                    <label class="c-label" for="LunchEnd">{{'erp.app.pages.hrm.checkin-gate.lunch-end' | translate}}
+                                        <span *ngIf="!formGroup.controls.LunchEnd.valid && !formGroup.controls.LunchEnd.pending && (formGroup.controls.LunchEnd.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="LunchEnd" (change)="saveChange();" formControlName="LunchEnd" type="time" step="7">
+                                </div>
+
+                                <div class="c-control">
+                                    <span class="no-warp">
+                                        <input (change)="saveChange()" class="c-checkbox" id="CanCheckinDinner" formControlName="CanCheckinDinner" type="checkbox">
+                                        <label class="c-label checkbox" for="CanCheckinDinner"> {{'erp.app.pages.hrm.checkin-gate.can-checkin-dinner' | translate}}</label>
+                                    </span>
+                                </div>
+
+                                <div class="c-control" *ngIf="formGroup.controls.CanCheckinDinner.value">
+                                    <label class="c-label" for="DinnerStart">{{'erp.app.pages.hrm.checkin-gate.dinner-start' | translate}}
+                                        <span *ngIf="!formGroup.controls.DinnerStart.valid && !formGroup.controls.DinnerStart.pending && (formGroup.controls.DinnerStart.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="DinnerStart" (change)="saveChange();" formControlName="DinnerStart" type="time" step="7">
+                                </div>
+
+                                <div class="c-control" *ngIf="formGroup.controls.CanCheckinDinner.value">
+                                    <label class="c-label" for="DinnerEnd">{{'erp.app.pages.hrm.checkin-gate.dinner-end' | translate}}
+                                        <span *ngIf="!formGroup.controls.DinnerEnd.valid && !formGroup.controls.DinnerEnd.pending && (formGroup.controls.DinnerEnd.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="DinnerEnd" (change)="saveChange();" formControlName="DinnerEnd" type="time" step="7">
+                                </div>
+
+                            </ion-col>
+                        </ion-row>
+
+                        <ion-row class="hr-group">
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+                                <ion-list-header class="ion-no-padding">
+                                    <ion-label color="primary">{{'erp.app.pages.hrm.checkin-gate.other-information' | translate}}</ion-label>
+                                </ion-list-header>
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+                                <div class="c-control">
+                                    <label class="c-label" for="Sort">{{'erp.app.pages.hrm.checkin-gate.sort' | translate}}</label>
+                                    <input (change)="saveChange()" class="c-input" id="Sort" formControlName="Sort" type="text">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="Remark">{{'erp.app.pages.hrm.checkin-gate.remark' | translate}}
+                                        <span *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <textarea (change)="saveChange()" rows="3" class="c-input" id="Remark" formControlName="Remark" type="textarea"></textarea>
+                                </div>
+                            </ion-col>
+                        </ion-row>
+
+                        <ion-row class="hr-group" *ngIf="formGroup.controls.Type.value=='QRCodeCheckin' && item.Id">
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+                                <ion-list-header class="ion-no-padding">
+                                    <ion-label color="primary">{{'erp.app.pages.hrm.checkin-gate.qr-code-title' | translate}}</ion-label>
+                                </ion-list-header>
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+
+                                <div class="c-control">
+                                    <img class="qrc" [src]="QRC">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="Code">{{'erp.app.pages.hrm.checkin-gate.code' | translate}}
+                                        <span *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange(); loadQR();" class="c-input" id="Code" formControlName="Code" type="text">
+                                </div>
+                                <div class="c-control">
+                                    <ion-button [href]="QRC" size="small" [download]="item.Name + '.jpg'">{{'erp.app.pages.hrm.checkin-gate.download' | translate}}</ion-button>
+                                    <ion-button *ngIf="pageConfig.canEdit" color="warning" size="small" (click)="changeCode()">{{'erp.app.pages.hrm.checkin-gate.create-new' | translate}}</ion-button>
+                                </div>
+                            </ion-col>
+                        </ion-row>
+                    </form>
+                </ion-grid>
+            </div>
+        </div>
+    </div>
+
+
+</ion-content>

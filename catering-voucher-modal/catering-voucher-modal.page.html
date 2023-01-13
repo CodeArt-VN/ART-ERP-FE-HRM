@@ -1,0 +1,42 @@
+<ion-header>
+    <ion-toolbar class="no-padding" color="success">
+        <ion-buttons slot="start">
+            <ion-button>
+                <ion-icon slot="start" [name]="item.IsValidLog? 'restaurant':'restaurant-outline'"></ion-icon>
+                {{'erp.app.pages.hrm.catering-voucher-modal.page-title' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-button title="{{'erp.app.pages.hrm.catering-voucher-modal.close-modal' | translate}}" (click)="closeModal()">
+                <ion-icon slot="icon-only" name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+    <div class="one-col ion-padding">
+        <div class="ion-text-center">
+            <ion-avatar class="avatar" slot="start">
+                <ion-img #img [src]="avatarURL" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+            </ion-avatar>
+            <div class="full-name">
+                {{item.Staff.FullName}}
+            </div>
+            <div class="voucher-info">
+                <ion-text color="primary">
+                    <small>{{'erp.app.pages.hrm.catering-voucher-modal.used-at' | translate}}</small>
+                </ion-text>
+
+                <br>
+                {{item.Gate.Name}}
+                <br>
+                <ion-text color="primary">
+                    <small>{{'erp.app.pages.hrm.catering-voucher-modal.time' | translate}}</small>
+                </ion-text>
+                <br>
+                {{item.Time}} {{item.Date}}
+            </div>
+        </div>
+    </div>
+</ion-content>

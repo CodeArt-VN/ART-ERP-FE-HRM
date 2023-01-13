@@ -1,0 +1,137 @@
+<ion-header>
+    <app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+    <div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+        <div class="row-full shadow full-screen">
+            <div class="ion-padding">
+                <ion-grid fixed>
+                    <form [formGroup]="formGroup">
+                        <ion-row class="hr-group">
+                            <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                <ion-list-header class="ion-no-padding">
+                                    <ion-label color="primary">{{'erp.app.pages.hrm.shift.shift-title' | translate}}</ion-label>
+                                </ion-list-header>
+                            </ion-col>
+                            <ion-col size="12" size-sm size-xl="4">
+                                <!-- <div class="c-control">
+                                    <label class="c-label" for="Id">Id</label>
+                                    <input class="c-input" id="Id" formControlName="Id" type="number">
+                                </div> -->
+                                <div class="c-control">
+                                    <label class="c-label" for="Name">{{'erp.app.pages.hrm.shift.name' | translate}}
+                                        <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="Type">{{'erp.app.pages.hrm.shift.type' | translate}}</label>
+                                    <ng-select class="c-input" (change)="saveChange()" labelForId="Type" formControlName="Type" [items]="ShiftTypeList"
+                                        [virtualScroll]="true" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.hrm.shift.type-placeholder' | translate}}">
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                        <div *ngIf="i">
+                                            <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span
+                                                [ngOptionHighlight]="search">{{i.Name}}</span></div>
+                                        </div>
+                                        </ng-template>
+                                    </ng-select>
+                                </div>
+                                <!-- <div class="c-control">
+                                    <label class="c-label" for="Code">Code
+                                        <span *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="Code" (change)="saveChange();" formControlName="Code" type="text">
+                                </div> -->
+
+                                <!-- <div class="c-control">
+                                    <label class="c-label" for="IDTimeSheet">IDTimeSheet
+                                        <span *ngIf="!formGroup.controls.IDTimeSheet.valid && !formGroup.controls.IDTimeSheet.pending && (formGroup.controls.IDTimeSheet.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="IDTimeSheet" (change)="saveChange();" formControlName="IDTimeSheet" type="number">
+                                </div> -->
+
+                                <div class="c-control">
+                                    <label class="c-label" for="StdPoint">{{'erp.app.pages.hrm.shift.std-point' | translate}}
+                                        <span *ngIf="!formGroup.controls.StdPoint.valid && !formGroup.controls.StdPoint.pending && (formGroup.controls.StdPoint.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="StdPoint" (change)="saveChange();" formControlName="StdPoint" type="number">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Start">{{'erp.app.pages.hrm.shift.start' | translate}}
+                                        <span *ngIf="!formGroup.controls.Start.valid && !formGroup.controls.Start.pending && (formGroup.controls.Start.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="Start" (change)="saveChange();" formControlName="Start" type="time" step="7">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="End">{{'erp.app.pages.hrm.shift.end' | translate}}
+                                        <span *ngIf="!formGroup.controls.End.valid && !formGroup.controls.End.pending && (formGroup.controls.End.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="End" (change)="saveChange();" formControlName="End" type="time" step="7">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Breaks">{{'erp.app.pages.hrm.shift.breaks' | translate}} <small>{{'erp.app.pages.hrm.shift.minutes' | translate}}</small>
+                                        <span *ngIf="!formGroup.controls.Breaks.valid && !formGroup.controls.Breaks.pending && (formGroup.controls.Breaks.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="Breaks" (change)="saveChange();" formControlName="Breaks" type="number">
+                                </div>
+
+                            </ion-col>
+                            <ion-col size="12" size-sm size-xl="4">
+
+                                
+
+                                <div class="c-control">
+                                    <label class="c-label" for="EarliestCheckIn">{{'erp.app.pages.hrm.shift.earliest-checkin' | translate}} <small>{{'erp.app.pages.hrm.shift.minutes' | translate}}</small>
+                                        <span *ngIf="!formGroup.controls.EarliestCheckIn.valid && !formGroup.controls.EarliestCheckIn.pending && (formGroup.controls.EarliestCheckIn.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="EarliestCheckIn" (change)="saveChange();" formControlName="EarliestCheckIn" type="number">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="LatestCheckIn">{{'erp.app.pages.hrm.shift.latest-checkin' | translate}}
+                                        <span *ngIf="!formGroup.controls.LatestCheckIn.valid && !formGroup.controls.LatestCheckIn.pending && (formGroup.controls.LatestCheckIn.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="LatestCheckIn" (change)="saveChange();" formControlName="LatestCheckIn" type="number">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="EarliestCheckOut">{{'erp.app.pages.hrm.shift.earliest-checkout' | translate}}
+                                        <span *ngIf="!formGroup.controls.EarliestCheckOut.valid && !formGroup.controls.EarliestCheckOut.pending && (formGroup.controls.EarliestCheckOut.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="EarliestCheckOut" (change)="saveChange();" formControlName="EarliestCheckOut" type="number">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="LatestCheckOut">{{'erp.app.pages.hrm.shift.latest-checkout' | translate}}
+                                        <span *ngIf="!formGroup.controls.LatestCheckOut.valid && !formGroup.controls.LatestCheckOut.pending && (formGroup.controls.LatestCheckOut.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="LatestCheckOut" (change)="saveChange();" formControlName="LatestCheckOut" type="number">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Remark">{{'erp.app.pages.hrm.shift.remark' | translate}}</label>
+                                    <textarea rows="3" (change)="saveChange()" class="c-input" id="Remark" formControlName="Remark" type="textarea"></textarea>
+                                </div>
+
+                                <div class="c-control">
+                                    <span class="no-warp">
+                                        <input (change)="saveChange()" class="c-checkbox" id="IsOvernightShift" formControlName="IsOvernightShift" type="checkbox">
+                                        <label class="c-label checkbox" for="IsOvernightShift">{{'erp.app.pages.hrm.shift.is-overnight-shift' | translate}}
+                                            <!-- <span *ngIf="!formGroup.controls.IsOvernightShift.valid && !formGroup.controls.IsOvernightShift.pending && (formGroup.controls.IsCheckOutRequired.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
+                                        </label>
+                                    </span><br>
+                                </div>
+
+                            </ion-col>
+                        </ion-row>
+                    </form>
+                </ion-grid>
+            </div>
+        </div>
+    </div>
+    <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

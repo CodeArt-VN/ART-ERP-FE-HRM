@@ -1,0 +1,83 @@
+<ion-header>
+    <ion-toolbar class="no-padding">
+        <ion-buttons slot="start">
+            <ion-button color="dark" class="ion-hide-sm-down">
+                {{'erp.app.pages.hrm.timesheet-cycle.page-title-modal' | translate}}
+            </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-button (click)="refresh()" title="{{'erp.app.pages.hrm.timesheet-cycle.refresh' | translate}}">
+                <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+            </ion-button>
+
+            <ion-button title="{{'erp.app.pages.hrm.timesheet-cycle.help' | translate}}" (click)="help()">
+                <ion-icon slot="icon-only" name="help-circle-outline"></ion-icon>
+            </ion-button>
+
+            <ion-button title="{{'erp.app.pages.hrm.timesheet-cycle.close-modal' | translate}}" color="secondary" (click)="closeModal()">
+                <ion-icon slot="icon-only" name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+    <form [formGroup]="formGroup">
+        <ion-grid fixed>
+            <ion-row>
+                <ion-col size="12" size-sm="12" size-md="12">
+                    <div class="c-control">
+                        <label class="c-label" for="Name">{{'erp.app.pages.hrm.timesheet-cycle.cycle-name' | translate}}
+                            <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                        </label>
+                        <input class="c-input" id="Name" formControlName="Name" type="text">
+                    </div>
+                </ion-col>
+                <ion-col size="12" size-sm="12" size-md="6">
+                    <div class="c-control">
+                        <label class="c-label" for="Start">{{'erp.app.pages.hrm.timesheet-cycle.start-sort' | translate}}
+                            <span *ngIf="!formGroup.controls.Start.valid && !formGroup.controls.Start.pending && (formGroup.controls.Start.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                        </label>
+                        <input class="c-input" id="Start" formControlName="Start" type="date">
+                    </div>
+                </ion-col>
+                <ion-col size="12" size-sm="12" size-md="6">
+                    <div class="c-control">
+                        <label class="c-label" for="End">{{'erp.app.pages.hrm.timesheet-cycle.end-sort' | translate}}
+                            <span *ngIf="!formGroup.controls.End.valid && !formGroup.controls.End.pending && (formGroup.controls.End.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                        </label>
+                        <input class="c-input" id="End" formControlName="End" type="date">
+                    </div>
+                </ion-col>
+                <ion-col size="12" size-sm="12" size-md="12">
+
+                    <div class="c-control">
+                        <label class="c-label" for="Timesheets">{{'erp.app.pages.hrm.timesheet-cycle.timesheet-list' | translate}}
+                            <span *ngIf="!formGroup.controls.Timesheets.valid && !formGroup.controls.Timesheets.pending && (formGroup.controls.Timesheets.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                        </label>
+                        <ng-select class="c-input" labelForId="Timesheets" formControlName="Timesheets" [multiple]="true" [items]="timesheetList" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.timesheet-cycle.search-placeholder' | translate}}">
+                            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                <div *ngIf="i">
+                                    <div> <b [ngOptionHighlight]="search">{{i.Name}}</b></div>
+                                </div>
+                            </ng-template>
+                        </ng-select>
+                    </div>
+
+                </ion-col>
+
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <div class="c-control ion-text-right">
+                        <label class="c-label" for=""></label>
+                        <ion-button (click)="submit()">{{'erp.app.pages.hrm.timesheet-cycle.submit' | translate}}</ion-button>
+                    </div>
+
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+
+
+    </form>
+</ion-content>

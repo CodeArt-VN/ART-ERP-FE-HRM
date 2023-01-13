@@ -1,0 +1,176 @@
+<ion-header>
+    <app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+    <div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+        <!-- <ion-grid fixed>
+            <ion-row>
+                <ion-col class="img-holder" size="12" size-sm="300px">
+                    <div class="avatar">
+                        <img src="assets/undraw_street_food_hm5i.svg" (error)="img.src = 'assets/undraw_street_food_hm5i.svg'" #img>
+                        <div>
+                            <ion-button class="change-avatar" *ngIf="item.IsDisabled" color="danger" size="small">
+                                TẠM DỪNG
+                            </ion-button>
+                            <ion-button class="change-avatar" *ngIf="!item.IsDisabled && item.Id" color="primary" size="small">
+                                Đổi hình
+                            </ion-button>
+                        </div>
+                    </div>
+                </ion-col>
+                <ion-col size="12" size-sm>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="5">
+                                <div class="c-control">
+                                    <label class="c-label">Số xe
+                                        <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input readonly class="c-input" [ngModel]="item.Name" type="text">
+                                </div>
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="5">
+                                
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+        </ion-grid> -->
+
+        <div class="row-full shadow full-screen">
+            <!-- <ion-toolbar color="primary">
+                <ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+                    <ion-segment-button value="s1">
+                        <ion-label>Thông tin xe</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="s2">
+                        <ion-label>Lịch bảo dưỡng</ion-label>
+                    </ion-segment-button>
+                </ion-segment>
+            </ion-toolbar> -->
+
+            <div class="ion-padding" *ngIf="segmentView == 's1'">
+                <ion-grid fixed>
+                    <form [formGroup]="formGroup">
+                        <ion-row class="hr-group">
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+                                <ion-list-header class="ion-no-padding">
+                                    <ion-label color="primary">{{'erp.app.pages.hrm.ptos-enrollment.policy-information' | translate}}</ion-label>
+                                </ion-list-header>
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+                                <div class="c-control">
+                                    <label class="c-label" for="IDStaff">{{'erp.app.pages.hrm.ptos-enrollment.id-staff' | translate}}
+                                        <span *ngIf="!formGroup.controls.IDStaff.valid && !formGroup.controls.IDStaff.pending && (formGroup.controls.IDStaff.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <ng-select (change)="saveChange()" class="c-input" #IDStaff labelForId="IDStaff" formControlName="IDStaff" [items]="staffList$ | async" [typeahead]="staffListInput$" [loading]='staffListLoading' [virtualScroll]="true" bindLabel="FullName" bindValue="Id" placeholder="{{'erp.app.pages.hrm.ptos-enrollment.idstaff-placeholder' | translate}}">
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                            <div *ngIf="i">
+                                                <div><span [ngOptionHighlight]="search">{{i.FullName}}</span></div>
+                                                <small>#<b><span class="important" [ngOptionHighlight]="search">{{i.Id}}</span> <span *ngIf="i.Code"> - {{i.Code}}</span></b> <span *ngIf="i.Phone"> | {{'erp.app.pages.hrm.ptos-enrollment.phone' | translate}}: <b [ngOptionHighlight]="search">{{i.Phone}}</b></span></small>
+                                            </div>
+                                        </ng-template>
+                                    </ng-select>
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="IDPolicyPTO">{{'erp.app.pages.hrm.ptos-enrollment.id-policypto' | translate}}</label>
+                                    <ng-select class="c-input" (change)="saveChange()" labelForId="IDPolicyPTO" formControlName="IDPolicyPTO" [items]="ptoList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.ptos-enrollment.type-placeholder' | translate}}">
+                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                            <div *ngIf="i">
+                                                <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+                                            </div>
+                                        </ng-template>
+                                    </ng-select>
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="StartDate">{{'erp.app.pages.hrm.ptos-enrollment.start-date' | translate}}
+                                        <span *ngIf="!formGroup.controls.StartDate.valid && !formGroup.controls.StartDate.pending && (formGroup.controls.StartDate.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange()" class="c-input" id="StartDate" formControlName="StartDate" type="date">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="Remark">{{'erp.app.pages.hrm.ptos-enrollment.remark' | translate}}
+                                        <span *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <textarea rows="3" class="c-input remark" id="Remark" formControlName="Remark" type="textarea"></textarea>
+                                </div>
+
+                                <!-- <div class="c-control" *ngIf="item.Id">
+                                    <label class="c-label" for="Id">Id</label>
+                                    <input class="c-input" id="Id" formControlName="Id" type="number">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="Code">Mã
+                                        <span *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="Name">Tên gọi
+                                        <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text">
+                                </div> -->
+
+
+
+                            </ion-col>
+                        </ion-row>
+                        <ion-row class="hr-group">
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+                                <ion-list-header class="ion-no-padding">
+                                    <ion-label color="primary">{{'erp.app.pages.hrm.ptos-enrollment.day-off' | translate}}</ion-label>
+                                </ion-list-header>
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+
+
+                                <div class="c-control">
+                                    <label class="c-label" for="PTOCarryOver">{{'erp.app.pages.hrm.ptos-enrollment.pto-carry-over' | translate}}
+                                        <span *ngIf="!formGroup.controls.PTOCarryOver.valid && !formGroup.controls.PTOCarryOver.pending && (formGroup.controls.PTOCarryOver.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange()" class="c-input" id="PTOCarryOver" formControlName="PTOCarryOver" type="number">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="PTOYearEarned">{{'erp.app.pages.hrm.ptos-enrollment.pto-year-earned' | translate}}
+                                        <span *ngIf="!formGroup.controls.PTOYearEarned.valid && !formGroup.controls.PTOYearEarned.pending && (formGroup.controls.PTOYearEarned.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange()" class="c-input" id="PTOYearEarned" formControlName="PTOYearEarned" type="number">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="PTOLengthOfService">{{'erp.app.pages.hrm.ptos-enrollment.pto-length-of-service' | translate}}
+                                        <span *ngIf="!formGroup.controls.PTOLengthOfService.valid && !formGroup.controls.PTOLengthOfService.pending && (formGroup.controls.PTOLengthOfService.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange()" class="c-input" id="PTOLengthOfService" formControlName="PTOLengthOfService" type="number">
+                                </div>
+                                <div class="c-control">
+                                    <label class="c-label" for="PTOCompensatoryLeave">{{'erp.app.pages.hrm.ptos-enrollment.pto-compensatory-leave' | translate}}
+                                        <span *ngIf="!formGroup.controls.PTOCompensatoryLeave.valid && !formGroup.controls.PTOCompensatoryLeave.pending && (formGroup.controls.PTOCompensatoryLeave.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange()" class="c-input" id="PTOCompensatoryLeave" formControlName="PTOCompensatoryLeave" type="number">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="PTOBalance">{{'erp.app.pages.hrm.ptos-enrollment.pto-balance' | translate}}
+                                        <span *ngIf="!formGroup.controls.PTOBalance.valid && !formGroup.controls.PTOBalance.pending && (formGroup.controls.PTOBalance.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input (change)="saveChange()" class="c-input" id="PTOBalance" formControlName="PTOBalance" type="number">
+                                </div>
+                            </ion-col>
+                        </ion-row>
+                    </form>
+                </ion-grid>
+            </div>
+            <div *ngIf="segmentView == 's2'">
+
+
+            </div>
+        </div>
+    </div>
+    <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

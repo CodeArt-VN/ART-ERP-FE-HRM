@@ -1,0 +1,127 @@
+<ion-header>
+    <app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div class="main-view">
+		<div class="row-full shadow full-screen">
+			<div class="ion-padding">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<!-- Thông tin chung -->
+						<ion-row class="hr-group">
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'erp.app.pages.hrm.timesheet.general-information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+								<!-- <div class="c-control">
+									<label class="c-label" for="{{'erp.app.pages.hrm.timesheet.id-sort' | translate}}">Id</label>
+									<input class="c-input" id="Id" formControlName="Id" type="number">
+								</div> -->
+								<div class="c-control">
+									<label class="c-label" for="Name">{{'erp.app.pages.hrm.timesheet.name' | translate}}</label>
+									<input (change)="saveChange()" class="c-input" id="Name" formControlName="Name" type="text">
+								</div>
+								<!-- <div class="c-control">
+									<label class="c-label" for="Code">{{'erp.app.pages.hrm.timesheet.code' | translate}}</label>
+									<input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text">
+								</div> -->
+
+								<!-- <div class="c-control">
+									<label class="c-label" for="Manager">{{'erp.app.pages.hrm.timesheet.manager' | translate}}<small>Manager</small></label>
+									<input (change)="saveChange()" class="c-input" id="Manager" formControlName="Manager" type="number">
+								</div> -->
+
+								<!-- <div class="c-control">
+									<label class="c-label" for="IDBranch">{{'erp.app.pages.hrm.timesheet.id-branch' | translate}}</label>
+									<ng-select class="c-input" (change)="saveChange()" labelForId="IDBranch" formControlName="IDBranch" [items]="dataIDBranchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.timesheet.id-branch-placeholder' | translate}}">
+										<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+											<div *ngIf="i">
+												<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+											</div>
+										</ng-template>
+									</ng-select>
+								</div> -->
+
+								<div class="c-control">
+									<label class="c-label" for="Type">{{'erp.app.pages.hrm.timesheet.type' | translate}}</label>
+									<ng-select class="c-input" (change)="saveChange()" labelForId="Type" formControlName="Type" [items]="timesheetTypeList" [virtualScroll]="true" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.hrm.timesheet.type-placeholder' | translate}}">
+										<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+											<div *ngIf="i">
+												<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+											</div>
+										</ng-template>
+									</ng-select>
+								</div>
+
+								<div class="c-control">
+									<label class="c-label" for="CheckInPolicy">{{'erp.app.pages.hrm.timesheet.checkin-policy' | translate}}</label>
+									<ng-select class="c-input" (change)="saveChange()" labelForId="CheckInPolicy" formControlName="CheckInPolicy" [items]="CheckInOutPolicyList" [virtualScroll]="true" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.hrm.timesheet.policy-placeholder' | translate}}">
+										<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+											<div *ngIf="i">
+												<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+											</div>
+										</ng-template>
+									</ng-select>
+								</div>
+
+								<div class="c-control">
+									<label class="c-label" for="NumberOfShiftPerDay">{{'erp.app.pages.hrm.timesheet.number-of-shift-per-day' | translate}}</label>
+									<input (change)="saveChange()" class="c-input" id="NumberOfShiftPerDay" formControlName="NumberOfShiftPerDay" type="number">
+								</div>
+
+								<div class="c-control">
+									<label class="c-label" for="WorkingHoursPerDay">{{'erp.app.pages.hrm.timesheet.working-hours-per-day' | translate}}</label>
+									<input (change)="saveChange()" class="c-input" id="WorkingHoursPerDay" formControlName="WorkingHoursPerDay" type="number">
+								</div>
+							
+								
+
+								<div class="c-control">
+									<label class="c-label" for="Remark">{{'erp.app.pages.hrm.timesheet.remark' | translate}}</label>
+									<textarea rows="3" (change)="saveChange()" class="c-input" id="Remark" formControlName="Remark" type="textarea"></textarea>
+								</div>
+
+								<div class="c-control">
+									<span class="no-warp">
+										<input (change)="saveChange()" class="c-checkbox" id="IsCheckOutRequired" formControlName="IsCheckOutRequired" type="checkbox">
+										<label class="c-label checkbox" for="IsCheckOutRequired">{{'erp.app.pages.hrm.timesheet.is-checkout-required' | translate}}
+											<!-- <span *ngIf="!formGroup.controls.IsCheckOutRequired.valid && !formGroup.controls.IsCheckOutRequired.pending && (formGroup.controls.IsCheckOutRequired.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
+										</label>
+									</span><br>
+
+									<span class="no-warp">
+										<input (change)="saveChange()" class="c-checkbox" id="IsRequiredApproveToEnroll" formControlName="IsRequiredApproveToEnroll" type="checkbox">
+										<label class="c-label checkbox" for="IsRequiredApproveToEnroll">{{'erp.app.pages.hrm.timesheet.is-required-approve-to-enroll' | translate}}
+											<!-- <span *ngIf="!formGroup.controls.IsRequiredApproveToEnroll.valid && !formGroup.controls.IsRequiredApproveToEnroll.pending && (formGroup.controls.IsRequiredApproveToEnroll.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
+										</label>
+									</span><br>
+
+									<span class="no-warp">
+										<input (change)="saveChange()" class="c-checkbox" id="IsRequiredApproveToTransfer" formControlName="IsRequiredApproveToTransfer" type="checkbox">
+										<label class="c-label checkbox" for="IsRequiredApproveToTransfer">{{'erp.app.pages.hrm.timesheet.is-required-approve-to-transfer' | translate}}
+											<!-- <span *ngIf="!formGroup.controls.IsRequiredApproveToTransfer.valid && !formGroup.controls.IsRequiredApproveToTransfer.pending && (formGroup.controls.IsRequiredApproveToTransfer.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
+										</label>
+									</span><br>
+
+									<span class="no-warp">
+										<input (change)="saveChange()" class="c-checkbox" id="IsRequiredApproveToSwitch" formControlName="IsRequiredApproveToSwitch" type="checkbox">
+										<label class="c-label checkbox" for="IsRequiredApproveToSwitch">{{'erp.app.pages.hrm.timesheet.is-required-approve-to-switch' | translate}}
+											<!-- <span *ngIf="!formGroup.controls.IsRequiredApproveToSwitch.valid && !formGroup.controls.IsRequiredApproveToSwitch.pending && (formGroup.controls.IsRequiredApproveToSwitch.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
+										</label>
+									</span><br>
+								</div>
+							</ion-col>
+						</ion-row>
+
+					</form>
+				</ion-grid>
+			</div>
+		</div>
+	</div>
+
+</ion-content>

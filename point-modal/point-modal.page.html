@@ -1,0 +1,123 @@
+<ion-header *ngIf="item">
+    <ion-toolbar class="no-padding" [color]="item.Color">
+        <ion-buttons slot="start">
+            <ion-button>
+                <ion-icon slot="start" [name]="item.Icon"></ion-icon>
+                {{item.FullName}}
+            </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-button title="{{'erp.app.pages.hrm.point-modal.close-modal' | translate}}" (click)="closeModal()">
+                <ion-icon slot="icon-only" name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <ion-toolbar class="no-padding" [color]="item.Color">
+        <ion-title> <span style="font-size: 3.5rem;" [innerHtml]="item.Title"></span></ion-title>
+    </ion-toolbar>
+    <ion-toolbar class="no-padding" [color]="item.Color">
+        <br>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+    <ion-grid fixed>
+        <ion-row>
+            <ion-col size="12" size-sm="12" size-md="12">
+                <ion-list-header class="ion-no-padding">
+                    <ion-label color="primary">{{'erp.app.pages.hrm.point-modal.shift-assignment' | translate}}</ion-label>
+                </ion-list-header>
+            </ion-col>
+            <ion-col size="12" size-sm="12" size-md="6">
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.timesheet' | translate}}</label>
+                    <span class="c-input">{{item.Timesheet.Name}}</span>
+                </div>
+            </ion-col>
+            <ion-col size="12" size-sm="12" size-md="6">
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.shift' | translate}}</label>
+                    <span class="c-input">
+                        <ion-text [color]="item.Shift.Color">{{item.Shift.Name}}&nbsp;</ion-text>
+                        <small>{{item.Shift.Start}}→{{item.Shift.End}}</small>
+                    </span>
+                </div>
+            </ion-col>
+
+
+            <ion-col size="12" size-sm="12" size-md="12">
+                <ion-list-header class="ion-no-padding">
+                    <ion-label color="primary">{{'erp.app.pages.hrm.point-modal.shift-record-title' | translate}}</ion-label>
+                </ion-list-header>
+            </ion-col>
+            <ion-col size="12" size-sm="12" size-md="6">
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.working-date' | translate}}</label>
+                    <span class="c-input">{{item.WorkingDate}}</span>
+                </div>
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.log-count' | translate}}</label>
+                    <b class="c-input"><ion-text [color]="item.Color">{{item.LogCount}}</ion-text></b>
+                </div>
+            </ion-col>
+            <ion-col size="12" size-sm="12" size-md="6">
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.checkin' | translate}}</label>
+                    <span class="c-input">{{item.Checkin}}
+                        <small *ngIf="item.ChecinLate">{{'erp.app.pages.hrm.point-modal.checkin-late' | translate}}: {{item.ChecinLate}} {{'erp.app.pages.hrm.point-modal.minute' | translate}}</small>
+                    </span>
+                </div>
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.checkout' | translate}}</label>
+                    <span class="c-input">{{item.Checkout}}
+                        <small *ngIf="item.CheckoutEarly">{{'erp.app.pages.hrm.point-modal.checkout-early' | translate}}: {{item.CheckoutEarly}} {{'erp.app.pages.hrm.point-modal.minute' | translate}}</small>
+                    </span>
+                </div>
+            </ion-col>
+
+
+            <ion-col size="12" size-sm="12" size-md="12">
+                <ion-list-header class="ion-no-padding">
+                    <ion-label color="primary">{{'erp.app.pages.hrm.point-modal.calc-point' | translate}}</ion-label>
+                </ion-list-header>
+            </ion-col>
+            <ion-col size="12" size-sm="12" size-md="6">
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.std-time-in' | translate}}</label>
+                    <span class="c-input">{{item.StdTimeIn}}</span>
+                </div>
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.std-time-out' | translate}}</label>
+                    <span class="c-input">{{item.StdTimeOut}}</span>
+                </div>
+            </ion-col>
+            <ion-col size="12" size-sm="12" size-md="6">
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.breaks' | translate}}</label>
+                    <span class="c-input">{{item.Breaks}} <small *ngIf="item.Breaks">{{'erp.app.pages.hrm.point-modal.minute' | translate}}</small></span>
+                </div>
+
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.minutes-of-work' | translate}}</label>
+                    <span class="c-input">{{item.MinutesOfWorked}} <small *ngIf="item.MinutesOfWorked">{{'erp.app.pages.hrm.point-modal.minute' | translate}}</small></span>
+                </div>
+            </ion-col>
+
+            <ion-col size="12" size-sm="12" size-md="12">
+                
+                <div class="c-control">
+                    <label class="c-label">{{'erp.app.pages.hrm.point-modal.calc-point' | translate}}</label>
+                    <b class="c-input">{{item.Point}} <small *ngIf="item.Point">{{'erp.app.pages.hrm.point-modal.point' | translate}}</small></b>
+                </div>
+
+            </ion-col>
+
+        </ion-row>
+        <ion-row>
+            <ion-col>
+
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

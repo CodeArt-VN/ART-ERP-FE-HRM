@@ -1,0 +1,409 @@
+<ion-header>
+    <app-detail-toolbar [page]="this">
+        <ion-button title="{{'erp.app.pages.hrm.staff.change-lock' | translate}}" [color]="userAccount.LockoutEnabled ? 'danger': 'success'" [disabled]="showLogout" *ngIf="userAccount.Id" (click)="changeLock()">
+            <ion-icon slot="icon-only" [name]="userAccount.LockoutEnabled ? 'lock-closed' : 'lock-open'"></ion-icon>
+        </ion-button>
+        <ion-button title="{{'erp.app.pages.hrm.staff.change-role-host' | translate}}" color="danger" [disabled]="showLogout" *ngIf="showRolesEdit && userAccount.Id" [fill]="!checkRole('HOST')? 'outline' : 'solid'" (click)="changeRole('HOST')">
+            <ion-icon slot="icon-only" name="star"></ion-icon>
+        </ion-button>
+    </app-detail-toolbar>
+</ion-header>
+
+
+<ion-content appScrollbarTheme class="ion-padding">
+    <div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+        <ion-grid fixed>
+            <ion-row>
+                <ion-col class="img-holder" size="12" size-sm="300px">
+                    <div class="avatar" ng2FileDrop class="well my-drop-zone" [ngClass]="{'nv-file-over': hasBaseDropZoneOver}" (fileOver)="fileOverBase($event)" (onFileDrop)="onFileSelected()" [uploader]="uploader">
+                        <img [src]="avatarURL" (error)="img.src = 'assets/avartar-empty.jpg'" #img>
+                        <div>
+                            <ion-button class="change-avatar" *ngIf="item.IsDisabled" color="danger" size="small">
+                                {{'erp.app.pages.hrm.staff.is-disabled' | translate}}
+                            </ion-button>
+                            <!-- <ion-button class="change-avatar" *ngIf="!item.IsDisabled && item.Id" color="primary" size="small" (click)="selectFile()">
+                                {{'erp.app.pages.hrm.staff.change-avatar' | translate}}
+                            </ion-button> -->
+                        </div>
+
+
+                        <input style="display: none;" #importfile type="file" (change)="onFileSelected()" ng2FileSelect accept="image/*" [uploader]="uploader" />
+                    </div>
+                </ion-col>
+                <ion-col size="12" size-sm>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="5">
+
+                                <!-- <div class="c-control">
+                                    <label class="c-label" for="Id">{{'erp.app.pages.hrm.staff.id-title' | translate}}
+                                        <span *ngIf="!formGroup.controls.Id.valid && !formGroup.controls.Id.pending && (formGroup.controls.Id.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input readonly class="c-input" id="Id" formControlName="Id" type="text" >
+                                </div> -->
+
+                                <!-- <div class="c-control">
+                                    <label class="c-label" for="Code">{{'erp.app.pages.hrm.staff.code-title' | translate}}
+                                        <span *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input class="c-input" id="Code" formControlName="Code" type="text" >
+                                </div> -->
+
+                                <div class="c-control">
+                                    <label class="c-label" for="FullName">{{'erp.app.pages.hrm.staff.full-name' | translate}}
+                                        <span *ngIf="!formGroup.controls.FullName.valid && !formGroup.controls.FullName.pending && (formGroup.controls.FullName.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input readonly class="c-input" [ngModel]="item.FullName" type="text">
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="PhoneNumber">{{'erp.app.pages.hrm.staff.phone-number' | translate}}
+                                        <span *ngIf="!formGroup.controls.PhoneNumber.valid && !formGroup.controls.PhoneNumber.pending && (formGroup.controls.PhoneNumber.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+                                    <input readonly class="c-input" [ngModel]="item.PhoneNumber" type="text">
+                                </div>
+
+                            </ion-col>
+                            <ion-col size="12" size-md="12" size-lg="12" size-xl="5">
+
+                                <div class="c-control">
+                                    <label class="c-label" for="IDDepartment">{{'erp.app.pages.hrm.staff.id-department' | translate}}
+                                        <span *ngIf="!formGroup.controls.IDDepartment.valid && !formGroup.controls.IDDepartment.pending && (formGroup.controls.IDDepartment.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+
+                                    <select disabled="true" class="c-input c-dropdown" [ngModel]="item.IDDepartment">
+                                        <option *ngFor="let t of env.branchList" [value]="t.Id">{{t.Name}}</option>
+                                    </select>
+                                </div>
+
+                                <div class="c-control">
+                                    <label class="c-label" for="IDJobTitle">{{'erp.app.pages.hrm.staff.id-job-title' | translate}}
+                                        <span *ngIf="!formGroup.controls.IDJobTitle.valid && !formGroup.controls.IDJobTitle.pending && (formGroup.controls.IDJobTitle.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                    </label>
+
+                                    <select disabled="true" class="c-input c-dropdown" [ngModel]="item.IDJobTitle">
+                                        <option *ngFor="let t of jobTitleList" [value]="t.Id">{{t.Name}}</option>
+                                    </select>
+                                </div>
+
+
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+
+        <div class="row-full shadow full-screen">
+            <ion-toolbar color="primary">
+                <ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+
+                    <ion-segment-button value="s1">
+                        <ion-label>{{'erp.app.pages.hrm.staff.page-title-detail' | translate}}</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="s2">
+                        <ion-label>{{'erp.app.pages.hrm.staff.family-tab' | translate}}</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="s3">
+                        <ion-label>{{'erp.app.pages.hrm.staff.business-tab' | translate}}</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="s4">
+                        <ion-label>{{'erp.app.pages.hrm.staff.degree-tab' | translate}}</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="s5">
+                        <ion-label>{{'erp.app.pages.hrm.staff.skill-tab' | translate}}</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="s6">
+                        <ion-label>{{'erp.app.pages.hrm.staff.contract-renewal' | translate}}</ion-label>
+                    </ion-segment-button>
+
+                </ion-segment>
+            </ion-toolbar>
+
+            <div>
+
+                <div *ngIf="segmentView == 's1'">
+
+                    <div class="ion-padding">
+
+                        <ion-grid fixed>
+                            <form [formGroup]="formGroup">
+                                <ion-row class="hr-group">
+                                    <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                        <ion-list-header class="ion-no-padding">
+                                            <ion-label color="primary">{{'erp.app.pages.hrm.staff.general-information' | translate}}</ion-label>
+                                        </ion-list-header>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control" *ngIf="item.Id">
+                                            <label class="c-label" for="Id">{{'erp.app.pages.hrm.staff.id' | translate}}</label>
+                                            <input class="c-input" id="Id" formControlName="Id" type="number">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="Code">{{'erp.app.pages.hrm.staff.ref-code' | translate}}
+                                                <span *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="FullName">{{'erp.app.pages.hrm.staff.full-name' | translate}}
+                                                <span *ngIf="!formGroup.controls.FullName.valid && !formGroup.controls.FullName.pending && (formGroup.controls.FullName.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="FullName" (change)="bindName(); saveChange();" formControlName="FullName" type="text">
+                                        </div>
+
+
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="IDDepartment">{{'erp.app.pages.hrm.staff.id-department' | translate}}
+                                                <span *ngIf="!formGroup.controls.IDDepartment.valid && !formGroup.controls.IDDepartment.pending && (formGroup.controls.IDDepartment.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <ng-select class="c-input" appendTo="#ng-select-holder" #IDDepartment (change)="changeDepartment(); saveChange();" labelForId="IDDepartment" [items]="env.branchList" formControlName="IDDepartment" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.staff.unit-select' | translate}}">
+                                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                                    <div *ngIf="i">
+                                                        <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                                            <ion-text [color]=" i.IDType == 111? 'primary':'dark'" [ngOptionHighlight]="search">{{i.Name}}</ion-text>
+                                                        </div>
+                                                    </div>
+                                                </ng-template>
+                                            </ng-select>
+                                        </div>
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="IDJobTitle">{{'erp.app.pages.hrm.staff.id-job-title' | translate}}
+                                                <span *ngIf="!formGroup.controls.IDJobTitle.valid && !formGroup.controls.IDJobTitle.pending && (formGroup.controls.IDJobTitle.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <ng-select class="c-input" appendTo="#ng-select-holder" #IDJobTitle (change)="saveChange();" labelForId="IDJobTitle" [items]="jobTitleList" formControlName="IDJobTitle" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.staff.unit-select' | translate}}">
+                                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                                    <div *ngIf="i">
+                                                        <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                                            <ion-text [color]=" i.IDType == 111? 'primary':'dark'" [ngOptionHighlight]="search">{{i.Name}}</ion-text>
+                                                        </div>
+                                                    </div>
+                                                </ng-template>
+                                            </ng-select>
+                                        </div>
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="Area">{{'erp.app.pages.hrm.staff.area' | translate}}
+                                                <span *ngIf="!formGroup.controls.Area.valid && !formGroup.controls.Area.pending && (formGroup.controls.Area.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <ng-select class="c-input" appendTo="#ng-select-holder" #Area (change)="saveChange();" labelForId="Area" [items]="workAreaList" formControlName="Area" bindLabel="Name" bindValue="Name" placeholder="{{'erp.app.pages.hrm.staff.area-placeholder' | translate}}">
+                                                <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                                                    <div *ngIf="i">
+                                                        <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                                                            <ion-text [ngOptionHighlight]="search">{{i.Name}}</ion-text>
+                                                        </div>
+                                                    </div>
+                                                </ng-template>
+                                            </ng-select>
+                                        </div>
+
+                                        
+
+                                        <div class="c-control" *ngIf="item.Id">
+                                            <input (change)="saveChange()" class="c-checkbox" id="IsDisabled" formControlName="IsDisabled" type="checkbox">
+                                            <label class="c-label checkbox" for="IsDisabled">{{'erp.app.pages.hrm.staff.checkbox-is-disabled' | translate}}
+                                                <span *ngIf="!formGroup.controls.IsDisabled.valid && !formGroup.controls.IsDisabled.pending && (formGroup.controls.IsDisabled.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="c-control">
+                                            <label class="c-label" for=""></label>
+                                            <ion-button *ngIf="!item.Id && pageConfig.canAdd" expand="block" (click)="saveChange()" [disabled]="!formGroup.dirty">Thêm nhân sự</ion-button>
+                                        </div>
+
+
+
+
+                                    </ion-col>
+                                </ion-row>
+
+                                <ion-row class="hr-group">
+                                    <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                        <ion-list-header class="ion-no-padding">
+                                            <ion-label color="primary">{{'erp.app.pages.hrm.staff.personal-information' | translate}}</ion-label>
+                                        </ion-list-header>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+
+
+
+
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="LastName">{{'erp.app.pages.hrm.staff.lastname' | translate}}
+                                                <span *ngIf="!formGroup.controls.LastName.valid && !formGroup.controls.LastName.pending && (formGroup.controls.LastName.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="LastName" formControlName="LastName" type="text">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="FirstName">{{'erp.app.pages.hrm.staff.firstname' | translate}}
+                                                <span *ngIf="!formGroup.controls.FirstName.valid && !formGroup.controls.FirstName.pending && (formGroup.controls.FirstName.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="FirstName" formControlName="FirstName" type="text">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="Name">{{'erp.app.pages.hrm.staff.name' | translate}}
+                                                <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="Name" formControlName="Name" type="text">
+                                        </div>
+                                        <div class="c-control">
+                                            <input (change)="saveChange()" id="Gender1" type="radio" [value]="true" formControlName="Gender" class="c-checkbox">
+                                            <label class="c-label radio" for="Gender1">
+                                                <span>{{'erp.app.pages.hrm.staff.radio-male' | translate}}</span>
+                                            </label>
+
+                                            <input (change)="saveChange()" id="Gender2" type="radio" [value]="false" formControlName="Gender" class="c-checkbox">
+                                            <label class="c-label radio" for="Gender2">
+                                                <span>{{'erp.app.pages.hrm.staff.radio-female' | translate}}</span>
+                                                <span *ngIf="!formGroup.controls.Gender.valid && !formGroup.controls.Gender.pending && (formGroup.controls.Gender.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                        </div>
+                                    </ion-col>
+
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control">
+                                            <label class="c-label" for="DOB">{{'erp.app.pages.hrm.staff.dob' | translate}}
+                                                <span *ngIf="!formGroup.controls.DOB.valid && !formGroup.controls.DOB.pending && (formGroup.controls.DOB.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="DOB" formControlName="DOB" type="date" [min]="minDOB" [max]="maxDOB">
+                                        </div>
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="PhoneNumber">{{'erp.app.pages.hrm.staff.phonenumber' | translate}}
+                                                <span *ngIf="!formGroup.controls.PhoneNumber.valid && !formGroup.controls.PhoneNumber.pending && (formGroup.controls.PhoneNumber.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input (change)="saveChange()" class="c-input" formControlName="PhoneNumber" type="text">
+                                        </div>
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="Remark">{{'erp.app.pages.hrm.staff.remark' | translate}}
+                                                <span *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <textarea (change)="saveChange()" rows="3" class="c-input" id="Remark" formControlName="Remark" type="textarea"></textarea>
+                                        </div>
+
+                                    </ion-col>
+                                </ion-row>
+
+                                <ion-row class="hr-group">
+                                    <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                        <ion-list-header class="ion-no-padding">
+                                            <ion-label color="primary">{{'erp.app.pages.hrm.staff.id-card' | translate}}</ion-label>
+                                        </ion-list-header>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control">
+                                            <label class="c-label" for="Domicile">{{'erp.app.pages.hrm.staff.domicile' | translate}}
+                                                <span *ngIf="!formGroup.controls.Domicile.valid && !formGroup.controls.Domicile.pending && (formGroup.controls.Domicile.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input (change)="saveChange()" class="c-input" id="Domicile" formControlName="Domicile" type="text">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="IdentityCardNumber">{{'erp.app.pages.hrm.staff.identity-card-number' | translate}}
+                                                <span *ngIf="!formGroup.controls.IdentityCardNumber.valid && !formGroup.controls.IdentityCardNumber.pending && (formGroup.controls.IdentityCardNumber.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input (change)="saveChange()" class="c-input" id="IdentityCardNumber" formControlName="IdentityCardNumber" type="text">
+                                        </div>
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control">
+                                            <label class="c-label" for="DateOfIssueID">{{'erp.app.pages.hrm.staff.date-of-issue-id' | translate}}
+                                                <span *ngIf="!formGroup.controls.DateOfIssueID.valid && !formGroup.controls.DateOfIssueID.pending && (formGroup.controls.DateOfIssueID.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input (change)="saveChange()" class="c-input" id="DateOfIssueID" formControlName="DateOfIssueID" type="date" [min]="minDOB">
+                                        </div>
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="IssuedBy">{{'erp.app.pages.hrm.staff.issued-by' | translate}}
+                                                <span *ngIf="!formGroup.controls.IssuedBy.valid && !formGroup.controls.IssuedBy.pending && (formGroup.controls.IssuedBy.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input (change)="saveChange()" class="c-input" id="IssuedBy" formControlName="IssuedBy" type="text">
+                                        </div>
+                                    </ion-col>
+                                </ion-row>
+                            </form>
+
+                            <form [formGroup]="changePasswordForm">
+                                <ion-row style="border: none;" class="hr-group">
+
+                                    <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+                                        <ion-list-header class="ion-no-padding">
+                                            <ion-label color="primary">{{'erp.app.pages.hrm.staff.login-account' | translate}}</ion-label>
+                                        </ion-list-header>
+                                    </ion-col>
+
+                                    <ion-col size="12" size-sm size-xl="4">
+                                        <div class="c-control">
+                                            <label class="c-label" for="Email">{{'erp.app.pages.hrm.staff.email' | translate}}
+                                                <span *ngIf="!formGroup.controls.Email.valid && !formGroup.controls.Email.pending && (formGroup.controls.Email.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input [readonly]="userAccount.Id" class="c-input" id="Email" [(ngModel)]="userAccount.Email" formControlName="Email" type="text">
+                                        </div>
+
+                                        <div class="c-control">
+                                            <label class="c-label" for="newPassword">{{'erp.app.pages.hrm.staff.new-password' | translate}}
+                                                <span *ngIf="!changePasswordForm.controls.newPassword.valid && !changePasswordForm.controls.newPassword.pending && (changePasswordForm.controls.newPassword.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="newPassword" formControlName="newPassword" [type]="passwordViewType">
+                                        </div>
+                                        <div class="c-control">
+                                            <label class="c-label" for="confirmPassword">{{'erp.app.pages.hrm.staff.confirm-password' | translate}}
+                                                <span *ngIf="!changePasswordForm.controls.confirmPassword.valid && !changePasswordForm.controls.confirmPassword.pending && (changePasswordForm.controls.confirmPassword.dirty || submitAttempt)" ion-text color="danger">(*)</span>
+                                            </label>
+                                            <input class="c-input" id="confirmPassword" formControlName="confirmPassword" [type]="passwordViewType">
+                                        </div>
+
+                                        <div class="c-control">
+                                            <ion-button size="small" *ngIf="userAccount.Id" (click)="resetPassword()">
+                                                {{'erp.app.pages.hrm.staff.reset-password' | translate}}
+                                            </ion-button>
+
+                                            <ion-button size="small" *ngIf="!userAccount.Id" (click)="createAccount()">
+                                                {{'erp.app.pages.hrm.staff.create-account' | translate}}
+                                            </ion-button>
+
+                                            <ion-button size="small" (click)="passwordViewType = passwordViewType=='password'?'text':'password'" color="warning">
+                                                <ion-icon slot="icon-only" [name]="passwordViewType=='password'?'eye':'eye-off'"></ion-icon>
+                                            </ion-button>
+                                        </div>
+
+                                    </ion-col>
+                                    <ion-col size="12" size-sm size-xl="4">
+
+                                    </ion-col>
+
+                                </ion-row>
+                            </form>
+                        </ion-grid>
+                    </div>
+                </div>
+                <div *ngIf="segmentView == 's2'">
+                    <div class="ion-padding">
+                        <app-staff-family [sfId]="item.Id"></app-staff-family>
+                    </div>
+                </div>
+
+                <div *ngIf="segmentView == 's3'">
+
+
+                </div>
+
+                <div *ngIf="segmentView == 's4'">
+
+                </div>
+
+                <div *ngIf="segmentView == 's5'">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <app-page-message [itemsLength] = "item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	
+</ion-content>

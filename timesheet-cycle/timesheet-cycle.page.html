@@ -1,0 +1,90 @@
+<ion-header>
+	<app-list-toolbar pageTitle="{{'erp.app.pages.hrm.timesheet-cycle.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" (changeBranch)="changeBranch($event)"></app-list-toolbar>
+	<section class="table">
+		<header class="bold">
+			<div class="col-checkbox cell"></div>
+			<div class="col-checkbox cell"></div>
+			<div class="col-id cell" (click)="sortToggle('Id')">
+				{{'erp.app.pages.hrm.timesheet-cycle.id-sort' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-date cell" (click)="sortToggle('Start')">
+				{{'erp.app.pages.hrm.timesheet-cycle.start-sort' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Start" [name]="sort.Start == 'Start'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Start" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-date cell" (click)="sortToggle('End')">
+				{{'erp.app.pages.hrm.timesheet-cycle.end-sort' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.End" [name]="sort.End == 'End'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.End" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-name cell" (click)="sortToggle('Name')">
+				{{'erp.app.pages.hrm.timesheet-cycle.name-sort' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-remark cell">{{'erp.app.pages.hrm.timesheet-cycle.timesheet' | translate}}</div>
+		</header>
+		<form (submit)="refresh()" action="#">
+			<header class="filter" *ngIf="pageConfig.isShowSearch">
+				<div class="col-checkbox cell"></div>
+				<div class="col-checkbox cell"></div>
+				<div class="col-id cell">
+					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Id" class="c-input" [ngClass]="{active: query.Id}" type="text">
+					<ion-icon class="min-btn" (click)="query.Id=''; refresh()" *ngIf="query.Id" name="close-circle-outline"></ion-icon>
+				</div>
+				<div class="col-date cell">
+					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Start" class="c-input" [ngClass]="{active: query.Start}" type="text">
+					<ion-icon class="min-btn" (click)="query.Start=''; refresh()" *ngIf="query.Start" name="close-circle-outline"></ion-icon>
+				</div>
+				<div class="col-date cell">
+					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.End" class="c-input" [ngClass]="{active: query.End}" type="text">
+					<ion-icon class="min-btn" (click)="query.End=''; refresh()" *ngIf="query.End" name="close-circle-outline"></ion-icon>
+				</div>
+				<div class="col-name cell">
+					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Name" class="c-input" [ngClass]="{active: query.Name}" type="text">
+					<ion-icon class="min-btn" (click)="query.Name=''; refresh()" *ngIf="query.Name" name="close-circle-outline"></ion-icon>
+				</div>
+				<div class="col-remark cell"></div>
+				<button mat-raised-button type="submit" style="display:none">Search</button>
+			</header>
+		</form>
+	</section>
+</ion-header>
+
+<ion-content appScrollbarTheme class="header-table">
+	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	<div *ngIf="items.length && pageConfig.showSpinner==false">
+		<section class="table">
+			<ion-virtual-scroll [items]="items" approxItemHeight="27px">
+				<ng-container *virtualItem="let i; let itemBounds = bounds; let j = index;">
+					<div class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
+						<div class="col-checkbox cell">
+							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
+						</div>
+						<div class="col-checkbox cell" (click)="showModal(i)">
+							<ion-icon color="danger" class="min-btn" name="pencil-outline"></ion-icon>
+						</div>
+						<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-id cell">
+							{{i.Id}}
+						</div>
+						<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-date cell">
+							{{i.Start}}
+						</div>
+						<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-date cell">
+							{{i.End}}
+						</div>
+						<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-name cell">
+							{{i.Name}}
+						</div>
+						<div class="col-remark cell"> <a (click)="nav('timesheet-cycle/'+i.Id+'/'+t.Id,'forward')" *ngFor="let t of i.TimesheetList">{{t.Name}}</a></div>
+					</div>
+				</ng-container>
+			</ion-virtual-scroll>
+		</section>
+	</div>
+	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

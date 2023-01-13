@@ -1,0 +1,123 @@
+<ion-grid fixed>
+	<form [formGroup]="formGroup">
+		<ion-row class="hr-group">
+			<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+				<ion-list-header class="ion-no-padding">
+					<ion-label color="primary">{{'erp.app.pages.hrm.staff.staff-family.contact-title' | translate}}</ion-label>
+				</ion-list-header>
+			</ion-col>
+			<ion-col size="12" size-sm size-xl="8">
+				<div class="table-contain" id="member-detail">
+					<section class="table">
+						<header class="bold" style="padding-right: 0;">
+							<div class="col-name cell">{{'erp.app.pages.hrm.staff.staff-family.fullname' | translate}}</div>
+							<div class="col-dob cell">{{'erp.app.pages.hrm.staff.staff-family.dob' | translate}}</div>
+							<div class="col-gender cell">{{'erp.app.pages.hrm.staff.staff-family.gender' | translate}}</div>
+							
+							<div class="col-address cell">{{'erp.app.pages.hrm.staff.staff-family.address' | translate}}</div>
+							
+							<div class="col-iden cell">{{'erp.app.pages.hrm.staff.staff-family.id-card-number' | translate}}</div>
+							<div class="col-date cell">{{'erp.app.pages.hrm.staff.staff-family.issue-date' | translate}}</div>
+							<div class="col-place cell">{{'erp.app.pages.hrm.staff.staff-family.issue-by' | translate}}</div>
+							<div class="col-date cell">{{'erp.app.pages.hrm.staff.staff-family.expire-date' | translate}}</div>
+							
+							<div class="col-iden cell">{{'erp.app.pages.hrm.staff.staff-family.passport-number' | translate}}</div>
+							<div class="col-date cell">{{'erp.app.pages.hrm.staff.staff-family.issue-date' | translate}}</div>
+							<div class="col-place cell">{{'erp.app.pages.hrm.staff.staff-family.issue-by' | translate}}</div>
+							<div class="col-date cell">{{'erp.app.pages.hrm.staff.staff-family.expire-date' | translate}}</div>
+							
+							<div class="col-depend cell">Phụ thuộc</div>
+
+							<div class="col-remark cell">Ghi chú</div>
+					
+							<!-- <div class="col-checkbox cell"></div> -->
+							<div class="col-checkbox cell" *ngIf="pageConfig.canEdit"></div>
+						</header>
+						<ng-container formArrayName="FamilyMembers">
+							<div class="row" [ngClass]="{odd: j % 2 != 0 }" *ngFor="let c of formGroup.get('FamilyMembers')['controls']; let j=index">
+								<ng-container [formGroup]="c">
+									<div class="col-name cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="Name">
+									</div>
+									<div class="col-dob cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="DOB" type="date">
+									</div>
+									<div class="col-gender cell">
+										<select class="c-input c-dropdown" [attr.disabled]="!pageConfig.canEdit?'':null" (change)="saveContact(c)" formControlName="Gender">
+											<option [value]="true">{{'erp.app.pages.hrm.staff.staff-family.male' | translate}}</option>
+											<option [value]="false">{{'erp.app.pages.hrm.staff.staff-family.female' | translate}}</option>
+										</select>
+									</div>
+
+									<div class="col-address cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="HomeAddress">
+									</div>
+
+									<div class="col-iden cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="IdentityCardNumber">
+									</div>
+									<div class="col-date cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="DateOfIssueID" type="date">
+									</div>
+									<div class="col-place cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="PlaceOfIssueID">
+									</div>
+									<div class="col-date cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="DateOfExpiryID" type="date">
+									</div>
+
+									<div class="col-iden cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="PassportNumber">
+									</div>
+									<div class="col-date cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="DateOfIssuePassport" type="date">
+									</div>
+									<div class="col-place cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="PlaceOfIssuePassport">
+									</div>
+									<div class="col-date cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="DateOfExpiryPassport" type="date">
+									</div>
+
+									<div class="col-gender cell">
+										<select class="c-input c-dropdown" [attr.disabled]="!pageConfig.canEdit?'':null" (change)="saveContact(c)" formControlName="IsDependants">
+											<option [value]="true">{{'erp.app.pages.hrm.staff.staff-family.yes' | translate}}</option>
+											<option [value]="false">{{'erp.app.pages.hrm.staff.staff-family.no' | translate}}</option>
+										</select>
+									</div>
+									
+									<div class="col-address cell">
+										<input class="c-input" (change)="saveContact(c)" formControlName="Remark">
+									</div>
+
+									<!-- <div (click)="nav(pageConfig.pageName+'/'+i.Id,'forward')"><ion-icon name="open-outline"></ion-icon></div> -->
+									<div class="col-checkbox cell" *ngIf="pageConfig.canEdit" (click)="removeFamilyMember(j)">
+										<ion-icon color="danger" class="min-btn" name="trash-outline"></ion-icon>
+									</div>
+								</ng-container>
+							</div>
+						</ng-container>
+						<div *ngIf="pageConfig.canEdit" class="row footer">
+							<div class="cell">
+								<ng-select class="c-input" [readonly]="submitAttempt" (change)="selectContact($event)" [addTag]="addContactLine.bind(this)" appendTo="#member-detail" [items]="contactList$ | async" [typeahead]="contactListInput$" [loading]='contactListLoading' [virtualScroll]="true" placeholder="{{'erp.app.pages.hrm.staff.staff-family.staff-family-placeholder' | translate}}">
+									<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+										<div *ngIf="i">
+											<div><span [ngOptionHighlight]="search">{{i.Name}}</span></div>
+											<small>#<b><span class="important" [ngOptionHighlight]="search">{{i.Id}}</span></b> <span *ngIf="i.Title"> - {{i.Title}}</span> <span *ngIf="i.WorkPhone"> | {{'erp.app.pages.hrm.staff.staff-family.phone' | translate}}: <b [ngOptionHighlight]="search">{{i.WorkPhone}}</b></span></small>
+										</div>
+									</ng-template>
+									<ng-template ng-tag-tmp let-search="searchTerm">
+										<b>{{'erp.app.pages.hrm.staff.staff-family.add-edit' | translate}}</b>: {{search}}
+									</ng-template>
+								</ng-select>
+							</div>
+							<div class="col-checkbox cell">
+								<ion-icon color="success" class="min-btn" name="add-circle-outline"></ion-icon>
+							</div>
+						</div>
+					</section>
+				</div>
+			</ion-col>
+		</ion-row>
+	</form>
+</ion-grid>

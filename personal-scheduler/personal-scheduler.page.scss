@@ -1,0 +1,28 @@
+app-page-message {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 100;
+    background: var(--feature-background-top);
+}
+
+ion-content {
+    --background: var(--feature-background-top) !important;
+    //padding-top: var(--ion-safe-area-top) !important;
+    //margin-top: var(--ion-safe-area-top);
+
+}
+
+.calendar-holder {
+    margin-top: 20px;
+    /* Status bar height on iOS 10 */
+    margin-top: constant(safe-area-inset-top);
+    /* Status bar height on iOS 11.0 */
+    margin-top: env(safe-area-inset-top);
+    /* Status bar height on iOS 11+ */
+
+    height: calc( 100% - 20px);
+    height: calc( 100% - constant(safe-area-inset-top));
+    height: calc( 100% - env(safe-area-inset-top));
+    
+}
