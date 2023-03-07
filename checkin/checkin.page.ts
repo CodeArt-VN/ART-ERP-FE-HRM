@@ -2,13 +2,12 @@ import { Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_TimesheetLogProvider, OST_OfficeGateProvider, SYS_UserDeviceProvider } from 'src/app/services/static/services.service';
-import { Location } from '@angular/common';
+import { HRM_TimesheetLogProvider, OST_OfficeGateProvider, SYS_UserDeviceProvider } from 'src/app/services/static/services.service';
 import { lib } from 'src/app/services/static/global-functions';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
+import { Geolocation } from '@capacitor/geolocation';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
 
@@ -28,8 +27,6 @@ export class CheckinPage extends PageBase {
         public loadingController: LoadingController,
         public env: EnvService,
         public navCtrl: NavController,
-        public location: Location,
-        private geolocation: Geolocation
     ) {
         super();
     }
@@ -129,8 +126,7 @@ export class CheckinPage extends PageBase {
                                 let UID = await Device.getId();
                                 logItem.UUID = UID.uuid;
                             }
-
-                            this.geolocation.getCurrentPosition({timeout: 5000, enableHighAccuracy: true}).then((resp) => {
+                            Geolocation.getCurrentPosition({timeout: 5000, enableHighAccuracy: true}).then((resp) => {
                                 logItem.Lat = resp.coords.latitude;
                                 logItem.Long = resp.coords.longitude;
                                 console.log(resp);
