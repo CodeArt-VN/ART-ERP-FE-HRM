@@ -19,7 +19,7 @@ import { environment } from 'src/environments/environment';
     styleUrls: ['./staff-detail.page.scss'],
 })
 export class StaffDetailPage extends PageBase {
-    
+
     avatarURL = 'assets/imgs/avartar-empty.jpg';
     @ViewChild('importfile') importfile: any;
 
@@ -36,7 +36,7 @@ export class StaffDetailPage extends PageBase {
     baseServiceURL = ApiSetting.mainService.base;
     showLogout = false;
 
- 
+
     passwordViewType = 'password';
     showRolesEdit = false;
     userAccount: any = {};
@@ -71,7 +71,7 @@ export class StaffDetailPage extends PageBase {
 
         this.pageConfig.isDetailPage = true;
         this.id = this.route.snapshot.paramMap.get('id');
-        
+
         this.formGroup = formBuilder.group({
             Id: new FormControl({ value: '', disabled: true }),
             IDBranch: new FormControl(),
@@ -79,15 +79,12 @@ export class StaffDetailPage extends PageBase {
             Name: new FormControl('', Validators.maxLength(128)),
             Remark: new FormControl(),
             IDDepartment: new FormControl('', Validators.required),
-            IDJobTitle: new FormControl('', Validators.required), 
-            Area: new FormControl(), 
-            IsDisabled: [new FormControl({ value: false, disabled: !this.pageConfig.canArchive })],
-
+            IDJobTitle: new FormControl('', Validators.required),
+            Area: new FormControl(),
+            IsDisabled: new FormControl({ value: false, disabled: true }),
             LastName: new FormControl(),
-
             Title: new FormControl(),
             FirstName: new FormControl(),
-
             FullName: new FormControl('', Validators.required),
             ShortName: new FormControl(),
             Gender: new FormControl(),
@@ -96,12 +93,10 @@ export class StaffDetailPage extends PageBase {
             Email: new FormControl(),
             Address: new FormControl(),
             ImageURL: new FormControl(),
-
             IdentityCardNumber: new FormControl(),
             Domicile: new FormControl(),
             DateOfIssueID: new FormControl(),
             IssuedBy: new FormControl(),
-
             BackgroundColor: new FormControl(),
         });
 
@@ -146,7 +141,7 @@ export class StaffDetailPage extends PageBase {
         if (this.id && this.item) {
             this.avatarURL = environment.staffAvatarsServer + this.item.Code + '.jpg?t=' + new Date().getTime();
             this.item.DateOfIssueID = lib.dateFormat(this.item.DateOfIssueID, 'yyyy-mm-dd');
-            if(this.item.Email){
+            if (this.item.Email) {
                 this.urserProvider.getAnItem(this.item.Id, '').then((ite) => {
                     if (ite) {
                         this.userAccount = ite
@@ -167,9 +162,9 @@ export class StaffDetailPage extends PageBase {
             setTimeout(() => {
                 this.changeDepartment();
             }, 100);
-            
+
         }
-        
+
 
         //this.showRolesEdit = GlobalData.Profile.Roles.SYSRoles.indexOf('HOST') > -1;
 
@@ -189,17 +184,17 @@ export class StaffDetailPage extends PageBase {
             let names = this.formGroup.controls.FullName.value.split(' ');
             if (names.length > 1) {
                 this.formGroup.controls.FirstName.setValue(names[names.length - 1]);
-                this.formGroup.controls.LastName.setValue( names[0]);
-                this.formGroup.controls.Name.setValue( names[names.length - 1] + ' ' + names[0]);
+                this.formGroup.controls.LastName.setValue(names[0]);
+                this.formGroup.controls.Name.setValue(names[names.length - 1] + ' ' + names[0]);
             }
 
-            
+
         }
     }
 
-    changeDepartment(){
+    changeDepartment() {
         let selectedDepartment = this.formGroup.controls.IDDepartment.value;
-        this.env.getJobTitle(selectedDepartment, true).then(result=>{
+        this.env.getJobTitle(selectedDepartment, true).then(result => {
             this.jobTitleList = [...result];
         });
 
@@ -223,10 +218,10 @@ export class StaffDetailPage extends PageBase {
     changeLock() {
         this.userAccount.LockoutEnabled = !this.userAccount.LockoutEnabled;
         if (this.userAccount.LockoutEnabled) {
-            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.account-locked','warning');
+            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.account-locked', 'warning');
         }
         else {
-            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.account-normal','warning');
+            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.account-normal', 'warning');
         }
         this.urserProvider.save(this.userAccount).then(() => {
             this.env.publishEvent({ Code: 'changeAccount' });
@@ -259,7 +254,7 @@ export class StaffDetailPage extends PageBase {
 
     async createAccount() {
         if (!this.changePasswordForm.valid) {
-            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.check-red-above','warning');
+            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.check-red-above', 'warning');
         }
         else {
             const loading = await this.loadingController.create({
@@ -282,10 +277,10 @@ export class StaffDetailPage extends PageBase {
                         this.userAccount.Id = newId;
                         if (this.userAccount.Email != this.item.Email) {
                             this.item.Email = this.userAccount.Email;
-                            
+
                         }
 
-                        this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.create-account-with-value','success', this.userAccount.Email);
+                        this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.create-account-with-value', 'success', this.userAccount.Email);
                         if (loading) loading.dismiss();
                         this.changePasswordForm.markAsPristine();
                         this.cdr.detectChanges();
@@ -293,13 +288,13 @@ export class StaffDetailPage extends PageBase {
                     })
                     .catch(err => {
                         if (loading) loading.dismiss();
-                        if(err.error && err.error.Message && err.error.Message.indexOf('Account with email is exits') > -1){
-                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.email-registerd','danger');
+                        if (err.error && err.error.Message && err.error.Message.indexOf('Account with email is exits') > -1) {
+                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.email-registerd', 'danger');
                         }
-                        else{
-                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.can-not-save','danger');
+                        else {
+                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.can-not-save', 'danger');
                         }
-                        
+
                         this.cdr.detectChanges();
                     });
             });
@@ -309,7 +304,7 @@ export class StaffDetailPage extends PageBase {
 
     async resetPassword() {
         if (!this.changePasswordForm.valid) {
-            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.check-red-above','danger');
+            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.check-red-above', 'danger');
         }
         else {
             const loading = await this.loadingController.create({
@@ -321,8 +316,8 @@ export class StaffDetailPage extends PageBase {
 
                 this.urserProvider.resetPassword(this.userAccount.Id, this.changePasswordForm.controls.newPassword.value, this.changePasswordForm.controls.confirmPassword.value)
                     .then((savedItem: any) => {
-                        this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.update-password-complete','success');
-                        
+                        this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.update-password-complete', 'success');
+
                         this.cdr.detectChanges();
                         this.changePasswordForm.markAsPristine();
                         if (loading) loading.dismiss();
@@ -330,13 +325,13 @@ export class StaffDetailPage extends PageBase {
                     })
                     .catch(err => {
                         if (err._body.indexOf('confirmation password do not match') > -1) {
-                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.confirmation-password-not-match','danger');
+                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.confirmation-password-not-match', 'danger');
                         }
                         else if (err._body.indexOf('least 6 characters') > -1) {
-                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.least-6-char','danger');
+                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.least-6-char', 'danger');
                         }
                         else {
-                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.can-not-save','danger');
+                            this.env.showTranslateMessage('erp.app.pages.hrm.staff.message.can-not-save', 'danger');
                         }
                         if (loading) loading.dismiss();
                         this.cdr.detectChanges();

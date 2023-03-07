@@ -160,7 +160,7 @@
                                             <label class="c-label" for="IDDepartment">{{'erp.app.pages.hrm.staff.id-department' | translate}}
                                                 <span *ngIf="!formGroup.controls.IDDepartment.valid && !formGroup.controls.IDDepartment.pending && (formGroup.controls.IDDepartment.dirty || submitAttempt)" ion-text color="danger">(*)</span>
                                             </label>
-                                            <ng-select class="c-input" appendTo="#ng-select-holder" #IDDepartment (change)="changeDepartment(); saveChange();" labelForId="IDDepartment" [items]="env.branchList" formControlName="IDDepartment" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.staff.unit-select' | translate}}">
+                                            <ng-select class="c-input" #IDDepartment (change)="changeDepartment(); saveChange();" labelForId="IDDepartment" [items]="env.branchList" formControlName="IDDepartment" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.staff.unit-select' | translate}}">
                                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                                     <div *ngIf="i">
                                                         <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
@@ -175,7 +175,7 @@
                                             <label class="c-label" for="IDJobTitle">{{'erp.app.pages.hrm.staff.id-job-title' | translate}}
                                                 <span *ngIf="!formGroup.controls.IDJobTitle.valid && !formGroup.controls.IDJobTitle.pending && (formGroup.controls.IDJobTitle.dirty || submitAttempt)" ion-text color="danger">(*)</span>
                                             </label>
-                                            <ng-select class="c-input" appendTo="#ng-select-holder" #IDJobTitle (change)="saveChange();" labelForId="IDJobTitle" [items]="jobTitleList" formControlName="IDJobTitle" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.staff.unit-select' | translate}}">
+                                            <ng-select class="c-input" #IDJobTitle (change)="saveChange();" labelForId="IDJobTitle" [items]="jobTitleList" formControlName="IDJobTitle" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.staff.unit-select' | translate}}">
                                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                                     <div *ngIf="i">
                                                         <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
@@ -190,7 +190,7 @@
                                             <label class="c-label" for="Area">{{'erp.app.pages.hrm.staff.area' | translate}}
                                                 <span *ngIf="!formGroup.controls.Area.valid && !formGroup.controls.Area.pending && (formGroup.controls.Area.dirty || submitAttempt)" ion-text color="danger">(*)</span>
                                             </label>
-                                            <ng-select class="c-input" appendTo="#ng-select-holder" #Area (change)="saveChange();" labelForId="Area" [items]="workAreaList" formControlName="Area" bindLabel="Name" bindValue="Name" placeholder="{{'erp.app.pages.hrm.staff.area-placeholder' | translate}}">
+                                            <ng-select class="c-input" #Area (change)="saveChange();" labelForId="Area" [items]="workAreaList" formControlName="Area" bindLabel="Name" bindValue="Name" placeholder="{{'erp.app.pages.hrm.staff.area-placeholder' | translate}}">
                                                 <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
                                                     <div *ngIf="i">
                                                         <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
