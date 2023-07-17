@@ -6,6 +6,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CheckinLogPage } from './checkin-log.page';
 import { ShareModule } from 'src/app/share.module';
 import { PriceReportComponentsModule } from '../../BI/price-report/components/price-report-components.module';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 
 import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
 import interactionPlugin from '@fullcalendar/interaction';
@@ -26,6 +28,8 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     ReactiveFormsModule,
     PriceReportComponentsModule,
     ShareModule,
+    NgSelectModule,
+    NgOptionHighlightModule,
     FullCalendarModule,
     RouterModule.forChild([{ path: '', component: CheckinLogPage }])
   ],
