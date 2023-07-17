@@ -7,6 +7,8 @@ import { ShareModule } from 'src/app/share.module';
 import { StaffDetailPage } from './staff-detail.page';
 import {FileUploadModule} from 'ng2-file-upload';
 import { StaffComponentsModule } from './components/staff-components.module';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 
 const routes: Routes = [
   {
@@ -21,6 +23,8 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    NgSelectModule,
+    NgOptionHighlightModule,
     ShareModule,
     FileUploadModule,
     StaffComponentsModule,

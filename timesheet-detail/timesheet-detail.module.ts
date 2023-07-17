@@ -8,6 +8,8 @@ import { TimesheetDetailPageRoutingModule } from './timesheet-detail-routing.mod
 
 import { TimesheetDetailPage } from './timesheet-detail.page';
 import { ShareModule } from 'src/app/share.module';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
 
 @NgModule({
   imports: [
@@ -16,6 +18,8 @@ import { ShareModule } from 'src/app/share.module';
     IonicModule,
     ReactiveFormsModule,
     ShareModule,
+    NgSelectModule,
+    NgOptionHighlightModule,
     TimesheetDetailPageRoutingModule
   ],
   declarations: [TimesheetDetailPage]
