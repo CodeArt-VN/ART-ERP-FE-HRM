@@ -52,7 +52,7 @@ export class StaffPickerPage extends PageBase {
                         prefix += '- '
                     }
                     i.NamePadding = prefix + i.Name;
-                    if (i.Type == 'TitlePosition') {
+                    if (i.IDType == 119) {
                         i.Flag = true;
                     }
                     else {
