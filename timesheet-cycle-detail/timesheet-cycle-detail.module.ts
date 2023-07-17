@@ -6,9 +6,6 @@ import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
 import { TimesheetCycleDetailPage } from './timesheet-cycle-detail.page';
 import { FileUploadModule } from 'ng2-file-upload';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { NgOptionHighlightModule } from '@ng-select/ng-option-highlight';
-import { NgxMaskModule } from 'ngx-mask';
 
 import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
 import interactionPlugin from '@fullcalendar/interaction';
@@ -35,10 +32,7 @@ const routes: Routes = [
     IonicModule,
     ReactiveFormsModule,
     ShareModule,
-    NgSelectModule,
-    NgOptionHighlightModule,
     FullCalendarModule,
-    NgxMaskModule.forRoot(),
     RouterModule.forChild(routes)
   ],
   declarations: [TimesheetCycleDetailPage, PointModalPage]
