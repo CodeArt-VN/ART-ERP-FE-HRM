@@ -93,7 +93,8 @@
 							{{i.FullName}}
 						</div>
 						<div class="col-account cell">{{i.Email}}</div>
-						<div class="col-code cell">{{i.Department?.ShortName?i.Department.ShortName:i.Department.Name}}</div>
+						<div class="col-code cell" *ngIf="i.Department">{{i.Department.ShortName? i.Department.ShortName: i.Department.Name}}</div>
+						<div class="col-code cell" *ngIf="!i.Department"></div>
 						<div class="col-code cell">{{i.JobTitle}}</div>
 
 						
