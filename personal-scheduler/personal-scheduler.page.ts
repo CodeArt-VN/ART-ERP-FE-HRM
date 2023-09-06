@@ -4,8 +4,9 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { HRM_OpenScheduleProvider, HRM_ShiftProvider, HRM_StaffScheduleProvider, HRM_StaffTimesheetEnrollmentProvider, HRM_TimesheetLogProvider, HRM_TimesheetProvider, OST_OfficeGateProvider, OST_OfficeProvider } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
-import { FullCalendarComponent, CalendarOptions } from '@fullcalendar/angular'; // useful for typecateringg
+import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typecateringg
 import dayGridPlugin from '@fullcalendar/daygrid';
+
 import { formatDate } from '@angular/common';
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
@@ -112,7 +113,7 @@ export class PersonalSchedulerPage extends PageBase {
         super.loadedData(event, ignoredFromGroup);
     }
 
-    calendarOptions: CalendarOptions = {
+    calendarOptions:any = {
         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
         plugins: [dayGridPlugin],
         initialView: 'dayGridMonth',

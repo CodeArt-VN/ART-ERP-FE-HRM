@@ -65,9 +65,7 @@
 	
 	<div *ngIf="items.length && pageConfig.showSpinner==false">
 		<section class="table">
-			<ion-virtual-scroll [items]="items" approxItemHeight="27px">
-				<ng-container *virtualItem="let i; let itemBounds = bounds; let j = index;">
-					<div class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
+								<div *ngFor="let i of items; let j = index;"  class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
 						<div class="col-checkbox cell" >
 							<input (click)="changeSelection(i, $event)" class="c-checkbox"  [(ngModel)]="i.checked" type="checkbox">
 						</div>
@@ -80,14 +78,9 @@
 						<div class="col-branch cell">
 							<span *ngIf="i._Branch">{{i._Branch.Name}}</span>
 						</div>
-						<!-- <div class="col-code cell">{{i.Type}}</div> -->
-
-						
-
-						<!-- <div class="col-code cell">{{i.Branch}}</div> -->
+					
 					</div>
-				</ng-container>
-			</ion-virtual-scroll>
+				
 		</section>
 
 	</div>

@@ -4,7 +4,10 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { HRM_StaffTimesheetEnrollmentProvider, HRM_TimesheetLogProvider, HRM_TimesheetProvider, OST_OfficeGateProvider, OST_OfficeProvider } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
-import { FullCalendarComponent, CalendarOptions } from '@fullcalendar/angular'; // useful for typechecking
+import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
+import interactionPlugin from '@fullcalendar/interaction';
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
+
 import { lib } from 'src/app/services/static/global-functions';
 import { LogGeneratorPage } from '../log-generator/log-generator.page';
 
@@ -105,7 +108,12 @@ export class CheckinLogPage extends PageBase {
         super.loadedData(event, ignoredFromGroup);
     }
 
-    calendarOptions: CalendarOptions = {
+    calendarOptions: any = {
+        plugins: [resourceTimelinePlugin, interactionPlugin]
+
+        , 
+  
+
         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
         initialView: 'resourceTimelineWeek',
         height: '100%',

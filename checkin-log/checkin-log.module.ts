@@ -1,21 +1,17 @@
-import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router';
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CheckinLogPage } from './checkin-log.page';
+import { RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
 import { PriceReportComponentsModule } from '../../BI/price-report/components/price-report-components.module';
+import { CheckinLogPage } from './checkin-log.page';
 
-import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
-import interactionPlugin from '@fullcalendar/interaction';
-import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
+
 import { LogGeneratorPage } from '../log-generator/log-generator.page';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
-FullCalendarModule.registerPlugins([ // register FullCalendar plugins
-  resourceTimelinePlugin, 
-  interactionPlugin
-]);
+
 
 
 @NgModule({
@@ -24,9 +20,10 @@ FullCalendarModule.registerPlugins([ // register FullCalendar plugins
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
+    FullCalendarModule,
     PriceReportComponentsModule,
     ShareModule,
-    FullCalendarModule,
+    
     RouterModule.forChild([{ path: '', component: CheckinLogPage }])
   ],
   declarations: [CheckinLogPage, LogGeneratorPage ]

@@ -8,15 +8,8 @@ import { ShareModule } from 'src/app/share.module';
 import { PriceReportComponentsModule } from '../../BI/price-report/components/price-report-components.module';
 
 import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
-import interactionPlugin from '@fullcalendar/interaction';
-import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
-
-FullCalendarModule.registerPlugins([ // register FullCalendar plugins
-  resourceTimelinePlugin, 
-  interactionPlugin
-]);
 
 
 @NgModule({
