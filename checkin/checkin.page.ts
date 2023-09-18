@@ -124,7 +124,7 @@ export class CheckinPage extends PageBase {
 
                             if (Capacitor.isPluginAvailable('Device')){
                                 let UID = await Device.getId();
-                                logItem.UUID = UID.uuid;
+                                logItem.UUID = UID.identifier;
                             }
                             Geolocation.getCurrentPosition({timeout: 5000, enableHighAccuracy: true}).then((resp) => {
                                 logItem.Lat = resp.coords.latitude;
