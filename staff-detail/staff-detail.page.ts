@@ -74,7 +74,7 @@ export class StaffDetailPage extends PageBase {
 
         this.formGroup = formBuilder.group({
             Id: new FormControl({ value: '', disabled: true }),
-            IDBranch: new FormControl(),
+            IDBranch: [this.env.selectedBranch],
             Code: [{ value: '' }],
             Name: new FormControl('', Validators.maxLength(128)),
             Remark: new FormControl(),
@@ -176,7 +176,7 @@ export class StaffDetailPage extends PageBase {
 
     async saveChange() {
         this.bindName();
-        super.saveChange();
+        this.saveChange2();
     }
 
     bindName() {
