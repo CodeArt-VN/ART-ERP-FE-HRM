@@ -8,77 +8,74 @@ import { TimesheetCycleModalPage } from '../timesheet-cycle-modal/timesheet-cycl
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-    selector: 'app-timesheet-cycle',
-    templateUrl: 'timesheet-cycle.page.html',
-    styleUrls: ['timesheet-cycle.page.scss']
+  selector: 'app-timesheet-cycle',
+  templateUrl: 'timesheet-cycle.page.html',
+  styleUrls: ['timesheet-cycle.page.scss'],
 })
 export class TimesheetCyclePage extends PageBase {
-    timesheetList = [];
-    constructor(
-        public pageProvider: HRM_TimesheetCycleProvider,
-        public timesheetProvider: HRM_TimesheetProvider,
+  timesheetList = [];
+  constructor(
+    public pageProvider: HRM_TimesheetCycleProvider,
+    public timesheetProvider: HRM_TimesheetProvider,
 
-        public modalController: ModalController,
-		public popoverCtrl: PopoverController,
-        public alertCtrl: AlertController,
-        public loadingController: LoadingController,
-        public env: EnvService,
-        public navCtrl: NavController,
-        public location: Location,
-    ) {
-        super();
-    }
+    public modalController: ModalController,
+    public popoverCtrl: PopoverController,
+    public alertCtrl: AlertController,
+    public loadingController: LoadingController,
+    public env: EnvService,
+    public navCtrl: NavController,
+    public location: Location,
+  ) {
+    super();
+  }
 
-    preLoadData(event?: any): void {
-        this.timesheetProvider.read().then(resp => {
-            this.timesheetList = resp['data'];
-            super.preLoadData(event);
-        });
-    }
+  preLoadData(event?: any): void {
+    this.timesheetProvider.read().then((resp) => {
+      this.timesheetList = resp['data'];
+      super.preLoadData(event);
+    });
+  }
 
-    loadedData(event?: any, ignoredFromGroup?: boolean): void {
-        this.items.forEach(i => {
-            i.Start = lib.dateFormat(i.Start);
-            i.End = lib.dateFormat(i.End);
+  loadedData(event?: any, ignoredFromGroup?: boolean): void {
+    this.items.forEach((i) => {
+      i.Start = lib.dateFormat(i.Start);
+      i.End = lib.dateFormat(i.End);
 
-            i.TimesheetList = [];
-            for (let j = 0; j < i.Timesheets.length; j++) {
-                const t = this.timesheetList.find(d => d.Id == i.Timesheets[j]);
-                if(t){
-                    i.TimesheetList.push(t);
-                }
-                
-            }
-
-        });
-        super.loadedData(event, ignoredFromGroup);
-    }
-
-
-    async showModal(i) {
-        const modal = await this.modalController.create({
-            component: TimesheetCycleModalPage,
-            componentProps: {
-                timesheetList: this.timesheetList,
-                item: i,
-                id: i.Id
-            },
-            cssClass: 'my-custom-class'
-        });
-        await modal.present();
-        const { data } = await modal.onWillDismiss();
-
-        if (data) {
-            this.pageProvider.save(data).then(resp => {
-                this.refresh();
-            });
+      i.TimesheetList = [];
+      for (let j = 0; j < i.Timesheets.length; j++) {
+        const t = this.timesheetList.find((d) => d.Id == i.Timesheets[j]);
+        if (t) {
+          i.TimesheetList.push(t);
         }
-    }
+      }
+    });
+    super.loadedData(event, ignoredFromGroup);
+  }
 
-    add() {
-        let newItem = {
-            Id: 0
-        };
-        this.showModal(newItem);
+  async showModal(i) {
+    const modal = await this.modalController.create({
+      component: TimesheetCycleModalPage,
+      componentProps: {
+        timesheetList: this.timesheetList,
+        item: i,
+        id: i.Id,
+      },
+      cssClass: 'my-custom-class',
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+
+    if (data) {
+      this.pageProvider.save(data).then((resp) => {
+        this.refresh();
+      });
     }
+  }
+
+  add() {
+    let newItem = {
+      Id: 0,
+    };
+    this.showModal(newItem);
+  }
 }

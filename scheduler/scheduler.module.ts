@@ -11,7 +11,6 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // must go before pl
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
 
-
 @NgModule({
   imports: [
     CommonModule,
@@ -21,8 +20,8 @@ import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generat
     PriceReportComponentsModule,
     ShareModule,
     FullCalendarModule,
-    RouterModule.forChild([{ path: '', component: SchedulerPage }])
+    RouterModule.forChild([{ path: '', component: SchedulerPage }]),
   ],
-  declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage]
+  declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage],
 })
 export class SchedulerPageModule {}

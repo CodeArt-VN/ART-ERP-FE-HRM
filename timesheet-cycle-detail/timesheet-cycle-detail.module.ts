@@ -6,17 +6,15 @@ import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
 import { TimesheetCycleDetailPage } from './timesheet-cycle-detail.page';
 
-
 import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
-
 
 import { PointModalPage } from '../point-modal/point-modal.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: TimesheetCycleDetailPage
-  }
+    component: TimesheetCycleDetailPage,
+  },
 ];
 
 @NgModule({
@@ -27,8 +25,8 @@ const routes: Routes = [
     ReactiveFormsModule,
     ShareModule,
     FullCalendarModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
-  declarations: [TimesheetCycleDetailPage, PointModalPage]
+  declarations: [TimesheetCycleDetailPage, PointModalPage],
 })
-export class TimesheetCycleDetailPageModule { }
+export class TimesheetCycleDetailPageModule {}

@@ -12,8 +12,8 @@ import { ShareModule } from 'src/app/share.module';
     CommonModule,
     FormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: ShiftPage }])
+    RouterModule.forChild([{ path: '', component: ShiftPage }]),
   ],
-  declarations: [ShiftPage]
+  declarations: [ShiftPage],
 })
 export class ShiftPageModule {}

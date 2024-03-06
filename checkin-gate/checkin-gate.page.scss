@@ -1,12 +1,11 @@
-app-page-message{
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    z-index: 100;
-    background: var(--feature-background-top);
+app-page-message {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 100;
+  background: var(--feature-background-top);
 }
 
-.full-screen{
-    min-height: calc(100vh - 97px);
+.full-screen {
+  min-height: calc(100vh - 97px);
 }
-

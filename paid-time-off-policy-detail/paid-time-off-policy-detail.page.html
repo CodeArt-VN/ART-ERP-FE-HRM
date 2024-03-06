@@ -1,151 +1,255 @@
 <ion-header>
-    <app-detail-toolbar [page]="this"></app-detail-toolbar>
+  <app-detail-toolbar [page]="this"></app-detail-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="ion-padding">
-    <div class="main-view" *ngIf="pageConfig.showSpinner==false">
-        <div class="row-full shadow full-screen">
-            <div class="ion-padding">
-                <ion-grid fixed>
-                    <ion-row class="hr-group">
-                        <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
-                            <ion-list-header class="ion-no-padding">
-                                <ion-label color="primary">{{'erp.app.pages.hrm.paid-time-off-policy.general-information' | translate}}</ion-label>
-                            </ion-list-header>
-                        </ion-col>
-                        <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                            <form [formGroup]="formGroup">
-                                <div class="c-control" *ngIf="item.Id">
-                                    <label class="c-label" for="Id">{{'erp.app.pages.hrm.paid-time-off-policy.id' | translate}}</label>
-                                    <input class="c-input" id="Id" formControlName="Id" type="number">
+  <div class="main-view" *ngIf="pageConfig.showSpinner==false">
+    <div class="row-full shadow full-screen">
+      <div class="ion-padding">
+        <ion-grid fixed>
+          <ion-row class="hr-group">
+            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+              <ion-list-header class="ion-no-padding">
+                <ion-label color="primary">{{'General information' | translate}}</ion-label>
+              </ion-list-header>
+            </ion-col>
+            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+              <form [formGroup]="formGroup">
+                <div class="c-control" *ngIf="item.Id">
+                  <label class="c-label" for="Id">{{'Id' | translate}}</label>
+                  <input class="c-input" id="Id" formControlName="Id" type="number" />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="Code"
+                    >{{'Code' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                  <input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text" />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="Name"
+                    >{{'Policy name' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                  <input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text" />
+                </div>
+
+                <div class="c-control">
+                  <label class="c-label" for="Type"
+                    >{{'Policy type' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.Type.valid && !formGroup.controls.Type.pending && (formGroup.controls.Type.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                  <ng-select
+                    class="c-input"
+                    (change)="saveChange();"
+                    labelForId="Type"
+                    formControlName="Type"
+                    [items]="TypeList"
+                    bindLabel="Name"
+                    bindValue="Code"
+                    placeholder="{{'Search' | translate}}"
+                  >
+                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                      <div *ngIf="i">
+                        <div>
+                          <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+                          <span [ngOptionHighlight]="search">{{i.Name}}</span>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </ng-select>
+                </div>
+
+                <div class="c-control">
+                  <label class="c-label" for="NumberOfDays"
+                    >{{'Standard yearly leaves' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.NumberOfDays.valid && !formGroup.controls.NumberOfDays.pending && (formGroup.controls.NumberOfDays.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                  <input
+                    class="c-input"
+                    id="NumberOfDays"
+                    (change)="saveChange();"
+                    formControlName="NumberOfDays"
+                    type="number"
+                  />
+                </div>
+
+                <div class="c-control">
+                  <label class="c-label" for="NumberOfCarryOnDays"
+                    >{{'Remaning leaves carried forward next year' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.NumberOfCarryOnDays.valid && !formGroup.controls.NumberOfCarryOnDays.pending && (formGroup.controls.NumberOfCarryOnDays.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                  <input
+                    class="c-input"
+                    id="NumberOfCarryOnDays"
+                    (change)="saveChange();"
+                    formControlName="NumberOfCarryOnDays"
+                    type="text"
+                  />
+                </div>
+
+                <div class="c-control">
+                  <input
+                    [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)"
+                    (change)="saveChange()"
+                    class="c-checkbox"
+                    id="IsGrantsByLengthOfServices"
+                    formControlName="IsGrantsByLengthOfServices"
+                    type="checkbox"
+                  />
+                  <label class="c-label checkbox" for="IsGrantsByLengthOfServices"
+                    >{{'Rewarded leaves by senority' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.IsGrantsByLengthOfServices.valid && !formGroup.controls.IsGrantsByLengthOfServices.pending && (formGroup.controls.IsGrantsByLengthOfServices.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                </div>
+              </form>
+            </ion-col>
+            <ion-col
+              size="12"
+              size-md="12"
+              size-lg="12"
+              size-xl="4"
+              *ngIf="formGroup.controls.IsGrantsByLengthOfServices.value"
+            >
+              <ion-list-header class="ion-no-padding">
+                <ion-label color="primary">{{'Rewarded leaves by senority' | translate}}</ion-label>
+              </ion-list-header>
+            </ion-col>
+            <ion-col
+              size="12"
+              size-md="12"
+              size-lg="12"
+              size-xl="6"
+              *ngIf="formGroup.controls.IsGrantsByLengthOfServices.value"
+            >
+              <div class="row-full shadow">
+                <form [formGroup]="formGroup">
+                  <ng-container formArrayName="Lines">
+                    <div class="table-contain">
+                      <section class="table" style="min-width: 300px">
+                        <header class="bold" style="padding-right: 0">
+                          <div class="col-id cell" style="min-width: 95px !important; padding-left: 41px">#</div>
+                          <div class="col-qty cell">{{'Number of months' | translate}}</div>
+                          <div class="col-name cell">{{'Quantity of rewarded leaves' | translate}}</div>
+                          <div class="col-del cell" *ngIf="pageConfig.canEdit"></div>
+                        </header>
+                        <ion-reorder-group
+                          (ionItemReorder)="doReorder($event, formGroup.get('Lines')['controls'])"
+                          [disabled]="!pageConfig.canEdit"
+                        >
+                          <ng-container *ngFor="let g of formGroup.get('Lines')['controls']; let idx = index;">
+                            <ng-container [formGroup]="g">
+                              <div class="row">
+                                <ion-reorder slot="start"></ion-reorder>
+                                <div class="col-id cell">{{idx+1}}</div>
+
+                                <div class="col-qty cell">
+                                  <input
+                                    formControlName="MonthsOfServices"
+                                    [readonly]="!pageConfig.canEdit || submitAttempt"
+                                    (focus)="$event.target.select()"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    type="number"
+                                    [min]="1"
+                                    [max]="99999"
+                                    onkeydown="return event.keyCode !== 190"
+                                  />
                                 </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="Code">{{'erp.app.pages.hrm.paid-time-off-policy.code' | translate}}
-                                        <span *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text">
-                                </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="Name">{{'erp.app.pages.hrm.paid-time-off-policy.name' | translate}}
-                                        <span *ngIf="!formGroup.controls.Name.valid && !formGroup.controls.Name.pending && (formGroup.controls.Name.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text">
-                                </div>
-
-                                <div class="c-control">
-                                    <label class="c-label" for="Type">{{'erp.app.pages.hrm.paid-time-off-policy.type' | translate}}
-                                        <span *ngIf="!formGroup.controls.Type.valid && !formGroup.controls.Type.pending && (formGroup.controls.Type.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <ng-select class="c-input" (change)="saveChange();" labelForId="Type" formControlName="Type" [items]="TypeList" bindLabel="Name" bindValue="Code" placeholder="{{'erp.app.pages.hrm.paid-time-off-policy.type-placeholder' | translate}}">
-                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                                            <div *ngIf="i">
-                                                <div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
-                                            </div>
-                                        </ng-template>
-                                    </ng-select>
+                                <div class="col-name cell">
+                                  <input
+                                    formControlName="DaysGranted"
+                                    [readonly]="!pageConfig.canEdit || submitAttempt"
+                                    (focus)="$event.target.select()"
+                                    (change)="saveChange()"
+                                    class="c-input"
+                                    type="number"
+                                    [min]="0"
+                                    [max]="99999"
+                                    onkeydown="return event.keyCode !== 190"
+                                  />
                                 </div>
 
-                                <div class="c-control">
-                                    <label class="c-label" for="NumberOfDays">{{'erp.app.pages.hrm.paid-time-off-policy.number-of-days' | translate}}
-                                        <span *ngIf="!formGroup.controls.NumberOfDays.valid && !formGroup.controls.NumberOfDays.pending && (formGroup.controls.NumberOfDays.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <input class="c-input" id="NumberOfDays" (change)="saveChange();" formControlName="NumberOfDays" type="number">
+                                <div class="col-del cell" *ngIf="pageConfig.canEdit" (click)="removeLine(idx, true)">
+                                  <ion-icon color="danger" class="min-btn" name="trash-outline"></ion-icon>
                                 </div>
-
-                                <div class="c-control">
-                                    <label class="c-label" for="NumberOfCarryOnDays">{{'erp.app.pages.hrm.paid-time-off-policy.number-of-carry-on-days' | translate}}
-                                        <span *ngIf="!formGroup.controls.NumberOfCarryOnDays.valid && !formGroup.controls.NumberOfCarryOnDays.pending && (formGroup.controls.NumberOfCarryOnDays.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <input class="c-input" id="NumberOfCarryOnDays" (change)="saveChange();" formControlName="NumberOfCarryOnDays" type="text">
-                                </div>
-
-                                <div class="c-control">
-                                    <input [readonly]="!(pageConfig.canEdit || pageConfig.canAdd)" (change)="saveChange()" class="c-checkbox" id="IsGrantsByLengthOfServices" formControlName="IsGrantsByLengthOfServices" type="checkbox">
-                                    <label class="c-label checkbox" for="IsGrantsByLengthOfServices">{{'erp.app.pages.hrm.paid-time-off-policy.is-grants-by-length-of-services' | translate}}
-                                        <span *ngIf="!formGroup.controls.IsGrantsByLengthOfServices.valid && !formGroup.controls.IsGrantsByLengthOfServices.pending && (formGroup.controls.IsGrantsByLengthOfServices.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                </div>
-                            </form>
-
-                        </ion-col>
-                        <ion-col size="12" size-md="12" size-lg="12" size-xl="4" *ngIf="formGroup.controls.IsGrantsByLengthOfServices.value">
-                            <ion-list-header class="ion-no-padding">
-                                <ion-label color="primary">{{'erp.app.pages.hrm.paid-time-off-policy.is-grants-by-length-of-services' | translate}}</ion-label>
-                            </ion-list-header>
-                        </ion-col>
-                        <ion-col size="12" size-md="12" size-lg="12" size-xl="6" *ngIf="formGroup.controls.IsGrantsByLengthOfServices.value">
-                            <div class="row-full shadow">
-                                <form [formGroup]="formGroup">
-                                    <ng-container formArrayName="Lines">
-                                        <div class="table-contain">
-                                            <section class="table" style="min-width: 300px;">
-                                                <header class="bold" style="padding-right: 0;">
-                                                    <div class="col-id cell" style="min-width: 95px !important; padding-left: 41px;">#</div>
-                                                    <div class="col-qty cell">{{'erp.app.pages.hrm.paid-time-off-policy.months' | translate}}</div>
-                                                    <div class="col-name cell">{{'erp.app.pages.hrm.paid-time-off-policy.days' | translate}}</div>
-                                                    <div class="col-del cell" *ngIf="pageConfig.canEdit"></div>
-                                                </header>
-                                                <ion-reorder-group (ionItemReorder)="doReorder($event, formGroup.get('Lines')['controls'])" [disabled]="!pageConfig.canEdit">
-                                                    <ng-container *ngFor="let g of formGroup.get('Lines')['controls']; let idx = index;">
-                                                        <ng-container [formGroup]="g">
-
-                                                            <div class="row">
-                                                                <ion-reorder slot="start"></ion-reorder>
-                                                                <div class="col-id cell">
-                                                                    {{idx+1}}
-                                                                </div>
-
-
-                                                                <div class="col-qty cell">
-                                                                    <input formControlName="MonthsOfServices" [readonly]="!pageConfig.canEdit || submitAttempt" (focus)="$event.target.select()" (change)="saveChange()" class="c-input" type="number" [min]="1" [max]="99999" onkeydown="return event.keyCode !== 190">
-                                                                </div>
-                                                                <div class="col-name cell">
-                                                                    <input formControlName="DaysGranted" [readonly]="!pageConfig.canEdit || submitAttempt" (focus)="$event.target.select()" (change)="saveChange()" class="c-input" type="number" [min]="0" [max]="99999" onkeydown="return event.keyCode !== 190">
-                                                                </div>
-
-
-                                                                <div class="col-del cell" *ngIf="pageConfig.canEdit" (click)="removeLine(idx, true)">
-                                                                    <ion-icon color="danger" class="min-btn" name="trash-outline"></ion-icon>
-                                                                </div>
-                                                            </div>
-
-                                                        </ng-container>
-                                                    </ng-container>
-                                                </ion-reorder-group>
-                                                <div class="row" *ngIf="pageConfig.canEdit && item?.Lines?.length > 1">
-                                                    <div class="col-id cell" *ngIf="pageConfig.canEdit" (click)="addLine({ IDPTO: item.Id, Id: 0})">
-                                                        <ion-icon class="min-btn" title="{{'erp.app.pages.hrm.paid-time-off-policy.add-dates' | translate}}" name="add-circle-outline"></ion-icon>
-                                                    </div>
-                                                    <div class="col-id cell" *ngIf="!pageConfig.canEdit"></div>
-                                                    <div class="col-remark cell">
-                                                        <div class="col-remark cell">
-                                                            <b *ngIf="pageConfig.canEdit && this.id" (click)="addLine({ IDPTO: item.Id, Id: 0})">{{'erp.app.pages.hrm.paid-time-off-policy.add-dates' | translate}}</b>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-del cell disable" *ngIf="pageConfig.canEdit"></div>
-                                                </div>
-                                            </section>
-                                        </div>
-                                    </ng-container>
-                                </form>
+                              </div>
+                            </ng-container>
+                          </ng-container>
+                        </ion-reorder-group>
+                        <div class="row" *ngIf="pageConfig.canEdit && item?.Lines?.length > 1">
+                          <div
+                            class="col-id cell"
+                            *ngIf="pageConfig.canEdit"
+                            (click)="addLine({ IDPTO: item.Id, Id: 0})"
+                          >
+                            <ion-icon
+                              class="min-btn"
+                              title="{{'Add rewarded leaves' | translate}}"
+                              name="add-circle-outline"
+                            ></ion-icon>
+                          </div>
+                          <div class="col-id cell" *ngIf="!pageConfig.canEdit"></div>
+                          <div class="col-remark cell">
+                            <div class="col-remark cell">
+                              <b *ngIf="pageConfig.canEdit && this.id" (click)="addLine({ IDPTO: item.Id, Id: 0})"
+                                >{{'Add rewarded leaves' | translate}}</b
+                              >
                             </div>
-                            <div class="table-contain">
-                                <div class="row" *ngIf="pageConfig.canEdit && this.id && item?.Lines?.length < 2">
-                                    <div class="cell">
-                                        <ion-button fill="clear" size="small" (click)="addLine({ IDPTO: item.Id, Id: 0})">
-                                            <ion-icon slot="start" name="add-circle"></ion-icon>
-                                            {{'erp.app.pages.hrm.paid-time-off-policy.add-dates' | translate}}
-                                        </ion-button>
-                                    </div>
-                                </div>
-                            </div>
+                          </div>
 
-                        </ion-col>
-                    </ion-row>
-                </ion-grid>
-            </div>
-        </div>
+                          <div class="col-del cell disable" *ngIf="pageConfig.canEdit"></div>
+                        </div>
+                      </section>
+                    </div>
+                  </ng-container>
+                </form>
+              </div>
+              <div class="table-contain">
+                <div class="row" *ngIf="pageConfig.canEdit && this.id && item?.Lines?.length < 2">
+                  <div class="cell">
+                    <ion-button fill="clear" size="small" (click)="addLine({ IDPTO: item.Id, Id: 0})">
+                      <ion-icon slot="start" name="add-circle"></ion-icon>
+                      {{'Add rewarded leaves' | translate}}
+                    </ion-button>
+                  </div>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
     </div>
-    <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+  </div>
+  <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>

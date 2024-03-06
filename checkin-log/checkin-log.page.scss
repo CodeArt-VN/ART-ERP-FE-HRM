@@ -1,13 +1,11 @@
-
-app-page-message{
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    z-index: 100;
-    background: var(--feature-background-top);
+app-page-message {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 100;
+  background: var(--feature-background-top);
 }
 
-ion-content{
-    --background: var(--feature-background-top) !important;
+ion-content {
+  --background: var(--feature-background-top) !important;
 }
-

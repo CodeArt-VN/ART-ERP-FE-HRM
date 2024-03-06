@@ -13,8 +13,8 @@ import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-vou
     CommonModule,
     FormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: CheckinPage }])
+    RouterModule.forChild([{ path: '', component: CheckinPage }]),
   ],
-  declarations: [CheckinPage, CateringVoucherModalPage]
+  declarations: [CheckinPage, CateringVoucherModalPage],
 })
 export class CheckinPageModule {}

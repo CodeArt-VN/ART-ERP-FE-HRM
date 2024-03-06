@@ -6,22 +6,21 @@ import { SYS_UserDeviceProvider } from 'src/app/services/static/services.service
 import { Location } from '@angular/common';
 
 @Component({
-    selector: 'app-user-device',
-    templateUrl: 'user-device.page.html',
-    styleUrls: ['user-device.page.scss']
+  selector: 'app-user-device',
+  templateUrl: 'user-device.page.html',
+  styleUrls: ['user-device.page.scss'],
 })
 export class UserDevicePage extends PageBase {
-    constructor(
-        public pageProvider: SYS_UserDeviceProvider,
-        public modalController: ModalController,
-		public popoverCtrl: PopoverController,
-        public alertCtrl: AlertController,
-        public loadingController: LoadingController,
-        public env: EnvService,
-        public navCtrl: NavController,
-        public location: Location,
-    ) {
-        super();
-    }
-
+  constructor(
+    public pageProvider: SYS_UserDeviceProvider,
+    public modalController: ModalController,
+    public popoverCtrl: PopoverController,
+    public alertCtrl: AlertController,
+    public loadingController: LoadingController,
+    public env: EnvService,
+    public navCtrl: NavController,
+    public location: Location,
+  ) {
+    super();
+  }
 }

@@ -12,8 +12,8 @@ import { ShareModule } from 'src/app/share.module';
     CommonModule,
     FormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: PTOsEnrollmentPage }])
+    RouterModule.forChild([{ path: '', component: PTOsEnrollmentPage }]),
   ],
-  declarations: [PTOsEnrollmentPage]
+  declarations: [PTOsEnrollmentPage],
 })
 export class PTOsEnrollmentPageModule {}

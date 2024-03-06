@@ -6,8 +6,8 @@ import { TimesheetPage } from './timesheet.page';
 const routes: Routes = [
   {
     path: '',
-    component: TimesheetPage
-  }
+    component: TimesheetPage,
+  },
 ];
 
 @NgModule({

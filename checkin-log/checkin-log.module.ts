@@ -7,12 +7,8 @@ import { ShareModule } from 'src/app/share.module';
 import { PriceReportComponentsModule } from '../../BI/price-report/components/price-report-components.module';
 import { CheckinLogPage } from './checkin-log.page';
 
-
 import { LogGeneratorPage } from '../log-generator/log-generator.page';
 import { FullCalendarModule } from '@fullcalendar/angular';
-
-
-
 
 @NgModule({
   imports: [
@@ -23,9 +19,9 @@ import { FullCalendarModule } from '@fullcalendar/angular';
     FullCalendarModule,
     PriceReportComponentsModule,
     ShareModule,
-    
-    RouterModule.forChild([{ path: '', component: CheckinLogPage }])
+
+    RouterModule.forChild([{ path: '', component: CheckinLogPage }]),
   ],
-  declarations: [CheckinLogPage, LogGeneratorPage ]
+  declarations: [CheckinLogPage, LogGeneratorPage],
 })
 export class CheckinLogPageModule {}

@@ -12,8 +12,8 @@ import { ShareModule } from 'src/app/share.module';
     CommonModule,
     FormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: HolidayPolicyPage }])
+    RouterModule.forChild([{ path: '', component: HolidayPolicyPage }]),
   ],
-  declarations: [HolidayPolicyPage]
+  declarations: [HolidayPolicyPage],
 })
 export class HolidayPolicyPageModule {}

@@ -1,104 +1,181 @@
 <ion-header>
-    <app-detail-toolbar [page]="this"></app-detail-toolbar>
+  <app-detail-toolbar [page]="this"></app-detail-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="ion-padding">
-    <div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
-        <div class="row-full shadow full-screen">
-            <div class="ion-padding">
-                <ion-grid fixed>
-                    <form [formGroup]="formGroup">
-                        <!-- Thông tin thiết bị -->
-                        <ion-row class="hr-group">
-                            <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
-                                <ion-list-header class="ion-no-padding">
-                                    <ion-label color="primary">{{'erp.app.pages.hrm.user-device.device-information' | translate}}</ion-label>
-                                </ion-list-header>
-                            </ion-col>
+  <div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+    <div class="row-full shadow full-screen">
+      <div class="ion-padding">
+        <ion-grid fixed>
+          <form [formGroup]="formGroup">
+            <!-- Thông tin thiết bị -->
+            <ion-row class="hr-group">
+              <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+                <ion-list-header class="ion-no-padding">
+                  <ion-label color="primary">{{'Equipment information' | translate}}</ion-label>
+                </ion-list-header>
+              </ion-col>
 
-                            <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                                <!-- <div class="c-control">
+              <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+                <!-- <div class="c-control">
                                     <label class="c-label" for="Id">Id</label>
                                     <input class="c-input" id="Id" formControlName="Id" type="number">
                                 </div> -->
 
-                                <div class="c-control">
-                                    <label class="c-label" for="IDStaff">{{'erp.app.pages.hrm.user-device.staff' | translate}} 
-                                        <span *ngIf="!formGroup.controls.IDStaff.valid && !formGroup.controls.IDStaff.pending && (formGroup.controls.IDStaff.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <ng-select (change)="saveChange()" class="c-input" #IDStaff labelForId="IDStaff" formControlName="IDStaff" [items]="staffList$ | async" [typeahead]="staffListInput$" [loading]='staffListLoading' [virtualScroll]="true" bindLabel="FullName" bindValue="Id" placeholder="{{'erp.app.pages.hrm.user-device.staff-placeholder' | translate}}">
-                                        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-                                            <div *ngIf="i">
-                                                <div><span [ngOptionHighlight]="search">{{i.FullName}}</span></div>
-                                                <small>#<b><span class="important" [ngOptionHighlight]="search">{{i.Id}}</span> <span *ngIf="i.Code"> - {{i.Code}}</span></b> <span *ngIf="i.Phone"> | {{'erp.app.pages.hrm.user-device.phone' | translate}}: <b [ngOptionHighlight]="search">{{i.Phone}}</b></span></small>
-                                            </div>
-                                        </ng-template>
-                                    </ng-select>
-                                </div>
+                <div class="c-control">
+                  <label class="c-label" for="IDStaff"
+                    >{{'Staff' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.IDStaff.valid && !formGroup.controls.IDStaff.pending && (formGroup.controls.IDStaff.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                  <ng-select
+                    (change)="saveChange()"
+                    class="c-input"
+                    #IDStaff
+                    labelForId="IDStaff"
+                    formControlName="IDStaff"
+                    [items]="staffList$ | async"
+                    [typeahead]="staffListInput$"
+                    [loading]="staffListLoading"
+                    [virtualScroll]="true"
+                    bindLabel="FullName"
+                    bindValue="Id"
+                    placeholder="{{'Search for name, code or phone number' | translate}}"
+                  >
+                    <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                      <div *ngIf="i">
+                        <div>
+                          <span [ngOptionHighlight]="search">{{i.FullName}}</span>
+                        </div>
+                        <small
+                          >#<b
+                            ><span class="important" [ngOptionHighlight]="search">{{i.Id}}</span>
+                            <span *ngIf="i.Code"> - {{i.Code}}</span></b
+                          >
+                          <span *ngIf="i.Phone">
+                            | {{'Telephone' | translate}}:
+                            <b [ngOptionHighlight]="search">{{i.Phone}}</b></span
+                          ></small
+                        >
+                      </div>
+                    </ng-template>
+                  </ng-select>
+                </div>
 
-                                <div class="c-control">
-                                    <label class="c-label" for="Name">{{'erp.app.pages.hrm.user-device.name' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="Name" formControlName="Name" type="text">
-                                </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="Code">{{'erp.app.pages.hrm.user-device.code' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text">
-                                </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="Model">{{'erp.app.pages.hrm.user-device.model' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="Model" formControlName="Model" type="text">
-                                </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="Platform">{{'erp.app.pages.hrm.user-device.platform' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="Platform" formControlName="Platform" type="text">
-                                </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="OperatingSystem">{{'erp.app.pages.hrm.user-device.operating-system' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="OperatingSystem" formControlName="OperatingSystem" type="text">
-                                </div>
-                                
-                            
-                                <div class="c-control">
-                                    <label class="c-label" for="OsVersion">{{'erp.app.pages.hrm.user-device.os-version' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="OsVersion" formControlName="OsVersion" type="text">
-                                </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="Manufacturer">{{'erp.app.pages.hrm.user-device.manufacturer' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="Manufacturer" formControlName="Manufacturer" type="text">
-                                </div>
-                                <div class="c-control">
-                                    <label class="c-label" for="WebViewVersion">{{'erp.app.pages.hrm.user-device.web-view-version' | translate}}</label>
-                                    <input (change)="saveChange()" class="c-input" id="WebViewVersion" formControlName="WebViewVersion" type="text">
-                                </div>
-                                
-                                <div class="c-control">
-                                    <label class="c-label" for="Remark">{{'erp.app.pages.hrm.user-device.remark' | translate}}
-                                        <span *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <textarea rows="3" class="c-input remark" id="Remark" formControlName="Remark" type="textarea"></textarea>
-                                </div>
-                                <div class="c-control">
-                                    <span class="no-warp">
-                                        <input (change)="saveChange()" class="c-checkbox" id="IsVirtual" formControlName="IsVirtual" type="checkbox">
-                                        <label class="c-label checkbox" for="IsVirtual"> {{'erp.app.pages.hrm.user-device.is-virtual' | translate}}
-                                            <!-- <span *ngIf="!formGroup.controls.IsVirtual.valid && !formGroup.controls.IsVirtual.pending && (formGroup.controls.IsVirtual.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
-                                        </label>
-                                    </span><br>
-                                    <span class="no-warp">
-                                        <input (change)="saveChange()" class="c-checkbox" id="IsAllowCheckIn" formControlName="IsAllowCheckIn" type="checkbox">
-                                        <label class="c-label checkbox" for="IsAllowCheckIn"> {{'erp.app.pages.hrm.user-device.is-allow-checkin' | translate}}
-                                            <!-- <span *ngIf="!formGroup.controls.IsAllowCheckIn.valid && !formGroup.controls.IsAllowCheckIn.pending && (formGroup.controls.IsAllowCheckIn.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
-                                        </label>
-                                    </span><br>
-                                </div>
-                            </ion-col>
-                        </ion-row>
+                <div class="c-control">
+                  <label class="c-label" for="Name">{{'Name' | translate}}</label>
+                  <input (change)="saveChange()" class="c-input" id="Name" formControlName="Name" type="text" />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="Code">{{'Code' | translate}}</label>
+                  <input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text" />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="Model">{{'Model' | translate}}</label>
+                  <input (change)="saveChange()" class="c-input" id="Model" formControlName="Model" type="text" />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="Platform">{{'Platform' | translate}}</label>
+                  <input (change)="saveChange()" class="c-input" id="Platform" formControlName="Platform" type="text" />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="OperatingSystem">{{'OperatingSystem' | translate}}</label>
+                  <input
+                    (change)="saveChange()"
+                    class="c-input"
+                    id="OperatingSystem"
+                    formControlName="OperatingSystem"
+                    type="text"
+                  />
+                </div>
 
+                <div class="c-control">
+                  <label class="c-label" for="OsVersion">{{'OsVersion' | translate}}</label>
+                  <input
+                    (change)="saveChange()"
+                    class="c-input"
+                    id="OsVersion"
+                    formControlName="OsVersion"
+                    type="text"
+                  />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="Manufacturer">{{'Manufacturer' | translate}}</label>
+                  <input
+                    (change)="saveChange()"
+                    class="c-input"
+                    id="Manufacturer"
+                    formControlName="Manufacturer"
+                    type="text"
+                  />
+                </div>
+                <div class="c-control">
+                  <label class="c-label" for="WebViewVersion">{{'WebViewVersion' | translate}}</label>
+                  <input
+                    (change)="saveChange()"
+                    class="c-input"
+                    id="WebViewVersion"
+                    formControlName="WebViewVersion"
+                    type="text"
+                  />
+                </div>
 
-                    </form>
-                </ion-grid>
-            </div>
-        </div>
+                <div class="c-control">
+                  <label class="c-label" for="Remark"
+                    >{{'Description' | translate}}
+                    <span
+                      *ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)"
+                      ion-text
+                      color="danger"
+                      >(*)</span
+                    >
+                  </label>
+                  <textarea
+                    rows="3"
+                    class="c-input remark"
+                    id="Remark"
+                    formControlName="Remark"
+                    type="textarea"
+                  ></textarea>
+                </div>
+                <div class="c-control">
+                  <span class="no-warp">
+                    <input
+                      (change)="saveChange()"
+                      class="c-checkbox"
+                      id="IsVirtual"
+                      formControlName="IsVirtual"
+                      type="checkbox"
+                    />
+                    <label class="c-label checkbox" for="IsVirtual">
+                      {{'Virtual device' | translate}}
+                      <!-- <span *ngIf="!formGroup.controls.IsVirtual.valid && !formGroup.controls.IsVirtual.pending && (formGroup.controls.IsVirtual.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
+                    </label> </span
+                  ><br />
+                  <span class="no-warp">
+                    <input
+                      (change)="saveChange()"
+                      class="c-checkbox"
+                      id="IsAllowCheckIn"
+                      formControlName="IsAllowCheckIn"
+                      type="checkbox"
+                    />
+                    <label class="c-label checkbox" for="IsAllowCheckIn">
+                      {{'Allow checkin' | translate}}
+                      <!-- <span *ngIf="!formGroup.controls.IsAllowCheckIn.valid && !formGroup.controls.IsAllowCheckIn.pending && (formGroup.controls.IsAllowCheckIn.dirty || submitAttempt)" ion-text color="danger">(*)</span> -->
+                    </label> </span
+                  ><br />
+                </div>
+              </ion-col>
+            </ion-row>
+          </form>
+        </ion-grid>
+      </div>
     </div>
-    <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+  </div>
+  <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>

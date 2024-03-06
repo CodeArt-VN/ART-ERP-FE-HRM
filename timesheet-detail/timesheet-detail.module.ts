@@ -10,14 +10,7 @@ import { TimesheetDetailPage } from './timesheet-detail.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    ShareModule,
-    TimesheetDetailPageRoutingModule
-  ],
-  declarations: [TimesheetDetailPage]
+  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, TimesheetDetailPageRoutingModule],
+  declarations: [TimesheetDetailPage],
 })
 export class TimesheetDetailPageModule {}

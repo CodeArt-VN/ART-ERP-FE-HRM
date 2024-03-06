@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
-import { FileUploadModule } from 'ng2-file-upload';
 import { TimesheetCyclePage } from './timesheet-cycle.page';
 import { TimesheetCycleModalPage } from '../timesheet-cycle-modal/timesheet-cycle-modal.page';
 
@@ -14,10 +13,9 @@ import { TimesheetCycleModalPage } from '../timesheet-cycle-modal/timesheet-cycl
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
-    FileUploadModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: TimesheetCyclePage }])
+    RouterModule.forChild([{ path: '', component: TimesheetCyclePage }]),
   ],
-  declarations: [TimesheetCyclePage, TimesheetCycleModalPage]
+  declarations: [TimesheetCyclePage, TimesheetCycleModalPage],
 })
 export class TimesheetCyclePageModule {}

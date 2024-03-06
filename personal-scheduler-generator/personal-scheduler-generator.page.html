@@ -1,72 +1,95 @@
 <ion-header>
-    <ion-toolbar class="no-padding">
-        <ion-buttons slot="start">
-            <ion-button color="dark" class="ion-hide-sm-down">
-                {{'erp.app.pages.hrm.personal-scheduler.page-title-detail' | translate}}
-            </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-            <ion-button (click)="refresh()" title="{{'erp.app.pages.hrm.personal-scheduler.refresh' | translate}}">
-                <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
-            </ion-button>
+  <ion-toolbar class="no-padding">
+    <ion-buttons slot="start">
+      <ion-button color="dark" class="ion-hide-sm-down"> {{'Daily working schedule' | translate}} </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
+        <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+      </ion-button>
 
-            <ion-button title="{{'erp.app.pages.hrm.personal-scheduler.help' | translate}}" (click)="help()">
-                <ion-icon slot="icon-only" name="help-circle-outline"></ion-icon>
-            </ion-button>
+      <ion-button title="{{'Help' | translate}}" (click)="help()">
+        <ion-icon slot="icon-only" name="help-circle-outline"></ion-icon>
+      </ion-button>
 
-            <ion-button title="{{'erp.app.pages.hrm.personal-scheduler.close-modal' | translate}}" color="secondary" (click)="closeModal()">
-                <ion-icon slot="icon-only" name="close"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+      <ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="ion-padding" fullscreen>
-    <form [formGroup]="formGroup">
-        <ion-grid fixed>
-            <ion-row>
-                
-                <ion-col size="12" size-sm="12" size-md="6">
-                    <div class="c-control">
-                        <label class="c-label" for="FromDate">{{'erp.app.pages.hrm.personal-scheduler.from-date' | translate}}
-                            <span *ngIf="!formGroup.controls.FromDate.valid && !formGroup.controls.FromDate.pending && (formGroup.controls.FromDate.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                        </label>
-                        <input class="c-input" [disabled]="true" id="FromDate" formControlName="FromDate" type="date">
-                    </div>
-                </ion-col>
-                <ion-col size="12" size-sm="12" size-md="6">
-                    <div class="c-control">
-                        <label class="c-label">{{'erp.app.pages.hrm.personal-scheduler.from-hour' | translate}}</label>
-                        <span class="c-input" disabled>
-                            {{ShiftStart}} - {{ShiftEnd}}
-                        </span>
-                    </div>
-                </ion-col>
+  <form [formGroup]="formGroup">
+    <ion-grid fixed>
+      <ion-row>
+        <ion-col size="12" size-sm="12" size-md="6">
+          <div class="c-control">
+            <label class="c-label" for="FromDate"
+              >{{'Working day' | translate}}
+              <span
+                *ngIf="!formGroup.controls.FromDate.valid && !formGroup.controls.FromDate.pending && (formGroup.controls.FromDate.dirty || submitAttempt)"
+                ion-text
+                color="danger"
+                >(*)</span
+              >
+            </label>
+            <input class="c-input" [disabled]="true" id="FromDate" formControlName="FromDate" type="date" />
+          </div>
+        </ion-col>
+        <ion-col size="12" size-sm="12" size-md="6">
+          <div class="c-control">
+            <label class="c-label">{{'Working time' | translate}}</label>
+            <span class="c-input" disabled> {{ShiftStart}} - {{ShiftEnd}} </span>
+          </div>
+        </ion-col>
 
-                <ion-col size="12" size-sm="12" size-md="12">
-                    <div class="c-control">
-                        <label class="c-label" for="IDShift">{{'erp.app.pages.hrm.personal-scheduler.id-shift' | translate}}
-                            <span *ngIf="!formGroup.controls.IDShift.valid && !formGroup.controls.IDShift.pending && (formGroup.controls.IDShift.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                        </label>
-                        
-                        <ng-select [clearable]="false" [disabled]="true" class="c-input disabled" labelForId="IDShift" formControlName="IDShift" [items]="shiftList" bindLabel="Name" bindValue="Id" placeholder="{{'erp.app.pages.hrm.personal-scheduler.search-placeholder' | translate}}">
-                            <ng-template ng-option-tmp let-i="item" let-search="searchTerm" >
-                                <div *ngIf="i">
-                                    <div >  <b [ngOptionHighlight]="search">{{i.Name}}</b>&nbsp;<span>({{i.Start}} - {{i.End}})</span></div>
-                                </div>
-                            </ng-template>
-                        </ng-select>
-                    </div>
+        <ion-col size="12" size-sm="12" size-md="12">
+          <div class="c-control">
+            <label class="c-label" for="IDShift"
+              >{{'Shift' | translate}}
+              <span
+                *ngIf="!formGroup.controls.IDShift.valid && !formGroup.controls.IDShift.pending && (formGroup.controls.IDShift.dirty || submitAttempt)"
+                ion-text
+                color="danger"
+                >(*)</span
+              >
+            </label>
 
-                    <div class="c-control">
-                        <label class="c-label">{{'erp.app.pages.hrm.personal-scheduler.time-off-type' | translate}}</label>
+            <ng-select
+              [clearable]="false"
+              [disabled]="true"
+              class="c-input disabled"
+              labelForId="IDShift"
+              formControlName="IDShift"
+              [items]="shiftList"
+              bindLabel="Name"
+              bindValue="Id"
+              placeholder="{{'Search' | translate}}"
+            >
+              <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+                <div *ngIf="i">
+                  <div><b [ngOptionHighlight]="search">{{i.Name}}</b>&nbsp;<span>({{i.Start}} - {{i.End}})</span></div>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
 
-                        <ion-button size="small" [disabled]="true" [title]="t.Name" [color]="t.Color" [fill]=" formGroup.controls.TimeOffType.value == t.Code? 'solid' : 'outline' " *ngFor="let t of timeoffTypeList">
-                            {{t.Code}}
-                        </ion-button>
-                        
-                    </div>
-                    <!-- <div class="c-control">
+          <div class="c-control">
+            <label class="c-label">{{'Leave type' | translate}}</label>
+
+            <ion-button
+              size="small"
+              [disabled]="true"
+              [title]="t.Name"
+              [color]="t.Color"
+              [fill]=" formGroup.controls.TimeOffType.value == t.Code? 'solid' : 'outline' "
+              *ngFor="let t of timeoffTypeList"
+            >
+              {{t.Code}}
+            </ion-button>
+          </div>
+          <!-- <div class="c-control">
                         <label class="c-label" for="IDOffice">Địa điểm
                             <span *ngIf="!formGroup.controls.IDOffice.valid && !formGroup.controls.IDOffice.pending && (formGroup.controls.IDOffice.dirty || submitAttempt)" ion-text color="danger">(*)</span>
                         </label>
@@ -78,37 +101,68 @@
                             </ng-template>
                         </ng-select>
                     </div> -->
-                    <div class="c-control" *ngIf="!formGroup.controls.TimeOffType.value" >
-                        <input class="c-checkbox" id="IsBookBreakfastCatering" formControlName="IsBookBreakfastCatering" type="checkbox">
-                        <label class="c-label checkbox" for="IsBookBreakfastCatering">{{'erp.app.pages.hrm.personal-scheduler.is-book-breakfast-catering' | translate}}
-                            <span *ngIf="!formGroup.controls.IsBookBreakfastCatering.valid && !formGroup.controls.IsBookBreakfastCatering.pending && (formGroup.controls.IsBookBreakfastCatering.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                        </label>
-                        <br>
-                        <input class="c-checkbox" id="IsBookLunchCatering" formControlName="IsBookLunchCatering" type="checkbox">
-                        <label class="c-label checkbox" for="IsBookLunchCatering">{{'erp.app.pages.hrm.personal-scheduler.is-book-lunch-catering' | translate}}
-                            <span *ngIf="!formGroup.controls.IsBookLunchCatering.valid && !formGroup.controls.IsBookLunchCatering.pending && (formGroup.controls.IsBookLunchCatering.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                        </label>
-                        <br>
-                        <input class="c-checkbox" id="IsBookDinnerCatering" formControlName="IsBookDinnerCatering" type="checkbox">
-                        <label class="c-label checkbox" for="IsBookDinnerCatering">{{'erp.app.pages.hrm.personal-scheduler.is-book-dinner-catering' | translate}}
-                            <span *ngIf="!formGroup.controls.IsBookDinnerCatering.valid && !formGroup.controls.IsBookDinnerCatering.pending && (formGroup.controls.IsBookDinnerCatering.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                        </label>
-                    </div>
+          <div class="c-control" *ngIf="!formGroup.controls.TimeOffType.value">
+            <input
+              class="c-checkbox"
+              id="IsBookBreakfastCatering"
+              formControlName="IsBookBreakfastCatering"
+              type="checkbox"
+            />
+            <label class="c-label checkbox" for="IsBookBreakfastCatering"
+              >{{'Register for breakfast (B-Breakfast)' | translate}}
+              <span
+                *ngIf="!formGroup.controls.IsBookBreakfastCatering.valid && !formGroup.controls.IsBookBreakfastCatering.pending && (formGroup.controls.IsBookBreakfastCatering.dirty || submitAttempt)"
+                ion-text
+                color="danger"
+                >(*)</span
+              >
+            </label>
+            <br />
+            <input class="c-checkbox" id="IsBookLunchCatering" formControlName="IsBookLunchCatering" type="checkbox" />
+            <label class="c-label checkbox" for="IsBookLunchCatering"
+              >{{'Register for lunch (L-Lunch)' | translate}}
+              <span
+                *ngIf="!formGroup.controls.IsBookLunchCatering.valid && !formGroup.controls.IsBookLunchCatering.pending && (formGroup.controls.IsBookLunchCatering.dirty || submitAttempt)"
+                ion-text
+                color="danger"
+                >(*)</span
+              >
+            </label>
+            <br />
+            <input
+              class="c-checkbox"
+              id="IsBookDinnerCatering"
+              formControlName="IsBookDinnerCatering"
+              type="checkbox"
+            />
+            <label class="c-label checkbox" for="IsBookDinnerCatering"
+              >{{'Register for dinner (D-Dinner)' | translate}}
+              <span
+                *ngIf="!formGroup.controls.IsBookDinnerCatering.valid && !formGroup.controls.IsBookDinnerCatering.pending && (formGroup.controls.IsBookDinnerCatering.dirty || submitAttempt)"
+                ion-text
+                color="danger"
+                >(*)</span
+              >
+            </label>
+          </div>
 
-                    <div class="c-control" *ngIf="!canBook">
-                        <label class="c-label checkbox">{{'erp.app.pages.hrm.personal-scheduler.checkbox-remark' | translate}}</label>
-                    </div>
-
-                </ion-col>
-            </ion-row>
-            <ion-row *ngIf="!formGroup.controls.TimeOffType.value && canBook">
-                <ion-col>
-                    <div class="c-control ion-text-right">
-                        <label class="c-label" for=""></label>
-                        <ion-button [disabled]="!formGroup.dirty" (click)="massShiftAssignment()">{{'erp.app.pages.hrm.personal-scheduler.mass-shift-assignment' | translate}}</ion-button>
-                    </div>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
-    </form>
+          <div class="c-control" *ngIf="!canBook">
+            <label class="c-label checkbox"
+              >{{'Note: only able to register at least 01 day in advance' | translate}}</label
+            >
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="!formGroup.controls.TimeOffType.value && canBook">
+        <ion-col>
+          <div class="c-control ion-text-right">
+            <label class="c-label" for=""></label>
+            <ion-button [disabled]="!formGroup.dirty" (click)="massShiftAssignment()"
+              >{{'Save options' | translate}}</ion-button
+            >
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
 </ion-content>

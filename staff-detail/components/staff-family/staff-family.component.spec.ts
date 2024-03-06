@@ -9,8 +9,8 @@ describe('StaffFamilyComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ StaffFamilyComponent ],
-      imports: [IonicModule.forRoot()]
+      declarations: [StaffFamilyComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StaffFamilyComponent);

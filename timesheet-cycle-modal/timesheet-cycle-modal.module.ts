@@ -5,8 +5,7 @@
 // import { IonicModule } from '@ionic/angular';
 // import { ShareModule } from 'src/app/share.module';
 // import { TimesheetCycleModalPage } from './timesheet-cycle-modal.page';
-// import { FileUploadModule } from 'ng2-file-upload';
-
+//
 // const routes: Routes = [
 //   {
 //     path: '',
@@ -20,8 +19,7 @@
 //     FormsModule,
 //     IonicModule,
 //     ReactiveFormsModule,
-//     FileUploadModule,
-//     ShareModule,
+//     //     ShareModule,
 //     RouterModule.forChild(routes)
 //   ],
 //   declarations: [TimesheetCycleModalPage]

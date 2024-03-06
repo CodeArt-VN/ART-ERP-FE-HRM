@@ -12,8 +12,8 @@ import { ShareModule } from 'src/app/share.module';
     CommonModule,
     FormsModule,
     ShareModule,
-    RouterModule.forChild([{ path: '', component: PaidTimeOffPolicyPage }])
+    RouterModule.forChild([{ path: '', component: PaidTimeOffPolicyPage }]),
   ],
-  declarations: [PaidTimeOffPolicyPage]
+  declarations: [PaidTimeOffPolicyPage],
 })
 export class PaidTimeOffPolicyPageModule {}

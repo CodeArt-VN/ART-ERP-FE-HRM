@@ -18,7 +18,7 @@ export class TimesheetDetailPage extends PageBase {
     public pageProvider: HRM_TimesheetProvider,
     public branchProvicer: BRA_BranchProvider,
     public modalController: ModalController,
-		public popoverCtrl: PopoverController,
+    public popoverCtrl: PopoverController,
     public alertCtrl: AlertController,
     public loadingController: LoadingController,
     public formBuilder: FormBuilder,
@@ -50,10 +50,7 @@ export class TimesheetDetailPage extends PageBase {
       IsRequiredApproveToTransfer: [''],
       IsRequiredApproveToSwitch: [''],
     });
-
-    
   }
-
 
   segmentView = 's1';
   segmentChanged(ev: any) {
@@ -65,15 +62,14 @@ export class TimesheetDetailPage extends PageBase {
 
   loadedData(event) {
     // this.dataIDBranchList = this.env.branchList;
-    this.env.getType('TimesheetType').then(data => {
+    this.env.getType('TimesheetType').then((data) => {
       this.timesheetTypeList = data;
 
-      this.env.getType('CheckInOutPolicy').then(data => {
+      this.env.getType('CheckInOutPolicy').then((data) => {
         this.CheckInOutPolicyList = data;
 
         super.loadedData();
       });
     });
   }
-
 }

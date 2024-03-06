@@ -1,78 +1,166 @@
 <ion-header>
-	<app-list-toolbar pageTitle="{{'erp.app.pages.hrm.user-device.page-title' | translate}}" [pageConfig]="pageConfig" [selectedItems]="selectedItems" [query]="query" (add)="add()" (refresh)="refresh()" (export)="export()" (import)="import($event)" (help)="help()" (unselect)="unselect()" (archiveItems)="archiveItems()" (deleteItems)="deleteItems()" (changeBranch)="changeBranch($event)"></app-list-toolbar>
-	<section class="table">
-		<header class="bold">
-			<div class="col-checkbox cell"></div>
-			<div class="col-id cell" (click)="sortToggle('Id')">
-				{{'erp.app.pages.hrm.user-device.id-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-code cell" (click)="sortToggle('IDStaff')">
-				{{'erp.app.pages.hrm.user-device.id-staff-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.IDStaff" [name]="sort.IDStaff == 'IDStaff'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.IDStaff" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-name cell" (click)="sortToggle('Name')">
-				{{'erp.app.pages.hrm.user-device.name-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-id cell ion-hide-sm-down" (click)="sortToggle('IsAllowCheckIn')">
-				{{'erp.app.pages.hrm.user-device.is-allow-checkin-sort' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.IsAllowCheckIn" [name]="sort.IsAllowCheckIn == 'IsAllowCheckIn'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.IsAllowCheckIn" name="search" color="primary"></ion-icon>
-			</div>
-		</header>
-		<form (submit)="refresh()" action="#">
-			<header class="filter" *ngIf="pageConfig.isShowSearch">
-				<div class="col-checkbox cell"></div>
-				<div class="col-id cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Id" class="c-input" [ngClass]="{active: query.Id}" type="text">
-					<ion-icon class="min-btn" (click)="query.Id=''; refresh()" *ngIf="query.Id" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-code cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.IDStaff" class="c-input" [ngClass]="{active: query.IDStaff}" type="text">
-					<ion-icon class="min-btn" (click)="query.IDStaff=''; refresh()" *ngIf="query.IDStaff" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-name cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Name" class="c-input" [ngClass]="{active: query.Name}" type="text">
-					<ion-icon class="min-btn" (click)="query.Name=''; refresh()" *ngIf="query.Name" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-id cell cell-btn ion-hide-sm-down" (click)="query.IsAllowCheckIn=query.IsAllowCheckIn===true?false:(query.IsAllowCheckIn===false? '': true); refresh()">
-					<ion-icon class="min-btn" [name]="query.IsAllowCheckIn===true?'checkmark-outline':(query.IsAllowCheckIn===false?'ban-outline':'checkmark-done-outline')"></ion-icon>
-				</div>
-				<button mat-raised-button type="submit" style="display:none">Search</button>
-			</header>
-		</form>
-	</section>
+  <app-list-toolbar
+    pageTitle="{{'List' | translate}}"
+    [pageConfig]="pageConfig"
+    [selectedItems]="selectedItems"
+    [query]="query"
+    (add)="add()"
+    (refresh)="refresh()"
+    (export)="export()"
+    (import)="import($event)"
+    (help)="help()"
+    (unselect)="unselect()"
+    (archiveItems)="archiveItems()"
+    (deleteItems)="deleteItems()"
+    (changeBranch)="changeBranch($event)"
+  ></app-list-toolbar>
+  <section class="table">
+    <header class="bold">
+      <div class="col-checkbox cell"></div>
+      <div class="col-id cell" (click)="sortToggle('Id')">
+        {{'Id' | translate}}
+        <ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Id"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-code cell" (click)="sortToggle('IDStaff')">
+        {{'Staff' | translate}}
+        <ion-icon
+          class="min-btn"
+          *ngIf="sort.IDStaff"
+          [name]="sort.IDStaff == 'IDStaff'?'arrow-down': 'arrow-up'"
+        ></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.IDStaff"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-name cell" (click)="sortToggle('Name')">
+        {{'Equipment Name' | translate}}
+        <ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.Name"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+      <div class="col-id cell ion-hide-sm-down" (click)="sortToggle('IsAllowCheckIn')">
+        {{'CanCheckIn' | translate}}
+        <ion-icon
+          class="min-btn"
+          *ngIf="sort.IsAllowCheckIn"
+          [name]="sort.IsAllowCheckIn == 'IsAllowCheckIn'?'arrow-down': 'arrow-up'"
+        ></ion-icon>
+        <ion-icon
+          class="min-btn"
+          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
+          *ngIf="query.IsAllowCheckIn"
+          name="search"
+          color="primary"
+        ></ion-icon>
+      </div>
+    </header>
+    <form (submit)="refresh()" action="#">
+      <header class="filter" *ngIf="pageConfig.isShowSearch">
+        <div class="col-checkbox cell"></div>
+        <div class="col-id cell">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Id"
+            class="c-input"
+            [ngClass]="{active: query.Id}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Id=''; refresh()"
+            *ngIf="query.Id"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-code cell">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.IDStaff"
+            class="c-input"
+            [ngClass]="{active: query.IDStaff}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.IDStaff=''; refresh()"
+            *ngIf="query.IDStaff"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div class="col-name cell">
+          <input
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="query.Name"
+            class="c-input"
+            [ngClass]="{active: query.Name}"
+            type="text"
+          />
+          <ion-icon
+            class="min-btn"
+            (click)="query.Name=''; refresh()"
+            *ngIf="query.Name"
+            name="close-circle-outline"
+          ></ion-icon>
+        </div>
+        <div
+          class="col-id cell cell-btn ion-hide-sm-down"
+          (click)="query.IsAllowCheckIn=query.IsAllowCheckIn===true?false:(query.IsAllowCheckIn===false? '': true); refresh()"
+        >
+          <ion-icon
+            class="min-btn"
+            [name]="query.IsAllowCheckIn===true?'checkmark-outline':(query.IsAllowCheckIn===false?'ban-outline':'checkmark-done-outline')"
+          ></ion-icon>
+        </div>
+        <button mat-raised-button type="submit" style="display: none">Search</button>
+      </header>
+    </form>
+  </section>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-	<div *ngIf="items.length && pageConfig.showSpinner==false">
-		<section class="table">
-								<div *ngFor="let i of items; let j = index;"  class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-						<div class="col-checkbox cell">
-							<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox">
-						</div>
-						<div (click)="nav('user-device/'+i.Id,'forward')" class="col-id cell">
-							{{i.Id}}
-						</div>
-						<div (click)="nav('user-device/'+i.Id,'forward')" class="col-code cell">
-							{{i.Staff.FullName}}
-						</div>
-						<div (click)="nav('user-device/'+i.Id,'forward')" class="col-name cell">
-							{{i.Name}}
-						</div>
-						<div class="col-id cell ion-hide-sm-down">
-							<ion-icon class="min-btn" *ngIf="i.IsAllowCheckIn" name="checkmark"></ion-icon>
-						</div>
-					</div>
-				
-		</section>
-	</div>
-	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
-		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-	</ion-infinite-scroll>
+  <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+  <div *ngIf="items.length && pageConfig.showSpinner==false">
+    <section class="table">
+      <div
+        *ngFor="let i of items; let j = index;"
+        class="row"
+        [ngClass]="{odd: j % 2 != 0}"
+        [ngClass]="{selected: i.checked}"
+      >
+        <div class="col-checkbox cell">
+          <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
+        </div>
+        <div (click)="nav('user-device/'+i.Id,'forward')" class="col-id cell">{{i.Id}}</div>
+        <div (click)="nav('user-device/'+i.Id,'forward')" class="col-code cell">{{i.Staff.FullName}}</div>
+        <div (click)="nav('user-device/'+i.Id,'forward')" class="col-name cell">{{i.Name}}</div>
+        <div class="col-id cell ion-hide-sm-down">
+          <ion-icon class="min-btn" *ngIf="i.IsAllowCheckIn" name="checkmark"></ion-icon>
+        </div>
+      </div>
+    </section>
+  </div>
+  <ion-infinite-scroll
+    color="primary"
+    threshold="20%"
+    (ionInfinite)="loadData($event)"
+    [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData"
+  >
+    <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>

@@ -9,10 +9,9 @@ describe('CasualLabourRegisterPage', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CasualLabourRegisterPage ],
+      declarations: [CasualLabourRegisterPage],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    })
-    .compileComponents();
+    }).compileComponents();
   }));
 
   beforeEach(() => {

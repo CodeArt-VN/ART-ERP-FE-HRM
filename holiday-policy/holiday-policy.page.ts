@@ -7,29 +7,29 @@ import { Location } from '@angular/common';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-    selector: 'app-holiday-policy',
-    templateUrl: 'holiday-policy.page.html',
-    styleUrls: ['holiday-policy.page.scss']
+  selector: 'app-holiday-policy',
+  templateUrl: 'holiday-policy.page.html',
+  styleUrls: ['holiday-policy.page.scss'],
 })
 export class HolidayPolicyPage extends PageBase {
-    constructor(
-        public pageProvider: HRM_PolicyHolidayProvider,
-        public modalController: ModalController,
-		public popoverCtrl: PopoverController,
-        public alertCtrl: AlertController,
-        public loadingController: LoadingController,
-        public env: EnvService,
-        public navCtrl: NavController,
-        public location: Location,
-    ) {
-        super();
-    }
+  constructor(
+    public pageProvider: HRM_PolicyHolidayProvider,
+    public modalController: ModalController,
+    public popoverCtrl: PopoverController,
+    public alertCtrl: AlertController,
+    public loadingController: LoadingController,
+    public env: EnvService,
+    public navCtrl: NavController,
+    public location: Location,
+  ) {
+    super();
+  }
 
-    loadedData(event?: any, ignoredFromGroup?: boolean): void {
-        this.items.forEach(i => {
-            i.FromDate = lib.dateFormat(i.FromDate);
-            i.ToDate = lib.dateFormat(i.ToDate);
-        });
-        super.loadedData(event, ignoredFromGroup);
-    }
+  loadedData(event?: any, ignoredFromGroup?: boolean): void {
+    this.items.forEach((i) => {
+      i.FromDate = lib.dateFormat(i.FromDate);
+      i.ToDate = lib.dateFormat(i.ToDate);
+    });
+    super.loadedData(event, ignoredFromGroup);
+  }
 }
