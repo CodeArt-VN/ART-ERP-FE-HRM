@@ -30,7 +30,6 @@ export class CasualLabourRegisterPage extends PageBase {
   hasBaseDropZoneOver = false;
 
   activePage = 'page-1';
-  baseServiceURL = ApiSetting.mainService.base;
   showLogout = false;
 
   passwordViewType = 'password';

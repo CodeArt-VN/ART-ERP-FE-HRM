@@ -28,7 +28,6 @@ export class StaffDetailPage extends PageBase {
   hasBaseDropZoneOver = false;
 
   activePage = 'page-1';
-  baseServiceURL = ApiSetting.mainService.base;
   showLogout = false;
 
   passwordViewType = 'password';

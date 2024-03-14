@@ -55,8 +55,8 @@
           color="primary"
         ></ion-icon>
       </div>
-      <div class="col-code cell">{{'Unit' | translate}}</div>
-      <div class="col-code cell">{{'Title' | translate}}</div>
+
+      <div class="col-name cell">{{'Unit' | translate}}</div>
 
       <div class="col-code cell" (click)="sortToggle('Code')">
         {{'Reference code' | translate}}
@@ -118,24 +118,8 @@
             name="close-circle-outline"
           ></ion-icon>
         </div>
-        <div class="col-code cell">
-          <select
-            (change)="refresh()"
-            [ngModelOptions]="{standalone: true}"
-            [(ngModel)]="query.IDDepartment"
-            class="c-input c-dropdown"
-            [ngClass]="{active: query.IDDepartment}"
-          >
-            <option [disabled]="t.Flag" *ngFor="let t of departmentList" [value]="t.Query">{{t.NamePadding}}</option>
-          </select>
-          <ion-icon
-            class="min-btn"
-            (click)="query.IDDepartment=''; refresh()"
-            *ngIf="query.IDDepartment"
-            name="close-circle-outline"
-          ></ion-icon>
-        </div>
-        <div class="col-code cell">
+        
+        <div class="col-name cell">
           <select
             (change)="refresh()"
             [ngModelOptions]="{standalone: true}"
@@ -199,12 +183,9 @@
           {{i.FullName}}
         </div>
         <div class="col-account cell">{{i.Email}}</div>
-        <div class="col-code cell" *ngIf="i.Department">
-          {{i.Department.ShortName? i.Department.ShortName: i.Department.Name}}
-        </div>
-        <div class="col-code cell" *ngIf="!i.Department"></div>
-        <div class="col-remark cell">
-          {{i.JobTitle}}
+        
+        <div class="col-name cell">
+          
           <app-branch-breadcrumbs
             [maxItems]="3"
             [Id]="i.IDJobTitle"
