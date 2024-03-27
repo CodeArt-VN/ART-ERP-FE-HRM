@@ -1,5 +1,5 @@
 <ion-header>
-  <app-detail-toolbar [page]="this">
+  <app-toolbar [page]="this">
     <ion-button
       title="{{'Allow to use account' | translate}}"
       [color]="userAccount.LockoutEnabled ? 'danger': 'success'"
@@ -19,7 +19,7 @@
     >
       <ion-icon slot="icon-only" name="star"></ion-icon>
     </ion-button>
-  </app-detail-toolbar>
+  </app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="ion-padding">
