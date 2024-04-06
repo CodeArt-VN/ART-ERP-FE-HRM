@@ -66,10 +66,7 @@ export class StaffDetailPage extends PageBase {
     this.id = this.route.snapshot.paramMap.get('id');
 
     this.formGroup = formBuilder.group({
-      IDBranch: new FormControl({
-        value: this.env.selectedBranch,
-        disabled: false,
-      }),
+      IDBranch: new FormControl({ value: null, disabled: false }),
       Id: new FormControl({ value: '', disabled: true }),
       Code: new FormControl(),
       Name: new FormControl('', Validators.maxLength(512)),
