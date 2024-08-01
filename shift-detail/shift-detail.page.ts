@@ -1,11 +1,10 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { NavController, LoadingController, AlertController } from '@ionic/angular';
+import { NavController, LoadingController, AlertController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
 import { HRM_ShiftProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
-import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
   selector: 'app-shift-detail',
@@ -15,6 +14,7 @@ import { lib } from 'src/app/services/static/global-functions';
 export class ShiftDetailPage extends PageBase {
   constructor(
     public pageProvider: HRM_ShiftProvider,
+    public popoverCtrl: PopoverController,
     public env: EnvService,
     public navCtrl: NavController,
     public route: ActivatedRoute,
