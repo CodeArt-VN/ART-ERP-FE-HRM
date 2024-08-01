@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { NavController, LoadingController, AlertController } from '@ionic/angular';
+import { NavController, LoadingController, AlertController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
@@ -50,6 +50,7 @@ export class StaffDetailPage extends PageBase {
     public staffConcurrentPositionProvider: HRM_Staff_ConcurrentPositionProvider,
     public branchProvider: BRA_BranchProvider,
     public urserProvider: ACCOUNT_ApplicationUserProvider,
+    public popoverCtrl: PopoverController,
     public env: EnvService,
     public navCtrl: NavController,
     public route: ActivatedRoute,
