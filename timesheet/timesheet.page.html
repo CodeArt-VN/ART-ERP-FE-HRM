@@ -46,7 +46,7 @@
       <div class="col-branch cell">{{'Unit' | translate}}</div>
 
       <!-- <div class="col-code cell" (click)="sortToggle('Type')">
-        		Loại
+        		{{'Type' | translate}}
 				<ion-icon class="min-btn" *ngIf="sort.Type" [name]="sort.Type == 'Type'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Type" name="search" color="primary"></ion-icon>
 			</div> -->
@@ -94,7 +94,7 @@
 					<ion-icon class="min-btn" (click)="query.Type=''; refresh()" *ngIf="query.Type" name="close-circle-outline"></ion-icon>
 				</div> -->
 
-        <button mat-raised-button type="submit" style="display: none">Search</button>
+        <button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
       </header>
     </form>
   </section>
