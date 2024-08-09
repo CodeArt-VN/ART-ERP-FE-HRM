@@ -94,7 +94,7 @@ export class PaidTimeOffPolicyDetailPage extends PageBase {
       .create({
         header: 'Xóa chính sách thưởng phép',
         //subHeader: '---',
-        message: 'Bạn chắc muốn xóa thiết lập này?',
+        message: 'Bạn có chắc muốn xóa thiết lập này?',
         buttons: [
           {
             text: 'Không',

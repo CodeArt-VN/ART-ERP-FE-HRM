@@ -262,7 +262,7 @@ export class PersonalSchedulerPage extends PageBase {
     // arg.el.querySelector('.del-event-btn').onclick = function (e) {
     //     e.preventDefault();
     //     e.stopPropagation()
-    //     that.env.showPrompt('Bạn chắc muốn xóa ca này?', null, 'Phân ca')
+    //     that.env.showPrompt2('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
     //         .then(_ => {
     //             that.submitAttempt = true;
     //             that.pageProvider.delete([{ Id: parseInt(arg.event.id) }])
