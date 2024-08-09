@@ -113,7 +113,7 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
     // this.formGroup.updateValueAndValidity();
     // let submitItem = this.formGroup.value;//this.getDirtyValues(this.formGroup);
 
-    // this.env.showMessage('Lưu thông tin thành công.', 'success');
+    // this.env.showTranslateMessage('Lưu thông tin thành công.', 'success');
     // this.modalController.dismiss(submitItem);
 
     this.formGroup.updateValueAndValidity();
