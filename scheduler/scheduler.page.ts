@@ -320,7 +320,7 @@ export class SchedulerPage extends PageBase {
       e.preventDefault();
       e.stopPropagation();
       that.env
-        .showPrompt('Bạn chắc muốn xóa nhân sự này?', null, 'Phân ca')
+        .showPrompt2('Bạn có chắc muốn xóa nhân sự này?', null, 'Phân ca')
         .then((_) => {
           that.submitAttempt = true;
           console.log(arg);
@@ -348,7 +348,7 @@ export class SchedulerPage extends PageBase {
       e.preventDefault();
       e.stopPropagation();
       that.env
-        .showPrompt('Bạn chắc muốn xóa ca này?', null, 'Phân ca')
+        .showPrompt2('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
         .then((_) => {
           that.submitAttempt = true;
           that.pageProvider
