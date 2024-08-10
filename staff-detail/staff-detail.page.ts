@@ -191,9 +191,9 @@ export class StaffDetailPage extends PageBase {
   changeLock() {
     this.userAccount.LockoutEnabled = !this.userAccount.LockoutEnabled;
     if (this.userAccount.LockoutEnabled) {
-      this.env.showTranslateMessage('Account has been locked, cannot log in', 'warning');
+      this.env.showMessage('Account has been locked, cannot log in', 'warning');
     } else {
-      this.env.showTranslateMessage('Account functions normally', 'warning');
+      this.env.showMessage('Account functions normally', 'warning');
     }
     this.urserProvider.save(this.userAccount).then(() => {
       this.env.publishEvent({ Code: 'changeAccount' });
@@ -217,7 +217,7 @@ export class StaffDetailPage extends PageBase {
 
   async createAccount() {
     if (!this.changePasswordForm.valid) {
-      this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+      this.env.showMessage('Please recheck information highlighted in red above', 'warning');
     } else {
       const loading = await this.loadingController.create({
         cssClass: 'my-custom-class',
@@ -242,7 +242,7 @@ export class StaffDetailPage extends PageBase {
               this.item.Email = this.userAccount.Email;
             }
 
-            this.env.showTranslateMessage('Account created {{value}}', 'success', this.userAccount.Email);
+            this.env.showMessage('Account created {{value}}', 'success', this.userAccount.Email);
             if (loading) loading.dismiss();
             this.changePasswordForm.markAsPristine();
             this.cdr.detectChanges();
@@ -250,12 +250,12 @@ export class StaffDetailPage extends PageBase {
           .catch((err) => {
             if (loading) loading.dismiss();
             if (err.error && err.error.Message && err.error.Message.indexOf('Account with email is exits') > -1) {
-              this.env.showTranslateMessage(
+              this.env.showMessage(
                 'Email has already been used for account registration, please check again',
                 'danger',
               );
             } else {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
             }
 
             this.cdr.detectChanges();
@@ -266,7 +266,7 @@ export class StaffDetailPage extends PageBase {
 
   async resetPassword() {
     if (!this.changePasswordForm.valid) {
-      this.env.showTranslateMessage('Please recheck information highlighted in red above', 'danger');
+      this.env.showMessage('Please recheck information highlighted in red above', 'danger');
     } else {
       const loading = await this.loadingController.create({
         cssClass: 'my-custom-class',
@@ -281,7 +281,7 @@ export class StaffDetailPage extends PageBase {
             this.changePasswordForm.controls.confirmPassword.value,
           )
           .then((savedItem: any) => {
-            this.env.showTranslateMessage('Password changed', 'success');
+            this.env.showMessage('Password changed', 'success');
 
             this.cdr.detectChanges();
             this.changePasswordForm.markAsPristine();
@@ -289,11 +289,11 @@ export class StaffDetailPage extends PageBase {
           })
           .catch((err) => {
             if (err._body.indexOf('confirmation password do not match') > -1) {
-              this.env.showTranslateMessage('log-in password does not match', 'danger');
+              this.env.showMessage('log-in password does not match', 'danger');
             } else if (err._body.indexOf('least 6 characters') > -1) {
-              this.env.showTranslateMessage('Password must contain more than 6 characters', 'danger');
+              this.env.showMessage('Password must contain more than 6 characters', 'danger');
             } else {
-              this.env.showTranslateMessage('Cannot save, please try again', 'danger');
+              this.env.showMessage('Cannot save, please try again', 'danger');
             }
             if (loading) loading.dismiss();
             this.cdr.detectChanges();

@@ -61,7 +61,7 @@ export class TimesheetCycleModalPage extends PageBase {
   submit() {
     this.formGroup.updateValueAndValidity();
     if (!this.formGroup.valid) {
-      this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+      this.env.showMessage('Please recheck information highlighted in red above', 'warning');
     } else {
       let submitItem = this.formGroup.value; //this.getDirtyValues(this.formGroup);
       this.modalController.dismiss(submitItem);

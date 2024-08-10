@@ -96,13 +96,13 @@ export class SchedulerGeneratorPage extends PageBase {
 
   massShiftAssignment() {
     if (!this.formGroup.controls.IDShift.value && !this.formGroup.controls.TimeOffType.value) {
-      this.env.showTranslateMessage('Please choose working shift or classify leaves', 'danger', null, 0, true);
+      this.env.showMessage('Please choose working shift or classify leaves', 'danger', null, 0, true);
       return;
     }
 
     this.formGroup.updateValueAndValidity();
     if (!this.formGroup.valid) {
-      this.env.showTranslateMessage('Please recheck information highlighted in red above', 'warning');
+      this.env.showMessage('Please recheck information highlighted in red above', 'warning');
     } else {
       let submitItem = this.formGroup.value; //this.getDirtyValues(this.formGroup);
       this.modalController.dismiss(submitItem);

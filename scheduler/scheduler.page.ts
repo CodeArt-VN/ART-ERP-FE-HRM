@@ -320,7 +320,7 @@ export class SchedulerPage extends PageBase {
       e.preventDefault();
       e.stopPropagation();
       that.env
-        .showPrompt2('Bạn có chắc muốn xóa nhân sự này?', null, 'Phân ca')
+        .showPrompt('Bạn có chắc muốn xóa nhân sự này?', null, 'Phân ca')
         .then((_) => {
           that.submitAttempt = true;
           console.log(arg);
@@ -348,7 +348,7 @@ export class SchedulerPage extends PageBase {
       e.preventDefault();
       e.stopPropagation();
       that.env
-        .showPrompt2('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
+        .showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
         .then((_) => {
           that.submitAttempt = true;
           that.pageProvider
@@ -416,7 +416,7 @@ export class SchedulerPage extends PageBase {
     };
 
     this.pageProvider.save(ev).then((_) => {
-      this.env.showTranslateMessage('Shifts updated', 'warning');
+      this.env.showMessage('Shifts updated', 'warning');
     });
   }
 

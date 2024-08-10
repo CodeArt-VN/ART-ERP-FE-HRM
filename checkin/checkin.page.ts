@@ -82,7 +82,7 @@ export class CheckinPage extends PageBase {
   scanning = false;
   scanQRCode() {
     if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-      this.env.showTranslateMessage('This function is only available on phone', 'warning');
+      this.env.showMessage('This function is only available on phone', 'warning');
       return;
     }
     BarcodeScanner.prepare().then(() => {
@@ -103,7 +103,7 @@ export class CheckinPage extends PageBase {
               if (result.content.indexOf('G:') == 0) {
                 gateCode = result.content.replace('G:', '');
               } else {
-                this.env.showTranslateMessage(
+                this.env.showMessage(
                   'You just scan: {{value}}, please scan valid check-in QR code.',
                   '',
                   result.content,
@@ -155,17 +155,17 @@ export class CheckinPage extends PageBase {
                           i.Time = lib.dateFormat(i.LogTime, 'hh:MM');
                           i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
                           i.Gate = this.gateList.find((d) => d.Id == i.IDGate);
-                          this.env.showTranslateMessage('Check-in completed', 'success');
+                          this.env.showMessage('Check-in completed', 'success');
                           this.showLog(i);
                         } else if (resp != 'OK') {
                           this.showLogMessage(resp);
                         } else {
-                          this.env.showTranslateMessage('Check-in completed', 'success');
+                          this.env.showMessage('Check-in completed', 'success');
                         }
                       })
                       .catch((err) => {
                         if (loading) loading.dismiss();
-                        this.env.showTranslateMessage(err, 'danger');
+                        this.env.showMessage(err, 'danger');
                       });
                   });
 
@@ -263,7 +263,7 @@ export class CheckinPage extends PageBase {
 
   showLogMessage(message) {
     if (message.indexOf('Invalid IP') > -1) {
-      this.env.showTranslateMessage(
+      this.env.showMessage(
         'IP is invalid. Please use companys wify when checking in',
         'warning',
         null,
@@ -271,9 +271,9 @@ export class CheckinPage extends PageBase {
         true,
       );
     } else if (message.indexOf('Invalid gate coordinate') > -1) {
-      this.env.showTranslateMessage('Check-in gates coordintates are invalid.', 'warning', null, 0, true);
+      this.env.showMessage('Check-in gates coordintates are invalid.', 'warning', null, 0, true);
     } else if (message.indexOf('Invalid coordinate') > -1) {
-      this.env.showTranslateMessage(
+      this.env.showMessage(
         'Cannot verify check-in location, please turn on GPS during chech-in',
         'warning',
         null,
@@ -281,9 +281,9 @@ export class CheckinPage extends PageBase {
         true,
       );
     } else if (message.indexOf('Invalid distance') > -1) {
-      this.env.showTranslateMessage('Please check in at specified location', 'warning', null, 0, true);
+      this.env.showMessage('Please check in at specified location', 'warning', null, 0, true);
     } else if (message.indexOf('Invalid LogTime') > -1) {
-      this.env.showTranslateMessage(
+      this.env.showMessage(
         'Check-in time is invalid, please check-in at specfied time',
         'warning',
         null,
@@ -291,7 +291,7 @@ export class CheckinPage extends PageBase {
         true,
       );
     } else if (message.indexOf('No pre-ordered') > -1) {
-      this.env.showTranslateMessage(
+      this.env.showMessage(
         'You have not register for meals. Please register at least 01 day in advance',
         'warning',
         null,
@@ -299,9 +299,9 @@ export class CheckinPage extends PageBase {
         true,
       );
     } else if (message.indexOf('Schedule not found') > -1) {
-      this.env.showTranslateMessage('You do not have working schedule', 'warning', null, 0, true);
+      this.env.showMessage('You do not have working schedule', 'warning', null, 0, true);
     } else if (message.indexOf('Catering voucher has been used') > -1) {
-      this.env.showTranslateMessage('Meal Check-in completed', 'warning', null, 0, true);
+      this.env.showMessage('Meal Check-in completed', 'warning', null, 0, true);
     }
   }
 }

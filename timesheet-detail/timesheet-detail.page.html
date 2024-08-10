@@ -37,7 +37,7 @@
 
                 <!-- <div class="c-control">
 									<label class="c-label" for="IDBranch">{{'id-branch' | translate}}</label>
-									<ng-select class="c-input" (change)="saveChange()" labelForId="IDBranch" formControlName="IDBranch" [items]="dataIDBranchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Please select branch' | translate}}">
+									<ng-select class="c-input" (change)="saveChange()" labelForId="IDBranch" formControlName="IDBranch" [items]="dataIDBranchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Select unit...' | translate}}">
 										<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
 											<div *ngIf="i">
 												<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>

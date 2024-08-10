@@ -173,9 +173,9 @@ export class CasualLabourRegisterPage extends PageBase {
   changeLock() {
     this.userAccount.LockoutEnabled = !this.userAccount.LockoutEnabled;
     if (this.userAccount.LockoutEnabled) {
-      this.env.showTranslateMessage('Account has been locked, cannot log in', 'warning');
+      this.env.showMessage('Account has been locked, cannot log in', 'warning');
     } else {
-      this.env.showTranslateMessage('Account functions normally', 'warning');
+      this.env.showMessage('Account functions normally', 'warning');
     }
     this.urserProvider.save(this.userAccount).then(() => {
       this.env.publishEvent({ Code: 'changeAccount' });

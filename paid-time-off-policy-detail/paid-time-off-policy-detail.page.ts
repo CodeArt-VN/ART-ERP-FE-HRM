@@ -113,7 +113,7 @@ export class PaidTimeOffPolicyDetailPage extends PageBase {
               if (permanentlyRemove) {
                 this.ptoGrandByLengthOfServices.delete(Ids).then((resp) => {
                   groups.removeAt(index);
-                  this.env.showTranslateMessage('Deleted!', 'success');
+                  this.env.showMessage('Deleted!', 'success');
                 });
               }
             },

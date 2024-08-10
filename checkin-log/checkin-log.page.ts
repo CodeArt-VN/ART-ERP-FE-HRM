@@ -240,7 +240,7 @@ export class CheckinLogPage extends PageBase {
       e.preventDefault();
       e.stopPropagation();
       that.env
-        .showPrompt2('Bạn có chắc muốn xóa không?', null, 'Checkin logs')
+        .showPrompt('Bạn có chắc muốn xóa không?', null, 'Checkin logs')
         .then((_) => {
           that.submitAttempt = true;
           that.pageProvider
