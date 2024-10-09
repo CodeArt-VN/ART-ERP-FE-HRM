@@ -8,13 +8,15 @@ import {
   HRM_Staff_ConcurrentPositionProvider,
   BRA_BranchProvider,
 } from 'src/app/services/static/services.service';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { CompareValidator } from 'src/app/services/core/validators';
 import { ACCOUNT_ApplicationUserProvider } from 'src/app/services/custom.service';
 import { lib } from 'src/app/services/static/global-functions';
 import { environment } from 'src/environments/environment';
+import { catchError, map, Observable, of } from 'rxjs';
+import {HttpClientModule, HttpClientJsonpModule, HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-staff-detail',
@@ -41,10 +43,45 @@ export class StaffDetailPage extends PageBase {
 
   minDOB = '';
   maxDOB = '';
+   mapLoaded: Observable<boolean>;
+  center: google.maps.LatLngLiteral = {
+    lat: 11.0517262,
+    lng: 106.8842023,
+  };
+  options = {
+    scrollwheel: false,
+    disableDoubleClickZoom: true,
+    streetViewControl: false,
+    mapTypeControl: false,
+    controlSize: 30,
+    zoom: 16,
+    styles: [
+      {
+        featureType: 'poi',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+      {
+        featureType: 'transit',
+        stylers: [
+          {
+            visibility: 'off',
+          },
+        ],
+      },
+    ],
+  };
+  markerOptions: google.maps.MarkerOptions = {
+    draggable: true,
+  };
+
 
   jobTitleList = [];
   workAreaList = [];
-
+  hrAddressTypeList = [];
   constructor(
     public pageProvider: HRM_StaffProvider,
     public staffConcurrentPositionProvider: HRM_Staff_ConcurrentPositionProvider,
@@ -54,6 +91,7 @@ export class StaffDetailPage extends PageBase {
     public env: EnvService,
     public navCtrl: NavController,
     public route: ActivatedRoute,
+    public httpClient: HttpClient,
 
     public alertCtrl: AlertController,
     public formBuilder: FormBuilder,
@@ -64,6 +102,8 @@ export class StaffDetailPage extends PageBase {
     super();
 
     this.pageConfig.isDetailPage = true;
+    this.pageConfig.isShowFeature = true;
+    this.pageConfig.isFeatureAsMain = true;
     this.id = this.route.snapshot.paramMap.get('id');
 
     this.formGroup = formBuilder.group({
@@ -76,10 +116,14 @@ export class StaffDetailPage extends PageBase {
       CreatedDate: new FormControl({ value: '', disabled: true }),
       ModifiedBy: new FormControl({ value: '', disabled: true }),
       ModifiedDate: new FormControl({ value: '', disabled: true }),
-
+      
       IDDepartment: new FormControl('', Validators.required),
       IDJobTitle: new FormControl('', Validators.required),
       Area: new FormControl(),
+
+      Addresses: new FormArray([]),
+      DeletedAddressFields: [[]],
+
       IsDisabled: new FormControl({ value: false, disabled: true }),
       LastName: new FormControl(),
       Title: new FormControl(),
@@ -110,9 +154,46 @@ export class StaffDetailPage extends PageBase {
     let cYear = new Date().getFullYear();
     this.minDOB = cYear - 70 + '-01-01';
     this.maxDOB = cYear - 16 + '-12-31';
+  
   }
-
+  initMap() {
+    console.log('aaa');
+    
+  }
+  preLoadData(event = null){
+    
+    this.env.getType('HRAddressType').then(value=>{
+      this.hrAddressTypeList = value;
+      super.preLoadData(event);
+    }).catch(err=>{
+      super.preLoadData(event);
+    })
+  }
   async loadedData(event) {
+      
+    if (!this.env.isMapLoaded) {
+     this.httpClient
+        .jsonp('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtyM-Th784YwQUTquYa0WlFIj8C6RB2uM', 'callback')
+        .subscribe( rs =>{
+          this.env.isMapLoaded = true;
+          console.log('Google Maps loaded successfully');
+          console.log(rs);
+        })
+        // .pipe(
+        //   map(() => { 
+        //     console.log('Google Maps loaded successfully');
+        //     this.env.isMapLoaded = true;
+        //     this.initMap();
+        //     return true;
+        //   }),
+        //   catchError((err) => {
+        //     console.log(err);
+        //     return of(false);
+        //   }),
+        // );
+    } else {
+      this.initMap();
+    }
     if (this.id && this.item) {
       this.avatarURL = environment.staffAvatarsServer + this.item.Code + '.jpg?t=' + new Date().getTime();
       this.item.DateOfIssueID = lib.dateFormat(this.item.DateOfIssueID, 'yyyy-mm-dd');
@@ -139,6 +220,7 @@ export class StaffDetailPage extends PageBase {
       setTimeout(() => {
         this.changeDepartment();
       }, 100);
+      this.patchAddressesValue();
     }
 
     //this.showRolesEdit = GlobalData.Profile.Roles.SYSRoles.indexOf('HOST') > -1;
@@ -154,6 +236,70 @@ export class StaffDetailPage extends PageBase {
     this.saveChange2();
   }
 
+  patchAddressesValue(){
+  if (this.item.Addresses) {
+    this.formGroup.controls.Addresses = new FormArray([]);
+    if (this.item.Addresses?.length) {
+      for (let i of this.item.Addresses) {
+        this.addAddress(i);
+      }
+    }
+
+    if (!this.pageConfig.canEdit ) {
+      this.formGroup.controls.Addresses.disable();
+    }
+    }
+  }
+  addAddress(address, markAsDirty = false){ // todo
+    let groups = <FormArray>this.formGroup.controls.Addresses;
+    let group = this.formBuilder.group({
+
+      IDStaff: [this.formGroup.get('Id').value],
+      Id: new FormControl({ value: address?.Id, disabled: true }),
+
+      Type: [address?.Type,Validators.required],
+      AddressLine1: [address?.AddressLine1,Validators.required],
+      AddressLine2: [address?.AddressLine2],
+      Country: [address?.Country],
+      Province: [address?.Province],
+      District: [address?.District],
+      Ward: [address?.Ward],        
+      ZipCode: [address?.ZipCode],
+      Lat: [address?.Lat],
+      Long: [address?.Long],
+      Contact: [address?.Contact],
+      Phone1: [address?.Phone1],
+      Phone2: [address?.Phone2],
+      Remark: [address?.Remark],
+    });
+    groups.push(group);
+    group.get('IDStaff').markAsDirty();
+    group.get('Id').markAsDirty();
+  }
+
+  removeAddress(g, index) {
+    let groups = <FormArray>this.formGroup.controls.Addresses;
+    if(g.get('Id').value){
+      this.env
+      .showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa địa chỉ')
+      .then((_) => {
+        this.formGroup.get('DeletedAddressFields').setValue([g.controls.Id.value]);
+        this.formGroup.get('DeletedAddressFields').markAsDirty();
+        this.saveChange();
+      })
+      .catch((_) => {});
+    }
+    else groups.removeAt(index);
+  }
+  changeCoordinate(coordinate, form: FormGroup) {
+    console.log(coordinate);
+
+    form.controls.Lat.setValue(coordinate.Lat);
+    form.controls.Long.setValue(coordinate.Long);
+    form.controls.Lat.markAsDirty();
+    form.controls.Long.markAsDirty();
+    this.saveChange();
+  }
   bindName() {
     if (this.formGroup && this.formGroup.controls.FullName.value) {
       let names = this.formGroup.controls.FullName.value.split(' ');
@@ -185,7 +331,8 @@ export class StaffDetailPage extends PageBase {
 
   segmentView = 's1';
   segmentChanged(ev: any) {
-    this.segmentView = ev.detail.value;
+    this.pageConfig.isSubActive = true;
+    this.segmentView = ev;
   }
 
   changeLock() {
@@ -299,6 +446,22 @@ export class StaffDetailPage extends PageBase {
             this.cdr.detectChanges();
           });
       });
+    }
+  }
+
+  savedChange(savedItem = null, form = this.formGroup) {
+    super.savedChange(savedItem);
+    let addresses = this.formGroup.get('Addresses') as FormArray;
+    let idsBeforeSaving = new Set(addresses.controls.map((g) => g.get('Id').value));
+    this.item = savedItem;
+
+    if (this.item.Addresses?.length > 0) {
+      let newIds = new Set(this.item.Addresses.map((i) => i.Id));
+      const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
+      if (diff?.length > 0) {
+        addresses.controls.find((d) => !d.get('Id').value ) ?.get('Id') .setValue(diff[0]);
+
+      }
     }
   }
 }
