@@ -307,13 +307,13 @@
 
                       <app-form-control
                         [field]="{id:'IDDepartment', label:'Unit',dataSource: env.branchList, bindLabel:'Name', bindValue:'Id', type : 'ng-select-level', form : formGroup, placeholder:'Select unit' }"
-                      (change)="changeDepartment(true)"
+                      (controlChange)="changeDepartment(true)"
 
                       >
                       </app-form-control>
                       <app-form-control
                         [field]="{id:'IDJobTitle', label:'Title',dataSource: jobTitleList, bindLabel:'Name', bindValue:'Id', type : 'ng-select-level', form : formGroup, placeholder:'Select unit' }"
-                        (change)="saveChange()"
+                        (controlChange)="saveChange()"
                       >
                       </app-form-control>
                       <app-form-control
