@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { NavController, LoadingController, AlertController, PopoverController } from '@ionic/angular';
+import { NavController, LoadingController, AlertController, PopoverController, IonAccordionGroup } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
@@ -7,6 +7,7 @@ import {
   HRM_StaffProvider,
   HRM_Staff_ConcurrentPositionProvider,
   BRA_BranchProvider,
+  LIST_AddressSubdivisionProvider,
 } from 'src/app/services/static/services.service';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
@@ -17,6 +18,7 @@ import { lib } from 'src/app/services/static/global-functions';
 import { environment } from 'src/environments/environment';
 import { catchError, map, Observable, of } from 'rxjs';
 import {HttpClientModule, HttpClientJsonpModule, HttpClient } from '@angular/common/http';
+import { LIST_AddressSubdivision } from 'src/app/models/model-list-interface';
 
 @Component({
   selector: 'app-staff-detail',
@@ -24,6 +26,8 @@ import {HttpClientModule, HttpClientJsonpModule, HttpClient } from '@angular/com
   styleUrls: ['./staff-detail.page.scss'],
 })
 export class StaffDetailPage extends PageBase {
+  @ViewChild('accordionGroup', { static: true }) accordionGroup: IonAccordionGroup;
+
   avatarURL = 'assets/imgs/avartar-empty.jpg';
   @ViewChild('importfile') importfile: any;
 
@@ -40,6 +44,9 @@ export class StaffDetailPage extends PageBase {
   roles = [];
   staffInRoles = [];
   staffInRole: any = {};
+  openedFields = [];
+  provinceDataSource :any ;
+  districtDataSource :any;
 
   minDOB = '';
   maxDOB = '';
@@ -86,6 +93,7 @@ export class StaffDetailPage extends PageBase {
     public pageProvider: HRM_StaffProvider,
     public staffConcurrentPositionProvider: HRM_Staff_ConcurrentPositionProvider,
     public branchProvider: BRA_BranchProvider,
+    public addressSubdivisionProvider: LIST_AddressSubdivisionProvider,
     public urserProvider: ACCOUNT_ApplicationUserProvider,
     public popoverCtrl: PopoverController,
     public env: EnvService,
@@ -119,6 +127,7 @@ export class StaffDetailPage extends PageBase {
       
       IDDepartment: new FormControl('', Validators.required),
       IDJobTitle: new FormControl('', Validators.required),
+      Company: [],
       Area: new FormControl(),
 
       Addresses: new FormArray([]),
@@ -161,9 +170,16 @@ export class StaffDetailPage extends PageBase {
     
   }
   preLoadData(event = null){
-    
-    this.env.getType('HRAddressType').then(value=>{
-      this.hrAddressTypeList = value;
+    Promise.all([ 
+      this.env.getType('HRAddressType'),
+      this.addressSubdivisionProvider.read(),
+    ])
+   .then(values=>{
+      this.hrAddressTypeList = values[0];
+      if(values[1] && values[1]['data']?.length>0){
+        this.provinceDataSource = [...values[1]['data']].filter(d=> d.Type == 'ProvincialLevel');
+        this.districtDataSource = [...values[1]['data']].filter(d=> d.Type == 'MunicipalLevel');
+      }
       super.preLoadData(event);
     }).catch(err=>{
       super.preLoadData(event);
@@ -172,25 +188,20 @@ export class StaffDetailPage extends PageBase {
   async loadedData(event) {
       
     if (!this.env.isMapLoaded) {
-     this.httpClient
+    this.mapLoaded =  this.httpClient
         .jsonp('https://maps.googleapis.com/maps/api/js?key=AIzaSyAtyM-Th784YwQUTquYa0WlFIj8C6RB2uM', 'callback')
-        .subscribe( rs =>{
-          this.env.isMapLoaded = true;
-          console.log('Google Maps loaded successfully');
-          console.log(rs);
-        })
-        // .pipe(
-        //   map(() => { 
-        //     console.log('Google Maps loaded successfully');
-        //     this.env.isMapLoaded = true;
-        //     this.initMap();
-        //     return true;
-        //   }),
-        //   catchError((err) => {
-        //     console.log(err);
-        //     return of(false);
-        //   }),
-        // );
+        .pipe(
+          map(() => { 
+            console.log('Google Maps loaded successfully');
+            this.env.isMapLoaded = true;
+            this.initMap();
+            return true;
+          }),
+          catchError((err) => {
+            console.log(err);
+            return of(false);
+          }),
+        );
     } else {
       this.initMap();
     }
@@ -220,15 +231,24 @@ export class StaffDetailPage extends PageBase {
       setTimeout(() => {
         this.changeDepartment();
       }, 100);
-      this.patchAddressesValue();
+      this.env.getBranch(this.item?.IDBranch).then(rs=>{
+        console.log(rs);
+      })
+
+      if (this.item.Addresses?.length > 0) {
+        this.item.Addresses = this.item.Addresses?.sort((a, b) => a.Sort - b.Sort);
+        let groups = this.formGroup.get('Addresses') as FormArray;
+        groups.clear();
+        this.patchAddressesValue();
+      }
     }
 
     //this.showRolesEdit = GlobalData.Profile.Roles.SYSRoles.indexOf('HOST') > -1;
 
     super.loadedData(event);
 
-    this.formGroup?.reset();
-    this.formGroup?.patchValue(this.item);
+    // this.formGroup?.reset();
+    // this.formGroup?.patchValue(this.item);
   }
 
   async saveChange() {
@@ -238,7 +258,6 @@ export class StaffDetailPage extends PageBase {
 
   patchAddressesValue(){
   if (this.item.Addresses) {
-    this.formGroup.controls.Addresses = new FormArray([]);
     if (this.item.Addresses?.length) {
       for (let i of this.item.Addresses) {
         this.addAddress(i);
@@ -250,13 +269,23 @@ export class StaffDetailPage extends PageBase {
     }
     }
   }
+
+  getCompany(id) {
+    let currentBranch = this.env.branchList.find((d) => d.Id == id);
+    if (currentBranch) {
+      if(currentBranch.Type =='Company'){
+         this.formGroup.get('Company').setValue(currentBranch);
+         return;
+      } 
+      this.getCompany(currentBranch.IDParent);
+    }
+  }
   addAddress(address, markAsDirty = false){ // todo
     let groups = <FormArray>this.formGroup.controls.Addresses;
     let group = this.formBuilder.group({
 
       IDStaff: [this.formGroup.get('Id').value],
       Id: new FormControl({ value: address?.Id, disabled: true }),
-
       Type: [address?.Type,Validators.required],
       AddressLine1: [address?.AddressLine1,Validators.required],
       AddressLine2: [address?.AddressLine2],
@@ -271,10 +300,15 @@ export class StaffDetailPage extends PageBase {
       Phone1: [address?.Phone1],
       Phone2: [address?.Phone2],
       Remark: [address?.Remark],
+      Sort: [address?.Sort],
+
+      ProvinceDataSource : [[...this.provinceDataSource]],
+      DistrictDataSource : [],
     });
     groups.push(group);
     group.get('IDStaff').markAsDirty();
     group.get('Id').markAsDirty();
+    this.changeProvince(group,markAsDirty);
   }
 
   removeAddress(g, index) {
@@ -286,10 +320,21 @@ export class StaffDetailPage extends PageBase {
         this.formGroup.get('DeletedAddressFields').setValue([g.controls.Id.value]);
         this.formGroup.get('DeletedAddressFields').markAsDirty();
         this.saveChange();
+        groups.removeAt(index);
       })
       .catch((_) => {});
     }
     else groups.removeAt(index);
+  }
+
+  changeProvince(g,markAsDirty = true){
+    let province = [...this.provinceDataSource].find(d=> d.Name == g.get('Province').value);
+    let listDistrict = [...this.districtDataSource];
+    if(province){
+      listDistrict = listDistrict.filter(d=> d.IDParent == province.Id );
+    }
+    g.get('DistrictDataSource').setValue(listDistrict);
+    if(markAsDirty) this.saveChange();
   }
   changeCoordinate(coordinate, form: FormGroup) {
     console.log(coordinate);
@@ -311,15 +356,36 @@ export class StaffDetailPage extends PageBase {
     }
   }
 
-  changeDepartment() {
+  accordionGroupChange(e) {
+    this.openedFields = e.detail.value;
+    console.log(this.openedFields);
+  }
+
+  isAccordionExpanded(id: string): boolean {
+    return this.openedFields.includes(id?.toString());
+  }
+  doReorder(ev, groups) {
+    let obj = [];
+    groups = ev.detail.complete(groups);
+    for (let i = 0; i < groups.length; i++) {
+      const g = groups[i];
+      g.controls.Sort.setValue(i + 1);
+      g.controls.Sort.markAsDirty();
+    }
+    this.saveChange();
+  }
+
+  changeDepartment(markAsDirty = false) {
     let selectedDepartment = this.formGroup.controls.IDDepartment.value;
     this.env.getJobTitle(selectedDepartment, true).then((result) => {
       this.jobTitleList = [...result];
+      this.getCompany(selectedDepartment);
     });
 
     this.env.getType('WorkAreaType').then((result) => {
       this.workAreaList = [...result];
     });
+    if(markAsDirty) this.saveChange();
   }
 
   markNestedNode(ls, Id) {
@@ -460,6 +526,8 @@ export class StaffDetailPage extends PageBase {
       const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
       if (diff?.length > 0) {
         addresses.controls.find((d) => !d.get('Id').value ) ?.get('Id') .setValue(diff[0]);
+        this.openedFields = [...this.openedFields, diff[0].toString()];
+
 
       }
     }
