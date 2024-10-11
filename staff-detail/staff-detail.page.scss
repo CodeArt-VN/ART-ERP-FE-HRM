@@ -2,14 +2,19 @@
   justify-content: center;
   display: flex;
   text-align: center;
-
+  .avatar{
+    padding-left: 8px;
+    padding-right: 8px;
+  }
   img {
     border-radius: 6px;
     width: 100%;
     max-width: 200px;
-    margin: 0 32px;
-    margin-bottom: 50px;
+   // margin: 0 32px;
+   // margin-bottom: 50px;
     border: solid 3px var(--ion-color-primary);
+    border-radius: 50%;
+
     background-color: white;
     box-shadow:
       0 7px 14px 0 rgba(85, 110, 145, 0),
@@ -26,4 +31,14 @@
 
 .full-screen {
   min-height: calc(100vh - 385px);
+}
+.smallZoom{
+  zoom:0.9
+}
+.mt-0{
+  margin-top:0;
+}
+ion-reorder-group{
+  display: flex;
+  flex-direction: column;
 }
