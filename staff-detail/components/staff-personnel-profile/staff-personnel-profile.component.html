@@ -264,15 +264,6 @@
             <app-form-control
               [field]="{ id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"
             ></app-form-control>
-            <app-form-control
-              [field]="{
-                id: 'IDBranch',
-                type: 'branch-breadcrumbs',
-                label: 'Branch',
-                form: formGroup,
-                dataSource: env.branchList
-              }"
-            ></app-form-control>
           </ion-col>
           <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
             <app-form-control
