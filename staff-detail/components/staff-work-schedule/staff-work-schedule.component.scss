@@ -1,0 +1,62 @@
+.cell {
+  padding: 2px 2px !important;
+
+  .info-color {
+    margin-left: 4px;
+  }
+}
+
+.col-name {
+  min-width: 200px !important;
+  // max-width: 200px;
+}
+
+.col-address {
+  min-width: 300px !important;
+  // max-width: 200px;
+}
+
+.col-place {
+  min-width: 150px !important;
+  // max-width: 200px;
+}
+
+.col-title {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+// .col-phone {
+//     min-width: 125px;
+//     max-width: 125px;
+// }
+
+.col-iden {
+  min-width: 125px;
+  max-width: 125px;
+}
+
+.col-dob {
+  min-width: 145px;
+  max-width: 145px;
+}
+
+.col-date {
+  min-width: 145px;
+  max-width: 145px;
+}
+
+.col-gender {
+  min-width: 80px;
+  max-width: 80px;
+}
+
+.col-depend {
+  min-width: 80px;
+  max-width: 80px;
+}
+
+.col-remark {
+  min-width: 200px !important;
+  max-width: 200px;
+}
