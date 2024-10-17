@@ -18,7 +18,6 @@ import {
 } from 'src/app/services/static/services.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { environment } from 'src/environments/environment';
-declare var ggMap: any;
 
 @Component({
   selector: 'app-staff-personnel-profile',
@@ -420,12 +419,13 @@ export class StaffPersonnelProfileComponent extends PageBase {
 
 
   loadGGMap() {
-    if (typeof ggMap !== 'undefined')  this.env.isMapLoaded = true;
-    else
+    if (!this.env.isMapLoaded)  {
       this.dynamicScriptLoaderService
         .loadResources(thirdPartyLibs.ggMap.source)
-        .then(() =>  this.env.isMapLoaded = true)
+        .then(() =>  {
+          this.env.isMapLoaded = true
+        })
         .catch((error) => console.error('Error loading script', error));
   }
-
+}
 }
