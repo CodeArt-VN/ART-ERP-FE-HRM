@@ -204,7 +204,7 @@
             </ion-list>
           </ion-col>
 
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+          <ion-col size="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding" *ngIf="formGroup.get('Addresses').value.length > 0">
               <app-address
                 *ngFor="let c of formGroup.get('Addresses')['controls']"
                 [address]="c.value"

@@ -136,13 +136,13 @@ export class StaffPersonnelProfileComponent extends PageBase {
   }
 
   preLoadData(event = null){
+    this.loadGGMap();
     Promise.all([ 
       this.env.getType('HRAddressType'),
       this.addressService.getAddressSubdivision()
     ])
    .then(values=>{
       this.hrAddressTypeList = values[0];
-      this.loadGGMap();
       super.preLoadData(event)
     }).catch(err=>{
       super.preLoadData(event)
