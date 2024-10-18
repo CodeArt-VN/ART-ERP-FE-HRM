@@ -26,6 +26,7 @@ import { environment } from 'src/environments/environment';
 })
 export class StaffPersonnelProfileComponent extends PageBase {
   _item;
+  isShowAddAddress = true;
   @Input ()set data(value) {
       this._item = value;
   }
@@ -222,7 +223,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
     let group = this.formBuilder.group({
       IDStaff: [this.formGroup.get('Id').value],
       Id: new FormControl(address?.Id),
-      Type: [address?.Type,Validators.required],
+      Type: [address?.Type],
       AddressLine1: [address?.AddressLine1,Validators.required],
       AddressLine2: [address?.AddressLine2],
       Country: [address?.Country],
@@ -241,6 +242,10 @@ export class StaffPersonnelProfileComponent extends PageBase {
     groups.push(group);
     group.get('IDStaff').markAsDirty();
     group.get('Id').markAsDirty();
+    if(groups.controls.find(d=> !d.get('Id').value)){
+      this.isShowAddAddress = false;
+    }
+    else this.isShowAddAddress = true;
   }
 
   bindName() {
@@ -417,6 +422,18 @@ export class StaffPersonnelProfileComponent extends PageBase {
     }
   }
 
+  async changeEmail() {
+    this.env.showPrompt('Thay đổi email nhân sự sẽ xóa đi tài khoản của nhân sự, bạn có muốn tiếp tục?', null, 'Xóa').then((_) => {
+      this.env
+      .showLoading('Please wait for a few moments',  this.commonService.connect('PUT','Account/DeleteAccount/'+ this.userAccount.Id,{}).toPromise()).then((_) => {
+        this.env.showMessage('Saved changed', 'success');
+        this.refresh();
+      })  .catch((err) => {
+          this.env.showMessage('Cannot save, please try again', 'danger');
+      });;
+    });
+   
+  }
 
   loadGGMap() {
     if (!this.env.isMapLoaded)  {
@@ -427,5 +444,24 @@ export class StaffPersonnelProfileComponent extends PageBase {
         })
         .catch((error) => console.error('Error loading script', error));
   }
+}
+
+savedChange(savedItem = null, form = this.formGroup) {
+  super.savedChange(savedItem,form);
+  let groups = <FormArray>this.formGroup.controls.Addresses;
+  let idsBeforeSaving = new Set(groups.controls.map((g) => g.get('Id').value));
+  this.item = savedItem;
+  if (this.item.Addresses?.length > 0) {
+    let newIds = new Set(this.item.Addresses.map((i) => i.Id));
+    const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
+    if (diff?.length > 0) {
+      groups.controls .find((d) => d.get('Id').value == null) ?.get('Id') .setValue(diff[0]);
+    }
+  }
+  if(groups.controls.find(d=> !d.get('Id').value)){
+    this.isShowAddAddress = false;
+  }
+  else this.isShowAddAddress = true;
+   
 }
 }

@@ -137,110 +137,49 @@
       <div class="ion-padding" style="padding-bottom: 0"></div>
     </div>
   </ion-fab>
-  <ion-grid fixed>
-    <ion-row>
-      <ion-col size="12">
-        <!-- Thông tin cá nhân -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'personnel-profile'" style="min-width: 300px">
-          
-          <app-staff-personnel-profile [data]="item" [pageConfig]="pageConfig" *ngIf="pageConfig.showSpinner == false">
-            
-          </app-staff-personnel-profile>
-          
-        </div>
-        <!-- Thông tin JOB -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'job-information'" style="min-width: 300px">
-          <app-staff-job-information
-         
-          ></app-staff-job-information>
-          <!-- <div class="main-view" *ngIf="pageConfig.showSpinner == false">
-              <div class="row-full shadow full-screen ion-padding">
-                <ion-grid fixed>
-                  <ion-row
-                    class="hr-group"
-                    [class]="hideBorder ? '' : 'border'"
-                    [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
-                  >
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="4"> </ion-col>
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="6"></ion-col>
-                  </ion-row>
-                </ion-grid>
-              </div>
-            </div> -->
-        </div>
+  <div
+  class="row-full shadow full-screen"
+  style="max-width: 1440px; margin: auto; width: 100%; position: relative; z-index: 0"
+>
+  <app-staff-personnel-profile [data]="item" [pageConfig]="pageConfig" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
+  </app-staff-personnel-profile>
 
-        <!-- Lương -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'salary-benefits'" style="min-width: 300px">
-          <app-staff-salary-benefits
-          
-          ></app-staff-salary-benefits>
-        </div>
+  <app-staff-job-information *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"
+  ></app-staff-job-information>
 
-        <!-- Task -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'assigned-tasks'" style="min-width: 300px">
-          <app-staff-assigned-tasks
-           
-          ></app-staff-assigned-tasks>
-        </div>
+  <app-staff-salary-benefits *ngIf="segmentView.Page == 'salary-benefits' && pageConfig.showSpinner == false"
+  ></app-staff-salary-benefits>
 
-        <!-- Awards -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'achievements-awards'" style="min-width: 300px">
-          <app-staff-achievements-awards
-          
-          ></app-staff-achievements-awards>
-        </div>
+  <app-staff-assigned-tasks *ngIf="segmentView.Page == 'assigned-tasks' && pageConfig.showSpinner == false"
+  ></app-staff-assigned-tasks>
 
-        <!-- Phạt -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'violate'" style="min-width: 300px">
-          <app-staff-violate
-          
-          ></app-staff-violate>
-        </div>
+  <app-staff-achievements-awards *ngIf="segmentView.Page == 'achievements-awards' && pageConfig.showSpinner == false"
+  ></app-staff-achievements-awards>
 
-        <!-- Feedback -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'reviews-feedback'" style="min-width: 300px">
-          <app-staff-reviews-feedback
-        
-          ></app-staff-reviews-feedback>
-        </div>
+  <app-staff-violate *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"
+  ></app-staff-violate>
 
-        <!-- Hợp đồng nhân sự -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'contracts-documents'" style="min-width: 300px">
-          <app-staff-contracts-documents
-         
-          ></app-staff-contracts-documents>
-        </div>
+  <app-staff-reviews-feedback *ngIf="segmentView.Page == 'reviews-feedback' && pageConfig.showSpinner == false"
+  ></app-staff-reviews-feedback>
 
-        <!-- Lịch làm việc -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'work-schedule'" style="min-width: 300px">
-          <app-staff-work-schedule
-         
-          ></app-staff-work-schedule>
-        </div>
+  <app-staff-contracts-documents *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"
+  ></app-staff-contracts-documents>
 
-        <!-- Tài sản công ty -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'company-assets'" style="min-width: 300px">
-          <app-staff-company-assets
-         
-          ></app-staff-company-assets>
-        </div>
+  <app-staff-work-schedule *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"
+  ></app-staff-work-schedule>
 
-        <!-- Trạng thái nhân viên -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'employment-status'" style="min-width: 300px">
-          <app-staff-employment-status
-            
-          ></app-staff-employment-status>
-        </div>
+   <!-- Tài sản công ty -->
+   <app-staff-company-assets *ngIf="segmentView.Page == 'company-assets' && pageConfig.showSpinner == false"
+   ></app-staff-company-assets>
 
-        <!-- Dữ liệu hoạt động -->
-        <div class="ion-padding" *ngIf="segmentView.Page == 'active-data'" style="min-width: 300px">
-          <app-staff-active-data
-           
-          ></app-staff-active-data>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+    <!-- Trạng thái nhân viên -->
+   <app-staff-employment-status *ngIf="segmentView.Page == 'employment-status' && pageConfig.showSpinner == false"
+   ></app-staff-employment-status>
 
+    <!-- Dữ liệu hoạt động -->
+   <app-staff-active-data  *ngIf="segmentView.Page == 'active-data' && pageConfig.showSpinner == false"
+   ></app-staff-active-data>
+
+  </div>
   <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>
