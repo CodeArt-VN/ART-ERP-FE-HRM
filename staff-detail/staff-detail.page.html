@@ -60,24 +60,44 @@
             />
 
             <ion-label>
-              <h1 class="bold">{{item.FullName}}</h1>
+              <h1 class="bold">{{formGroup.get('FullName').value}}</h1>
               <ng-container *ngFor="let t of jobTitleList">
-                <h2 *ngIf="item.IDJobTitle == t.Id" color="medium text-center">{{ t.Name }}</h2>
+                <h2 *ngIf="formGroup.controls.IDJobTitle == t.Id" color="medium text-center">{{ t.Name }}</h2>
                 <p *ngIf="formGroup.get('IsDisabled').value" color="danger">
                   {{ 'Resigned staff' | translate}}
                 </p>
                 
               </ng-container>
             </ion-label>
-
+            <div class="c-control">
+            <!-- <app-input-control
+            [field]="{
+              id: 'IDBranch',
+              type: 'branch-breadcrumbs',
+              label: 'Branch',
+              form: formGroup,
+              dataSource: env.branchList
+            }"
+          ></app-input-control> -->
+            <app-branch-breadcrumbs
+              [maxItems]="1"
+              [itemsBeforeCollapse]="0"
+              [itemsAfterCollapse]="1"
+              [Id]="formGroup.get('IDJobTitle').value"
+              [Items]="env.jobTitleList"
+              [ngClass]="{'no-check-dirty': noCheckDirty}"
+              class="c-input disable breadcrumbs"
+              *ngIf="formGroup.get('IDJobTitle').value"
+            ></app-branch-breadcrumbs>
+        </div>
           </div>
         </ion-item>
         <ion-item>
           <ion-list lines="none">
-            <ion-item lines="none" *ngIf="formGroup.get('Company').value">
+            <!-- <ion-item lines="none" *ngIf="formGroup.get('Company').value">
               <ion-icon slot="start" name="business-outline"></ion-icon>
                 <ion-label><h3>{{ formGroup.get('Company').value.Name }}</h3></ion-label>
-            </ion-item>
+            </ion-item> -->
             <ion-item lines="none" *ngIf="formGroup.get('Code').value">
               <ion-icon slot="start" name="qr-code-outline"></ion-icon>
               <ion-label><h3>{{ formGroup.get('Code').value }}</h3></ion-label>
@@ -94,690 +114,72 @@
             </ion-item>
           </ion-list>
         </ion-item>
-        <ion-item
-          class="clickable"
-          (click)="segmentChanged('s1');"
-          detail="true"
-          lines="full"
-          [color]="segmentView == 's1'? 'primary': '' "
-        >
-          <ion-icon slot="start" aria-hidden="true" name="person-outline"></ion-icon>
-          <ion-label class="ion-text-wrap">
-            <h3>{{'Personnel profile' | translate}}</h3>
-            <p style="color: var(--ion-color-step-400, var(--ion-text-color-step-600, #999999))">
-              {{'Personal, legal and background information' | translate}}
-            </p>
-          </ion-label>
-        </ion-item>
-        <ion-item
-          class="clickable"
-          (click)="segmentChanged('s2')"
-          detail="true"
-          lines="full"
-          [color]="segmentView == 's2'? 'primary': '' "
-        >
-          <ion-icon slot="start" aria-hidden="true" name="flag-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Job information' | translate}}</h3>
-            <p>{{'Jobs, career, recruitment...' | translate}}</p>
-          </ion-label>
-        </ion-item>
-        <ion-item
-          class="clickable"
-          (click)="segmentChanged('s3')"
-          detail="true"
-          lines="full"
-          [color]="segmentView == 's3'? 'primary': '' "
-        >
-          <ion-icon slot="start" aria-hidden="true" name="wallet-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Salary & benefits' | translate}}</h3>
-            <p>{{'Payroll & benefits' | translate}}</p>
-          </ion-label>
-        </ion-item>
-        <ion-item
-          class="clickable"
-          (click)="segmentChanged('s4')"
-          detail="true"
-          lines="full"
-          [color]="segmentView == 's4'? 'primary': '' "
-        >
-          <ion-icon slot="start" aria-hidden="true" name="book-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Assigned tasks' | translate}}</h3>
-            <p>{{'Job functions and feedbacks' | translate}}</p>
-          </ion-label>
-        </ion-item>
-        <ion-item
-          class="clickable"
-          (click)="segmentChanged('s5')"
-          detail="true"
-          lines="full"
-          [color]="segmentView == 's5'? 'primary': '' "
-        >
-          <ion-icon slot="start" aria-hidden="true" name="ribbon-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Achievements & awards' | translate}}</h3>
-            <p>{{'Certificates, Awards, Appreciation...' | translate}}</p>
-          </ion-label>
-        </ion-item>
-        <ion-item
-          class="clickable"
-          (click)="segmentChanged('s6')"
-          detail="true"
-          lines="full"
-          [color]="segmentView == 's6'? 'primary': '' "
-        >
-          <ion-icon slot="start" aria-hidden="true" name="warning-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Violate' | translate}}</h3>
-            <p>{{'Violations of working regulations' | translate}}</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item
-          [color]="segmentView == 's7'? 'primary': '' "
-          class="clickable"
-          (click)="segmentChanged('s7')"
-          detail="true"
-          lines="full"
-        >
-          <ion-icon slot="start" aria-hidden="true" name="reader-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Reviews & feedback' | translate}}</h3>
-            <p>{{'Performance management and features' | translate}}</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item
-          [color]="segmentView == 's8 '? 'primary': '' "
-          class="clickable"
-          (click)="segmentChanged('s8')"
-          detail="true"
-          lines="full"
-        >
-          <ion-icon slot="start" aria-hidden="true" name="documents-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Contracts & documents' | translate}}</h3>
-            <p>{{'Contracts & HR Documents' | translate}}</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item
-          [color]="segmentView == 's9'? 'primary': '' "
-          class="clickable"
-          (click)="segmentChanged('s9')"
-          detail="true"
-          lines="full"
-        >
-          <ion-icon slot="start" aria-hidden="true" name="calendar-clear-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Work schedule & leave' | translate}}</h3>
-            <p>{{'Timesheets, Checkins & Timeoffs' | translate}}</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item
-          [color]="segmentView == 's10'? 'primary': '' "
-          class="clickable"
-          (click)="segmentChanged('s10')"
-          detail="true"
-          lines="full"
-        >
-          <ion-icon slot="start" aria-hidden="true" name="desktop-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Company assets' | translate}}</h3>
-            <p>{{'Intellectual properties and Physic...' | translate}}</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item
-          [color]="segmentView == 's11'? 'primary': '' "
-          class="clickable"
-          (click)="segmentChanged('s11')"
-          detail="true"
-          lines="full"
-        >
-          <ion-icon slot="start" aria-hidden="true" name="push-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Employment status' | translate}}</h3>
-            <p>{{'Status, on-leave, terminations' | translate}}</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item
-          [color]="segmentView == 's12'? 'primary': '' "
-          class="clickable"
-          (click)="segmentChanged('s12')"
-          detail="true"
-          lines="full"
-        >
-          <ion-icon slot="start" aria-hidden="true" name="create-outline"></ion-icon>
-          <ion-label>
-            <h3>{{'Active data' | translate}}</h3>
-            <p>{{'All logs on employee profile' | translate}}</p>
-          </ion-label>
-        </ion-item>
+        <ng-container *ngFor="let i of optionGroup">
+          <ion-item
+            [color]="segmentView.Page == i.Code? 'primary': '' "
+            button
+            detail="true"
+            lines="full"
+            class="clickable"
+            (click)="loadNode(i)"
+          >
+          <ion-icon slot="start" aria-hidden="true" [name]="i.Icon"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              <h3>{{i.Name | translate}}</h3>
+              <p>
+                {{i.Remark | translate}}
+              </p>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+   
       </ion-list>
       <div class="ion-padding" style="padding-bottom: 0"></div>
     </div>
   </ion-fab>
-  <ion-grid fixed>
-  <span *ngIf="mapLoaded | async"></span>
+  <div
+  class="row-full shadow full-screen"
+  style="max-width: 1440px; margin: auto; width: 100%; position: relative; z-index: 0"
+>
+  <app-staff-personnel-profile [data]="item" [pageConfig]="pageConfig" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
+  </app-staff-personnel-profile>
 
-    <ion-row>
-      <ion-col size="12">
-        <!-- Thông tin cá nhân -->
-        <div class="ion-padding" *ngIf="segmentView == 's1'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Personnel profile'"
-            [remark]="'Personal, legal and background information'"
-          ></app-page-title>
-          <div class="main-view" *ngIf="pageConfig.showSpinner == false">
-            <div class="row-full shadow full-screen ion-padding">
-              <ion-grid fixed>
-                <form [formGroup]="formGroup">
-                  <ion-row
-                    class="hr-group"
-                    [class]="hideBorder ? '' : 'border'"
-                    [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
-                  >
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
-                      <ion-list lines="none">
-                        <ion-list-header class="ion-no-padding">
-                          <ion-label color="primary"> {{'General information' | translate}} </ion-label>
-                        </ion-list-header>
-                      </ion-list>
-                    </ion-col>
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                      <app-form-control
-                        [field]="{id:'FullName', label:'Full name', type : 'text', form : formGroup }"
-                        (change)="bindName()"
-                      >
-                        <small label *ngIf="item?.Id">ID: {{item?.Id}}</small>
-                      </app-form-control>
-                      <app-form-control
-                        [field]="{id:'Code', label:'Reference code', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
+  <app-staff-job-information *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"
+  ></app-staff-job-information>
 
-                      <app-form-control
-                        [field]="{id:'IDDepartment', label:'Unit',dataSource: env.branchList, bindLabel:'Name', bindValue:'Id', type : 'ng-select-level', form : formGroup, placeholder:'Select unit' }"
-                      (controlChange)="changeDepartment(true)"
+  <app-staff-salary-benefits *ngIf="segmentView.Page == 'salary-benefits' && pageConfig.showSpinner == false"
+  ></app-staff-salary-benefits>
 
-                      >
-                      </app-form-control>
-                      <app-form-control
-                        [field]="{id:'IDJobTitle', label:'Title',dataSource: jobTitleList, bindLabel:'Name', bindValue:'Id', type : 'ng-select-level', form : formGroup, placeholder:'Select unit' }"
-                        (controlChange)="saveChange()"
-                      >
-                      </app-form-control>
-                      <app-form-control
-                        [field]="{id:'Area', label:'Area',dataSource: workAreaList, bindLabel:'Name', bindValue:'Name', type : 'ng-select', form : formGroup, placeholder:'Select area' }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                    </ion-col>
-                  </ion-row>
-                  <ion-row
-                    class="hr-group"
-                    [class]="hideBorder ? '' : 'border'"
-                    [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
-                  >
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
-                      <ion-list lines="none">
-                        <ion-list-header class="ion-no-padding">
-                          <ion-label color="primary"> {{'National ID Card' | translate}} </ion-label>
-                        </ion-list-header>
-                      </ion-list>
-                    </ion-col>
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                      <app-form-control
-                        [field]="{id:'Domicile', label:'Place of origin', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                      <app-form-control
-                        [field]="{id:'IdentityCardNumber', label:'National ID', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                      <app-form-control
-                        [field]="{id:'DateOfIssueID', label:'Date of issue', type : 'datetime-local', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                      <app-form-control
-                        [field]="{id:'IssuedBy', label:'Place of issue', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                    </ion-col>
-                  </ion-row>
-                  <ion-row
-                    class="hr-group"
-                    [class]="hideBorder ? '' : 'border'"
-                    [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
-                  >
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
-                      <ion-list lines="none">
-                        <ion-list-header class="ion-no-padding">
-                          <ion-label color="primary"> {{'Personal information' | translate}} </ion-label>
-                        </ion-list-header>
-                      </ion-list>
-                    </ion-col>
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                      <app-form-control
-                        [field]="{id:'LastName', label:'Last name', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'FirstName', label:'Name', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'Name', label:'Display name', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      ></app-form-control>
-                      <div class="c-control">
-                        <input
-                          (change)="saveChange()"
-                          id="Gender1"
-                          type="radio"
-                          [value]="true"
-                          formControlName="Gender"
-                          class="c-checkbox"
-                        />
-                        <label class="c-label radio" for="Gender1">
-                          <span>{{'Male' | translate}}</span>
-                        </label>
+  <app-staff-assigned-tasks *ngIf="segmentView.Page == 'assigned-tasks' && pageConfig.showSpinner == false"
+  ></app-staff-assigned-tasks>
 
-                        <input
-                          (change)="saveChange()"
-                          id="Gender2"
-                          type="radio"
-                          [value]="false"
-                          formControlName="Gender"
-                          class="c-checkbox"
-                        />
-                        <label class="c-label radio" for="Gender2">
-                          <span>{{'Female' | translate}}</span>
-                          <span
-                            *ngIf="!formGroup.controls.Gender.valid && !formGroup.controls.Gender.pending && (formGroup.controls.Gender.dirty || submitAttempt)"
-                            ion-text
-                            color="danger"
-                            >(*)</span
-                          >
-                        </label>
-                      </div>
-                      <app-form-control
-                        [field]="{id:'DOB', label:'Date of birth', type : 'datetime-local', form : formGroup }"
-                        (change)="saveChange()"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'PhoneNumber', label:'Phone number', type : 'text', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                      <app-form-control
-                        [field]="{id:'Remark', label:'Remark', type : 'textarea', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                    </ion-col>
-                  </ion-row>
+  <app-staff-achievements-awards *ngIf="segmentView.Page == 'achievements-awards' && pageConfig.showSpinner == false"
+  ></app-staff-achievements-awards>
 
-                  <ion-row
-                    class="hr-group"
-                    [class]="hideBorder ? '' : 'border'"
-                    [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
-                  >
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
-                      <ion-list lines="none">
-                        <ion-list-header class="ion-no-padding">
-                          <ion-label color="primary"> {{'Address' | translate}} </ion-label>
-                        </ion-list-header>
-                        <ion-button fill="outline" size="small" (click)="addAddress({ Id: 0 })"
-                          >{{ 'Add address' | translate }}
-                        </ion-button>
-                      </ion-list>
-                    </ion-col>
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                      <ion-accordion-group
-                        [multiple]="true"
-                        [value]="openedFields"
-                        (ionChange)="accordionGroupChange($event)"
-                        #accordionGroup
-                      >
-                        <!-- <ion-reorder-group
-                        (ionItemReorder)="doReorder($event, formGroup.get('Addresses')['controls'])"
-                        [disabled]="!pageConfig.canEdit"
-                      > -->
-                        <ng-container *ngFor="let c of formGroup.get('Addresses')['controls']; let j=index">
-                          <form [formGroup]="c">
-                            <ion-accordion [value]="c.get('Id').value">
-                              <ion-item slot="header" lines="full">
-                                <ng-container *ngFor="let t of hrAddressTypeList">
-                                  <ion-label
-                                    style="margin-right: 0"
-                                    class="ion-text-wrap"
-                                    *ngIf="t.Code == c.get('Type').value"
-                                  >
-                                    {{ t.Name | translate}}
-                                  </ion-label>
-                                </ng-container>
-                                <ion-button
-                                  *ngIf="pageConfig.canEdit"
-                                  color="danger"
-                                  (click)="$event.stopPropagation();removeAddress(c,j)"
-                                  fill="clear"
-                                  slot="end"
-                                >
-                                  <ion-icon slot="icon-only" name="trash"></ion-icon>
-                                </ion-button>
-                                <!-- <ion-reorder slot="end"></ion-reorder> -->
-                              </ion-item>
-                              <div
-                                class="ion-no-padding"
-                                slot="content"
-                                [ngStyle]="{ 'background': !isAccordionExpanded(c.get('Id').value) ? 'none' : 'var(--table-header-background)' }"
-                              >
-                                <ion-grid fixed>
-                                  <ion-row (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
-                                    <ion-col size="12" size-xl="12">
-                                      <app-form-control
-                                        [field]="{id:'Type', type : 'ng-select',dataSource: hrAddressTypeList, bindLabel:'Name',bindValue:'Code', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
+  <app-staff-violate *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"
+  ></app-staff-violate>
 
-                                      <div class="c-control">
-                                        <label class="c-label" for="Province">
-                                          <span>{{'Provinces' | translate}}</span>
-                                        </label>
-                                        <ng-select
-                                          class="c-input"
-                                          [items]="c.get('ProvinceDataSource').value"
-                                          bindLabel="Name"
-                                          bindValue="Name"
-                                          [hideSelected]="true"
-                                          [addTag]="true"
-                                          typeToSearchText="Please enter 2 or more characters"
-                                          formControlName="Province"
-                                          appendTo="#ng-select-holder"
-                                          (change)="changeProvince(c)"
-                                        >
-                                        </ng-select>
-                                      </div>
-                                      <div class="c-control">
-                                        <label class="c-label" for="District">
-                                          <span>{{'District' | translate}}</span>
-                                        </label>
-                                        <ng-select
-                                          class="c-input"
-                                          [items]="c.get('DistrictDataSource').value"
-                                          bindLabel="Name"
-                                          bindValue="Name"
-                                          [hideSelected]="true"
-                                          [addTag]="true"
-                                          typeToSearchText="Please enter 2 or more characters"
-                                          formControlName="District"
-                                          appendTo="#ng-select-holder"
-                                          (change)="saveChange()"
-                                        >
-                                        </ng-select>
-                                      </div>
+  <app-staff-reviews-feedback *ngIf="segmentView.Page == 'reviews-feedback' && pageConfig.showSpinner == false"
+  ></app-staff-reviews-feedback>
 
-                                      <app-form-control
-                                        [field]="{id:'Ward', label:'Ward', type : 'text', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
-                                      <app-form-control
-                                        [field]="{id:'AddressLine1', label:'House number, street name, quarter', type : 'text', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
-                                      <app-form-control
-                                        [field]="{id:'AddressLine2', label:'Apartment, Building, Unit…', type : 'text', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
+  <app-staff-contracts-documents *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"
+  ></app-staff-contracts-documents>
 
-                                      <app-form-control
-                                        [field]="{id:'Contact', label:'Contact', type : 'text', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
-                                      <app-form-control
-                                        [field]="{id:'Phone1', label:'Telephone', type : 'text', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
-                                      <app-form-control
-                                        [field]="{id:'Phone2', label:'Telephone number (other)', type : 'text', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
-                                      <app-form-control
-                                        [field]="{id:'ZipCode', label:'ZipCode', type : 'text', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
+  <app-staff-work-schedule *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"
+  ></app-staff-work-schedule>
 
-                                      <app-coordinate-picker
-                                        #coordinatePicker
-                                        *ngIf="env.isMapLoaded"
-                                        (change)="changeCoordinate($event, c)"
-                                        [canEdit]="pageConfig.canEdit"
-                                        [address]="c.value"
-                                      ></app-coordinate-picker>
-                                      <app-form-control
-                                        [field]="{id:'Remark', label:'Remark', type : 'textarea', form : c }"
-                                        (change)="saveChange()"
-                                      >
-                                      </app-form-control>
-                                    </ion-col>
-                                  </ion-row>
-                                </ion-grid>
-                              </div>
-                            </ion-accordion>
-                          </form>
-                        </ng-container>
-                        <!-- </ion-reorder-group> -->
-                      </ion-accordion-group>
-                      <!-- <ion-list-header lines="inset">
-                      <ng-container *ngFor="let t of hrAddressTypeList" >
-                        <ion-label class="bold" *ngIf="t.Code == c.get('Type').value"> {{ t.Name | translate}} </ion-label>
-                      </ng-container>
-                      <ion-button (click)="removeAddress(c,j)" *ngIf="pageConfig.canEdit">
-                        <ion-icon slot="end" name="trash-outline" color="danger"></ion-icon>
-                      </ion-button>
-                    </ion-list-header> -->
-                    </ion-col>
-                  </ion-row>
+   <!-- Tài sản công ty -->
+   <app-staff-company-assets *ngIf="segmentView.Page == 'company-assets' && pageConfig.showSpinner == false"
+   ></app-staff-company-assets>
 
-                  <ion-row
-                    class="hr-group"
-                    [class]="hideBorder ? '' : 'border'"
-                    [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
-                  >
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
-                      <ion-list lines="none">
-                        <ion-list-header class="ion-no-padding">
-                          <ion-label color="primary"> {{'Other information' | translate}} </ion-label>
-                        </ion-list-header>
-                      </ion-list>
-                    </ion-col>
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                      <app-form-control
-                        [field]="{id:'CreatedBy', type : 'text', label: 'Created by', form : formGroup }"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'CreatedDate', type : 'span-datetime', label: 'Created date', form : formGroup }"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'ModifiedBy', type : 'text', label: 'Last modified by', form : formGroup }"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'ModifiedDate', type : 'span-datetime', label: 'Last modified date', form : formGroup }"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'IDBranch', type : 'branch-breadcrumbs', label: 'Branch', form : formGroup, dataSource:env.branchList }"
-                      ></app-form-control>
-                      <app-form-control
-                        [field]="{id:'Remark', label:'Remark', type : 'textarea', form : formGroup }"
-                        (change)="saveChange()"
-                      >
-                      </app-form-control>
-                    </ion-col>
-                  </ion-row>
-                </form>
-              </ion-grid>
-            </div>
-          </div>
-        </div>
-        <!-- Thông tin JOB -->
-        <div class="ion-padding" *ngIf="segmentView == 's2'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Job information'"
-            [remark]="'Jobs, career, recruitment...'"
-          ></app-page-title>
-          <!-- <div class="main-view" *ngIf="pageConfig.showSpinner == false">
-              <div class="row-full shadow full-screen ion-padding">
-                <ion-grid fixed>
-                  <ion-row
-                    class="hr-group"
-                    [class]="hideBorder ? '' : 'border'"
-                    [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
-                  >
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="4"> </ion-col>
-                    <ion-col size="12" size-md="12" size-lg="12" size-xl="6"></ion-col>
-                  </ion-row>
-                </ion-grid>
-              </div>
-            </div> -->
-        </div>
+    <!-- Trạng thái nhân viên -->
+   <app-staff-employment-status *ngIf="segmentView.Page == 'employment-status' && pageConfig.showSpinner == false"
+   ></app-staff-employment-status>
 
-        <!-- Lương -->
-        <div class="ion-padding" *ngIf="segmentView == 's3'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Salary & benefits'"
-            [remark]="'Payroll & benefits'"
-          ></app-page-title>
-        </div>
+    <!-- Dữ liệu hoạt động -->
+   <app-staff-active-data  *ngIf="segmentView.Page == 'active-data' && pageConfig.showSpinner == false"
+   ></app-staff-active-data>
 
-        <!-- Task -->
-        <div class="ion-padding" *ngIf="segmentView == 's4'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Assigned tasks'"
-            [remark]="'Job functions and feedbacks'"
-          ></app-page-title>
-        </div>
-
-        <!-- Awards -->
-        <div class="ion-padding" *ngIf="segmentView == 's5'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Achievements & awards'"
-            [remark]="'Certificates, Awards, Appreciation...'"
-          ></app-page-title>
-        </div>
-
-        <!-- Phạt -->
-        <div class="ion-padding" *ngIf="segmentView == 's6'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Violate'"
-            [remark]="'Violations of working regulations'"
-          ></app-page-title>
-        </div>
-
-        <!-- Feedback -->
-        <div class="ion-padding" *ngIf="segmentView == 's7'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Reviews & feedback'"
-            [remark]="'Performance management and features'"
-          ></app-page-title>
-        </div>
-
-        <!-- Hợp đồng nhân sự -->
-        <div class="ion-padding" *ngIf="segmentView == 's8'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Contracts & documents'"
-            [remark]="'Contracts & HR Documents'"
-          ></app-page-title>
-        </div>
-
-        <!-- Lịch làm việc -->
-        <div class="ion-padding" *ngIf="segmentView == 's9'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Work schedule & leave'"
-            [remark]="'Timesheets, Checkins & Timeoffs'"
-          ></app-page-title>
-        </div>
-
-        <!-- Tài sản công ty -->
-        <div class="ion-padding" *ngIf="segmentView == 's10'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Company assets'"
-            [remark]="'Intellectual properties and Physic...'"
-          ></app-page-title>
-        </div>
-
-        <!-- Trạng thái nhân viên -->
-        <div class="ion-padding" *ngIf="segmentView == 's11'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Employment status'"
-            [remark]="'Status, on-leave, terminations'"
-          ></app-page-title>
-        </div>
-
-        <!-- Dữ liệu hoạt động -->
-        <div class="ion-padding" *ngIf="segmentView == 's12'" style="min-width: 300px">
-          <app-page-title
-            class="ion-margin-bottom"
-            icon="cog-outline"
-            color="primary"
-            [title]="'Active data'"
-            [remark]="'Personal, legal and background information'"
-          ></app-page-title>
-        </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
+  </div>
   <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>
