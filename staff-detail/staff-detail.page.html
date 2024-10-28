@@ -63,14 +63,11 @@
               <h1 class="bold">{{formGroup.get('FullName').value}}</h1>
               <ng-container *ngFor="let t of jobTitleList">
                 <h2 *ngIf="formGroup.controls.IDJobTitle == t.Id" color="medium text-center">{{ t.Name }}</h2>
-                <p *ngIf="formGroup.get('IsDisabled').value" color="danger">
-                  {{ 'Resigned staff' | translate}}
-                </p>
-                
+                <p *ngIf="formGroup.get('IsDisabled').value" color="danger">{{ 'Resigned staff' | translate}}</p>
               </ng-container>
             </ion-label>
             <div class="c-control">
-            <!-- <app-input-control
+              <!-- <app-input-control
             [field]="{
               id: 'IDBranch',
               type: 'branch-breadcrumbs',
@@ -79,17 +76,17 @@
               dataSource: env.branchList
             }"
           ></app-input-control> -->
-            <app-branch-breadcrumbs
-              [maxItems]="1"
-              [itemsBeforeCollapse]="0"
-              [itemsAfterCollapse]="1"
-              [Id]="formGroup.get('IDJobTitle').value"
-              [Items]="env.jobTitleList"
-              [ngClass]="{'no-check-dirty': noCheckDirty}"
-              class="c-input disable breadcrumbs"
-              *ngIf="formGroup.get('IDJobTitle').value"
-            ></app-branch-breadcrumbs>
-        </div>
+              <app-branch-breadcrumbs
+                [maxItems]="1"
+                [itemsBeforeCollapse]="0"
+                [itemsAfterCollapse]="1"
+                [Id]="formGroup.get('IDJobTitle').value"
+                [Items]="env.jobTitleList"
+                [ngClass]="{'no-check-dirty': noCheckDirty}"
+                class="c-input disable breadcrumbs"
+                *ngIf="formGroup.get('IDJobTitle').value"
+              ></app-branch-breadcrumbs>
+            </div>
           </div>
         </ion-item>
         <ion-item>
@@ -123,63 +120,70 @@
             class="clickable"
             (click)="loadNode(i)"
           >
-          <ion-icon slot="start" aria-hidden="true" [name]="i.Icon"></ion-icon>
+            <ion-icon slot="start" aria-hidden="true" [name]="i.Icon"></ion-icon>
             <ion-label class="ion-text-wrap">
               <h3>{{i.Name | translate}}</h3>
-              <p>
-                {{i.Remark | translate}}
-              </p>
+              <p>{{i.Remark | translate}}</p>
             </ion-label>
           </ion-item>
         </ng-container>
-   
       </ion-list>
       <div class="ion-padding" style="padding-bottom: 0"></div>
     </div>
   </ion-fab>
-  <div
-  class="row-full shadow full-screen"
-  style="max-width: 1440px; margin: auto; width: 100%; position: relative; z-index: 0"
->
-  <app-staff-personnel-profile [data]="item" [pageConfig]="pageConfig" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
-  </app-staff-personnel-profile>
 
-  <app-staff-job-information *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"
-  ></app-staff-job-information>
+  <div>
+    <app-staff-personnel-profile
+      [data]="item"
+      [pageConfig]="pageConfig"
+      *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false"
+    >
+    </app-staff-personnel-profile>
 
-  <app-staff-salary-benefits *ngIf="segmentView.Page == 'salary-benefits' && pageConfig.showSpinner == false"
-  ></app-staff-salary-benefits>
+    <app-staff-job-information
+      *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"
+    ></app-staff-job-information>
 
-  <app-staff-assigned-tasks *ngIf="segmentView.Page == 'assigned-tasks' && pageConfig.showSpinner == false"
-  ></app-staff-assigned-tasks>
+    <app-staff-salary-benefits
+      *ngIf="segmentView.Page == 'salary-benefits' && pageConfig.showSpinner == false"
+    ></app-staff-salary-benefits>
 
-  <app-staff-achievements-awards *ngIf="segmentView.Page == 'achievements-awards' && pageConfig.showSpinner == false"
-  ></app-staff-achievements-awards>
+    <app-staff-assigned-tasks
+      *ngIf="segmentView.Page == 'assigned-tasks' && pageConfig.showSpinner == false"
+    ></app-staff-assigned-tasks>
 
-  <app-staff-violate *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"
-  ></app-staff-violate>
+    <app-staff-achievements-awards
+      *ngIf="segmentView.Page == 'achievements-awards' && pageConfig.showSpinner == false"
+    ></app-staff-achievements-awards>
 
-  <app-staff-reviews-feedback *ngIf="segmentView.Page == 'reviews-feedback' && pageConfig.showSpinner == false"
-  ></app-staff-reviews-feedback>
+    <app-staff-violate *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"></app-staff-violate>
 
-  <app-staff-contracts-documents *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"
-  ></app-staff-contracts-documents>
+    <app-staff-reviews-feedback
+      *ngIf="segmentView.Page == 'reviews-feedback' && pageConfig.showSpinner == false"
+    ></app-staff-reviews-feedback>
 
-  <app-staff-work-schedule *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"
-  ></app-staff-work-schedule>
+    <app-staff-contracts-documents
+      *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"
+    ></app-staff-contracts-documents>
 
-   <!-- Tài sản công ty -->
-   <app-staff-company-assets *ngIf="segmentView.Page == 'company-assets' && pageConfig.showSpinner == false"
-   ></app-staff-company-assets>
+    <app-staff-work-schedule
+      *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"
+    ></app-staff-work-schedule>
+
+    <!-- Tài sản công ty -->
+    <app-staff-company-assets
+      *ngIf="segmentView.Page == 'company-assets' && pageConfig.showSpinner == false"
+    ></app-staff-company-assets>
 
     <!-- Trạng thái nhân viên -->
-   <app-staff-employment-status *ngIf="segmentView.Page == 'employment-status' && pageConfig.showSpinner == false"
-   ></app-staff-employment-status>
+    <app-staff-employment-status
+      *ngIf="segmentView.Page == 'employment-status' && pageConfig.showSpinner == false"
+    ></app-staff-employment-status>
 
     <!-- Dữ liệu hoạt động -->
-   <app-staff-active-data  *ngIf="segmentView.Page == 'active-data' && pageConfig.showSpinner == false"
-   ></app-staff-active-data>
-
+    <app-staff-active-data
+      *ngIf="segmentView.Page == 'active-data' && pageConfig.showSpinner == false"
+    ></app-staff-active-data>
   </div>
   <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>
