@@ -33,12 +33,15 @@
           <ion-col size="12" size-sm="12" size-md="12" size-xl="4">
             <app-form-control
               [field]="{
+                branchConfig:{
+                  showingType:'Department'
+                },
                 id: 'IDDepartment',
                 label: 'Unit',
-                dataSource: env.branchList,
+                dataSource: departmentList,
                 bindLabel: 'Name',
                 bindValue: 'Id',
-                type: 'ng-select-level',
+                type: 'ng-select-branch',
                 form: formGroup,
                 placeholder: 'Select unit'
               }"
@@ -47,12 +50,13 @@
             </app-form-control>
             <app-form-control
               [field]="{
+                treeConfig:{isTree:true},
                 id: 'IDJobTitle',
-                label: 'Title',
+                label: 'JobTitle',
                 dataSource: jobTitleList,
                 bindLabel: 'Name',
                 bindValue: 'Id',
-                type: 'ng-select-level',
+                type: 'ng-select',
                 form: formGroup,
                 placeholder: 'Select unit'
               }"

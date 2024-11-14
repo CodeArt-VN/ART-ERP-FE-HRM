@@ -54,6 +54,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
   maxDOB = '';
 
   jobTitleList = [];
+  departmentList = [];
   workAreaList = [];
   hrAddressTypeList = [];
   constructor(
@@ -147,6 +148,8 @@ export class StaffPersonnelProfileComponent extends PageBase {
     }).catch(err=>{
       super.preLoadData(event)
     })
+    this.departmentList = [...this.env.branchList];
+    this.jobTitleList = [...this.env.jobTitleList];
   }
   loadData(event){
     this.item = this._item;
@@ -200,7 +203,6 @@ export class StaffPersonnelProfileComponent extends PageBase {
   }
 
   async saveChange() {
-    this.bindName();
     this.saveChange2();
   }
 
@@ -255,7 +257,11 @@ export class StaffPersonnelProfileComponent extends PageBase {
         this.formGroup.controls.FirstName.setValue(names[names.length - 1]);
         this.formGroup.controls.LastName.setValue(names[0]);
         this.formGroup.controls.Name.setValue(names[names.length - 1] + ' ' + names[0]);
+        this.formGroup.get('FirstName').markAsDirty();
+        this.formGroup.get('LastName').markAsDirty();
+        this.formGroup.get('Name').markAsDirty();
       }
+      this.saveChange();
     }
   }
 
