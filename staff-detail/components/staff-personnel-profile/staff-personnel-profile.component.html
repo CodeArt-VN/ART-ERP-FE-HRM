@@ -5,7 +5,7 @@
   [title]="'Personnel profile'"
   [remark]="'Personal, legal and background information'"
 ></app-page-title>
-<div class="main-view">
+<div class="main-view" *ngIf="pageConfig.showSpinner==false">
   <div class="row-full shadow full-screen ion-padding">
     <ion-grid fixed>
       <form [formGroup]="formGroup">
@@ -50,13 +50,12 @@
             </app-form-control>
             <app-form-control
               [field]="{
-                treeConfig:{isTree:true},
                 id: 'IDJobTitle',
-                label: 'JobTitle',
+                label: 'Job title',
                 dataSource: jobTitleList,
                 bindLabel: 'Name',
                 bindValue: 'Id',
-                type: 'ng-select',
+                type: 'ng-select-branch',
                 form: formGroup,
                 placeholder: 'Select unit'
               }"

@@ -179,6 +179,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
             this.changePasswordForm.reset();
           });
       }
+      // this.changeDepartment();
       setTimeout(() => {
         this.changeDepartment();
       }, 100);
@@ -303,7 +304,11 @@ export class StaffPersonnelProfileComponent extends PageBase {
     this.env.getType('WorkAreaType').then((result) => {
       this.workAreaList = [...result];
     });
-    if(markAsDirty) this.saveChange();
+    if(markAsDirty){
+      this.formGroup.get('IDJobTitle').setValue(null);
+      this.formGroup.get('IDJobTitle').markAsDirty();
+      this.saveChange();
+    }
   }
 
   markNestedNode(ls, Id) {
