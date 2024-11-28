@@ -5,7 +5,7 @@
   [title]="'Personnel profile'"
   [remark]="'Personal, legal and background information'"
 ></app-page-title>
-<div class="main-view">
+<div class="main-view" *ngIf="pageConfig.showSpinner==false">
   <div class="row-full shadow full-screen ion-padding">
     <ion-grid fixed>
       <form [formGroup]="formGroup">
@@ -33,12 +33,15 @@
           <ion-col size="12" size-sm="12" size-md="12" size-xl="4">
             <app-form-control
               [field]="{
+                branchConfig:{
+                  showingType:'Department'
+                },
                 id: 'IDDepartment',
                 label: 'Unit',
-                dataSource: env.branchList,
+                dataSource: departmentList,
                 bindLabel: 'Name',
                 bindValue: 'Id',
-                type: 'ng-select-level',
+                type: 'ng-select-branch',
                 form: formGroup,
                 placeholder: 'Select unit'
               }"
@@ -48,11 +51,11 @@
             <app-form-control
               [field]="{
                 id: 'IDJobTitle',
-                label: 'Title',
+                label: 'Job title',
                 dataSource: jobTitleList,
                 bindLabel: 'Name',
                 bindValue: 'Id',
-                type: 'ng-select-level',
+                type: 'ng-select-branch',
                 form: formGroup,
                 placeholder: 'Select unit'
               }"

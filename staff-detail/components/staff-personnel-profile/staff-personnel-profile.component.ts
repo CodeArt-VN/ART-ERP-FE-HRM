@@ -54,6 +54,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
   maxDOB = '';
 
   jobTitleList = [];
+  departmentList = [];
   workAreaList = [];
   hrAddressTypeList = [];
   constructor(
@@ -147,6 +148,8 @@ export class StaffPersonnelProfileComponent extends PageBase {
     }).catch(err=>{
       super.preLoadData(event)
     })
+    this.departmentList = [...this.env.branchList];
+    this.jobTitleList = [...this.env.jobTitleList];
   }
   loadData(event){
     this.item = this._item;
@@ -176,6 +179,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
             this.changePasswordForm.reset();
           });
       }
+      // this.changeDepartment();
       setTimeout(() => {
         this.changeDepartment();
       }, 100);
@@ -200,7 +204,6 @@ export class StaffPersonnelProfileComponent extends PageBase {
   }
 
   async saveChange() {
-    this.bindName();
     this.saveChange2();
   }
 
@@ -255,7 +258,11 @@ export class StaffPersonnelProfileComponent extends PageBase {
         this.formGroup.controls.FirstName.setValue(names[names.length - 1]);
         this.formGroup.controls.LastName.setValue(names[0]);
         this.formGroup.controls.Name.setValue(names[names.length - 1] + ' ' + names[0]);
+        this.formGroup.get('FirstName').markAsDirty();
+        this.formGroup.get('LastName').markAsDirty();
+        this.formGroup.get('Name').markAsDirty();
       }
+      this.saveChange();
     }
   }
 
@@ -297,7 +304,11 @@ export class StaffPersonnelProfileComponent extends PageBase {
     this.env.getType('WorkAreaType').then((result) => {
       this.workAreaList = [...result];
     });
-    if(markAsDirty) this.saveChange();
+    if(markAsDirty){
+      this.formGroup.get('IDJobTitle').setValue(null);
+      this.formGroup.get('IDJobTitle').markAsDirty();
+      this.saveChange();
+    }
   }
 
   markNestedNode(ls, Id) {
