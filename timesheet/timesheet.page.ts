@@ -5,9 +5,10 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { BRA_BranchProvider, HRM_TimesheetProvider } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-timesheet',
-  templateUrl: './timesheet.page.html',
-  styleUrls: ['./timesheet.page.scss'],
+    selector: 'app-timesheet',
+    templateUrl: './timesheet.page.html',
+    styleUrls: ['./timesheet.page.scss'],
+    standalone: false
 })
 export class TimesheetPage extends PageBase {
   constructor(

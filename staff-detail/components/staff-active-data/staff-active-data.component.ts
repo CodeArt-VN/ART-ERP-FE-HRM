@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-active-data',
-  templateUrl: './staff-active-data.component.html',
-  styleUrls: ['./staff-active-data.component.scss'],
+    selector: 'app-staff-active-data',
+    templateUrl: './staff-active-data.component.html',
+    styleUrls: ['./staff-active-data.component.scss'],
+    standalone: false
 })
 export class StaffActiveDataComponent extends PageBase {
   @Input() set sfId(value) {

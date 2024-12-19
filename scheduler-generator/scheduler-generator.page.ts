@@ -8,9 +8,10 @@ import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-scheduler-generator',
-  templateUrl: './scheduler-generator.page.html',
-  styleUrls: ['./scheduler-generator.page.scss'],
+    selector: 'app-scheduler-generator',
+    templateUrl: './scheduler-generator.page.html',
+    styleUrls: ['./scheduler-generator.page.scss'],
+    standalone: false
 })
 export class SchedulerGeneratorPage extends PageBase {
   dayList = [

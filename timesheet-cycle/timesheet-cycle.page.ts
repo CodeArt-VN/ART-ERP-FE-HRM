@@ -8,9 +8,10 @@ import { TimesheetCycleModalPage } from '../timesheet-cycle-modal/timesheet-cycl
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-timesheet-cycle',
-  templateUrl: 'timesheet-cycle.page.html',
-  styleUrls: ['timesheet-cycle.page.scss'],
+    selector: 'app-timesheet-cycle',
+    templateUrl: 'timesheet-cycle.page.html',
+    styleUrls: ['timesheet-cycle.page.scss'],
+    standalone: false
 })
 export class TimesheetCyclePage extends PageBase {
   timesheetList = [];

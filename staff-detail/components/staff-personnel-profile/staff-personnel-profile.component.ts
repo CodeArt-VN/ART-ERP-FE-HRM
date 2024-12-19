@@ -20,9 +20,10 @@ import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-staff-personnel-profile',
-  templateUrl: './staff-personnel-profile.component.html',
-  styleUrls: ['./staff-personnel-profile.component.scss'],
+    selector: 'app-staff-personnel-profile',
+    templateUrl: './staff-personnel-profile.component.html',
+    styleUrls: ['./staff-personnel-profile.component.scss'],
+    standalone: false
 })
 export class StaffPersonnelProfileComponent extends PageBase {
   _item;

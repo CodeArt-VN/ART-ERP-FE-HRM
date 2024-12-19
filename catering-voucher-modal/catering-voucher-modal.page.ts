@@ -9,9 +9,10 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-catering-voucher-modal',
-  templateUrl: './catering-voucher-modal.page.html',
-  styleUrls: ['./catering-voucher-modal.page.scss'],
+    selector: 'app-catering-voucher-modal',
+    templateUrl: './catering-voucher-modal.page.html',
+    styleUrls: ['./catering-voucher-modal.page.scss'],
+    standalone: false
 })
 export class CateringVoucherModalPage extends PageBase {
   avatarURL = '';

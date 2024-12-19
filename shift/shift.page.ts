@@ -7,9 +7,10 @@ import { Location } from '@angular/common';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-shift',
-  templateUrl: 'shift.page.html',
-  styleUrls: ['shift.page.scss'],
+    selector: 'app-shift',
+    templateUrl: 'shift.page.html',
+    styleUrls: ['shift.page.scss'],
+    standalone: false
 })
 export class ShiftPage extends PageBase {
   constructor(

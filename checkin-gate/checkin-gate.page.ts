@@ -14,9 +14,10 @@ import QRCode from 'qrcode';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-checkin-gate',
-  templateUrl: './checkin-gate.page.html',
-  styleUrls: ['./checkin-gate.page.scss'],
+    selector: 'app-checkin-gate',
+    templateUrl: './checkin-gate.page.html',
+    styleUrls: ['./checkin-gate.page.scss'],
+    standalone: false
 })
 export class CheckinGateDetailPage extends PageBase {
   officeList = [];

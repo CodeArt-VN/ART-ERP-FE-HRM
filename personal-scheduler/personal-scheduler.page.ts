@@ -22,9 +22,10 @@ import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/
 import { ConsoleLogger } from '@microsoft/signalr/dist/esm/Utils';
 
 @Component({
-  selector: 'app-personal-scheduler',
-  templateUrl: 'personal-scheduler.page.html',
-  styleUrls: ['personal-scheduler.page.scss'],
+    selector: 'app-personal-scheduler',
+    templateUrl: 'personal-scheduler.page.html',
+    styleUrls: ['personal-scheduler.page.scss'],
+    standalone: false
 })
 export class PersonalSchedulerPage extends PageBase {
   @ViewChild('calendar') calendarComponent: FullCalendarComponent;

@@ -7,9 +7,10 @@ import { Location } from '@angular/common';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-holiday-policy',
-  templateUrl: 'holiday-policy.page.html',
-  styleUrls: ['holiday-policy.page.scss'],
+    selector: 'app-holiday-policy',
+    templateUrl: 'holiday-policy.page.html',
+    styleUrls: ['holiday-policy.page.scss'],
+    standalone: false
 })
 export class HolidayPolicyPage extends PageBase {
   constructor(

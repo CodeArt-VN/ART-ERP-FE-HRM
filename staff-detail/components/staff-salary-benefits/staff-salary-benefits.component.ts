@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-salary-benefits',
-  templateUrl: './staff-salary-benefits.component.html',
-  styleUrls: ['./staff-salary-benefits.component.scss'],
+    selector: 'app-staff-salary-benefits',
+    templateUrl: './staff-salary-benefits.component.html',
+    styleUrls: ['./staff-salary-benefits.component.scss'],
+    standalone: false
 })
 export class StaffSalaryBenefitsComponent extends PageBase {
   @Input() set sfId(value) {

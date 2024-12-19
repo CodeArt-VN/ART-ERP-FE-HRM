@@ -7,9 +7,10 @@ import { Location } from '@angular/common';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-staff-picker',
-  templateUrl: 'staff-picker.page.html',
-  styleUrls: ['staff-picker.page.scss'],
+    selector: 'app-staff-picker',
+    templateUrl: 'staff-picker.page.html',
+    styleUrls: ['staff-picker.page.scss'],
+    standalone: false
 })
 export class StaffPickerPage extends PageBase {
   branchList = [];

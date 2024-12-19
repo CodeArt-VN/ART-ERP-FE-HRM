@@ -8,9 +8,10 @@ import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-  selector: 'app-overtime-policy-detail',
-  templateUrl: './overtime-policy-detail.page.html',
-  styleUrls: ['./overtime-policy-detail.page.scss'],
+    selector: 'app-overtime-policy-detail',
+    templateUrl: './overtime-policy-detail.page.html',
+    styleUrls: ['./overtime-policy-detail.page.scss'],
+    standalone: false
 })
 export class OvertimePolicyDetailPage extends PageBase {
   TypeList = [];

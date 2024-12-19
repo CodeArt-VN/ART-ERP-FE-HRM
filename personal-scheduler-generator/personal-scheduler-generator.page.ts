@@ -9,9 +9,10 @@ import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-personal-scheduler-generator',
-  templateUrl: './personal-scheduler-generator.page.html',
-  styleUrls: ['./personal-scheduler-generator.page.scss'],
+    selector: 'app-personal-scheduler-generator',
+    templateUrl: './personal-scheduler-generator.page.html',
+    styleUrls: ['./personal-scheduler-generator.page.scss'],
+    standalone: false
 })
 export class PersonalSchedulerGeneratorPage extends PageBase {
   dayList = [

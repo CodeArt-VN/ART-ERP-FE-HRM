@@ -16,9 +16,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-family',
-  templateUrl: './staff-family.component.html',
-  styleUrls: ['./staff-family.component.scss'],
+    selector: 'app-staff-family',
+    templateUrl: './staff-family.component.html',
+    styleUrls: ['./staff-family.component.scss'],
+    standalone: false
 })
 export class StaffFamilyComponent extends PageBase {
   @Input() set sfId(value) {

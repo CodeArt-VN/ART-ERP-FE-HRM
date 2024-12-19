@@ -6,9 +6,10 @@ import { HRM_OvertimePolicyProvider } from 'src/app/services/static/services.ser
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-overtime-policy',
-  templateUrl: 'overtime-policy.page.html',
-  styleUrls: ['overtime-policy.page.scss'],
+    selector: 'app-overtime-policy',
+    templateUrl: 'overtime-policy.page.html',
+    styleUrls: ['overtime-policy.page.scss'],
+    standalone: false
 })
 export class OvertimePolicyPage extends PageBase {
   constructor(

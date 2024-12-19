@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-violate',
-  templateUrl: './staff-violate.component.html',
-  styleUrls: ['./staff-violate.component.scss'],
+    selector: 'app-staff-violate',
+    templateUrl: './staff-violate.component.html',
+    styleUrls: ['./staff-violate.component.scss'],
+    standalone: false
 })
 export class StaffViolateComponent extends PageBase {
   @Input() set sfId(value) {

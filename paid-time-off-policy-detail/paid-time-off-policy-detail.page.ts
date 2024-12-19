@@ -12,9 +12,10 @@ import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@ang
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-  selector: 'app-paid-time-off-policy-detail',
-  templateUrl: './paid-time-off-policy-detail.page.html',
-  styleUrls: ['./paid-time-off-policy-detail.page.scss'],
+    selector: 'app-paid-time-off-policy-detail',
+    templateUrl: './paid-time-off-policy-detail.page.html',
+    styleUrls: ['./paid-time-off-policy-detail.page.scss'],
+    standalone: false
 })
 export class PaidTimeOffPolicyDetailPage extends PageBase {
   TypeList = [];

@@ -14,9 +14,10 @@ import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-ptos-enrollment-detail',
-  templateUrl: './ptos-enrollment-detail.page.html',
-  styleUrls: ['./ptos-enrollment-detail.page.scss'],
+    selector: 'app-ptos-enrollment-detail',
+    templateUrl: './ptos-enrollment-detail.page.html',
+    styleUrls: ['./ptos-enrollment-detail.page.scss'],
+    standalone: false
 })
 export class PTOsEnrollmentDetailPage extends PageBase {
   constructor(

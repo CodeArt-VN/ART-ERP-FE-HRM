@@ -18,9 +18,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { LogGeneratorPage } from '../log-generator/log-generator.page';
 
 @Component({
-  selector: 'app-checkin-log',
-  templateUrl: 'checkin-log.page.html',
-  styleUrls: ['checkin-log.page.scss'],
+    selector: 'app-checkin-log',
+    templateUrl: 'checkin-log.page.html',
+    styleUrls: ['checkin-log.page.scss'],
+    standalone: false
 })
 export class CheckinLogPage extends PageBase {
   @ViewChild('calendar') calendarComponent: FullCalendarComponent;

@@ -6,9 +6,10 @@ import { HRM_StaffPTOEnrollmentProvider } from 'src/app/services/static/services
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-ptos-enrollment',
-  templateUrl: 'ptos-enrollment.page.html',
-  styleUrls: ['ptos-enrollment.page.scss'],
+    selector: 'app-ptos-enrollment',
+    templateUrl: 'ptos-enrollment.page.html',
+    styleUrls: ['ptos-enrollment.page.scss'],
+    standalone: false
 })
 export class PTOsEnrollmentPage extends PageBase {
   constructor(

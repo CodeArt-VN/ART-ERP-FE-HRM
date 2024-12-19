@@ -9,9 +9,10 @@ import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-log-generator',
-  templateUrl: './log-generator.page.html',
-  styleUrls: ['./log-generator.page.scss'],
+    selector: 'app-log-generator',
+    templateUrl: './log-generator.page.html',
+    styleUrls: ['./log-generator.page.scss'],
+    standalone: false
 })
 export class LogGeneratorPage extends PageBase {
   dayList = [

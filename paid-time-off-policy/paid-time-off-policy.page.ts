@@ -10,9 +10,10 @@ import {
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-paid-time-off-policy',
-  templateUrl: 'paid-time-off-policy.page.html',
-  styleUrls: ['paid-time-off-policy.page.scss'],
+    selector: 'app-paid-time-off-policy',
+    templateUrl: 'paid-time-off-policy.page.html',
+    styleUrls: ['paid-time-off-policy.page.scss'],
+    standalone: false
 })
 export class PaidTimeOffPolicyPage extends PageBase {
   constructor(

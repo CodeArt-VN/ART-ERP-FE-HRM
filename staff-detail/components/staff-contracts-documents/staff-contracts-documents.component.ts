@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-contracts-documents',
-  templateUrl: './staff-contracts-documents.component.html',
-  styleUrls: ['./staff-contracts-documents.component.scss'],
+    selector: 'app-staff-contracts-documents',
+    templateUrl: './staff-contracts-documents.component.html',
+    styleUrls: ['./staff-contracts-documents.component.scss'],
+    standalone: false
 })
 export class StaffContractsDocumentsComponent extends PageBase {
   @Input() set sfId(value) {

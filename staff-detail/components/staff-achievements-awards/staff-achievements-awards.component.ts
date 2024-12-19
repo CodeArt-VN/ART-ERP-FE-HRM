@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-achievements-awards',
-  templateUrl: './staff-achievements-awards.component.html',
-  styleUrls: ['./staff-achievements-awards.component.scss'],
+    selector: 'app-staff-achievements-awards',
+    templateUrl: './staff-achievements-awards.component.html',
+    styleUrls: ['./staff-achievements-awards.component.scss'],
+    standalone: false
 })
 export class StaffAchievementsAwardsComponent extends PageBase {
   @Input() set sfId(value) {

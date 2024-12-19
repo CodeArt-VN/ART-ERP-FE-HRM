@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-assigned-tasks',
-  templateUrl: './staff-assigned-tasks.component.html',
-  styleUrls: ['./staff-assigned-tasks.component.scss'],
+    selector: 'app-staff-assigned-tasks',
+    templateUrl: './staff-assigned-tasks.component.html',
+    styleUrls: ['./staff-assigned-tasks.component.scss'],
+    standalone: false
 })
 export class StaffAssignedTasksComponent extends PageBase {
   @Input() set sfId(value) {

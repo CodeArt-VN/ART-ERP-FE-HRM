@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-job-information',
-  templateUrl: './staff-job-information.component.html',
-  styleUrls: ['./staff-job-information.component.scss'],
+    selector: 'app-staff-job-information',
+    templateUrl: './staff-job-information.component.html',
+    styleUrls: ['./staff-job-information.component.scss'],
+    standalone: false
 })
 export class StaffJobInformationComponent extends PageBase {
   @Input() set sfId(value) {

@@ -6,9 +6,10 @@ import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 
 @Component({
-  selector: 'app-staff-employment-status',
-  templateUrl: './staff-employment-status.component.html',
-  styleUrls: ['./staff-employment-status.component.scss'],
+    selector: 'app-staff-employment-status',
+    templateUrl: './staff-employment-status.component.html',
+    styleUrls: ['./staff-employment-status.component.scss'],
+    standalone: false
 })
 export class StaffEmploymentStatusComponent extends PageBase {
   @Input() set sfId(value) {

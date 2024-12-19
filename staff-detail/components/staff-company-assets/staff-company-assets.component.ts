@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-company-assets',
-  templateUrl: './staff-company-assets.component.html',
-  styleUrls: ['./staff-company-assets.component.scss'],
+    selector: 'app-staff-company-assets',
+    templateUrl: './staff-company-assets.component.html',
+    styleUrls: ['./staff-company-assets.component.scss'],
+    standalone: false
 })
 export class StaffCompanyAssetsComponent extends PageBase {
   @Input() set sfId(value) {

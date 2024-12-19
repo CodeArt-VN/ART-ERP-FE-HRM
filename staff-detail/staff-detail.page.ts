@@ -20,9 +20,10 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
-  selector: 'app-staff-detail',
-  templateUrl: './staff-detail.page.html',
-  styleUrls: ['./staff-detail.page.scss'],
+    selector: 'app-staff-detail',
+    templateUrl: './staff-detail.page.html',
+    styleUrls: ['./staff-detail.page.scss'],
+    standalone: false
 })
 export class StaffDetailPage extends PageBase {
   @ViewChild('accordionGroup', { static: true }) accordionGroup: IonAccordionGroup;

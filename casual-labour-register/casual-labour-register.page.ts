@@ -19,9 +19,10 @@ import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-casual-labour-register',
-  templateUrl: './casual-labour-register.page.html',
-  styleUrls: ['./casual-labour-register.page.scss'],
+    selector: 'app-casual-labour-register',
+    templateUrl: './casual-labour-register.page.html',
+    styleUrls: ['./casual-labour-register.page.scss'],
+    standalone: false
 })
 export class CasualLabourRegisterPage extends PageBase {
   avatarURL = 'assets/imgs/avartar-empty.jpg';

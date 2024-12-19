@@ -6,9 +6,10 @@ import { SYS_UserDeviceProvider } from 'src/app/services/static/services.service
 import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-user-device',
-  templateUrl: 'user-device.page.html',
-  styleUrls: ['user-device.page.scss'],
+    selector: 'app-user-device',
+    templateUrl: 'user-device.page.html',
+    styleUrls: ['user-device.page.scss'],
+    standalone: false
 })
 export class UserDevicePage extends PageBase {
   constructor(

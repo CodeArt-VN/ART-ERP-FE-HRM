@@ -10,9 +10,10 @@ import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-  selector: 'app-user-device-detail',
-  templateUrl: './user-device-detail.page.html',
-  styleUrls: ['./user-device-detail.page.scss'],
+    selector: 'app-user-device-detail',
+    templateUrl: './user-device-detail.page.html',
+    styleUrls: ['./user-device-detail.page.scss'],
+    standalone: false
 })
 export class UserDeviceDetailPage extends PageBase {
   constructor(

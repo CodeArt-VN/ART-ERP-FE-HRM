@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-work-schedule',
-  templateUrl: './staff-work-schedule.component.html',
-  styleUrls: ['./staff-work-schedule.component.scss'],
+    selector: 'app-staff-work-schedule',
+    templateUrl: './staff-work-schedule.component.html',
+    styleUrls: ['./staff-work-schedule.component.scss'],
+    standalone: false
 })
 export class StaffWorkScheduleComponent extends PageBase {
   @Input() set sfId(value) {

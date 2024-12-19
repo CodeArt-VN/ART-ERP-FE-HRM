@@ -7,9 +7,10 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-point-modal',
-  templateUrl: './point-modal.page.html',
-  styleUrls: ['./point-modal.page.scss'],
+    selector: 'app-point-modal',
+    templateUrl: './point-modal.page.html',
+    styleUrls: ['./point-modal.page.scss'],
+    standalone: false
 })
 export class PointModalPage extends PageBase {
   constructor(

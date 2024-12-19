@@ -10,9 +10,10 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-staff',
-  templateUrl: 'staff.page.html',
-  styleUrls: ['staff.page.scss'],
+    selector: 'app-staff',
+    templateUrl: 'staff.page.html',
+    styleUrls: ['staff.page.scss'],
+    standalone: false
 })
 export class StaffPage extends PageBase {
   branchList = [];

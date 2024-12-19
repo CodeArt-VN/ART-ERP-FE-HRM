@@ -14,9 +14,10 @@ import {
 } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-staff-reviews-feedback',
-  templateUrl: './staff-reviews-feedback.component.html',
-  styleUrls: ['./staff-reviews-feedback.component.scss'],
+    selector: 'app-staff-reviews-feedback',
+    templateUrl: './staff-reviews-feedback.component.html',
+    styleUrls: ['./staff-reviews-feedback.component.scss'],
+    standalone: false
 })
 export class StaffReviewsFeedbackComponent extends PageBase {
   @Input() set sfId(value) {

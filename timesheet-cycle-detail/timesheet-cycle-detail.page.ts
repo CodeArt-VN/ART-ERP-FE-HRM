@@ -18,9 +18,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { PointModalPage } from '../point-modal/point-modal.page';
 
 @Component({
-  selector: 'app-timesheet-cycle-detail',
-  templateUrl: './timesheet-cycle-detail.page.html',
-  styleUrls: ['./timesheet-cycle-detail.page.scss'],
+    selector: 'app-timesheet-cycle-detail',
+    templateUrl: './timesheet-cycle-detail.page.html',
+    styleUrls: ['./timesheet-cycle-detail.page.scss'],
+    standalone: false
 })
 export class TimesheetCycleDetailPage extends PageBase {
   @ViewChild('calendar') calendarComponent: FullCalendarComponent;

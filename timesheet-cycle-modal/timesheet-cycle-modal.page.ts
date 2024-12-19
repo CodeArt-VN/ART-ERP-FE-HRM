@@ -14,9 +14,10 @@ import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-timesheet-cycle-modal',
-  templateUrl: './timesheet-cycle-modal.page.html',
-  styleUrls: ['./timesheet-cycle-modal.page.scss'],
+    selector: 'app-timesheet-cycle-modal',
+    templateUrl: './timesheet-cycle-modal.page.html',
+    styleUrls: ['./timesheet-cycle-modal.page.scss'],
+    standalone: false
 })
 export class TimesheetCycleModalPage extends PageBase {
   timesheetList = [];

@@ -7,9 +7,10 @@ import { HRM_ShiftProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-shift-detail',
-  templateUrl: './shift-detail.page.html',
-  styleUrls: ['./shift-detail.page.scss'],
+    selector: 'app-shift-detail',
+    templateUrl: './shift-detail.page.html',
+    styleUrls: ['./shift-detail.page.scss'],
+    standalone: false
 })
 export class ShiftDetailPage extends PageBase {
   constructor(

@@ -8,9 +8,10 @@ import { lib } from 'src/app/services/static/global-functions';
 import { BRA_BranchProvider, HRM_TimesheetProvider } from 'src/app/services/static/services.service';
 
 @Component({
-  selector: 'app-timesheet-detail',
-  templateUrl: './timesheet-detail.page.html',
-  styleUrls: ['./timesheet-detail.page.scss'],
+    selector: 'app-timesheet-detail',
+    templateUrl: './timesheet-detail.page.html',
+    styleUrls: ['./timesheet-detail.page.scss'],
+    standalone: false
 })
 export class TimesheetDetailPage extends PageBase {
   dataIDBranchList = [];

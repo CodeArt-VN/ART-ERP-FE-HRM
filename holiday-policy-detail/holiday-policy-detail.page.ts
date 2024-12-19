@@ -13,9 +13,10 @@ import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
-  selector: 'app-holiday-policy-detail',
-  templateUrl: './holiday-policy-detail.page.html',
-  styleUrls: ['./holiday-policy-detail.page.scss'],
+    selector: 'app-holiday-policy-detail',
+    templateUrl: './holiday-policy-detail.page.html',
+    styleUrls: ['./holiday-policy-detail.page.scss'],
+    standalone: false
 })
 export class HolidayPolicyDetailPage extends PageBase {
   constructor(

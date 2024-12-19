@@ -19,9 +19,10 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-scheduler',
-  templateUrl: 'scheduler.page.html',
-  styleUrls: ['scheduler.page.scss'],
+    selector: 'app-scheduler',
+    templateUrl: 'scheduler.page.html',
+    styleUrls: ['scheduler.page.scss'],
+    standalone: false
 })
 export class SchedulerPage extends PageBase {
   @ViewChild('calendar') calendarComponent: FullCalendarComponent;
