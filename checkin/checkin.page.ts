@@ -16,16 +16,17 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
 
 @Component({
-    selector: 'app-checkin',
-    templateUrl: 'checkin.page.html',
-    styleUrls: ['checkin.page.scss'],
-    standalone: false
+  selector: 'app-checkin',
+  templateUrl: 'checkin.page.html',
+  styleUrls: ['checkin.page.scss'],
+  standalone: false,
 })
 export class CheckinPage extends PageBase {
   constructor(
     public pageProvider: HRM_TimesheetLogProvider,
     public gateProvider: OST_OfficeGateProvider,
     public userDeviceProvider: SYS_UserDeviceProvider,
+    public scanner: BarcodeScannerService,
     public modalController: ModalController,
     public popoverCtrl: PopoverController,
     public alertCtrl: AlertController,
@@ -80,171 +81,82 @@ export class CheckinPage extends PageBase {
     // }
   }
 
-  scanning = false;
-  scanQRCode() {
-    // if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-    //   this.env.showMessage('This function is only available on phone', 'warning');
-    //   return;
-    // }
-    // BarcodeScanner.prepare().then(() => {
-    //   BarcodeScanner.checkPermission({ force: true })
-    //     .then((status) => {
-    //       if (status.granted) {
-    //         this.scanning = true;
-    //         document.querySelector('ion-app').style.backgroundColor = 'transparent';
-    //         BarcodeScanner.startScan().then(async (result) => {
-    //           console.log(result);
-    //           let close: any = document.querySelector('#closeCamera');
+  async scanQRCode() {
+    try {
+      let code = await this.scanner.scan();
 
-    //           if (!result.hasContent) {
-    //             close.click();
-    //           }
+      let gateCode = '';
+      if (code.indexOf('G:') == 0) {
+        gateCode = code.replace('G:', '');
+      } else {
+        this.env.showPrompt('Please scan valid QR code', 'Invalid QR code', null, 'Retry', 'Cancel')
+          .then(() => {
+            setTimeout(() => this.scanQRCode(), 0);
+          }).catch(() => {});
+        return;
+      }
 
-    //           let gateCode = '';
-    //           if (result.content.indexOf('G:') == 0) {
-    //             gateCode = result.content.replace('G:', '');
-    //           } else {
-    //             this.env.showMessage(
-    //               'You just scan: {{value}}, please scan valid check-in QR code.',
-    //               '',
-    //               result.content,
-    //             );
-    //             setTimeout(() => this.scanQRCode(), 0);
-    //           }
+      const loading = await this.loadingController.create({
+        cssClass: 'my-custom-class',
+        message: 'Vui lòng chờ kiểm tra checkin',
+      });
+      await loading.present().then(async () => {
+        let logItem = {
+          IDStaff: this.env.user.StaffID,
+          GateCode: gateCode,
+          Lat: null,
+          Long: null,
+          UUID: '',
+          IPAddress: this.myIP,
+          IsMockLocation: false,
+        };
 
-    //           const loading = await this.loadingController.create({
-    //             cssClass: 'my-custom-class',
-    //             message: 'Vui lòng chờ kiểm tra checkin',
-    //           });
-    //           await loading.present().then(async () => {
-    //             let logItem = {
-    //               IDStaff: this.env.user.StaffID,
-    //               GateCode: gateCode,
-    //               Lat: null,
-    //               Long: null,
-    //               UUID: '',
-    //               IPAddress: this.myIP,
-    //               IsMockLocation: false,
-    //             };
+        if (Capacitor.isPluginAvailable('Device')) {
+          let UID = await Device.getId();
+          logItem.UUID = UID.identifier;
+        }
+        Geolocation.getCurrentPosition({
+          timeout: 5000,
+          enableHighAccuracy: true,
+        })
+          .then((resp) => {
+            logItem.Lat = resp.coords.latitude;
+            logItem.Long = resp.coords.longitude;
+            console.log(resp);
+          })
+          .catch((err) => {
+            console.log(err);
+          })
+          .finally(() => {
+            this.pageProvider
+              .save(logItem)
+              .then((resp: any) => {
+                console.log(resp);
+                if (loading) loading.dismiss();
 
-    //             if (Capacitor.isPluginAvailable('Device')) {
-    //               let UID = await Device.getId();
-    //               logItem.UUID = UID.identifier;
-    //             }
-    //             Geolocation.getCurrentPosition({
-    //               timeout: 5000,
-    //               enableHighAccuracy: true,
-    //             })
-    //               .then((resp) => {
-    //                 logItem.Lat = resp.coords.latitude;
-    //                 logItem.Long = resp.coords.longitude;
-    //                 console.log(resp);
-    //               })
-    //               .catch((err) => {
-    //                 console.log(err);
-    //               })
-    //               .finally(() => {
-    //                 this.pageProvider
-    //                   .save(logItem)
-    //                   .then((resp: any) => {
-    //                     console.log(resp);
-    //                     if (loading) loading.dismiss();
-
-    //                     this.refresh();
-    //                     if (resp.Id) {
-    //                       let i = resp;
-    //                       i.Time = lib.dateFormat(i.LogTime, 'hh:MM');
-    //                       i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
-    //                       i.Gate = this.gateList.find((d) => d.Id == i.IDGate);
-    //                       this.env.showMessage('Check-in completed', 'success');
-    //                       this.showLog(i);
-    //                     } else if (resp != 'OK') {
-    //                       this.showLogMessage(resp);
-    //                     } else {
-    //                       this.env.showMessage('Check-in completed', 'success');
-    //                     }
-    //                   })
-    //                   .catch((err) => {
-    //                     if (loading) loading.dismiss();
-    //                     this.env.showMessage(err, 'danger');
-    //                   });
-    //               });
-
-    //             this.closeCamera();
-    //           });
-    //         });
-    //       } else {
-    //         this.alertCtrl
-    //           .create({
-    //             header: 'Quét QR code',
-    //             //subHeader: '---',
-    //             message: 'Bạn chưa cho phép sử dụng camera, Xin vui lòng cấp quyền cho ứng dụng.',
-    //             buttons: [
-    //               {
-    //                 text: 'Không',
-    //                 role: 'cancel',
-    //                 handler: () => {},
-    //               },
-    //               {
-    //                 text: 'Đồng ý',
-    //                 cssClass: 'danger-btn',
-    //                 handler: () => {
-    //                   BarcodeScanner.openAppSettings();
-    //                 },
-    //               },
-    //             ],
-    //           })
-    //           .then((alert) => {
-    //             alert.present();
-    //           });
-    //       }
-    //     })
-    //     .catch((e: any) => console.log('Error is', e));
-    // });
-  }
-
-  closeCamera() {
-    // if (!Capacitor.isPluginAvailable('BarcodeScanner') || Capacitor.platform == 'web') {
-    //   return;
-    // }
-    // this.scanning = false;
-    // this.lighting = false;
-    // this.useFrontCamera = false;
-    // document.querySelector('ion-app').style.backgroundColor = '';
-    // BarcodeScanner.showBackground();
-    // BarcodeScanner.stopScan();
-  }
-
-  lighting = false;
-  lightCamera() {
-    // if (this.lighting) {
-    //     this.qrScanner.disableLight().then(() => {
-    //         this.lighting = false;
-    //     });
-    // }
-    // else {
-    //     this.qrScanner.enableLight().then(() => {
-    //         this.lighting = true;
-    //     });
-    // }
-  }
-
-  useFrontCamera = false;
-  reversalCamera() {
-    // if (this.useFrontCamera) {
-    //     this.qrScanner.useBackCamera().then(() => {
-    //         this.useFrontCamera = false;
-    //     });
-    // }
-    // else {
-    //     this.qrScanner.useFrontCamera().then(() => {
-    //         this.useFrontCamera = true;
-    //     });
-    // }
-  }
-
-  ionViewWillLeave() {
-    this.closeCamera();
+                this.refresh();
+                if (resp.Id) {
+                  let i = resp;
+                  i.Time = lib.dateFormat(i.LogTime, 'hh:MM');
+                  i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
+                  i.Gate = this.gateList.find((d) => d.Id == i.IDGate);
+                  this.env.showMessage('Check-in completed', 'success');
+                  this.showLog(i);
+                } else if (resp != 'OK') {
+                  this.showLogMessage(resp);
+                } else {
+                  this.env.showMessage('Check-in completed', 'success');
+                }
+              })
+              .catch((err) => {
+                if (loading) loading.dismiss();
+                this.env.showMessage(err, 'danger');
+              });
+          });
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async showLog(cData) {
@@ -264,13 +176,7 @@ export class CheckinPage extends PageBase {
 
   showLogMessage(message) {
     if (message.indexOf('Invalid IP') > -1) {
-      this.env.showMessage(
-        'IP is invalid. Please use companys wify when checking in',
-        'warning',
-        null,
-        0,
-        true,
-      );
+      this.env.showMessage('IP is invalid. Please use companys wify when checking in', 'warning', null, 0, true);
     } else if (message.indexOf('Invalid gate coordinate') > -1) {
       this.env.showMessage('Check-in gates coordintates are invalid.', 'warning', null, 0, true);
     } else if (message.indexOf('Invalid coordinate') > -1) {
@@ -284,13 +190,7 @@ export class CheckinPage extends PageBase {
     } else if (message.indexOf('Invalid distance') > -1) {
       this.env.showMessage('Please check in at specified location', 'warning', null, 0, true);
     } else if (message.indexOf('Invalid LogTime') > -1) {
-      this.env.showMessage(
-        'Check-in time is invalid, please check-in at specfied time',
-        'warning',
-        null,
-        0,
-        true,
-      );
+      this.env.showMessage('Check-in time is invalid, please check-in at specfied time', 'warning', null, 0, true);
     } else if (message.indexOf('No pre-ordered') > -1) {
       this.env.showMessage(
         'You have not register for meals. Please register at least 01 day in advance',

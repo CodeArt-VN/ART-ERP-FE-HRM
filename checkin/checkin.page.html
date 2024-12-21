@@ -87,7 +87,7 @@
   </section>
 </ion-header>
 
-<ion-content *ngIf="!scanning" appScrollbarTheme class="header-table">
+<ion-content appScrollbarTheme class="header-table">
   <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
   <div *ngIf="items.length && pageConfig.showSpinner==false">
     <section class="table">
@@ -133,34 +133,4 @@
       <ion-icon name="qr-code-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-</ion-content>
-
-<ion-content *ngIf="scanning" no-scroll class="cameraFrame">
-  <div class="frame">
-    <div class="blink-line"></div>
-  </div>
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-    <ion-fab-button color="secondary" (click)="closeCamera()">
-      <ion-icon name="close"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-  <!-- <ion-fab *ngIf="isScanPhieuNo" vertical="top" horizontal="start" slot="fixed">
-	  <ion-fab-button color="success" title="{{''+items.length+' phiếu nợ'}}">
-		<ion-icon name="pricetags"></ion-icon>
-	  </ion-fab-button>
-	</ion-fab> -->
-
-  <!-- <ion-checkbox color="danger"></ion-checkbox> -->
-
-  <!-- <ion-fab *ngIf="isScanPhieuNo" vertical="top" horizontal="start" slot="fixed" (click)="isRemovePhieuNo = !isRemovePhieuNo;">
-	  <ion-fab-button title="{{isRemovePhieuNo?'Đang quét để bỏ phiếu nợ':'Đang quét để thêm phiếu nợ'}}">
-		<ion-icon [color]="isRemovePhieuNo?'danger':'success'" [name]="isRemovePhieuNo? 'trash': 'add' "></ion-icon>
-	  </ion-fab-button>
-	</ion-fab> -->
-
-  <!-- <ion-fab vertical="bottom" horizontal="start" slot="fixed">
-		<ion-fab-button color="warning" (click)="lightCamera()">
-			<ion-icon name="flashlight"></ion-icon>
-		</ion-fab-button>
-	</ion-fab> -->
 </ion-content>
