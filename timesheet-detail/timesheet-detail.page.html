@@ -17,34 +17,10 @@
               </ion-col>
 
               <ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-                <!-- <div class="c-control">
-									<label class="c-label" for="{{'Id' | translate}}">Id</label>
-									<input class="c-input" id="Id" formControlName="Id" type="number">
-								</div> -->
                 <div class="c-control">
                   <label class="c-label" for="Name">{{'Name' | translate}}</label>
                   <input (change)="saveChange()" class="c-input" id="Name" formControlName="Name" type="text" />
                 </div>
-                <!-- <div class="c-control">
-									<label class="c-label" for="Code">{{'code' | translate}}</label>
-									<input (change)="saveChange()" class="c-input" id="Code" formControlName="Code" type="text">
-								</div> -->
-
-                <!-- <div class="c-control">
-									<label class="c-label" for="Manager">{{'manager' | translate}}<small>Manager</small></label>
-									<input (change)="saveChange()" class="c-input" id="Manager" formControlName="Manager" type="number">
-								</div> -->
-
-                <!-- <div class="c-control">
-									<label class="c-label" for="IDBranch">{{'id-branch' | translate}}</label>
-									<ng-select class="c-input" (change)="saveChange()" labelForId="IDBranch" formControlName="IDBranch" [items]="dataIDBranchList" [virtualScroll]="true" bindLabel="Name" bindValue="Id" placeholder="{{'Select unit...' | translate}}">
-										<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-											<div *ngIf="i">
-												<div> <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span> <span [ngOptionHighlight]="search">{{i.Name}}</span></div>
-											</div>
-										</ng-template>
-									</ng-select>
-								</div> -->
 
                 <div class="c-control">
                   <label class="c-label" for="Type">{{'Classification' | translate}}</label>
