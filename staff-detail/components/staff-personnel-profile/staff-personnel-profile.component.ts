@@ -160,7 +160,6 @@ export class StaffPersonnelProfileComponent extends PageBase {
     if (this.id && this.item) { 
       this.avatarURL = environment.staffAvatarsServer + this.item.Code + '.jpg?t=' + new Date().getTime();
       this.item.DateOfIssueID = lib.dateFormat(this.item.DateOfIssueID, 'yyyy-mm-dd');
-      if (this.item.Email) {
         this.urserProvider
           .getAnItem(this.item.Id, '')
           .then((ite) => {
@@ -179,7 +178,6 @@ export class StaffPersonnelProfileComponent extends PageBase {
             this.userAccount.Id = 0;
             this.changePasswordForm.reset();
           });
-      }
       // this.changeDepartment();
       setTimeout(() => {
         this.changeDepartment();
@@ -364,7 +362,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
         this.userAccount.Address = this.item.Address;
         this.userAccount.StaffID = this.item.Id;
         this.userAccount.PartnerID = this.item.IDPartner;
-        this.userAccount.UserName = this.changePasswordForm.controls.newPassword.value; //UserName => Password on server
+        this.userAccount.Password = this.changePasswordForm.controls.newPassword.value; //UserName => Password on server
 
         this.urserProvider
           .save(this.userAccount)
