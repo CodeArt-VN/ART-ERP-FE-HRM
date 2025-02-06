@@ -5,19 +5,19 @@
   [title]="'Personnel profile'"
   [remark]="'Personal, legal and background information'"
 ></app-page-title>
-<div class="main-view" *ngIf="pageConfig.showSpinner==false">
+<div class="main-view" *ngIf="pageConfig.showSpinner == false">
   <div class="row-full shadow full-screen ion-padding">
     <ion-grid fixed>
       <form [formGroup]="formGroup">
         <ion-row class="hr-group" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+          <ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
             <ion-list lines="none">
               <ion-list-header class="ion-no-padding">
                 <ion-label color="primary"> {{ 'General information' | translate }} </ion-label>
               </ion-list-header>
             </ion-list>
           </ion-col>
-          <ion-col size="12" size-sm="12" size-md="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{ id: 'FullName', label: 'Full name', type: 'text', form: formGroup }"
               (change)="bindName()"
@@ -30,11 +30,11 @@
             >
             </app-form-control>
           </ion-col>
-          <ion-col size="12" size-sm="12" size-md="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{
-                branchConfig:{
-                  showingType:'Department'
+                branchConfig: {
+                  showingType: 'Department',
                 },
                 id: 'IDDepartment',
                 label: 'Unit',
@@ -43,7 +43,7 @@
                 bindValue: 'Id',
                 type: 'ng-select-branch',
                 form: formGroup,
-                placeholder: 'Select unit'
+                placeholder: 'Select unit',
               }"
               (controlChange)="changeDepartment(true)"
             >
@@ -57,7 +57,7 @@
                 bindValue: 'Id',
                 type: 'ng-select-branch',
                 form: formGroup,
-                placeholder: 'Select unit'
+                placeholder: 'Select unit',
               }"
               (controlChange)="saveChange()"
             >
@@ -71,7 +71,7 @@
                 bindValue: 'Name',
                 type: 'ng-select',
                 form: formGroup,
-                placeholder: 'Select area'
+                placeholder: 'Select area',
               }"
               (change)="saveChange()"
             >
@@ -83,14 +83,14 @@
           [class]="hideBorder ? '' : 'border'"
           [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
         >
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+          <ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
             <ion-list lines="none">
               <ion-list-header class="ion-no-padding">
                 <ion-label color="primary"> {{ 'National ID Card' | translate }} </ion-label>
               </ion-list-header>
             </ion-list>
           </ion-col>
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{ id: 'Domicile', label: 'Place of origin', type: 'text', form: formGroup }"
               (change)="saveChange()"
@@ -102,7 +102,7 @@
             >
             </app-form-control>
           </ion-col>
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{ id: 'DateOfIssueID', label: 'Date of issue', type: 'datetime-local', form: formGroup }"
               (change)="saveChange()"
@@ -120,14 +120,14 @@
           [class]="hideBorder ? '' : 'border'"
           [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
         >
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+          <ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
             <ion-list lines="none">
               <ion-list-header class="ion-no-padding">
                 <ion-label color="primary"> {{ 'Personal information' | translate }} </ion-label>
               </ion-list-header>
             </ion-list>
           </ion-col>
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{ id: 'LastName', label: 'Last name', type: 'text', form: formGroup }"
               (change)="saveChange()"
@@ -176,7 +176,7 @@
               </label>
             </div>
           </ion-col>
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{ id: 'DOB', label: 'Date of birth', type: 'datetime-local', form: formGroup }"
               (change)="saveChange()"
@@ -199,7 +199,7 @@
           [class]="hideBorder ? '' : 'border'"
           [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
         >
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+          <ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
             <ion-list lines="none">
               <ion-list-header class="ion-no-padding">
                 <ion-label color="primary"> {{ 'Address' | translate }} </ion-label>
@@ -207,17 +207,20 @@
             </ion-list>
           </ion-col>
 
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding" *ngIf="formGroup.get('Addresses').value.length > 0">
-              <app-address
-                *ngFor="let c of formGroup.get('Addresses')['controls']"
-                [address]="c.value"
-                [canEdit]="pageConfig.canEdit"
-                [types]="hrAddressTypeList"
-                [(loadingMap)]="env.isMapLoaded"
-                (onChange)="changeAddress($event)"
-                (onDelete)="removeAddress($event)"
-              >
-              </app-address>
+          <ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8"
+            class="ion-no-padding"
+            *ngIf="formGroup.get('Addresses').value.length > 0"
+          >
+            <app-address
+              *ngFor="let c of formGroup.get('Addresses')['controls']"
+              [address]="c.value"
+              [canEdit]="pageConfig.canEdit"
+              [types]="hrAddressTypeList"
+              [(loadingMap)]="env.isMapLoaded"
+              (onChange)="changeAddress($event)"
+              (onDelete)="removeAddress($event)"
+            >
+            </app-address>
 
             <!-- <ion-list-header lines="inset">
             <ng-container *ngFor="let t of hrAddressTypeList" >
@@ -228,13 +231,20 @@
             </ion-button>
           </ion-list-header> -->
           </ion-col>
-          <ion-col size="12" size-xl="4" *ngIf="formGroup.get('Addresses').value.length == 0 && pageConfig.canEdit && isShowAddAddress">
+          <ion-col
+            size="12"
+            size-xl="4"
+            *ngIf="formGroup.get('Addresses').value.length == 0 && pageConfig.canEdit && isShowAddAddress"
+          >
             <ion-button (click)="addAddress({})">
               {{ 'Add address' | translate }}
             </ion-button>
           </ion-col>
         </ion-row>
-        <ion-row class="hr-group border" *ngIf="formGroup.get('Addresses').value.length > 0 && pageConfig.canEdit && isShowAddAddress">
+        <ion-row
+          class="hr-group border"
+          *ngIf="formGroup.get('Addresses').value.length > 0 && pageConfig.canEdit && isShowAddAddress"
+        >
           <ion-col size="0" size-md="0" size-lg="0" size-xl="3"></ion-col>
           <ion-col size="12" size-xl="4">
             <ion-button (click)="addAddress({})">
@@ -247,14 +257,14 @@
           [class]="hideBorder ? '' : 'border'"
           [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }"
         >
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+          <ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
             <ion-list lines="none">
               <ion-list-header class="ion-no-padding">
                 <ion-label color="primary"> {{ 'Other information' | translate }} </ion-label>
               </ion-list-header>
             </ion-list>
           </ion-col>
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{ id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"
             ></app-form-control>
@@ -268,7 +278,7 @@
               [field]="{ id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"
             ></app-form-control>
           </ion-col>
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="4">
+          <ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
             <app-form-control
               [field]="{ id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"
             ></app-form-control>
@@ -281,93 +291,101 @@
             >
             </app-form-control>
           </ion-col>
-
-
-      
         </ion-row>
         <ion-row style="border: none" class="hr-group">
-          <ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+          <ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
             <ion-list-header class="ion-no-padding">
-              <ion-label color="primary">{{'Log in account' | translate}}</ion-label>
+              <ion-label color="primary">{{ 'Log in account' | translate }}</ion-label>
             </ion-list-header>
           </ion-col>
-          
+
           <ion-col size="12" size-xl="4">
-                <form [formGroup]="changePasswordForm">
-                <div class="c-control">
-                  <label class="c-label" for="Email"
-                    >{{'Email' | translate}}
-                    <span
-                      *ngIf="!formGroup.controls.Email.valid && !formGroup.controls.Email.pending && (formGroup.controls.Email.dirty || submitAttempt)"
-                      ion-text
-                      color="danger"
-                      >(*)</span
-                    >
-                  </label>
-                  <input
-                    [readonly]="userAccount.Id"
-                    class="c-input"
-                    id="Email"
-                    [(ngModel)]="userAccount.Email"
-                    formControlName="Email"
-                    type="text"
-                  />
-                </div>
-
-                <div class="c-control">
-                  <label class="c-label" for="newPassword"
-                    >{{'Enter password' | translate}}
-                    <span
-                      *ngIf="!changePasswordForm.controls.newPassword.valid && !changePasswordForm.controls.newPassword.pending && (changePasswordForm.controls.newPassword.dirty || submitAttempt)"
-                      ion-text
-                      color="danger"
-                      >(*)</span
-                    >
-                  </label>
-                  <input class="c-input" id="newPassword" formControlName="newPassword" [type]="passwordViewType" />
-                </div>
-                <div class="c-control">
-                  <label class="c-label" for="confirmPassword"
-                    >{{'Confirm password' | translate}}
-                    <span
-                      *ngIf="!changePasswordForm.controls.confirmPassword.valid && !changePasswordForm.controls.confirmPassword.pending && (changePasswordForm.controls.confirmPassword.dirty || submitAttempt)"
-                      ion-text
-                      color="danger"
-                      >(*)</span
-                    >
-                  </label>
-                  <input
-                    class="c-input"
-                    id="confirmPassword"
-                    formControlName="confirmPassword"
-                    [type]="passwordViewType"
-                  />
-                </div>
-
-                <div class="c-control">
-                  <ion-button size="small" *ngIf="userAccount.Id" (click)="resetPassword()">
-                    {{'Change password' | translate}}
-                  </ion-button>
-                  
-                  <ion-button size="small" *ngIf="userAccount.Id && pageConfig.canDeleteAccount" (click)="changeEmail()">
-                    {{'Change Email' | translate}}
-                  </ion-button>
-
-                  <ion-button size="small" *ngIf="!userAccount.Id" (click)="createAccount()">
-                    {{'Create account' | translate}}
-                  </ion-button>
-                  <ion-button
-                    size="small"
-                    (click)="passwordViewType = passwordViewType=='password'?'text':'password'"
-                    color="warning"
+            <form [formGroup]="changePasswordForm">
+              <div class="c-control">
+                <label class="c-label" for="Email"
+                  >{{ 'Email' | translate }}
+                  <span
+                    *ngIf="
+                      !formGroup.controls.Email.valid &&
+                      !formGroup.controls.Email.pending &&
+                      (formGroup.controls.Email.dirty || submitAttempt)
+                    "
+                    ion-text
+                    color="danger"
+                    >(*)</span
                   >
-                    <ion-icon slot="icon-only" [name]="passwordViewType=='password'?'eye':'eye-off'"></ion-icon>
-                  </ion-button>
-                </div>
-              </form>
-              </ion-col>
-        </ion-row>
+                </label>
+                <input
+                  [readonly]="userAccount.Id"
+                  class="c-input"
+                  id="Email"
+                  [(ngModel)]="userAccount.Email"
+                  formControlName="Email"
+                  type="text"
+                />
+              </div>
 
+              <div class="c-control">
+                <label class="c-label" for="newPassword"
+                  >{{ 'Enter password' | translate }}
+                  <span
+                    *ngIf="
+                      !changePasswordForm.controls.newPassword.valid &&
+                      !changePasswordForm.controls.newPassword.pending &&
+                      (changePasswordForm.controls.newPassword.dirty || submitAttempt)
+                    "
+                    ion-text
+                    color="danger"
+                    >(*)</span
+                  >
+                </label>
+                <input class="c-input" id="newPassword" formControlName="newPassword" [type]="passwordViewType" />
+              </div>
+              <div class="c-control">
+                <label class="c-label" for="confirmPassword"
+                  >{{ 'Confirm password' | translate }}
+                  <span
+                    *ngIf="
+                      !changePasswordForm.controls.confirmPassword.valid &&
+                      !changePasswordForm.controls.confirmPassword.pending &&
+                      (changePasswordForm.controls.confirmPassword.dirty || submitAttempt)
+                    "
+                    ion-text
+                    color="danger"
+                    >(*)</span
+                  >
+                </label>
+                <input
+                  class="c-input"
+                  id="confirmPassword"
+                  formControlName="confirmPassword"
+                  [type]="passwordViewType"
+                />
+              </div>
+
+              <div class="c-control">
+                <ion-button size="small" *ngIf="userAccount.Id" (click)="resetPassword()">
+                  {{ 'Change password' | translate }}
+                </ion-button>
+
+                <ion-button size="small" *ngIf="userAccount.Id && pageConfig.canDeleteAccount" (click)="changeEmail()">
+                  {{ 'Change Email' | translate }}
+                </ion-button>
+
+                <ion-button size="small" *ngIf="!userAccount.Id" (click)="createAccount()">
+                  {{ 'Create account' | translate }}
+                </ion-button>
+                <ion-button
+                  size="small"
+                  (click)="passwordViewType = passwordViewType == 'password' ? 'text' : 'password'"
+                  color="warning"
+                >
+                  <ion-icon slot="icon-only" [name]="passwordViewType == 'password' ? 'eye' : 'eye-off'"></ion-icon>
+                </ion-button>
+              </div>
+            </form>
+          </ion-col>
+        </ion-row>
       </form>
     </ion-grid>
   </div>

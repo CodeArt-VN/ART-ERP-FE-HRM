@@ -66,16 +66,25 @@
                 <p *ngIf="formGroup.get('IsDisabled').value" color="danger">{{ 'Resigned staff' | translate}}</p>
               </ng-container>
             </ion-label>
+
+            <ion-label class="ion-text-wrap ion-text-center" style="padding-top: 8px;">
+              <ion-chip color="primary" *ngIf="formGroup.get('Code').value">
+                <ion-icon name="barcode-outline"></ion-icon>
+                <ion-label>{{ formGroup.get('Code').value }}</ion-label>
+              </ion-chip>
+  
+              <ion-chip color="danger" *ngIf="formGroup.get('PhoneNumber').value">
+                <ion-icon name="call-outline"></ion-icon>
+                <ion-label>{{formGroup.get('PhoneNumber').value }}</ion-label>
+              </ion-chip>
+  
+              <ion-chip color="success" *ngIf="formGroup.get('Email').value">
+                <ion-icon name="mail-outline"></ion-icon>
+                <ion-label>{{formGroup.get('Email').value }}</ion-label>
+              </ion-chip>
+            </ion-label>
+
             <div class="c-control">
-              <!-- <app-input-control
-            [field]="{
-              id: 'IDBranch',
-              type: 'branch-breadcrumbs',
-              label: 'Branch',
-              form: formGroup,
-              dataSource: env.branchList
-            }"
-          ></app-input-control> -->
               <app-branch-breadcrumbs
                 [maxItems]="1"
                 [itemsBeforeCollapse]="0"
@@ -87,36 +96,20 @@
                 *ngIf="formGroup.get('IDJobTitle').value"
               ></app-branch-breadcrumbs>
             </div>
+
           </div>
         </ion-item>
-        <ion-item>
-          <ion-list lines="none">
-            <!-- <ion-item lines="none" *ngIf="formGroup.get('Company').value">
-              <ion-icon slot="start" name="business-outline"></ion-icon>
-                <ion-label><h3>{{ formGroup.get('Company').value.Name }}</h3></ion-label>
-            </ion-item> -->
-            <ion-item lines="none" *ngIf="formGroup.get('Code').value">
-              <ion-icon slot="start" name="qr-code-outline"></ion-icon>
-              <ion-label><h3>{{ formGroup.get('Code').value }}</h3></ion-label>
-            </ion-item>
+      </ion-list>
 
-            <ion-item lines="none" *ngIf="formGroup.get('Email').value">
-              <ion-icon slot="start" name="mail-outline"></ion-icon>
-              <ion-label><h3>{{formGroup.get('Email').value }}</h3></ion-label>
-            </ion-item>
-
-            <ion-item lines="none" *ngIf="formGroup.get('PhoneNumber').value">
-              <ion-icon slot="start" name="call-outline"></ion-icon>
-              <ion-label><h3>{{formGroup.get('PhoneNumber').value}}</h3></ion-label>
-            </ion-item>
-          </ion-list>
-        </ion-item>
+      <ion-list>
+        <!-- <ion-list-header>
+          <ion-label>{{'Details' | translate}}</ion-label>
+        </ion-list-header> -->
         <ng-container *ngFor="let i of optionGroup">
           <ion-item
             [color]="segmentView.Page == i.Code? 'primary': '' "
             button
             detail="true"
-            lines="full"
             class="clickable"
             (click)="loadNode(i)"
           >
