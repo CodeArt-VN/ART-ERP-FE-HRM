@@ -11,17 +11,17 @@ import { LogGeneratorPage } from '../log-generator/log-generator.page';
 import { FullCalendarModule } from '@fullcalendar/angular';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    FullCalendarModule,
-    PriceReportComponentsModule,
-    ShareModule,
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		ReactiveFormsModule,
+		FullCalendarModule,
+		PriceReportComponentsModule,
+		ShareModule,
 
-    RouterModule.forChild([{ path: '', component: CheckinLogPage }]),
-  ],
-  declarations: [CheckinLogPage, LogGeneratorPage],
+		RouterModule.forChild([{ path: '', component: CheckinLogPage }]),
+	],
+	declarations: [CheckinLogPage, LogGeneratorPage],
 })
 export class CheckinLogPageModule {}

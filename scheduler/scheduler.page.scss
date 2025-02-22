@@ -1,15 +1,15 @@
 app-page-message {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  z-index: 100;
-  background: var(--feature-background-top);
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 100;
+	background: var(--feature-background-top);
 }
 
 ion-content {
-  --background: var(--feature-background-top) !important;
+	--background: var(--feature-background-top) !important;
 }
 
 .fc .fc-event-main ion-icon.lunch-booked {
-  margin-left: 5px;
+	margin-left: 5px;
 }

@@ -7,13 +7,7 @@ import { PaidTimeOffPolicyPage } from './paid-time-off-policy.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: PaidTimeOffPolicyPage }]),
-  ],
-  declarations: [PaidTimeOffPolicyPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: PaidTimeOffPolicyPage }])],
+	declarations: [PaidTimeOffPolicyPage],
 })
 export class PaidTimeOffPolicyPageModule {}

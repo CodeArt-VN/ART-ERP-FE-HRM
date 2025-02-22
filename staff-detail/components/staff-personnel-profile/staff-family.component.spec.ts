@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { StaffJobInformationComponent } from './staff-personnel-profile.component';
 
 describe('StaffJobInformationComponent', () => {
-  let component: StaffJobInformationComponent;
-  let fixture: ComponentFixture<StaffJobInformationComponent>;
+	let component: StaffJobInformationComponent;
+	let fixture: ComponentFixture<StaffJobInformationComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [StaffJobInformationComponent],
-      imports: [IonicModule.forRoot()],
-    }).compileComponents();
+	beforeEach(waitForAsync(() => {
+		TestBed.configureTestingModule({
+			declarations: [StaffJobInformationComponent],
+			imports: [IonicModule.forRoot()],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(StaffJobInformationComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+		fixture = TestBed.createComponent(StaffJobInformationComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	}));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

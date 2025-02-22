@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { CheckinGateDetailPage } from './checkin-gate.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: CheckinGateDetailPage,
-  },
+	{
+		path: '',
+		component: CheckinGateDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [CheckinGateDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [CheckinGateDetailPage],
 })
 export class CheckinGateDetailPageModule {}

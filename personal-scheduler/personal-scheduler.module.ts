@@ -12,16 +12,16 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // must go before pl
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    PriceReportComponentsModule,
-    ShareModule,
-    FullCalendarModule,
-    RouterModule.forChild([{ path: '', component: PersonalSchedulerPage }]),
-  ],
-  declarations: [PersonalSchedulerPage, PersonalSchedulerGeneratorPage],
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		ReactiveFormsModule,
+		PriceReportComponentsModule,
+		ShareModule,
+		FullCalendarModule,
+		RouterModule.forChild([{ path: '', component: PersonalSchedulerPage }]),
+	],
+	declarations: [PersonalSchedulerPage, PersonalSchedulerGeneratorPage],
 })
 export class PersonalSchedulerPageModule {}

@@ -7,13 +7,7 @@ import { ShiftPage } from './shift.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: ShiftPage }]),
-  ],
-  declarations: [ShiftPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: ShiftPage }])],
+	declarations: [ShiftPage],
 })
 export class ShiftPageModule {}

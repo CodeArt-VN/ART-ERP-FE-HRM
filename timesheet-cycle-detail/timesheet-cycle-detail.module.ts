@@ -11,22 +11,14 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // must go before pl
 import { PointModalPage } from '../point-modal/point-modal.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: TimesheetCycleDetailPage,
-  },
+	{
+		path: '',
+		component: TimesheetCycleDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    ShareModule,
-    FullCalendarModule,
-    RouterModule.forChild(routes),
-  ],
-  declarations: [TimesheetCycleDetailPage, PointModalPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, FullCalendarModule, RouterModule.forChild(routes)],
+	declarations: [TimesheetCycleDetailPage, PointModalPage],
 })
 export class TimesheetCycleDetailPageModule {}

@@ -8,49 +8,49 @@ import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-    selector: 'app-overtime-policy-detail',
-    templateUrl: './overtime-policy-detail.page.html',
-    styleUrls: ['./overtime-policy-detail.page.scss'],
-    standalone: false
+	selector: 'app-overtime-policy-detail',
+	templateUrl: './overtime-policy-detail.page.html',
+	styleUrls: ['./overtime-policy-detail.page.scss'],
+	standalone: false,
 })
 export class OvertimePolicyDetailPage extends PageBase {
-  TypeList = [];
-  constructor(
-    public pageProvider: HRM_OvertimePolicyProvider,
-    public env: EnvService,
-    public navCtrl: NavController,
-    public route: ActivatedRoute,
-    public alertCtrl: AlertController,
-    public formBuilder: FormBuilder,
-    public cdr: ChangeDetectorRef,
-    public loadingController: LoadingController,
-    public commonService: CommonService,
-  ) {
-    super();
-    this.pageConfig.isDetailPage = true;
+	TypeList = [];
+	constructor(
+		public pageProvider: HRM_OvertimePolicyProvider,
+		public env: EnvService,
+		public navCtrl: NavController,
+		public route: ActivatedRoute,
+		public alertCtrl: AlertController,
+		public formBuilder: FormBuilder,
+		public cdr: ChangeDetectorRef,
+		public loadingController: LoadingController,
+		public commonService: CommonService
+	) {
+		super();
+		this.pageConfig.isDetailPage = true;
 
-    this.formGroup = formBuilder.group({
-      IDBranch: [this.env.selectedBranch],
-      Id: new FormControl({ value: '', disabled: true }),
-      Code: [''],
-      Name: ['', Validators.required],
-      Remark: [''],
-      Type: ['', Validators.required],
-      Start: ['', Validators.required],
-      End: ['', Validators.required],
-      IsOvernightShift: [false],
-      MaxMinuteOfOTInCycle: [''],
-    });
-  }
+		this.formGroup = formBuilder.group({
+			IDBranch: [this.env.selectedBranch],
+			Id: new FormControl({ value: '', disabled: true }),
+			Code: [''],
+			Name: ['', Validators.required],
+			Remark: [''],
+			Type: ['', Validators.required],
+			Start: ['', Validators.required],
+			End: ['', Validators.required],
+			IsOvernightShift: [false],
+			MaxMinuteOfOTInCycle: [''],
+		});
+	}
 
-  preLoadData(event?: any): void {
-    this.env.getType('OvertimeType').then((data) => {
-      this.TypeList = data;
-      super.preLoadData(event);
-    });
-  }
+	preLoadData(event?: any): void {
+		this.env.getType('OvertimeType').then((data) => {
+			this.TypeList = data;
+			super.preLoadData(event);
+		});
+	}
 
-  async saveChange() {
-    super.saveChange2();
-  }
+	async saveChange() {
+		super.saveChange2();
+	}
 }

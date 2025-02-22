@@ -8,13 +8,7 @@ import { ShareModule } from 'src/app/share.module';
 import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: CheckinPage }]),
-  ],
-  declarations: [CheckinPage, CateringVoucherModalPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: CheckinPage }])],
+	declarations: [CheckinPage, CateringVoucherModalPage],
 })
 export class CheckinPageModule {}

@@ -9,23 +9,14 @@ import { StaffComponentsModule } from './components/staff-components.module';
 import { MapCompsModule } from 'src/app/components/map-comps/map-comps.module';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: StaffDetailPage,
-  },
+	{
+		path: '',
+		component: StaffDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MapCompsModule,
-    ShareModule,
-    StaffComponentsModule,
-    RouterModule.forChild(routes),
-  ],
-  declarations: [StaffDetailPage],
+	imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, MapCompsModule, ShareModule, StaffComponentsModule, RouterModule.forChild(routes)],
+	declarations: [StaffDetailPage],
 })
 export class StaffDetailPageModule {}

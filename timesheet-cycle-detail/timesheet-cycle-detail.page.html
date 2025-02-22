@@ -1,137 +1,130 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="timesheet-cycle"></ion-back-button>
+	<ion-toolbar>
+		<ion-buttons slot="start">
+			<ion-back-button defaultHref="timesheet-cycle"></ion-back-button>
 
-      <div class="ion-hide-sm-down" style="margin: 0">
-        <ng-select
-          class="c-input no-check-dirty"
-          appendTo="#ng-select-holder"
-          [clearable]="false"
-          (change)="changeTimesheet()"
-          [(ngModel)]="selectedTimesheet"
-          [items]="timesheetList"
-          bindLabel="Name"
-          bindValue=""
-          placeholder="{{'Select working schedule' | translate}}"
-        >
-          <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-            <div *ngIf="i">
-              <div>
-                <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                <span [ngOptionHighlight]="search">{{i.Name}}</span>
-              </div>
-            </div>
-          </ng-template>
-        </ng-select>
-      </div>
-    </ion-buttons>
+			<div class="ion-hide-sm-down" style="margin: 0">
+				<ng-select
+					class="c-input no-check-dirty"
+					appendTo="#ng-select-holder"
+					[clearable]="false"
+					(change)="changeTimesheet()"
+					[(ngModel)]="selectedTimesheet"
+					[items]="timesheetList"
+					bindLabel="Name"
+					bindValue=""
+					placeholder="{{'Select working schedule' | translate}}"
+				>
+					<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+						<div *ngIf="i">
+							<div>
+								<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+								<span [ngOptionHighlight]="search">{{i.Name}}</span>
+							</div>
+						</div>
+					</ng-template>
+				</ng-select>
+			</div>
+		</ion-buttons>
 
-    <ion-buttons slot="end">
-      <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}">
-        {{'Today' | translate}}
-      </ion-button>
-      <ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
-        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
-      </ion-button>
-      <ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
-        <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
-      </ion-button>
-      <span class="split ion-hide-sm-down">|</span>
+		<ion-buttons slot="end">
+			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
+			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
+				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+			</ion-button>
+			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
+				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+			</ion-button>
+			<span class="split ion-hide-sm-down">|</span>
 
-      <ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
-        <ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
-      </ion-button>
-      <ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
-        <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
-      </ion-button>
+			<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
+				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
+			</ion-button>
+			<ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
+				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+			</ion-button>
 
-      <span class="split ion-hide-sm-down" *ngIf=" pageConfig.canExport && pageConfig.canImport">|</span>
+			<span class="split ion-hide-sm-down" *ngIf=" pageConfig.canExport && pageConfig.canImport">|</span>
 
-      <ion-button
-        class="ion-hide-sm-down"
-        *ngIf="pageConfig.canExport"
-        (click)="export()"
-        title="{{'Export' | translate}}"
-      >
-        <ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
+			<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
+				<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
-  <div id="ng-select-main-page" style="position: absolute"></div>
-  <ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="top" horizontal="end" slot="fixed">
-    <div id="order-detail-page" style="position: absolute"></div>
-    <ion-list>
-      <ion-list-header lines="full">
-        <ion-label color="dark">{{'Working schedule' | translate}}</ion-label>
+	<div id="ng-select-main-page" style="position: absolute"></div>
+	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="top" horizontal="end" slot="fixed">
+		<div id="order-detail-page" style="position: absolute"></div>
+		<ion-list>
+			<ion-list-header lines="full">
+				<ion-label color="dark">{{'Working schedule' | translate}}</ion-label>
 
-        <!-- <ion-button size="small" (click)="toggleDateFilter()">
+				<!-- <ion-button size="small" (click)="toggleDateFilter()">
 					<ion-icon slot="icon-only" [name]="query.IDStatus=='[301]' ? 'calendar-outline' : 'calendar'"></ion-icon>
 				</ion-button> -->
-      </ion-list-header>
-      <ion-item lines="full">
-        <div class="c-control">
-          <ng-select
-            class="c-input no-check-dirty"
-            appendTo="#order-detail-page"
-            (change)="changeTimesheet()"
-            [(ngModel)]="selectedTimesheet"
-            [items]="timesheetList"
-            bindLabel="Name"
-            bindValue=""
-            placeholder="{{'Select working schedule' | translate}}"
-          >
-            <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-              <div *ngIf="i">
-                <div>
-                  <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-                  <span [ngOptionHighlight]="search">{{i.Name}}</span>
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-      </ion-item>
-    </ion-list>
+			</ion-list-header>
+			<ion-item lines="full">
+				<div class="c-control">
+					<ng-select
+						class="c-input no-check-dirty"
+						appendTo="#order-detail-page"
+						(change)="changeTimesheet()"
+						[(ngModel)]="selectedTimesheet"
+						[items]="timesheetList"
+						bindLabel="Name"
+						bindValue=""
+						placeholder="{{'Select working schedule' | translate}}"
+					>
+						<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+							<div *ngIf="i">
+								<div>
+									<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+									<span [ngOptionHighlight]="search">{{i.Name}}</span>
+								</div>
+							</div>
+						</ng-template>
+					</ng-select>
+				</div>
+			</ion-item>
+		</ion-list>
 
-    <ion-list>
-      <ion-list-header lines="full">
-        <ion-label color="dark">{{'Shift' | translate}}</ion-label>
-      </ion-list-header>
-      <ion-item lines="full" *ngFor="let i of shiftList">
-        <ion-checkbox slot="start" [(ngModel)]="i.isChecked" (ionChange)="changeFilter()"></ion-checkbox>
-        <ion-label class="ion-text-wrap">
-          <ion-text [color]="i.Color">
-            <h3>{{i.Name}} <small>{{i.Start}}-{{i.End}}</small></h3>
-          </ion-text>
-          <p *ngIf="i.Remark">
-            <small>{{i.ShiftType}}</small>
-          </p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
+		<ion-list>
+			<ion-list-header lines="full">
+				<ion-label color="dark">{{'Shift' | translate}}</ion-label>
+			</ion-list-header>
+			<ion-item lines="full" *ngFor="let i of shiftList">
+				<ion-checkbox slot="start" [(ngModel)]="i.isChecked" (ionChange)="changeFilter()"></ion-checkbox>
+				<ion-label class="ion-text-wrap">
+					<ion-text [color]="i.Color">
+						<h3>{{i.Name}} <small>{{i.Start}}-{{i.End}}</small></h3>
+					</ion-text>
+					<p *ngIf="i.Remark">
+						<small>{{i.ShiftType}}</small>
+					</p>
+				</ion-label>
+			</ion-item>
+		</ion-list>
 
-    <ion-list>
-      <ion-list-header lines="full">
-        <ion-label color="dark">{{'Location' | translate}}</ion-label>
-      </ion-list-header>
-      <ion-item lines="full" *ngFor="let i of officeList">
-        <ion-checkbox slot="start" [(ngModel)]="i.isChecked" (ionChange)="changeFilter()"></ion-checkbox>
-        <ion-label class="ion-text-wrap">
-          <ion-text>
-            <h3>{{i.Name}}</h3>
-          </ion-text>
-          <p *ngIf="i.Remark">
-            <small>{{i.Remark}}</small>
-          </p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
+		<ion-list>
+			<ion-list-header lines="full">
+				<ion-label color="dark">{{'Location' | translate}}</ion-label>
+			</ion-list-header>
+			<ion-item lines="full" *ngFor="let i of officeList">
+				<ion-checkbox slot="start" [(ngModel)]="i.isChecked" (ionChange)="changeFilter()"></ion-checkbox>
+				<ion-label class="ion-text-wrap">
+					<ion-text>
+						<h3>{{i.Name}}</h3>
+					</ion-text>
+					<p *ngIf="i.Remark">
+						<small>{{i.Remark}}</small>
+					</p>
+				</ion-label>
+			</ion-item>
+		</ion-list>
 
-    <!-- <ion-list>
+		<!-- <ion-list>
 			<ion-list-header lines="full">
 				<ion-label color="dark">Loại ca</ion-label>
 			</ion-list-header>
@@ -147,37 +140,37 @@
 				</ion-label>
 			</ion-item>
 		</ion-list> -->
-  </ion-fab>
+	</ion-fab>
 
-  <app-page-message
-    message="{{'Not yet selected working schedule' | translate}}"
-    subMessage="{{'Please select working schedule to start' | translate}}"
-    *ngIf="!id"
-    [itemsLength]="id"
-    [showSpinner]="pageConfig.showSpinner"
-  >
-    <hr />
-    <div class="c-control">
-      <ng-select
-        class="c-input no-check-dirty"
-        appendTo="#ng-select-main-page"
-        (change)="changeTimesheet()"
-        [(ngModel)]="selectedTimesheet"
-        [items]="timesheetList"
-        bindLabel="Name"
-        bindValue=""
-        placeholder="{{'Select working schedule' | translate}}"
-      >
-        <ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-          <div *ngIf="i">
-            <div>
-              <span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-              <span [ngOptionHighlight]="search">{{i.Name}}</span>
-            </div>
-          </div>
-        </ng-template>
-      </ng-select>
-    </div>
-  </app-page-message>
-  <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+	<app-page-message
+		message="{{'Not yet selected working schedule' | translate}}"
+		subMessage="{{'Please select working schedule to start' | translate}}"
+		*ngIf="!id"
+		[itemsLength]="id"
+		[showSpinner]="pageConfig.showSpinner"
+	>
+		<hr />
+		<div class="c-control">
+			<ng-select
+				class="c-input no-check-dirty"
+				appendTo="#ng-select-main-page"
+				(change)="changeTimesheet()"
+				[(ngModel)]="selectedTimesheet"
+				[items]="timesheetList"
+				bindLabel="Name"
+				bindValue=""
+				placeholder="{{'Select working schedule' | translate}}"
+			>
+				<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+					<div *ngIf="i">
+						<div>
+							<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
+							<span [ngOptionHighlight]="search">{{i.Name}}</span>
+						</div>
+					</div>
+				</ng-template>
+			</ng-select>
+		</div>
+	</app-page-message>
+	<full-calendar #calendar [options]="calendarOptions"></full-calendar>
 </ion-content>

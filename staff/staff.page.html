@@ -1,191 +1,132 @@
 <ion-header>
-  <app-toolbar [page]="this" ></app-toolbar>
-  
-  <section class="table responsive">
-    <header class="bold">
-      <div class="col-checkbox cell"></div>
-      <div class="col-id cell" (click)="sortToggle('Id')">
-        {{'Id' | translate}}
-        <ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-        <ion-icon
-          class="min-btn"
-          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
-          *ngIf="query.Id"
-          name="search"
-          color="primary"
-        ></ion-icon>
-      </div>
-      <div class="col-name cell" (click)="sortToggle('FullName')">
-        {{'Staff name' | translate}}
-        <ion-icon
-          class="min-btn"
-          *ngIf="sort.FullName"
-          [name]="sort.FullName == 'FullName'?'arrow-down': 'arrow-up'"
-        ></ion-icon>
-        <ion-icon
-          class="min-btn"
-          (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch"
-          *ngIf="query.FullName"
-          name="search"
-          color="primary"
-        ></ion-icon>
-      </div>
-   
+	<app-toolbar [page]="this"></app-toolbar>
 
-      <div class="col-name cell">{{'Unit' | translate}}</div>
+	<section class="table responsive">
+		<header class="bold">
+			<div class="col-checkbox cell"></div>
+			<div class="col-id cell" (click)="sortToggle('Id')">
+				{{'Id' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
+			</div>
+			<div class="col-name cell" (click)="sortToggle('FullName')">
+				{{'Staff name' | translate}}
+				<ion-icon class="min-btn" *ngIf="sort.FullName" [name]="sort.FullName == 'FullName'?'arrow-down': 'arrow-up'"></ion-icon>
+				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.FullName" name="search" color="primary"></ion-icon>
+			</div>
 
+			<div class="col-name cell">{{'Unit' | translate}}</div>
+		</header>
+		<form (submit)="refresh()" action="#">
+			<header class="filter" *ngIf="pageConfig.isShowSearch">
+				<div class="col-checkbox cell"></div>
+				<div class="col-id cell">
+					<input
+						[ngModelOptions]="{standalone: true}"
+						[(ngModel)]="query.Id"
+						class="c-input"
+						[ngClass]="{active: query.Id}"
+						placeholder="{{'Id' | translate}}"
+						type="text"
+					/>
+					<ion-icon class="min-btn" (click)="query.Id=''; refresh()" *ngIf="query.Id" name="close-circle-outline"></ion-icon>
+				</div>
+				<div class="col-name cell">
+					<input
+						[ngModelOptions]="{standalone: true}"
+						[(ngModel)]="query.FullName"
+						class="c-input"
+						[ngClass]="{active: query.FullName}"
+						placeholder="{{'Fullname' | translate}}"
+						type="text"
+					/>
+					<ion-icon class="min-btn" (click)="query.FullName=''; refresh()" *ngIf="query.FullName" name="close-circle-outline"></ion-icon>
+				</div>
+				<div class="col-account cell">
+					<input
+						[ngModelOptions]="{standalone: true}"
+						[(ngModel)]="query.Email"
+						class="c-input"
+						[ngClass]="{active: query.Email}"
+						placeholder="{{'Email' | translate}}"
+						type="text"
+					/>
+					<ion-icon class="min-btn" (click)="query.Email=''; refresh()" *ngIf="query.Email" name="close-circle-outline"></ion-icon>
+				</div>
 
-    </header>
-    <form (submit)="refresh()" action="#">
-      <header class="filter" *ngIf="pageConfig.isShowSearch">
-        <div class="col-checkbox cell"></div>
-        <div class="col-id cell">
-          <input
-            [ngModelOptions]="{standalone: true}"
-            [(ngModel)]="query.Id"
-            class="c-input"
-            [ngClass]="{active: query.Id}"
-            placeholder="{{'Id' | translate}}"
-            type="text"
-          />
-          <ion-icon
-            class="min-btn"
-            (click)="query.Id=''; refresh()"
-            *ngIf="query.Id"
-            name="close-circle-outline"
-          ></ion-icon>
-        </div>
-        <div class="col-name cell">
-          <input
-            [ngModelOptions]="{standalone: true}"
-            [(ngModel)]="query.FullName"
-            class="c-input"
-            [ngClass]="{active: query.FullName}"
-            placeholder="{{'Fullname' | translate}}"
-            type="text"
-          />
-          <ion-icon
-            class="min-btn"
-            (click)="query.FullName=''; refresh()"
-            *ngIf="query.FullName"
-            name="close-circle-outline"
-          ></ion-icon>
-        </div>
-        <div class="col-account cell">
-          <input
-            [ngModelOptions]="{standalone: true}"
-            [(ngModel)]="query.Email"
-            class="c-input"
-            [ngClass]="{active: query.Email}"
-            placeholder="{{'Email' | translate}}"
-            type="text"
-          />
-          <ion-icon
-            class="min-btn"
-            (click)="query.Email=''; refresh()"
-            *ngIf="query.Email"
-            name="close-circle-outline"
-          ></ion-icon>
-        </div>
-        
-        <div class="col-name cell">
-          <select
-            (change)="refresh()"
-            [ngModelOptions]="{standalone: true}"
-            [(ngModel)]="query.IDJobTitle"
-            class="c-input c-dropdown"
-            placeholder="{{'Job title' | translate}}"
-            [ngClass]="{active: query.IDJobTitle}"
-          >
-            <option [disabled]="!t.Flag" *ngFor="let t of branchList" [value]="t.Id">{{t.NamePadding}}</option>
-          </select>
-          <ion-icon
-            class="min-btn"
-            (click)="query.IDJobTitle=''; refresh()"
-            *ngIf="query.IDJobTitle"
-            name="close-circle-outline"
-          ></ion-icon>
-        </div>
+				<div class="col-name cell">
+					<select
+						(change)="refresh()"
+						[ngModelOptions]="{standalone: true}"
+						[(ngModel)]="query.IDJobTitle"
+						class="c-input c-dropdown"
+						placeholder="{{'Job title' | translate}}"
+						[ngClass]="{active: query.IDJobTitle}"
+					>
+						<option [disabled]="!t.Flag" *ngFor="let t of branchList" [value]="t.Id">{{t.NamePadding}}</option>
+					</select>
+					<ion-icon class="min-btn" (click)="query.IDJobTitle=''; refresh()" *ngIf="query.IDJobTitle" name="close-circle-outline"></ion-icon>
+				</div>
 
-        <div class="col-code cell">
-          <input
-            [ngModelOptions]="{standalone: true}"
-            [(ngModel)]="query.Code"
-            class="c-input"
-            [ngClass]="{active: query.Code}"
-            placeholder="{{'Code' | translate}}"
-            type="text"
-          />
-          <ion-icon
-            class="min-btn"
-            (click)="query.Code=''; refresh()"
-            *ngIf="query.Code"
-            name="close-circle-outline"
-          ></ion-icon>
-        </div>
+				<div class="col-code cell">
+					<input
+						[ngModelOptions]="{standalone: true}"
+						[(ngModel)]="query.Code"
+						class="c-input"
+						[ngClass]="{active: query.Code}"
+						placeholder="{{'Code' | translate}}"
+						type="text"
+					/>
+					<ion-icon class="min-btn" (click)="query.Code=''; refresh()" *ngIf="query.Code" name="close-circle-outline"></ion-icon>
+				</div>
 
-        <button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
-      </header>
-    </form>
-  </section>
+				<button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
+			</header>
+		</form>
+	</section>
 </ion-header>
 
 <ion-content appScrollbarTheme class="header-table">
-  <app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 
-  <div *ngIf="items.length && pageConfig.showSpinner==false">
-    <section class="table responsive">
-      <div
-        *ngFor="let i of items; let j = index;"
-        class="row"
-        [ngClass]="{odd: j % 2 != 0}"
-        [ngClass]="{selected: i.checked}"
-        style="padding-right: 16px !important;"
-      >
-        <div class="col-checkbox cell">
-          <input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-        </div>
-        <div class="col-id cell">
-          <a [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.Id}}</a>
-        </div>
-        <div (click)="nav('staff/'+i.Id,'forward')" class="col-name cell">
-          <ion-avatar class="avatar" slot="start">
-            <ion-img #img [src]="i.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
-          </ion-avatar>
-          <div>
-            <span class="bold">{{i.FullName}}</span>
-             <small *ngIf="i.Code" class="no-warp"> {{i.Code}}</small>
-            <br/>
-            {{i.Email}}
-          </div>
-          
-        </div>
-        
-        
-        <div class="col-name cell">
-          <app-branch-breadcrumbs
-            [maxItems]="3"
-            [itemsBeforeCollapse]="0"
-            [itemsAfterCollapse]="2"
-            [Id]="i.IDJobTitle"
-            [Items]="env.jobTitleList"
-            [ngClass]="{'no-check-dirty': noCheckDirty}"
-            class="c-input disable breadcrumbs"
-            *ngIf="i.IDJobTitle"
-          ></app-branch-breadcrumbs>
-        </div>
+	<div *ngIf="items.length && pageConfig.showSpinner==false">
+		<section class="table responsive">
+			<div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}" style="padding-right: 16px !important">
+				<div class="col-checkbox cell">
+					<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
+				</div>
+				<div class="col-id cell">
+					<a [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.Id}}</a>
+				</div>
+				<div (click)="nav('staff/'+i.Id,'forward')" class="col-name cell">
+					<ion-avatar class="avatar" slot="start">
+						<ion-img #img [src]="i.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+					</ion-avatar>
+					<div>
+						<span class="bold">{{i.FullName}}</span>
+						<small *ngIf="i.Code" class="no-warp"> {{i.Code}}</small>
+						<br />
+						{{i.Email}}
+					</div>
+				</div>
 
-      
-      </div>
-    </section>
-  </div>
+				<div class="col-name cell">
+					<app-branch-breadcrumbs
+						[maxItems]="3"
+						[itemsBeforeCollapse]="0"
+						[itemsAfterCollapse]="2"
+						[Id]="i.IDJobTitle"
+						[Items]="env.jobTitleList"
+						[ngClass]="{'no-check-dirty': noCheckDirty}"
+						class="c-input disable breadcrumbs"
+						*ngIf="i.IDJobTitle"
+					></app-branch-breadcrumbs>
+				</div>
+			</div>
+		</section>
+	</div>
 
-  <ion-infinite-scroll
-    color="primary"
-    threshold="20%"
-    (ionInfinite)="loadData($event)"
-    [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData"
-  >
-    <ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
 </ion-content>

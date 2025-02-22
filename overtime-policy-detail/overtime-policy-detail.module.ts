@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { OvertimePolicyDetailPage } from './overtime-policy-detail.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: OvertimePolicyDetailPage,
-  },
+	{
+		path: '',
+		component: OvertimePolicyDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [OvertimePolicyDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [OvertimePolicyDetailPage],
 })
 export class OvertimePolicyDetailPageModule {}

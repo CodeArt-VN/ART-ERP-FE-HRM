@@ -1,182 +1,141 @@
 <ion-header>
-  <app-toolbar [page]="this">
-    <ion-button
-      title="{{'Allow to use account' | translate}}"
-      [color]="userAccount.LockoutEnabled ? 'danger': 'success'"
-      [disabled]="showLogout"
-      *ngIf="userAccount.Id"
-      (click)="changeLock()"
-    >
-      <ion-icon slot="icon-only" [name]="userAccount.LockoutEnabled ? 'lock-closed' : 'lock-open'"></ion-icon>
-    </ion-button>
-    <ion-button
-      title="{{'Assign system admin role' | translate}}"
-      color="danger"
-      [disabled]="showLogout"
-      *ngIf="showRolesEdit && userAccount.Id"
-      [fill]="!checkRole('HOST')? 'outline' : 'solid'"
-      (click)="changeRole('HOST')"
-    >
-      <ion-icon slot="icon-only" name="star"></ion-icon>
-    </ion-button>
-  </app-toolbar>
+	<app-toolbar [page]="this">
+		<ion-button
+			title="{{'Allow to use account' | translate}}"
+			[color]="userAccount.LockoutEnabled ? 'danger': 'success'"
+			[disabled]="showLogout"
+			*ngIf="userAccount.Id"
+			(click)="changeLock()"
+		>
+			<ion-icon slot="icon-only" [name]="userAccount.LockoutEnabled ? 'lock-closed' : 'lock-open'"></ion-icon>
+		</ion-button>
+		<ion-button
+			title="{{'Assign system admin role' | translate}}"
+			color="danger"
+			[disabled]="showLogout"
+			*ngIf="showRolesEdit && userAccount.Id"
+			[fill]="!checkRole('HOST')? 'outline' : 'solid'"
+			(click)="changeRole('HOST')"
+		>
+			<ion-icon slot="icon-only" name="star"></ion-icon>
+		</ion-button>
+	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
-  <ion-fab
-    [ngClass]="{withSearch: pageConfig.isShowSearch,'ion-hide-md-down': pageConfig.isSubActive}"
-    class="feature no-print"
-    vertical="bottom"
-    horizontal="start"
-    slot="fixed"
-  >
-    <app-page-message [itemsLength]="item?1:0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-    <div *ngIf="pageConfig.showSpinner==false">
-      <ion-list lines="full">
-        <ion-item class="img-holder">
-          <div
-            style="margin: 0 auto"
-            ng2FileDrop
-            class="avatar well my-drop-zone ion-padding"
-            [ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
-            (fileOver)="fileOverBase($event)"
-            (onFileDrop)="onFileSelected()"
-            [uploader]="uploader"
-          >
-            <img class="ion-margin" [src]="avatarURL" (error)="img.src = 'assets/avartar-empty.jpg'" #img />
-            <div>
-              <ion-button class="change-avatar" *ngIf="item.IsDisabled" color="danger" size="small">
-                {{'Resigned/ on pause' | translate}}
-              </ion-button>
-            </div>
-            <input
-              style="display: none"
-              #importfile
-              type="file"
-              (change)="onFileSelected()"
-              ng2FileSelect
-              accept="image/*"
-              [uploader]="uploader"
-            />
+	<ion-fab
+		[ngClass]="{withSearch: pageConfig.isShowSearch,'ion-hide-md-down': pageConfig.isSubActive}"
+		class="feature no-print"
+		vertical="bottom"
+		horizontal="start"
+		slot="fixed"
+	>
+		<app-page-message [itemsLength]="item?1:0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+		<div *ngIf="pageConfig.showSpinner==false">
+			<ion-list lines="full">
+				<ion-item class="img-holder">
+					<div
+						style="margin: 0 auto"
+						ng2FileDrop
+						class="avatar well my-drop-zone ion-padding"
+						[ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
+						(fileOver)="fileOverBase($event)"
+						(onFileDrop)="onFileSelected()"
+						[uploader]="uploader"
+					>
+						<img class="ion-margin" [src]="avatarURL" (error)="img.src = 'assets/avartar-empty.jpg'" #img />
+						<div>
+							<ion-button class="change-avatar" *ngIf="item.IsDisabled" color="danger" size="small"> {{'Resigned/ on pause' | translate}} </ion-button>
+						</div>
+						<input style="display: none" #importfile type="file" (change)="onFileSelected()" ng2FileSelect accept="image/*" [uploader]="uploader" />
 
-            <ion-label>
-              <h1 class="bold">{{formGroup.get('FullName').value}}</h1>
-              <ng-container *ngFor="let t of jobTitleList">
-                <h2 *ngIf="formGroup.controls.IDJobTitle == t.Id" color="medium text-center">{{ t.Name }}</h2>
-                <p *ngIf="formGroup.get('IsDisabled').value" color="danger">{{ 'Resigned staff' | translate}}</p>
-              </ng-container>
-            </ion-label>
+						<ion-label>
+							<h1 class="bold">{{formGroup.get('FullName').value}}</h1>
+							<ng-container *ngFor="let t of jobTitleList">
+								<h2 *ngIf="formGroup.controls.IDJobTitle == t.Id" color="medium text-center">{{ t.Name }}</h2>
+								<p *ngIf="formGroup.get('IsDisabled').value" color="danger">{{ 'Resigned staff' | translate}}</p>
+							</ng-container>
+						</ion-label>
 
-            <ion-label class="ion-text-wrap ion-text-center" style="padding-top: 8px;">
-              <ion-chip color="primary" *ngIf="formGroup.get('Code').value">
-                <ion-icon name="barcode-outline"></ion-icon>
-                <ion-label>{{ formGroup.get('Code').value }}</ion-label>
-              </ion-chip>
-  
-              <ion-chip color="danger" *ngIf="formGroup.get('PhoneNumber').value">
-                <ion-icon name="call-outline"></ion-icon>
-                <ion-label>{{formGroup.get('PhoneNumber').value }}</ion-label>
-              </ion-chip>
-  
-              <ion-chip color="success" *ngIf="formGroup.get('Email').value">
-                <ion-icon name="mail-outline"></ion-icon>
-                <ion-label>{{formGroup.get('Email').value }}</ion-label>
-              </ion-chip>
-            </ion-label>
+						<ion-label class="ion-text-wrap ion-text-center" style="padding-top: 8px">
+							<ion-chip color="primary" *ngIf="formGroup.get('Code').value">
+								<ion-icon name="barcode-outline"></ion-icon>
+								<ion-label>{{ formGroup.get('Code').value }}</ion-label>
+							</ion-chip>
 
-            <div class="c-control">
-              <app-branch-breadcrumbs
-                [maxItems]="1"
-                [itemsBeforeCollapse]="0"
-                [itemsAfterCollapse]="1"
-                [Id]="formGroup.get('IDJobTitle').value"
-                [Items]="env.jobTitleList"
-                [ngClass]="{'no-check-dirty': noCheckDirty}"
-                class="c-input disable breadcrumbs"
-                *ngIf="formGroup.get('IDJobTitle').value"
-              ></app-branch-breadcrumbs>
-            </div>
+							<ion-chip color="danger" *ngIf="formGroup.get('PhoneNumber').value">
+								<ion-icon name="call-outline"></ion-icon>
+								<ion-label>{{formGroup.get('PhoneNumber').value }}</ion-label>
+							</ion-chip>
 
-          </div>
-        </ion-item>
-      </ion-list>
+							<ion-chip color="success" *ngIf="formGroup.get('Email').value">
+								<ion-icon name="mail-outline"></ion-icon>
+								<ion-label>{{formGroup.get('Email').value }}</ion-label>
+							</ion-chip>
+						</ion-label>
 
-      <ion-list>
-        <!-- <ion-list-header>
+						<div class="c-control">
+							<app-branch-breadcrumbs
+								[maxItems]="1"
+								[itemsBeforeCollapse]="0"
+								[itemsAfterCollapse]="1"
+								[Id]="formGroup.get('IDJobTitle').value"
+								[Items]="env.jobTitleList"
+								[ngClass]="{'no-check-dirty': noCheckDirty}"
+								class="c-input disable breadcrumbs"
+								*ngIf="formGroup.get('IDJobTitle').value"
+							></app-branch-breadcrumbs>
+						</div>
+					</div>
+				</ion-item>
+			</ion-list>
+
+			<ion-list>
+				<!-- <ion-list-header>
           <ion-label>{{'Details' | translate}}</ion-label>
         </ion-list-header> -->
-        <ng-container *ngFor="let i of optionGroup">
-          <ion-item
-            [color]="segmentView.Page == i.Code? 'primary': '' "
-            button
-            detail="true"
-            class="clickable"
-            (click)="loadNode(i)"
-          >
-            <ion-icon slot="start" aria-hidden="true" [name]="i.Icon"></ion-icon>
-            <ion-label class="ion-text-wrap">
-              <h3>{{i.Name | translate}}</h3>
-              <p>{{i.Remark | translate}}</p>
-            </ion-label>
-          </ion-item>
-        </ng-container>
-      </ion-list>
-      <div class="ion-padding" style="padding-bottom: 0"></div>
-    </div>
-  </ion-fab>
+				<ng-container *ngFor="let i of optionGroup">
+					<ion-item [color]="segmentView.Page == i.Code? 'primary': '' " button detail="true" class="clickable" (click)="loadNode(i)">
+						<ion-icon slot="start" aria-hidden="true" [name]="i.Icon"></ion-icon>
+						<ion-label class="ion-text-wrap">
+							<h3>{{i.Name | translate}}</h3>
+							<p>{{i.Remark | translate}}</p>
+						</ion-label>
+					</ion-item>
+				</ng-container>
+			</ion-list>
+			<div class="ion-padding" style="padding-bottom: 0"></div>
+		</div>
+	</ion-fab>
 
-  <div>
-    <app-staff-personnel-profile
-      [data]="item"
-      [pageConfig]="pageConfig"
-      *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false"
-    >
-    </app-staff-personnel-profile>
+	<div>
+		<app-staff-personnel-profile [data]="item" [pageConfig]="pageConfig" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
+		</app-staff-personnel-profile>
 
-    <app-staff-job-information
-      *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"
-    ></app-staff-job-information>
+		<app-staff-job-information *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"></app-staff-job-information>
 
-    <app-staff-salary-benefits
-      *ngIf="segmentView.Page == 'salary-benefits' && pageConfig.showSpinner == false"
-    ></app-staff-salary-benefits>
+		<app-staff-salary-benefits *ngIf="segmentView.Page == 'salary-benefits' && pageConfig.showSpinner == false"></app-staff-salary-benefits>
 
-    <app-staff-assigned-tasks
-      *ngIf="segmentView.Page == 'assigned-tasks' && pageConfig.showSpinner == false"
-    ></app-staff-assigned-tasks>
+		<app-staff-assigned-tasks *ngIf="segmentView.Page == 'assigned-tasks' && pageConfig.showSpinner == false"></app-staff-assigned-tasks>
 
-    <app-staff-achievements-awards
-      *ngIf="segmentView.Page == 'achievements-awards' && pageConfig.showSpinner == false"
-    ></app-staff-achievements-awards>
+		<app-staff-achievements-awards *ngIf="segmentView.Page == 'achievements-awards' && pageConfig.showSpinner == false"></app-staff-achievements-awards>
 
-    <app-staff-violate *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"></app-staff-violate>
+		<app-staff-violate *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"></app-staff-violate>
 
-    <app-staff-reviews-feedback
-      *ngIf="segmentView.Page == 'reviews-feedback' && pageConfig.showSpinner == false"
-    ></app-staff-reviews-feedback>
+		<app-staff-reviews-feedback *ngIf="segmentView.Page == 'reviews-feedback' && pageConfig.showSpinner == false"></app-staff-reviews-feedback>
 
-    <app-staff-contracts-documents
-      *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"
-    ></app-staff-contracts-documents>
+		<app-staff-contracts-documents *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"></app-staff-contracts-documents>
 
-    <app-staff-work-schedule
-      *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"
-    ></app-staff-work-schedule>
+		<app-staff-work-schedule *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"></app-staff-work-schedule>
 
-    <!-- Tài sản công ty -->
-    <app-staff-company-assets
-      *ngIf="segmentView.Page == 'company-assets' && pageConfig.showSpinner == false"
-    ></app-staff-company-assets>
+		<!-- Tài sản công ty -->
+		<app-staff-company-assets *ngIf="segmentView.Page == 'company-assets' && pageConfig.showSpinner == false"></app-staff-company-assets>
 
-    <!-- Trạng thái nhân viên -->
-    <app-staff-employment-status
-      *ngIf="segmentView.Page == 'employment-status' && pageConfig.showSpinner == false"
-    ></app-staff-employment-status>
+		<!-- Trạng thái nhân viên -->
+		<app-staff-employment-status *ngIf="segmentView.Page == 'employment-status' && pageConfig.showSpinner == false"></app-staff-employment-status>
 
-    <!-- Dữ liệu hoạt động -->
-    <app-staff-active-data
-      *ngIf="segmentView.Page == 'active-data' && pageConfig.showSpinner == false"
-    ></app-staff-active-data>
-  </div>
-  <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+		<!-- Dữ liệu hoạt động -->
+		<app-staff-active-data *ngIf="segmentView.Page == 'active-data' && pageConfig.showSpinner == false"></app-staff-active-data>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>

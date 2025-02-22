@@ -4,21 +4,21 @@ import { IonicModule } from '@ionic/angular';
 import { TimesheetDetailPage } from './timesheet-detail.page';
 
 describe('TimesheetDetailPage', () => {
-  let component: TimesheetDetailPage;
-  let fixture: ComponentFixture<TimesheetDetailPage>;
+	let component: TimesheetDetailPage;
+	let fixture: ComponentFixture<TimesheetDetailPage>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [TimesheetDetailPage],
-      imports: [IonicModule.forRoot()],
-    }).compileComponents();
+	beforeEach(waitForAsync(() => {
+		TestBed.configureTestingModule({
+			declarations: [TimesheetDetailPage],
+			imports: [IonicModule.forRoot()],
+		}).compileComponents();
 
-    fixture = TestBed.createComponent(TimesheetDetailPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+		fixture = TestBed.createComponent(TimesheetDetailPage);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	}));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

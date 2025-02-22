@@ -7,13 +7,7 @@ import { StaffPage } from './staff.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: StaffPage }]),
-  ],
-  declarations: [StaffPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: StaffPage }])],
+	declarations: [StaffPage],
 })
 export class StaffPageModule {}

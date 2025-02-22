@@ -12,16 +12,16 @@ import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ReactiveFormsModule,
-    PriceReportComponentsModule,
-    ShareModule,
-    FullCalendarModule,
-    RouterModule.forChild([{ path: '', component: SchedulerPage }]),
-  ],
-  declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage],
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		ReactiveFormsModule,
+		PriceReportComponentsModule,
+		ShareModule,
+		FullCalendarModule,
+		RouterModule.forChild([{ path: '', component: SchedulerPage }]),
+	],
+	declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage],
 })
 export class SchedulerPageModule {}

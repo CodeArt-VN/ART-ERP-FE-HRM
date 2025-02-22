@@ -7,13 +7,7 @@ import { UserDevicePage } from './user-device.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: UserDevicePage }]),
-  ],
-  declarations: [UserDevicePage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: UserDevicePage }])],
+	declarations: [UserDevicePage],
 })
 export class UserDevicePageModule {}

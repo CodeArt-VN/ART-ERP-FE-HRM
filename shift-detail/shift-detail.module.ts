@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { ShiftDetailPage } from './shift-detail.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: ShiftDetailPage,
-  },
+	{
+		path: '',
+		component: ShiftDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [ShiftDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [ShiftDetailPage],
 })
 export class ShiftDetailPageModule {}

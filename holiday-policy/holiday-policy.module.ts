@@ -7,13 +7,7 @@ import { HolidayPolicyPage } from './holiday-policy.page';
 import { ShareModule } from 'src/app/share.module';
 
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    ShareModule,
-    RouterModule.forChild([{ path: '', component: HolidayPolicyPage }]),
-  ],
-  declarations: [HolidayPolicyPage],
+	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: HolidayPolicyPage }])],
+	declarations: [HolidayPolicyPage],
 })
 export class HolidayPolicyPageModule {}

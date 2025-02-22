@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { CasualLabourRegisterPage } from './casual-labour-register.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: CasualLabourRegisterPage,
-  },
+	{
+		path: '',
+		component: CasualLabourRegisterPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [CasualLabourRegisterPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [CasualLabourRegisterPage],
 })
 export class CasualLabourRegisterPageModule {}

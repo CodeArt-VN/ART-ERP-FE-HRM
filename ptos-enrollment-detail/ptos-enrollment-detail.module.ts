@@ -7,14 +7,14 @@ import { ShareModule } from 'src/app/share.module';
 import { PTOsEnrollmentDetailPage } from './ptos-enrollment-detail.page';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: PTOsEnrollmentDetailPage,
-  },
+	{
+		path: '',
+		component: PTOsEnrollmentDetailPage,
+	},
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-  declarations: [PTOsEnrollmentDetailPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
+	declarations: [PTOsEnrollmentDetailPage],
 })
 export class PTOsEnrollmentDetailPageModule {}
