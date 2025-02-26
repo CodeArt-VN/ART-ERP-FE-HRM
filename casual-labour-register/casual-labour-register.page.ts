@@ -132,7 +132,7 @@ export class CasualLabourRegisterPage extends PageBase {
 
 	async saveChange() {}
 
-	async submit() {
+	async submitForm() {
 		this.bindName();
 		super.saveChange();
 	}

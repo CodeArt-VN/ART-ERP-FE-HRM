@@ -275,7 +275,7 @@
 					<ion-row>
 						<ion-col size="12" size-sm size-xl="4" offset-xl="3">
 							<div class="c-control">
-								<ion-button *ngIf="!userAccount.Id" (click)="submit()"> {{'Register' | translate}} </ion-button>
+								<ion-button *ngIf="!userAccount.Id" (click)="submitForm()"> {{'Register' | translate}} </ion-button>
 
 								<ion-button (click)="passwordViewType = passwordViewType=='password'?'text':'password'" color="warning">
 									<ion-icon slot="icon-only" [name]="passwordViewType=='password'?'eye':'eye-off'"></ion-icon>
