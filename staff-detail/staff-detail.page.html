@@ -108,7 +108,7 @@
 		</div>
 	</ion-fab>
 
-	<div>
+	<div class="safe-max-width">
 		<app-staff-personnel-profile [data]="item" [pageConfig]="pageConfig" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
 		</app-staff-personnel-profile>
 
@@ -137,5 +137,7 @@
 		<!-- Dữ liệu hoạt động -->
 		<app-staff-active-data *ngIf="segmentView.Page == 'active-data' && pageConfig.showSpinner == false"></app-staff-active-data>
 	</div>
+
 	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+	<div class="ion-padding"></div>
 </ion-content>
