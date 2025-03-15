@@ -86,7 +86,7 @@ export class StaffPage extends PageBase {
 
 	loadedData(event) {
 		this.items.forEach((i) => {
-			i.Avatar = environment.staffAvatarsServer + i.Code + '.jpg';
+			i.Avatar = i.Code? (environment.staffAvatarsServer + i.Code + '.jpg') : 'assets/avartar-empty.jpg';
 			i.Department = this.branchList.find((d) => d.Id == i.IDDepartment); // lib.getAttrib(i.IDDepartment, this.branchList);
 			i.JobTitle = lib.getAttrib(i.IDJobTitle, this.branchList);
 			i.Email = i.Email ? i.Email.replace(environment.loginEmail, '') : '';
