@@ -18,6 +18,7 @@ import { StaffCompanyAssetsComponent } from './staff-company-assets/staff-compan
 import { StaffEmploymentStatusComponent } from './staff-employment-status/staff-employment-status.component';
 import { StaffActiveDataComponent } from './staff-active-data/staff-active-data.component';
 import { StaffWorkScheduleComponent } from './staff-work-schedule/staff-work-schedule.component';
+import { StaffPersonnelFamilyComponent } from './staff-personnel-profile/staff-personnel-family/staff-personnel-family.component';
 
 @NgModule({
 	imports: [
@@ -44,6 +45,7 @@ import { StaffWorkScheduleComponent } from './staff-work-schedule/staff-work-sch
 		StaffEmploymentStatusComponent,
 		StaffActiveDataComponent,
 		StaffWorkScheduleComponent,
+		StaffPersonnelFamilyComponent,
 	],
 	exports: [
 		StaffPersonnelProfileComponent,
@@ -59,6 +61,7 @@ import { StaffWorkScheduleComponent } from './staff-work-schedule/staff-work-sch
 		StaffEmploymentStatusComponent,
 		StaffActiveDataComponent,
 		StaffWorkScheduleComponent,
+		StaffPersonnelFamilyComponent,
 	],
 })
 export class StaffComponentsModule {}
