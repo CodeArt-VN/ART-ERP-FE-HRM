@@ -349,6 +349,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 				//this.userAccount.Email = this.item.Email;
 				this.userAccount.FullName = this.item.FullName;
 				this.userAccount.Avatar = 'Uploads/HRM/Staffs/Avatars/' + this.item.Id + '.jpg';
+				this.userAccount.SysRoles = 'STAFF';
 				this.userAccount.PhoneNumber = this.item.PhoneNumber;
 				this.userAccount.Address = this.item.Address;
 				this.userAccount.StaffID = this.item.Id;
