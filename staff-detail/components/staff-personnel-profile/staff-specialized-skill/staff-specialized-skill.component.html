@@ -1,0 +1,119 @@
+<ion-col size="12" size-sm size-xl="8">
+	<div class="table-contain">
+		<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive" [rows]="items" [(query)]="query" [showSpinner]="pageConfig.showSpinner">
+			<datatable-column class="col-date"  format="dd-MM-yyyy" name="Date of issue" property="DateOfIssue"></datatable-column>
+			<datatable-column class="col-code" name="Place of issue" property="PlaceOfIssue"></datatable-column>
+			<datatable-column class="col-date" format="dd-MM-yyyy" name="Date of expiry" property="DateOfExpiry"></datatable-column>
+			<datatable-column class="col-code" name="Specialized skill" property="SpecializedSkill"></datatable-column>
+			<datatable-column class="col-code" name="Cerificate number" property="CertificateNumber"></datatable-column>
+			<datatable-column class="col-code" name="Rating" property="Rating"></datatable-column>
+			<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-button (click)="editRow(i)" size="small" title="{{ 'Edit' | translate }}" fill="clear"> <ion-icon slot="icon-only" name="pencil"></ion-icon> </ion-button>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-button (click)="deleteRow(i)" size="small" title="{{ 'Remove' | translate }}" fill="clear">
+						<ion-icon slot="icon-only" color='danger' name="trash"></ion-icon>
+					</ion-button>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
+	</div>
+</ion-col>
+<ion-col size="0" size-md="0" size-lg="0" size-xl="3"></ion-col>
+<ion-col size="12" size-xl="4" *ngIf="pageConfig.canEdit">
+	<div class="c-control">
+		<ion-button (click)="addRow()" size="small" fill="outline">
+			<ion-icon slot="start" name="add-outline"></ion-icon>
+			{{ 'Add' | translate }}
+		</ion-button>
+	</div>
+</ion-col>
+<ion-modal [isOpen]="isShowModal" (willDismiss)="dismissModal()">
+	<div id="ng-select-table" style="position: absolute; z-index: 30005"></div>
+	<ng-template>
+		<ion-header>
+			<ion-toolbar>
+				<ion-title>{{ 'Information' | translate }} </ion-title>
+				<ion-buttons slot="end">
+					<ion-button (click)="dismissModal()">
+						<ion-icon name="close"></ion-icon>
+					</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
+		<ion-content class="ion-padding">
+			<section class="table table-contain responsive">
+				<div class="ion-no-padding" slot="content">
+					<form [formGroup]="formGroup">
+						<ion-row>
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12">
+								<app-form-control
+									[field]="{
+										id: 'DateOfIssue',
+										label: 'Date of issue',
+										type: 'datetime-local',
+										form: formGroup,
+									}"
+								>
+								</app-form-control>
+								<app-form-control
+									[field]="{
+										id: 'PlaceOfIssue',
+										label: 'Place of issue',
+										type: 'text',
+										form: formGroup,
+									}"
+								>
+								</app-form-control>
+								<app-form-control
+									[field]="{
+										id: 'DateOfExpiry',
+										label: 'Date of expiry',
+										type: 'datetime-local',
+										form: formGroup,
+									}"
+								>
+								</app-form-control>
+								<app-form-control
+									[field]="{
+										id: 'SpecializedSkill',
+										label: 'Specialized skill',
+										type: 'text',
+										form: formGroup,
+									}"
+								>
+								</app-form-control>
+								<app-form-control
+									[field]="{
+										id: 'CertificateNumber',
+										label: 'Certificate number',
+										type: 'text',
+										form: formGroup,
+									}"
+								>
+								</app-form-control>
+								<app-form-control
+								[field]="{
+									id: 'Rating',
+									label: 'Rating',
+									type: 'text',
+									form: formGroup,
+								}"
+							>
+							</app-form-control>
+							</ion-col>
+						</ion-row>
+					</form>
+				</div>
+			</section>
+		</ion-content>
+		<ion-footer>
+			<ion-toolbar>
+				<ion-button color="warning" size="default" slot="end" (click)="dismissModal(true)"> {{ 'Save' | translate }} </ion-button>
+			</ion-toolbar>
+		</ion-footer>
+	</ng-template>
+</ion-modal>
