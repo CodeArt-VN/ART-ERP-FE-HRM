@@ -171,8 +171,91 @@
 
 				</ion-row>
 
-				<ion-row class="hr-group border" *ngIf="formGroup.get('Families').value.length > 0 && pageConfig.canEdit">
-					
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Specialized field' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-specialized-field [IDStaff]="item.Id"></app-staff-specialized-field>
+					</ion-col>
+				</ion-row>
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Specialized skill' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-specialized-skill [IDStaff]="item.Id"></app-staff-specialized-skill>
+					</ion-col>
+				</ion-row>
+
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Academic level' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-academic-level [IDStaff]="item.Id"></app-staff-academic-level>
+					</ion-col>
+				</ion-row>
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Foreign language' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-foreign-language [IDStaff]="item.Id"></app-staff-foreign-language>
+					</ion-col>
+				</ion-row>
+
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Another skill' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-another-skill [IDStaff]="item.Id"></app-staff-another-skill>
+					</ion-col>
+				</ion-row>
+
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Working experience' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-working-experience [IDStaff]="item.Id"></app-staff-working-experience>
+					</ion-col>
 				</ion-row>
 
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
