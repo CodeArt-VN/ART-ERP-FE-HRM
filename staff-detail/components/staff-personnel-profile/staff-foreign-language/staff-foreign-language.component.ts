@@ -6,22 +6,22 @@ import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
-import { HRM_StaffAcademicLevelProvider, LIST_CountryProvider } from 'src/app/services/static/services.service';
+import { HRM_StaffForeignLanguageProvider, LIST_CountryProvider } from 'src/app/services/static/services.service';
 
 @Component({
-	selector: 'app-staff-academic-level',
-	templateUrl: './staff-academic-level.component.html',
-	styleUrls: ['./staff-academic-level.component.scss'],
+	selector: 'app-staff-foreign-language',
+	templateUrl: './staff-foreign-language.component.html',
+	styleUrls: ['./staff-foreign-language.component.scss'],
 	standalone: false,
 })
-export class StaffAcademicLevelComponent extends PageBase {
-	academicRankTypeList = [];
-	academicLevelTypeList = [];
+export class StaffForeignLanguageComponent extends PageBase {
+	foreignLanguageList = [];
+	certificateTypeList = [];
 	degreeTypeList = [];
 	isShowModal = false;
 	@Input() IDStaff;
 	constructor(
-		public pageProvider: HRM_StaffAcademicLevelProvider,
+		public pageProvider: HRM_StaffForeignLanguageProvider,
 		public countryProvider: LIST_CountryProvider,
 		public env: EnvService,
 		public route: ActivatedRoute,
@@ -42,9 +42,16 @@ export class StaffAcademicLevelComponent extends PageBase {
 			Code: [row?.Code],
 			Name: [row?.Name],
 			Remark: [row?.Remark],
-			AcademicLevel:[row?.AcademicLevel],
-			AcademicRank:[row?.AcademicRank],
-			Degree:[row?.Degree],
+			ListeningSkill:[row?.ListeningSkill],
+			SpeakingSkill:[row?.SpeakingSkill],
+			ReadingSkill:[row?.ReadingSkill],
+			WritingSkill:[row?.WritingSkill],
+			DateOfIssue:[row?.DateOfIssue],
+			PlaceOfIssue:[row?.PlaceOfIssue],
+			DateOfExpiry:[row?.DateOfExpiry],
+			CertificateType:[row?.CertificateType],
+			CertificateNumber:[row?.CertificateNumber],
+			ForeignLanguage:[row?.ForeignLanguage],
 			CreatedBy: new FormControl({ value: row?.CreatedBy, disabled: true }),
 			CreatedDate: new FormControl({ value: row?.CreatedDate, disabled: true }),
 			ModifiedBy: new FormControl({ value: row?.ModifiedBy, disabled: true }),
@@ -58,43 +65,34 @@ export class StaffAcademicLevelComponent extends PageBase {
 		console.log('aaaa');
 		console.log(this.pageConfig);
 		
-		Promise.all([this.env.getType('AcademicRank'), this.env.getType('AcademicLevel'),this.env.getType('Degree')])
+		Promise.all([this.env.getType('ForeignLanguage'), this.env.getType('CertificateType')])
 			.then((values) => {
-				this.academicRankTypeList = values[0];
-				this.academicLevelTypeList = values[1];
-				this.degreeTypeList = values[2];
-				if(this.academicRankTypeList.length == 0){
-					this.academicRankTypeList = [
-						{Code: 'Professor', Name: 'Professor'},
-						{Code: 'Associate Professor', Name: 'Associate Professor'},
-						{Code: 'Assistant Professor', Name: 'Assistant Professor'},
-						{Code: 'Senior Lecturer', Name: 'Senior Lecturer'},
-						{Code: 'Lecturer', Name: 'Lecturer'},
+				this.foreignLanguageList = values[0];
+				this.certificateTypeList = values[1];
+				if(this.foreignLanguageList.length == 0){
+					this.foreignLanguageList = [
+						{Code: 'English', Name: 'English'},
+						{Code: 'Vietnamese', Name: 'Vietnamese'},
+						{Code: 'Chinese', Name: 'Chinese'},
+						{Code: 'Japanese', Name: 'Japanese'},
 					];
 
 				}
-				if (this.academicLevelTypeList.length == 0) {
-					this.academicLevelTypeList = [
-					  { Code: 'Bachelor', Name: 'Bachelor’s Degree' },
-					  { Code: 'Master', Name: 'Master’s Degree' },
-					  { Code: 'Doctorate', Name: 'Doctoral Degree (PhD, EdD)' },
-					  { Code: 'PostDoctorate', Name: 'Postdoctoral Research' },
+				if (this.certificateTypeList.length == 0) {
+					this.certificateTypeList = [
+					  { Code: 'TOEFL', Name: 'TOEFL Certificate' },
+					  { Code: 'IELTS', Name: 'IELTS Certificate' },
+					  { Code: 'HSK', Name: 'HSK Certificate (Chinese Proficiency)' },
+					  { Code: 'JLPT', Name: 'JLPT Certificate (Japanese Proficiency)' },
+					  { Code: 'MOS', Name: 'Microsoft Office Specialist (MOS)' },
+					  { Code: 'PMP', Name: 'Project Management Professional (PMP)' },
+					  { Code: 'AWS', Name: 'AWS Certified Solutions Architect' },
+					  { Code: 'CCNA', Name: 'Cisco Certified Network Associate (CCNA)' },
+					  { Code: 'CPA', Name: 'Certified Public Accountant (CPA)' },
+					  { Code: 'CFA', Name: 'Chartered Financial Analyst (CFA)' },
 					];
 				  }
-				  
 				  // Thiết lập danh sách học vị/bằng cấp (Degree Type)
-				  if (this.degreeTypeList.length == 0) {
-					this.degreeTypeList = [
-					  { Code: 'BA', Name: 'Bachelor of Arts (BA)' },
-					  { Code: 'BSc', Name: 'Bachelor of Science (BSc)' },
-					  { Code: 'MA', Name: 'Master of Arts (MA)' },
-					  { Code: 'MSc', Name: 'Master of Science (MSc)' },
-					  { Code: 'MBA', Name: 'Master of Business Administration (MBA)' },
-					  { Code: 'PhD', Name: 'Doctor of Philosophy (PhD)' },
-					  { Code: 'EdD', Name: 'Doctor of Education (EdD)' },
-					  { Code: 'DSc', Name: 'Doctor of Science (DSc)' },
-					];
-				}
 				super.preLoadData(event);
 			})
 			.catch((error) => {
