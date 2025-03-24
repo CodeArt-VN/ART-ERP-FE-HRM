@@ -134,16 +134,43 @@
 							</ion-list-header>
 						</ion-list>
 					</ion-col>
-					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding" *ngIf="formGroup.get('Families').value.length > 0">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
 						<app-staff-personnel-family [idStaff]="item?.Id">
 						</app-staff-personnel-family>
 					</ion-col>
-					<!-- <ion-col size="12" size-xl="4" *ngIf="formGroup.get('Families').value.length == 0 && pageConfig.canEdit">
-						<ion-button (click)="addFamily({})">
-							{{ 'Add family information' | translate }}
-						</ion-button>
-					</ion-col> -->
+
 				</ion-row>
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Personally identifiable information' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-personnel-identity-card-and-PIT [idStaff]="item?.Id">
+						</app-staff-personnel-identity-card-and-PIT>
+					</ion-col>
+
+				</ion-row>
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Personally bank information' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-personnel-bank [idStaff]="item?.Id">
+						</app-staff-personnel-bank>
+					</ion-col>
+
+				</ion-row>
+
 				<ion-row class="hr-group border" *ngIf="formGroup.get('Families').value.length > 0 && pageConfig.canEdit">
 					
 				</ion-row>
