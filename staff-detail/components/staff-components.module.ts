@@ -19,6 +19,8 @@ import { StaffEmploymentStatusComponent } from './staff-employment-status/staff-
 import { StaffActiveDataComponent } from './staff-active-data/staff-active-data.component';
 import { StaffWorkScheduleComponent } from './staff-work-schedule/staff-work-schedule.component';
 import { StaffPersonnelFamilyComponent } from './staff-personnel-profile/staff-personnel-family/staff-personnel-family.component';
+import { StaffPersonnelIdentityCardAndPITComponent } from './staff-personnel-profile/staff-personnel-identity-card-and-PIT/staff-personnel-identity-card-and-PIT.component';
+import { StaffPersonnelBankComponent } from './staff-personnel-profile/staff-personnel-bank/staff-personnel-bank.component';
 
 @NgModule({
 	imports: [
@@ -46,6 +48,8 @@ import { StaffPersonnelFamilyComponent } from './staff-personnel-profile/staff-p
 		StaffActiveDataComponent,
 		StaffWorkScheduleComponent,
 		StaffPersonnelFamilyComponent,
+		StaffPersonnelIdentityCardAndPITComponent,
+		StaffPersonnelBankComponent,
 	],
 	exports: [
 		StaffPersonnelProfileComponent,
@@ -62,6 +66,8 @@ import { StaffPersonnelFamilyComponent } from './staff-personnel-profile/staff-p
 		StaffActiveDataComponent,
 		StaffWorkScheduleComponent,
 		StaffPersonnelFamilyComponent,
+		StaffPersonnelIdentityCardAndPITComponent,
+		StaffPersonnelBankComponent,
 	],
 })
 export class StaffComponentsModule {}

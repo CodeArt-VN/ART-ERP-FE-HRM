@@ -36,99 +36,7 @@ export class StaffPersonnelFamilyComponent extends PageBase {
 		// this.buildFormGroup();
 	}
 
-	buildFormGroup() {
-		this.formGroup = this.formBuilder.group({
-			Id: [''],
-			Code: [''],
-			Name: [''],
-			Remark: [''],
-			Relative: [''],
-			FirstName: ['', Validators.required],
-			LastName: ['', Validators.required],
-			MiddleName: ['', Validators.required],
-			FullName: [''],
-			ShortName: [''],
-			Gender: ['', Validators.required],
-			Age: [''],
-			DOB: ['', Validators.required],
-			IdentityCardNumber: ['', Validators.required],
-			DateOfIssueID: ['', Validators.required],
-			PlaceOfIssueID: ['', Validators.required],
-			DateOfExpiryID: ['', Validators.required],
-			PassportNumber: [''],
-			DateOfIssuePassport: [''],
-			DateOfExpiryPassport: [''],
-			PlaceOfIssuePassport: [''],
-			TypeOfPassport: [''],
-			IDCountryOfIssuePassport: [''],
-			IsDependent: [''],
-			HomeAddress: [''],
-		});
-	}
-
-	preLoadData(event = null) {
-		this.query.IDStaff = this.idStaff;
-		Promise.all([this.countryProvider.read(), this.env.getType('RelativeType'), this.env.getType('PassportType')])
-			.then((values) => {
-				this.countryList = values[0]['data'];
-				this.relativeTypeList = values[1];
-				this.passportTypeList = values[2];
-				super.loadData(event);
-			})
-			.catch((error) => {
-				console.log(error);
-				super.loadData();
-			});
-	}
-
-	loadedData(event) {
-		super.loadedData(event);
-	}
-
-	dismissModal(flag?) {
-		this.isShowModal = false;
-		if (flag) {
-			this.saveChange2();
-		}
-	}
-
-	saveChange(publishEventCode?: any): Promise<unknown> {
-		return super.saveChange2();
-	}
-
-	addRow() {
-		this.formGroup = this.formBuilder.group({
-			Id: [0],
-			Code: [''],
-			Name: [''],
-			Remark: [''],
-			Relative: [''],
-			FirstName: ['', Validators.required],
-			LastName: ['', Validators.required],
-			MiddleName: ['', Validators.required],
-			FullName: [''], //,Validators.required
-			IDStaff: [this.idStaff],
-			Gender: ['', Validators.required],
-			DOB: ['', Validators.required],
-			IdentityCardNumber: ['', Validators.required],
-			DateOfIssueID: ['', Validators.required],
-			PlaceOfIssueID: ['', Validators.required],
-			DateOfExpiryID: ['', Validators.required],
-			PassportNumber: [''],
-			DateOfIssuePassport: [''],
-			DateOfExpiryPassport: [''],
-			PlaceOfIssuePassport: [''],
-			TypeOfPassport: [''],
-			IDCountryOfIssuePassport: [''],
-			IsDependent: [''],
-			HomeAddress: [''],
-		});
-		this.formGroup.controls.IDStaff.markAsDirty();
-		this.isShowModal = true;
-	}
-
-	editRow(row) {
-		//Create formGroup of row
+	buildFormGroup(row) {
 		this.formGroup = this.formBuilder.group({
 			Id: [row.Id],
 			Code: [row.Code],
@@ -138,8 +46,9 @@ export class StaffPersonnelFamilyComponent extends PageBase {
 			FirstName: [row.FirstName, Validators.required],
 			LastName: [row.LastName, Validators.required],
 			MiddleName: [row.MiddleName, Validators.required],
-			FullName: [row.FullName], //,Validators.required
-			IDStaff: [row.IDStaff],
+			FullName: [row.FullName, Validators.required],
+			ShortName: [row.ShortName, Validators.required],
+			IDStaff: [this.idStaff],
 			Gender: [row.Gender, Validators.required],
 			DOB: [row.DOB, Validators.required],
 			IdentityCardNumber: [row.IdentityCardNumber, Validators.required],
@@ -155,6 +64,45 @@ export class StaffPersonnelFamilyComponent extends PageBase {
 			IsDependent: [row.IsDependent],
 			HomeAddress: [row.HomeAddress],
 		});
+	}
+
+	preLoadData(event = null) {
+		this.query.IDStaff = this.idStaff;
+		Promise.all([this.countryProvider.read(), this.env.getType('RelativeType'), this.env.getType('PassportType')])
+			.then((values) => {
+				this.countryList = values[0]['data'];
+				this.relativeTypeList = values[1];
+				this.passportTypeList = values[2];
+				super.preLoadData(event);
+			})
+			.catch((error) => {
+				console.log(error);
+				super.preLoadData(event);
+			});
+	}
+
+	loadedData(event) {
+		super.loadedData(event);
+	}
+
+	dismissModal(flag?) {
+		this.isShowModal = false;
+		if (flag) {
+			this.saveChange2();
+		}
+	}
+
+
+
+	addRow() {
+		this.buildFormGroup({});
+		this.formGroup.controls.IDStaff.markAsDirty();
+		this.isShowModal = true;
+	}
+
+	editRow(row) {
+		//Create formGroup of row
+		this.buildFormGroup(row);
 		this.isShowModal = true;
 	}
 
@@ -165,8 +113,31 @@ export class StaffPersonnelFamilyComponent extends PageBase {
 		});
 		this.env.showPrompt(null, 'Bạn có chắc muốn xóa không?').then((_) => {
 			this.pageProvider.delete(Ids).then((resp) => {
-				this.loadData();
+				this.items.splice(this.items.indexOf(row), 1);
+				this.env.showMessage('Deleted','success');
 			});
 		});
+	}
+
+	bindName() {
+		if (this.formGroup && this.formGroup.controls.FullName.value) {
+			let names = this.formGroup.controls.FullName.value.split(' ');
+			if (names.length > 1) {
+				this.formGroup.controls.FirstName.setValue(names[names.length - 1]);
+				this.formGroup.controls.LastName.setValue(names[0]);
+				this.formGroup.controls.ShortName.setValue(names[names.length - 1] + ' ' + names[0]);
+				this.formGroup.get('FirstName').markAsDirty();
+				this.formGroup.get('LastName').markAsDirty();
+				this.formGroup.get('ShortName').markAsDirty();
+				if (names.length > 2) {
+					this.formGroup.controls.MiddleName.setValue('');
+					for (var i = 1; i <= names.length - 2; i++) {
+						this.formGroup.controls.MiddleName.setValue(this.formGroup.controls.MiddleName.value + names[i] + ' ');
+					}
+					this.formGroup.controls.MiddleName.setValue(this.formGroup.controls.MiddleName.value.trim());
+					this.formGroup.controls.MiddleName.markAsDirty();
+				}
+			}
+		}
 	}
 }
