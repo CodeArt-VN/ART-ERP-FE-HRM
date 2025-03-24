@@ -354,7 +354,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 				this.userAccount.StaffID = this.item.Id;
 				this.userAccount.PartnerID = this.item.IDPartner;
 				this.userAccount.Password = this.changePasswordForm.controls.newPassword.value; //UserName => Password on server
-
+				// this.userAccount.SYSRoles = ['Staff'];
 				this.urserProvider
 					.save(this.userAccount)
 					.then((newId: any) => {
@@ -372,6 +372,9 @@ export class StaffPersonnelProfileComponent extends PageBase {
 						if (loading) loading.dismiss();
 						if (err.error && err.error.Message && err.error.Message.indexOf('Account with email is exits') > -1) {
 							this.env.showMessage('Email has already been used for account registration, please check again', 'danger');
+						} else if (err.error && err.error.ExceptionMessage) {
+							if (err.error.ExceptionMessage.includes('Name') || err.error.ExceptionMessage.includes('Email'))
+								this.env.showMessage('Email has already been used for account registration, please check again', 'danger');
 						} else {
 							this.env.showMessage('Cannot save, please try again', 'danger');
 						}
