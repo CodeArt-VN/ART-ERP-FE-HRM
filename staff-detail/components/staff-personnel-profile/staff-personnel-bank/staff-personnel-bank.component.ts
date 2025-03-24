@@ -56,7 +56,7 @@ export class StaffPersonnelBankComponent extends PageBase {
 		this.query.IDStaff = this.idStaff;
 		Promise.all([this.env.getType('BankType'), this.env.getType('BankBranchType')])
 			.then((values) => {
-				this.bankBranchList = values[0]['data'];
+				this.bankBranchList = values[0];
 				this.bankList = values[1];
 				super.preLoadData(event);
 			})
