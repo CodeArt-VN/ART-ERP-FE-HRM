@@ -45,9 +45,9 @@ export class StaffPersonnelBankComponent extends PageBase {
 			Remark: [row.Remark],
 			Sort: [row.Sort],
 			IDStaff: [this.idStaff],
-			IDBank:[row.Bank],
-			IDBankBranch:[row.BankBranch],
-			AccountNumber:[row.AccountNumber],
+			Bank:[row.Bank,Validators.required],
+			BankBranch:[row.BankBranch,Validators.required],
+			AccountNumber:[row.AccountNumber,Validators.required],
 			IsPayrollAccount:[row.IsPayrollAccount],
 		});
 	}

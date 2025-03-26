@@ -42,7 +42,7 @@ export class StaffWorkExperienceComponent extends PageBase {
 			Code: [row?.Code],
 			Name: [row?.Name],
 			Remark: [row?.Remark],
-			IDJobTitle: [row?.IDJobTitle],
+			JobTitle: [row?.IDJobTitle],
 			FromDate:[row?.FromDate],
 			ToDate:[row?.ToDate],
 			Workplace:[row?.Workplace],

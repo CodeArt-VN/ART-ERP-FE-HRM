@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { er } from '@fullcalendar/core/internal-common';
 import { AlertController, LoadingController, NavController } from '@ionic/angular';
 import { concat, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
@@ -49,18 +50,18 @@ export class StaffPersonnelIdentityCardAndPITComponent extends PageBase {
 			ModifiedBy: [row.ModifiedBy],
 			CreatedDate: [row.CreatedDate],
 			ModifiedDate: [row.ModifiedDate],
-			CardNumber: [row.CardNumber],
-			DateOfIssue: [row.DateOfIssue],
-			PlaceOfIssue: [row.PlaceOfIssue],
-			DateOfExpiry: [row.DateOfExpiry],
-			CountryOfIssue: [row.CountryOfIssue],
-			Type: ['IdentityCard'],
+			CardNumber: [row.CardNumber, Validators.required],
+			DateOfIssue: [row.DateOfIssue, Validators.required],
+			PlaceOfIssue: [row.PlaceOfIssue, Validators.required],
+			DateOfExpiry: [row.DateOfExpiry, Validators.required],
+			CountryOfIssue: [row.CountryOfIssue, Validators.required],
+			Type: ['IdentityCard', Validators.required],
 			IDStaff: [this.idStaff],
 		});
 	}
 
 	preLoadData(event = null) {
-		super.preLoadData
+		super.preLoadData;
 		this.query.IDStaff = this.idStaff;
 		this.query.IsDisabled = 'skipped';
 		Promise.all([this.countryProvider.read(), this.env.getType('CardAndPITType')])
@@ -75,7 +76,6 @@ export class StaffPersonnelIdentityCardAndPITComponent extends PageBase {
 			});
 	}
 
-
 	loadedData(event) {
 		super.loadedData(event);
 	}
@@ -87,6 +87,13 @@ export class StaffPersonnelIdentityCardAndPITComponent extends PageBase {
 		}
 	}
 
+	savedChange(savedItem?: any, form?: FormGroup<any>): void {
+		super.savedChange(savedItem, form);
+		this.env.showPrompt(null, 'Do you want to use this ID?')
+		.then((_) => {
+			this.active(savedItem.Id);
+		});
+	}
 
 	addRow() {
 		this.buildFormGroup({});
@@ -109,17 +116,18 @@ export class StaffPersonnelIdentityCardAndPITComponent extends PageBase {
 		this.env.showPrompt(null, 'Bạn có chắc muốn xóa không?').then((_) => {
 			this.pageProvider.delete(Ids).then((resp) => {
 				this.items.splice(this.items.indexOf(row), 1);
-				this.env.showMessage('Deleted','success');
+				this.env.showMessage('Deleted', 'success');
 			});
 		});
 	}
 
 	active(id) {
-		let postDTO ={Id: id};
-		this.pageProvider.commonService.connect('POST', 'HRM/StaffIdentityCardAndPIT/Activate', postDTO).toPromise()
-		.then((resp) => {
-			this.refresh();
-		});
-			
+		let postDTO = { Id: id };
+		this.pageProvider.commonService
+			.connect('POST', 'HRM/StaffIdentityCardAndPIT/Activate', postDTO)
+			.toPromise()
+			.then((resp) => {
+				this.refresh();
+			});
 	}
 }
