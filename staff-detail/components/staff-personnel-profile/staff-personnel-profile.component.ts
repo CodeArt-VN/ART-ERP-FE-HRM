@@ -370,12 +370,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 					})
 					.catch((err) => {
 						if (loading) loading.dismiss();
-						if (err.error?.ExceptionMessage) {
-							if (err.error.ExceptionMessage.includes('Name') || err.error.ExceptionMessage.includes('Email')) this.env.showMessage('Email has already been used for account registration, please check again', 'danger');
-							else this.env.showMessage(err.error.ExceptionMessage, 'danger');	
-						}else if (err.error?.Message) {
-							this.env.showMessage(err.error.Message || 'Cannot save, please try again', 'danger');
-						}
+						this.env.showErrorMessage(err);
 						this.cdr.detectChanges();
 					});
 			});
