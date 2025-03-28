@@ -89,8 +89,7 @@ export class StaffPersonnelIdentityCardAndPITComponent extends PageBase {
 
 	savedChange(savedItem?: any, form?: FormGroup<any>): void {
 		super.savedChange(savedItem, form);
-		this.env.showPrompt(null, 'Do you want to use this ID?')
-		.then((_) => {
+		this.env.showPrompt(null, 'Do you want to use this identifier?').then((_) => {
 			this.active(savedItem.Id);
 		});
 	}
