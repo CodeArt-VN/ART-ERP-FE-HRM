@@ -58,6 +58,10 @@ export class TimesheetDetailPage extends PageBase {
 		this.segmentView = ev.detail.value;
 	}
 
+	saveChange(publishEventCode?: any): Promise<unknown> {
+		return super.saveChange2();
+	}
+
 	timesheetTypeList;
 	CheckInOutPolicyList;
 
