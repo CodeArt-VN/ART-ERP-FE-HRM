@@ -13,7 +13,7 @@ import {
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
-
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { lib } from 'src/app/services/static/global-functions';
 import { PointModalPage } from '../point-modal/point-modal.page';
 
@@ -210,6 +210,7 @@ export class TimesheetCycleDetailPage extends PageBase {
 	}
 
 	calendarOptions: any = {
+		plugins: [resourceTimelinePlugin],
 		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
 		locale: 'vi',
 		initialView: 'resourceTimelineWeek',
