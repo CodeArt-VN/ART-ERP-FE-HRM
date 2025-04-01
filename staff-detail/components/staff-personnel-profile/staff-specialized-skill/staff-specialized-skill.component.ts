@@ -41,7 +41,7 @@ export class StaffSpecializedSkillComponent extends PageBase {
 			PlaceOfIssue:[row?.PlaceOfIssue],
 			DateOfExpiry:[row?.DateOfExpiry],
 			CertificateNumber:[row?.CertificateNumber],
-			SpecializedSkill:[row?.SpecializedSkill],
+			Type:[row?.Type],
 			Rating:[row?.Rating],
 			CreatedBy: new FormControl({ value: row?.CreatedBy, disabled: true }),
 			CreatedDate: new FormControl({ value: row?.CreatedDate, disabled: true }),

@@ -39,7 +39,7 @@ export class StaffSpecializedFieldComponent extends PageBase {
 			Code: [row?.Code],
 			Name: [row?.Name],
 			Remark: [row?.Remark],
-			SpecializedField: [row?.SpecializedField],
+			Type: [row?.Type],
 			CreatedBy: new FormControl({ value: row?.CreatedBy, disabled: true }),
 			CreatedDate: new FormControl({ value: row?.CreatedDate, disabled: true }),
 			ModifiedBy: new FormControl({ value: row?.ModifiedBy, disabled: true }),

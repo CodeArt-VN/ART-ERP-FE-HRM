@@ -123,7 +123,7 @@ export class StaffPersonnelIdentityCardAndPITComponent extends PageBase {
 	active(id) {
 		let postDTO = { Id: id };
 		this.pageProvider.commonService
-			.connect('POST', 'HRM/StaffIdentityCardAndPIT/Activate', postDTO)
+			.connect('PUT', 'HRM/StaffIdentityCardAndPIT/Activate/'+ id,null)
 			.toPromise()
 			.then((resp) => {
 				this.refresh();

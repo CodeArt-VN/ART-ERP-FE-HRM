@@ -38,7 +38,7 @@ export class StaffAnotherSkillComponent extends PageBase {
 			Code: [row?.Code],
 			Name: [row?.Name],
 			Remark: [row?.Remark],
-			AnotherSkill:[row?.AnotherSkill],
+			Type:[row?.Type],
 			CreatedBy: new FormControl({ value: row?.CreatedBy, disabled: true }),
 			CreatedDate: new FormControl({ value: row?.CreatedDate, disabled: true }),
 			ModifiedBy: new FormControl({ value: row?.ModifiedBy, disabled: true }),

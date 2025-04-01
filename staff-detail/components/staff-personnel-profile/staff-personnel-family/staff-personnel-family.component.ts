@@ -60,7 +60,7 @@ export class StaffPersonnelFamilyComponent extends PageBase {
 			DateOfExpiryPassport: [row.DateOfExpiryPassport],
 			PlaceOfIssuePassport: [row.PlaceOfIssuePassport],
 			TypeOfPassport: [row.TypeOfPassport],
-			IDCountryOfIssuePassport: [row.IDCountryOfIssuePassport],
+			CountryOfIssuePassport: [row.CountryOfIssuePassport],
 			IsDependent: [row.IsDependent],
 			HomeAddress: [row.HomeAddress],
 		});

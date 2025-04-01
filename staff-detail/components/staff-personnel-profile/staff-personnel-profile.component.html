@@ -101,6 +101,8 @@
 						<app-form-control [field]="{ id: 'LastName', label: 'Last name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{ id: 'FirstName', label: 'Name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{ id: 'Name', label: 'Display name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{ id: 'Ethnic', label: 'Ethnic', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'MaritalStatus', label: 'Marital status', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
 						<div class="c-control">
 							<input (change)="saveChange()" id="Gender1" type="radio" [value]="true" formControlName="Gender" class="c-checkbox" />
 							<label class="c-label radio" for="Gender1">
@@ -122,6 +124,8 @@
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control [field]="{ id: 'DOB', label: 'Date of birth', type: 'datetime-local', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{ id: 'PhoneNumber', label: 'Phone number', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'POD', label: 'Place of birth', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'Religion', label: 'Religion', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
 						<app-form-control [field]="{ id: 'Remark', label: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"> </app-form-control>
 					</ion-col>
 				</ion-row>

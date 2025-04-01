@@ -43,11 +43,11 @@ export class StaffWorkExperienceComponent extends PageBase {
 			Name: [row?.Name],
 			Remark: [row?.Remark],
 			JobTitle: [row?.IDJobTitle],
-			FromDate:[row?.FromDate],
-			ToDate:[row?.ToDate],
-			Workplace:[row?.Workplace],
-			Field:[row?.Field],
-			Description:[row?.Description],
+			FromDate: [row?.FromDate],
+			ToDate: [row?.ToDate],
+			Workplace: [row?.Workplace],
+			Field: [row?.Field],
+			Description: [row?.Description],
 			CreatedBy: new FormControl({ value: row?.CreatedBy, disabled: true }),
 			CreatedDate: new FormControl({ value: row?.CreatedDate, disabled: true }),
 			ModifiedBy: new FormControl({ value: row?.ModifiedBy, disabled: true }),
@@ -88,7 +88,7 @@ export class StaffWorkExperienceComponent extends PageBase {
 		this.env.showPrompt(null, 'Bạn có chắc muốn xóa không?').then((_) => {
 			this.pageProvider.delete(Ids).then((resp) => {
 				this.items.splice(this.items.indexOf(row), 1);
-				this.env.showMessage('Delete successully!','success')
+				this.env.showMessage('Delete successully!', 'success');
 			});
 		});
 	}

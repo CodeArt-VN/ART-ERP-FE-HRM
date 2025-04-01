@@ -128,6 +128,10 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			DateOfIssueID: new FormControl(),
 			IssuedBy: new FormControl(),
 			BackgroundColor: new FormControl(),
+			Religion : new FormControl(),
+			Ethnic : new FormControl(),
+			MaritalStatus : new FormControl(),
+			POD : new FormControl()
 		});
 
 		this.changePasswordForm = formBuilder.group({
@@ -463,7 +467,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 					})
 					.catch((err) => {
 						if (loading) loading.dismiss();
-						this.env.showErrorMessage(err);
+						// this.env.showErrorMessage(err);
 						this.cdr.detectChanges();
 					});
 			});
