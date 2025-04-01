@@ -50,7 +50,7 @@
                     </ion-segment-button>
                 </ion-segment>
             </ion-toolbar> -->
-
+			<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 			<div class="ion-padding" *ngIf="segmentView == 's1'">
 				<ion-grid fixed>
 					<form [formGroup]="formGroup">
@@ -61,96 +61,21 @@
 								</ion-list-header>
 							</ion-col>
 							<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-								<div class="c-control">
-									<label class="c-label" for="IDStaff"
-										>{{'Staff' | translate}}
-										<span
-											*ngIf="!formGroup.controls.IDStaff.valid && !formGroup.controls.IDStaff.pending && (formGroup.controls.IDStaff.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<ng-select
-										(change)="saveChange()"
-										class="c-input"
-										#IDStaff
-										labelForId="IDStaff"
-										formControlName="IDStaff"
-										[items]="staffList$ | async"
-										[typeahead]="staffListInput$"
-										[loading]="staffListLoading"
-										[virtualScroll]="true"
-										bindLabel="FullName"
-										bindValue="Id"
-										placeholder="{{'Search for name, code or phone number' | translate}}"
-									>
-										<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-											<div *ngIf="i">
-												<div>
-													<span [ngOptionHighlight]="search">{{i.FullName}}</span>
-												</div>
-												<small
-													>#<b><span class="important" [ngOptionHighlight]="search">{{i.Id}}</span> <span *ngIf="i.Code"> - {{i.Code}}</span></b>
-													<span *ngIf="i.Phone">
-														| {{'Telephone' | translate}}:
-														<b [ngOptionHighlight]="search">{{i.Phone}}</b></span
-													></small
-												>
-											</div>
-										</ng-template>
-									</ng-select>
-								</div>
+								<app-form-control
+									[field]="{id:'IDStaff',label:'Staff', type : 'ng-select-staff',dataSource:staffDataSource,bindLabel:'FullName',bindValue:'Id',clearable:true, form : formGroup,appendTo:'#ng-select-header'}"
+									(change)="staffChange($event)"
+								>
+								</app-form-control>
 
-								<div class="c-control">
-									<label class="c-label" for="IDPolicyPTO">{{'Leaves policy' | translate}}</label>
-									<ng-select
-										class="c-input"
-										(change)="saveChange()"
-										labelForId="IDPolicyPTO"
-										formControlName="IDPolicyPTO"
-										[items]="ptoList"
-										[virtualScroll]="true"
-										bindLabel="Name"
-										bindValue="Id"
-										placeholder="{{'Select type' | translate}}"
-									>
-										<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
-											<div *ngIf="i">
-												<div>
-													<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-													<span [ngOptionHighlight]="search">{{i.Name}}</span>
-												</div>
-											</div>
-										</ng-template>
-									</ng-select>
-								</div>
+								<app-form-control
+									[field]="{id:'IDPolicyPTO',label:'Leaves policy', type : 'ng-select',dataSource:ptoList,bindLabel:'Name',bindValue:'Id',clearable:true, form : formGroup,appendTo:'#ng-select-header'}"
+									(change)="saveChange()"
+								>
+								</app-form-control>
 
-								<div class="c-control">
-									<label class="c-label" for="StartDate"
-										>{{'Effective date' | translate}}
-										<span
-											*ngIf="!formGroup.controls.StartDate.valid && !formGroup.controls.StartDate.pending && (formGroup.controls.StartDate.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<input (change)="saveChange()" class="c-input" id="StartDate" formControlName="StartDate" type="date" />
-								</div>
+								<app-form-control [field]="{id:'StartDate',label:'Effective date', type : 'datetime-local', form : formGroup}" (change)="saveChange()"> </app-form-control>
 
-								<div class="c-control">
-									<label class="c-label" for="Remark"
-										>{{'Description' | translate}}
-										<span
-											*ngIf="!formGroup.controls.Remark.valid && !formGroup.controls.Remark.pending && (formGroup.controls.Remark.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<textarea rows="3" class="c-input remark" id="Remark" formControlName="Remark" type="textarea"></textarea>
-								</div>
+								<app-form-control [field]="{id:'Remark',label:'Remark', type : 'textarea', form : formGroup}" (change)="saveChange()"> </app-form-control>
 
 								<!-- <div class="c-control" *ngIf="item.Id">
                                     <label class="c-label" for="Id">Id</label>
@@ -177,67 +102,19 @@
 								</ion-list-header>
 							</ion-col>
 							<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
-								<div class="c-control">
-									<label class="c-label" for="PTOCarryOver"
-										>{{'Leaves balance' | translate}}
-										<span
-											*ngIf="!formGroup.controls.PTOCarryOver.valid && !formGroup.controls.PTOCarryOver.pending && (formGroup.controls.PTOCarryOver.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<input (change)="saveChange()" class="c-input" id="PTOCarryOver" formControlName="PTOCarryOver" type="number" />
-								</div>
-								<div class="c-control">
-									<label class="c-label" for="PTOYearEarned"
-										>{{'Annual leaves' | translate}}
-										<span
-											*ngIf="!formGroup.controls.PTOYearEarned.valid && !formGroup.controls.PTOYearEarned.pending && (formGroup.controls.PTOYearEarned.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<input (change)="saveChange()" class="c-input" id="PTOYearEarned" formControlName="PTOYearEarned" type="number" />
-								</div>
-								<div class="c-control">
-									<label class="c-label" for="PTOLengthOfService"
-										>{{'Senority leaves' | translate}}
-										<span
-											*ngIf="!formGroup.controls.PTOLengthOfService.valid && !formGroup.controls.PTOLengthOfService.pending && (formGroup.controls.PTOLengthOfService.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<input (change)="saveChange()" class="c-input" id="PTOLengthOfService" formControlName="PTOLengthOfService" type="number" />
-								</div>
-								<div class="c-control">
-									<label class="c-label" for="PTOCompensatoryLeave"
-										>{{'Roasted day off' | translate}}
-										<span
-											*ngIf="!formGroup.controls.PTOCompensatoryLeave.valid && !formGroup.controls.PTOCompensatoryLeave.pending && (formGroup.controls.PTOCompensatoryLeave.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<input (change)="saveChange()" class="c-input" id="PTOCompensatoryLeave" formControlName="PTOCompensatoryLeave" type="number" />
-								</div>
+								<app-form-control [field]="{id:'PTOCarryOver',label:'Leaves balance', type : 'number', form : formGroup}" (change)="saveChange()">
+								</app-form-control>
 
-								<div class="c-control">
-									<label class="c-label" for="PTOBalance"
-										>{{'Total leaves' | translate}}
-										<span
-											*ngIf="!formGroup.controls.PTOBalance.valid && !formGroup.controls.PTOBalance.pending && (formGroup.controls.PTOBalance.dirty || submitAttempt)"
-											ion-text
-											color="danger"
-											>(*)</span
-										>
-									</label>
-									<input (change)="saveChange()" class="c-input" id="PTOBalance" formControlName="PTOBalance" type="number" />
-								</div>
+								<app-form-control [field]="{id:'PTOYearEarned',label:'Annual leaves', type : 'number', form : formGroup}" (change)="saveChange()">
+								</app-form-control>
+
+								<app-form-control [field]="{id:'PTOLengthOfService',label:'Senority leaves', type : 'number', form : formGroup}" (change)="saveChange()">
+								</app-form-control>
+
+								<app-form-control [field]="{id:'PTOCompensatoryLeave',label:'Roasted day off', type : 'number', form : formGroup}" (change)="saveChange()">
+								</app-form-control>
+
+								<app-form-control [field]="{id:'PTOBalance',label:'Total leaves', type : 'number', form : formGroup}" (change)="saveChange()"> </app-form-control>
 							</ion-col>
 						</ion-row>
 					</form>

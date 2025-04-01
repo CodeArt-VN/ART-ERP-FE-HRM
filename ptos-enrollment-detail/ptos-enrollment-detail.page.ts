@@ -46,6 +46,7 @@ export class PTOsEnrollmentDetailPage extends PageBase {
 			PTOYearEarned: ['', Validators.required],
 			PTOLengthOfService: ['', Validators.required],
 			PTOCompensatoryLeave: ['', Validators.required],
+			StartWorkingDate: [],
 		});
 	}
 
@@ -59,11 +60,14 @@ export class PTOsEnrollmentDetailPage extends PageBase {
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		super.loadedData(event, ignoredFromGroup);
+
 		if (this.id && this.item.Staff) {
-			this.staffSelected = this.item.Staff;
-			this.staffListSelected.push(this.item.Staff);
+			if (!this.staffDataSource.selected.some((d) => d.Id == this.item.Staff.Id)) this.staffDataSource.selected.push(this.item.Staff);
+			// this.staffSelected = this.item.Staff;
+			// this.staffListSelected.push(this.item.Staff);
 		}
-		this.staffSearch();
+		// this.staffSearch();
+		this.staffDataSource.initSearch();
 	}
 
 	segmentView = 's1';
@@ -71,33 +75,22 @@ export class PTOsEnrollmentDetailPage extends PageBase {
 		this.segmentView = ev.detail.value;
 	}
 
-	staffList$;
-	staffListLoading = false;
-	staffListInput$ = new Subject<string>();
-	staffListSelected = [];
-	staffSelected = null;
-	staffSearch() {
-		this.staffListLoading = false;
-		this.staffList$ = concat(
-			of(this.staffListSelected),
-			this.staffListInput$.pipe(
-				distinctUntilChanged(),
-				tap(() => (this.staffListLoading = true)),
-				switchMap((term) =>
-					this.staffProvider
-						.search({
-							Take: 20,
-							Skip: 0,
-							IDDepartment: this.env.selectedBranchAndChildren,
-							Term: term,
-						})
-						.pipe(
-							catchError(() => of([])), // empty list on error
-							tap(() => (this.staffListLoading = false))
-						)
-				)
-			)
-		);
+
+	staffDataSource = this.buildSelectDataSource((term) => {
+		return this.staffProvider.search({
+			Take: 20,
+			Skip: 0,
+			IDDepartment: this.env.selectedBranchAndChildren,
+			Term: term,
+		});
+	});
+
+	staffChange(e) {
+		if (e) {
+			this.formGroup.controls.StartWorkingDate.setValue(e.StartDate);
+			this.formGroup.controls.StartWorkingDate.markAsDirty();
+			this.saveChange();
+		}
 	}
 
 	async saveChange() {

@@ -148,7 +148,7 @@ export class CheckinPage extends PageBase {
 							})
 							.catch((err) => {
 								if (loading) loading.dismiss();
-								this.env.showMessage(err, 'danger');
+								// this.env.showMessage(err, 'danger');
 							});
 					});
 			});
