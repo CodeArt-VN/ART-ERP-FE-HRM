@@ -10,7 +10,13 @@ import { CompareValidator } from 'src/app/services/core/validators';
 import { ACCOUNT_ApplicationUserProvider, AddressService, DynamicScriptLoaderService } from 'src/app/services/custom.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
-import { BRA_BranchProvider, HRM_Staff_ConcurrentPositionProvider, HRM_StaffProvider, LIST_AddressSubdivisionProvider } from 'src/app/services/static/services.service';
+import {
+	BRA_BranchProvider,
+	HRM_Staff_ConcurrentPositionProvider,
+	HRM_StaffFamilyProvider,
+	HRM_StaffProvider,
+	LIST_AddressSubdivisionProvider,
+} from 'src/app/services/static/services.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { environment } from 'src/environments/environment';
 
@@ -53,11 +59,14 @@ export class StaffPersonnelProfileComponent extends PageBase {
 	departmentList = [];
 	workAreaList = [];
 	hrAddressTypeList = [];
+
+	staffFamilyList: any = [];
 	constructor(
 		public pageProvider: HRM_StaffProvider,
 		public staffConcurrentPositionProvider: HRM_Staff_ConcurrentPositionProvider,
 		public branchProvider: BRA_BranchProvider,
 		public addressSubdivisionProvider: LIST_AddressSubdivisionProvider,
+		public staffFamily: HRM_StaffFamilyProvider,
 		public urserProvider: ACCOUNT_ApplicationUserProvider,
 		public popoverCtrl: PopoverController,
 		public env: EnvService,
@@ -99,6 +108,9 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			Addresses: new FormArray([]),
 			DeletedAddressFields: [[]],
 
+			Families: new FormArray([]),
+			DeletedFamilyFields: [[]],
+
 			IsDisabled: new FormControl({ value: false, disabled: true }),
 			LastName: new FormControl(),
 			Title: new FormControl(),
@@ -116,6 +128,10 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			DateOfIssueID: new FormControl(),
 			IssuedBy: new FormControl(),
 			BackgroundColor: new FormControl(),
+			Religion : new FormControl(),
+			Ethnic : new FormControl(),
+			MaritalStatus : new FormControl(),
+			POD : new FormControl()
 		});
 
 		this.changePasswordForm = formBuilder.group({
@@ -133,9 +149,10 @@ export class StaffPersonnelProfileComponent extends PageBase {
 
 	preLoadData(event = null) {
 		this.loadGGMap();
-		Promise.all([this.env.getType('HRAddressType'), this.addressService.getAddressSubdivision()])
-			.then((values) => {
+		Promise.all([this.env.getType('HRAddressType'), this.addressService.getAddressSubdivision(), this.staffFamily.read({ IDStaff: this.id })])
+			.then((values: any) => {
 				this.hrAddressTypeList = values[0];
+				this.staffFamilyList = values[2].data;
 				super.preLoadData(event);
 			})
 			.catch((err) => {
@@ -184,6 +201,11 @@ export class StaffPersonnelProfileComponent extends PageBase {
 				groups.clear();
 				this.patchAddressesValue();
 			}
+			// if (this.staffFamilyList?.length > 0) {
+			// 	let groups = this.formGroup.get('Families') as FormArray;
+			// 	groups.clear();
+			// 	this.patchFamilyValue();
+			// }
 		}
 
 		//this.showRolesEdit = GlobalData.Profile.Roles.SYSRoles.indexOf('HOST') > -1;
@@ -209,6 +231,16 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			if (!this.pageConfig.canEdit) {
 				this.formGroup.controls.Addresses.disable();
 			}
+		}
+	}
+
+	patchFamilyValue() {
+		for (let i of this.staffFamilyList) {
+			this.addFamily(i);
+		}
+
+		if (!this.pageConfig.canEdit) {
+			this.formGroup.controls.Families.disable();
 		}
 	}
 
@@ -240,6 +272,43 @@ export class StaffPersonnelProfileComponent extends PageBase {
 		if (groups.controls.find((d) => !d.get('Id').value)) {
 			this.isShowAddAddress = false;
 		} else this.isShowAddAddress = true;
+	}
+
+	addFamily(family, markAsDirty = false) {
+		// todo
+		let groups = <FormArray>this.formGroup.controls.Families;
+		let group = this.formBuilder.group({
+			Id: [family?.Id],
+			Code: [family?.Code || ''],
+			Name: [family?.Name || ''],
+			Remark: [family?.Remark || ''],
+			IDStaff: [this.formGroup.get('Id').value],
+			Relative: [family?.Relative || ''],
+			FirstName: [family?.FirstName || '', Validators.required],
+			LastName: [family?.LastName || '', Validators.required],
+			MiddleName: [family?.MiddleName || '', Validators.required],
+			FullName: [family?.FullName || ''],
+			ShortName: [family?.ShortName || ''],
+			Gender: [family?.Gender || '', Validators.required],
+			Age: [family?.Age || ''],
+			DOB: [family?.DOB || '', Validators.required],
+			IdentityCardNumber: [family?.IdentityCardNumber || '', Validators.required],
+			DateOfIssueID: [family?.DateOfIssueID || '', Validators.required],
+			PlaceOfIssueID: [family?.PlaceOfIssueID || '', Validators.required],
+			DateOfExpiryID: [family?.DateOfExpiryID || '', Validators.required],
+			PassportNumber: [family?.PassportNumber || ''],
+			DateOfIssuePassport: [family?.DateOfIssuePassport || ''],
+			DateOfExpiryPassport: [family?.DateOfExpiryPassport || ''],
+			PlaceOfIssuePassport: [family?.PlaceOfIssuePassport || ''],
+			TypeOfPassport: [family?.TypeOfPassport || ''],
+			IDCountryOfIssuePassport: [family?.IDCountryOfIssuePassport || ''],
+			IsDependent: [family?.IsDependent || ''],
+			HomeAddress: [family?.HomeAddress || ''],
+		});
+
+		groups.push(group);
+		group.get('IDStaff').markAsDirty();
+		group.get('Id').markAsDirty();
 	}
 
 	bindName() {
@@ -279,6 +348,33 @@ export class StaffPersonnelProfileComponent extends PageBase {
 		if (e.Id > 0) {
 			this.formGroup.get('DeletedAddressFields').setValue([e.Id]);
 			this.formGroup.get('DeletedAddressFields').markAsDirty();
+			this.saveChange();
+		}
+		groups.removeAt(index);
+	}
+
+	changeFamily(e) {
+		let groups = <FormArray>this.formGroup.controls.Families;
+		let fg = groups.controls.find((d) => d.get('Id').value == e.Id) as FormGroup;
+		if (fg) {
+			Object.keys(fg.controls).forEach((key) => {
+				if (fg.get(key) && fg.get(key).value !== e[key]) {
+					fg.get(key).setValue(e[key]); // Update the value
+					fg.get(key).markAsDirty(); // Mark the control as dirty if the value changed
+				}
+			});
+			fg.get('Id').markAsDirty();
+			this.saveChange();
+		}
+	}
+
+	removeFamily(e) {
+		let groups = <FormArray>this.formGroup.controls.Families;
+		let fg = groups.controls.find((d) => d.get('Id').value == e.Id) as FormGroup;
+		let index = groups.controls.indexOf(fg);
+		if (e.Id > 0) {
+			this.formGroup.get('DeletedFamilyFields').setValue([e.Id]);
+			this.formGroup.get('DeletedFamilyFields').markAsDirty();
 			this.saveChange();
 		}
 		groups.removeAt(index);
@@ -350,6 +446,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 				this.userAccount.FullName = this.item.FullName;
 				this.userAccount.Avatar = 'Uploads/HRM/Staffs/Avatars/' + this.item.Id + '.jpg';
 				this.userAccount.PhoneNumber = this.item.PhoneNumber;
+				console.log(this.item);
 				this.userAccount.Address = this.item.Address;
 				this.userAccount.StaffID = this.item.Id;
 				this.userAccount.PartnerID = this.item.IDPartner;
@@ -370,7 +467,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 					})
 					.catch((err) => {
 						if (loading) loading.dismiss();
-						this.env.showErrorMessage(err);
+						// this.env.showErrorMessage(err);
 						this.cdr.detectChanges();
 					});
 			});

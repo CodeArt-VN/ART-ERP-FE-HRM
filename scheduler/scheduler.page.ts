@@ -17,7 +17,8 @@ import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generat
 import { lib } from 'src/app/services/static/global-functions';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { environment } from 'src/environments/environment';
-
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
+import interactionPlugin from '@fullcalendar/interaction';
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -87,8 +88,8 @@ export class SchedulerPage extends PageBase {
 	loadData(event?: any): void {
 		this.getCalendar();
 
-		this.query.WorkingDateFrom = lib.dateFormat(this.fc.view.activeStart);
-		this.query.WorkingDateTo = lib.dateFormat(this.fc.view.activeEnd);
+		this.query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
+		this.query.WorkingDateTo = lib.dateFormat(this.fc?.view.activeEnd);
 		this.query.IDTimesheet = this.id;
 		this.query.IDShift = JSON.stringify(this.shiftList.filter((d) => d.isChecked).map((m) => m.Id));
 		this.query.ShiftType = JSON.stringify(this.shifTypeList.filter((d) => d.isChecked).map((m) => m.Code));
@@ -140,6 +141,7 @@ export class SchedulerPage extends PageBase {
 	}
 
 	calendarOptions: any = {
+		plugins: [resourceTimelinePlugin, interactionPlugin],
 		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
 		initialView: 'resourceTimelineWeek',
 		height: '100%',
@@ -259,10 +261,11 @@ export class SchedulerPage extends PageBase {
 		editable: true,
 		selectable: true,
 		eventDurationEditable: false,
-		eventOverlap: false,
+		eventOverlap: true,
+		droppable: true, 
 
 		eventContent: function (arg) {
-			let html = `<b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small><ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
+			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small><ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon></ion-text>`;
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
 				booked += arg.event.extendedProps.IsBookLunchCatering ? 'L' : '';
@@ -270,7 +273,7 @@ export class SchedulerPage extends PageBase {
 				html = `<ion-icon class="lunch-booked" name="restaurant-outline"></ion-icon>(${booked}) - ` + html;
 			}
 			if (arg.event.extendedProps.TimeOffType) {
-				html = `<b>${arg.event.extendedProps.TimeOffType}</b> <ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
+				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text> <ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
 			}
 			return {
 				html: html,
@@ -285,9 +288,11 @@ export class SchedulerPage extends PageBase {
 		eventDidMount: this.eventDidMount.bind(this),
 		select: this.select.bind(this),
 		dateClick: this.dateClick.bind(this), // bind is important!
-		eventClick: this.eventClick.bind(this),
+		eventClick: null,//this.eventClick.bind(this),
 		eventChange: this.eventChange.bind(this),
+		eventDrop: this.eventDrop.bind(this),
 	};
+
 
 	headerDidMount(arg) {
 		let that = this;
@@ -356,6 +361,12 @@ export class SchedulerPage extends PageBase {
 				})
 				.catch((e) => {});
 		};
+		arg.el.querySelector('.click-event-btn').onclick = function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			that.eventClick(arg);
+		};
+		
 	}
 	dateClick(dateClickInfo) {
 		this.massShiftAssignment({
@@ -385,6 +396,71 @@ export class SchedulerPage extends PageBase {
 			IsBookDinnerCatering: arg.event.extendedProps.IsBookDinnerCatering,
 		});
 	}
+	eventDrop(info) {
+		const event = info.event; // The event after being dropped
+		const oldEvent = info.oldEvent; // The event's data before being dropped
+		const newStart = event.start;
+		const newEnd = event.end;
+		const targetResourceId = event._def.resourceIds[0];
+		const oldResourceId = oldEvent._def.resourceIds[0];
+		// Check if there's already an event in the target cell
+		const overlappingEvent = this.fc.getEvents().find((e) => {
+			return (
+				e._def.resourceIds[0] === targetResourceId &&
+				e.start?.toISOString() === newStart?.toISOString() &&
+				e.id !== event.id // Ensure it's not the same event
+			);
+		});
+	
+		if (overlappingEvent) {
+			// Swap the data between the two events
+			const updatedEvent1 = {
+				Id: event.id,
+				IDStaff: overlappingEvent._def.resourceIds[0],
+				WorkingDate: overlappingEvent.start?.toISOString(),
+				EndDate: overlappingEvent.end ? overlappingEvent.end.toISOString() : null,
+			};
+	
+			const updatedEvent2 = {
+				Id: overlappingEvent.id,
+				IDStaff: oldResourceId, // Use the old resource ID
+				WorkingDate: oldEvent.start?.toISOString(),
+				EndDate: oldEvent.end ? oldEvent.end.toISOString() : null,
+			};
+	
+			Promise.all([
+				this.pageProvider.save(updatedEvent1),
+				this.pageProvider.save(updatedEvent2),
+			])
+				.then(() => {
+					this.env.showMessage('Events swapped successfully', 'success');
+					this.loadData(); // Reload data to reflect changes
+				})
+				.catch((err) => {
+					this.env.showMessage('Error swapping events', 'danger');
+					console.error(err);
+					info.revert(); // Revert the drag if there's an error
+				});
+		} else {
+			// Update the event normally if no overlapping event exists
+			const updatedEvent = {
+				Id: event.id,
+				IDStaff: targetResourceId,
+				WorkingDate: newStart?.toISOString(),
+				EndDate: newEnd ? newEnd.toISOString() : null,
+			};
+	
+			this.pageProvider.save(updatedEvent).then(() => {
+				this.env.showMessage('Event updated successfully', 'success');
+			}).catch((err) => {
+				this.env.showMessage('Error updating event', 'danger');
+				console.error(err);
+				info.revert();
+			});
+		}
+	}
+	
+
 	select(selectionInfo) {
 		selectionInfo.end.setDate(selectionInfo.end.getDate() - 1);
 		if (selectionInfo.end.toISOString() != selectionInfo.start.toISOString()) {
@@ -435,6 +511,7 @@ export class SchedulerPage extends PageBase {
 
 	getCalendar() {
 		this.fc = this.calendarComponent?.getApi();
+
 	}
 
 	showFilter() {

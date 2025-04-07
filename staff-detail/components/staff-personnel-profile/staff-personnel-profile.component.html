@@ -101,6 +101,8 @@
 						<app-form-control [field]="{ id: 'LastName', label: 'Last name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{ id: 'FirstName', label: 'Name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{ id: 'Name', label: 'Display name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{ id: 'Ethnic', label: 'Ethnic', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'MaritalStatus', label: 'Marital status', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
 						<div class="c-control">
 							<input (change)="saveChange()" id="Gender1" type="radio" [value]="true" formControlName="Gender" class="c-checkbox" />
 							<label class="c-label radio" for="Gender1">
@@ -122,7 +124,141 @@
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control [field]="{ id: 'DOB', label: 'Date of birth', type: 'datetime-local', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{ id: 'PhoneNumber', label: 'Phone number', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'POD', label: 'Place of birth', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'Religion', label: 'Religion', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
 						<app-form-control [field]="{ id: 'Remark', label: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"> </app-form-control>
+					</ion-col>
+				</ion-row>
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Family information' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-personnel-family [idStaff]="item?.Id">
+						</app-staff-personnel-family>
+					</ion-col>
+
+				</ion-row>
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Personally identifiable information' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-personnel-identity-card-and-PIT [idStaff]="item?.Id">
+						</app-staff-personnel-identity-card-and-PIT>
+					</ion-col>
+
+				</ion-row>
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Personally bank information' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-personnel-bank [idStaff]="item?.Id">
+						</app-staff-personnel-bank>
+					</ion-col>
+
+				</ion-row>
+
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Specialized field' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-specialized-field [IDStaff]="item.Id"></app-staff-specialized-field>
+					</ion-col>
+				</ion-row>
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Specialized skill' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-specialized-skill [IDStaff]="item.Id"></app-staff-specialized-skill>
+					</ion-col>
+				</ion-row>
+
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Academic level' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-academic-level [IDStaff]="item.Id"></app-staff-academic-level>
+					</ion-col>
+				</ion-row>
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Foreign language' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-foreign-language [IDStaff]="item.Id"></app-staff-foreign-language>
+					</ion-col>
+				</ion-row>
+
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Another skill' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-another-skill [IDStaff]="item.Id"></app-staff-another-skill>
+					</ion-col>
+				</ion-row>
+
+
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Working experience' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
+						<app-staff-working-experience [IDStaff]="item.Id"></app-staff-working-experience>
 					</ion-col>
 				</ion-row>
 

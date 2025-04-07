@@ -47,4 +47,11 @@ export const HRMRoutes: Routes = [
     { path: 'shift', loadChildren: () => import('./shift/shift.module').then(m => m.ShiftPageModule), canActivate: [AuthGuard] },
     { path: 'shift/:id', loadChildren: () => import('./shift-detail/shift-detail.module').then(m => m.ShiftDetailPageModule), canActivate: [AuthGuard] },
 
+
+    { path: 'compulsory-insurance-policy', loadChildren: () => import('./compulsory-insurance-policy/compulsory-insurance-policy.module').then(m => m.CompulsoryInsurancePolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'compulsory-insurance-policy/:id', loadChildren: () => import('./compulsory-insurance-policy-detail/compulsory-insurance-policy-detail.module').then(m => m.CompulsoryInsurancePolicyDetailPageModule), canActivate: [AuthGuard] },
+   
+    { path: 'welfare-policy', loadChildren: () => import('./welfare-policy/welfare-policy.module').then(m => m.WelfarePolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'welfare-policy/:id', loadChildren: () => import('./welfare-policy-detail/welfare-policy-detail.module').then(m => m.WelfarePolicyDetailPageModule), canActivate: [AuthGuard] },
+
 ];

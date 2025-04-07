@@ -18,6 +18,15 @@ import { StaffCompanyAssetsComponent } from './staff-company-assets/staff-compan
 import { StaffEmploymentStatusComponent } from './staff-employment-status/staff-employment-status.component';
 import { StaffActiveDataComponent } from './staff-active-data/staff-active-data.component';
 import { StaffWorkScheduleComponent } from './staff-work-schedule/staff-work-schedule.component';
+import { StaffPersonnelFamilyComponent } from './staff-personnel-profile/staff-personnel-family/staff-personnel-family.component';
+import { StaffPersonnelIdentityCardAndPITComponent } from './staff-personnel-profile/staff-personnel-identity-card-and-PIT/staff-personnel-identity-card-and-PIT.component';
+import { StaffPersonnelBankComponent } from './staff-personnel-profile/staff-personnel-bank/staff-personnel-bank.component';
+import { StaffAcademicLevelComponent } from './staff-personnel-profile/staff-academic-level/staff-academic-level.component';
+import { StaffAnotherSkillComponent } from './staff-personnel-profile/staff-another-skill/staff-another-skill.component';
+import { StaffForeignLanguageComponent } from './staff-personnel-profile/staff-foreign-language/staff-foreign-language.component';
+import { StaffSpecializedFieldComponent } from './staff-personnel-profile/staff-specialized-field/staff-specialized-field.component';
+import { StaffSpecializedSkillComponent } from './staff-personnel-profile/staff-specialized-skill/staff-specialized-skill.component';
+import { StaffWorkExperienceComponent } from './staff-personnel-profile/staff-work-experience/staff-work-experience.component';
 
 @NgModule({
 	imports: [
@@ -44,6 +53,15 @@ import { StaffWorkScheduleComponent } from './staff-work-schedule/staff-work-sch
 		StaffEmploymentStatusComponent,
 		StaffActiveDataComponent,
 		StaffWorkScheduleComponent,
+		StaffPersonnelFamilyComponent,
+		StaffPersonnelIdentityCardAndPITComponent,
+		StaffPersonnelBankComponent,
+		StaffAcademicLevelComponent,
+		StaffAnotherSkillComponent,
+		StaffForeignLanguageComponent,
+		StaffSpecializedFieldComponent,
+		StaffSpecializedSkillComponent,
+		StaffWorkExperienceComponent
 	],
 	exports: [
 		StaffPersonnelProfileComponent,
@@ -59,6 +77,15 @@ import { StaffWorkScheduleComponent } from './staff-work-schedule/staff-work-sch
 		StaffEmploymentStatusComponent,
 		StaffActiveDataComponent,
 		StaffWorkScheduleComponent,
+		StaffPersonnelFamilyComponent,
+		StaffPersonnelIdentityCardAndPITComponent,
+		StaffPersonnelBankComponent,
+		StaffAcademicLevelComponent,
+		StaffAnotherSkillComponent,
+		StaffForeignLanguageComponent,
+		StaffSpecializedFieldComponent,
+		StaffSpecializedSkillComponent,
+		StaffWorkExperienceComponent
 	],
 })
 export class StaffComponentsModule {}
