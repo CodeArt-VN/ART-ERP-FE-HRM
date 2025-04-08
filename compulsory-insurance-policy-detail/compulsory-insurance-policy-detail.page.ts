@@ -55,16 +55,18 @@ export class CompulsoryInsurancePolicyDetailPage extends PageBase {
 			RateOfTradeUnionFeesEm: [''],
 			IsCompanyPayTUF: [''],
 			IsApproved: [''],
+
+			IsDisabled: new FormControl({ value: '', disabled: true }),
+			IsDeleted: new FormControl({ value: '', disabled: true }),
+			CreatedBy: new FormControl({ value: '', disabled: true }),
+			ModifiedBy: new FormControl({ value: '', disabled: true }),
+			CreatedDate: new FormControl({ value: '', disabled: true }),
+			ModifiedDate: new FormControl({ value: '', disabled: true }),
 		});
 	}
 
 	preLoadData() {
-		this.calcType = [
-			{ Id: 1, Name: 'Theo lương cơ bản' },
-			{ Id: 2, Name: 'Theo tổng lương' },
-			{ Id: 3, Name: 'Tuỳ chỉnh' },
-		];
-		Promise.all([this.env.getStatus('InsuranceType')]).then((values) => {
+		Promise.all([this.env.getType('CalculationMethodType')]).then((values) => {
 			this.typeList = values[0];
 		});
 

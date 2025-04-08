@@ -139,7 +139,6 @@ export class SchedulerPage extends PageBase {
 		this.fc?.updateSize();
 		super.loadedData(event, ignoredFromGroup);
 	}
-
 	calendarOptions: any = {
 		plugins: [resourceTimelinePlugin, interactionPlugin],
 		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
@@ -225,6 +224,12 @@ export class SchedulerPage extends PageBase {
 				headerContent: 'Chức danh',
 				width: 150,
 			},
+			{
+				headerDidMount: this.headerDidMount.bind(this),
+				field: 'LeaveDaysRemaining',
+				headerContent: 'Ngày phép',
+				width: 80,
+			},
 		],
 
 		//resourceAreaHeaderContent: 'Nhân sự',
@@ -260,12 +265,23 @@ export class SchedulerPage extends PageBase {
 		displayEventTime: false,
 		editable: true,
 		selectable: true,
-		eventDurationEditable: false,
+		eventDurationEditable: true, // Cho phép kéo dài sự kiện
 		eventOverlap: true,
-		droppable: true, 
+		droppable: true,
 
-		eventContent: function (arg) {
-			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small><ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon></ion-text>`;
+		eventContent: (arg) => {
+			let htmlRemoveButton = ``;
+			if (this.pageConfig.canEdit) {
+				htmlRemoveButton = `<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>`;
+			}
+			if (!this.pageConfig.canEditPassDay) {
+				let d1 = lib.dateFormat(arg.event.extendedProps.WorkingDate);
+				let d2 = lib.dateFormat(arg.event.extendedProps._CurrentDate);
+				if (d1 <= d2) {
+					htmlRemoveButton = '';
+				}
+			}
+			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small> ${htmlRemoveButton} </ion-text>`;
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
 				booked += arg.event.extendedProps.IsBookLunchCatering ? 'L' : '';
@@ -273,8 +289,10 @@ export class SchedulerPage extends PageBase {
 				html = `<ion-icon class="lunch-booked" name="restaurant-outline"></ion-icon>(${booked}) - ` + html;
 			}
 			if (arg.event.extendedProps.TimeOffType) {
-				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text> <ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
+				if (!this.pageConfig.canEditLeaveDay) htmlRemoveButton = '';
+				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text>  ${htmlRemoveButton}`;
 			}
+
 			return {
 				html: html,
 			};
@@ -288,11 +306,36 @@ export class SchedulerPage extends PageBase {
 		eventDidMount: this.eventDidMount.bind(this),
 		select: this.select.bind(this),
 		dateClick: this.dateClick.bind(this), // bind is important!
-		eventClick: null,//this.eventClick.bind(this),
+		eventClick: null, //this.eventClick.bind(this),
 		eventChange: this.eventChange.bind(this),
 		eventDrop: this.eventDrop.bind(this),
+		eventResize: this.eventResize.bind(this),
 	};
 
+	eventResize(info) {
+		const event = info.event; // Sự kiện sau khi được kéo dài
+		const newStart = event.start; // Thời gian bắt đầu mới
+		const newEnd = event.end; // Thời gian kết thúc mới
+
+		// Cập nhật dữ liệu sự kiện
+		const updatedEvent = {
+			Id: event.id,
+			WorkingDate: newStart?.toISOString(),
+			EndDate: newEnd ? newEnd.toISOString() : null,
+		};
+
+		// Gửi dữ liệu cập nhật lên server
+		this.pageProvider
+			.save(updatedEvent)
+			.then(() => {
+				this.env.showMessage('Event updated successfully', 'success');
+			})
+			.catch((err) => {
+				this.env.showMessage('Error updating event', 'danger');
+				console.error(err);
+				info.revert(); // Hoàn tác nếu có lỗi
+			});
+	}
 
 	headerDidMount(arg) {
 		let that = this;
@@ -342,31 +385,45 @@ export class SchedulerPage extends PageBase {
 	}
 	eventDidMount(arg) {
 		let that = this;
-		arg.el.querySelector('.del-event-btn').onclick = function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			that.env
-				.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
-				.then((_) => {
-					that.submitAttempt = true;
-					that.pageProvider
-						.delete([{ Id: parseInt(arg.event.id) }])
-						.then((savedItem: any) => {
-							arg.event.remove();
-							that.submitAttempt = false;
-						})
-						.catch((err) => {
-							that.submitAttempt = false;
-						});
-				})
-				.catch((e) => {});
-		};
+		if (arg.el.querySelector('.del-event-btn')) {
+			arg.el.querySelector('.del-event-btn').onclick = function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				that.env
+					.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
+					.then((_) => {
+						that.submitAttempt = true;
+						let ids = `[${parseInt(arg.event.id)}]`;
+						that.pageProvider.commonService
+							.connect('PUT', 'HRM/StaffSchedule/DeleteSchedule/' + ids, null)
+							.toPromise()
+							.then((savedItem: any) => {
+								try {
+									let obj = JSON.parse(savedItem);
+									console.log(obj);
+									if(obj.IDRequest){
+										that.env.showPrompt('This leave request has been approved. Do you want to navigate to the leave request page?', null, null).then((_) => {
+											that.navCtrl.navigateForward('/request/' + obj.IDRequest);
+										});
+									}
+								} catch (err) {
+									arg.event.remove();
+									that.submitAttempt = false;
+								}
+							})
+							.catch((err) => {
+								that.submitAttempt = false;
+							});
+					})
+					.catch((e) => {});
+			};
+		}
+
 		arg.el.querySelector('.click-event-btn').onclick = function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			that.eventClick(arg);
 		};
-		
 	}
 	dateClick(dateClickInfo) {
 		this.massShiftAssignment({
@@ -406,12 +463,10 @@ export class SchedulerPage extends PageBase {
 		// Check if there's already an event in the target cell
 		const overlappingEvent = this.fc.getEvents().find((e) => {
 			return (
-				e._def.resourceIds[0] === targetResourceId &&
-				e.start?.toISOString() === newStart?.toISOString() &&
-				e.id !== event.id // Ensure it's not the same event
+				e._def.resourceIds[0] === targetResourceId && e.start?.toISOString() === newStart?.toISOString() && e.id !== event.id // Ensure it's not the same event
 			);
 		});
-	
+
 		if (overlappingEvent) {
 			// Swap the data between the two events
 			const updatedEvent1 = {
@@ -420,18 +475,15 @@ export class SchedulerPage extends PageBase {
 				WorkingDate: overlappingEvent.start?.toISOString(),
 				EndDate: overlappingEvent.end ? overlappingEvent.end.toISOString() : null,
 			};
-	
+
 			const updatedEvent2 = {
 				Id: overlappingEvent.id,
 				IDStaff: oldResourceId, // Use the old resource ID
 				WorkingDate: oldEvent.start?.toISOString(),
 				EndDate: oldEvent.end ? oldEvent.end.toISOString() : null,
 			};
-	
-			Promise.all([
-				this.pageProvider.save(updatedEvent1),
-				this.pageProvider.save(updatedEvent2),
-			])
+
+			Promise.all([this.pageProvider.save(updatedEvent1), this.pageProvider.save(updatedEvent2)])
 				.then(() => {
 					this.env.showMessage('Events swapped successfully', 'success');
 					this.loadData(); // Reload data to reflect changes
@@ -449,17 +501,19 @@ export class SchedulerPage extends PageBase {
 				WorkingDate: newStart?.toISOString(),
 				EndDate: newEnd ? newEnd.toISOString() : null,
 			};
-	
-			this.pageProvider.save(updatedEvent).then(() => {
-				this.env.showMessage('Event updated successfully', 'success');
-			}).catch((err) => {
-				this.env.showMessage('Error updating event', 'danger');
-				console.error(err);
-				info.revert();
-			});
+
+			this.pageProvider
+				.save(updatedEvent)
+				.then(() => {
+					this.env.showMessage('Event updated successfully', 'success');
+				})
+				.catch((err) => {
+					this.env.showMessage('Error updating event', 'danger');
+					console.error(err);
+					info.revert();
+				});
 		}
 	}
-	
 
 	select(selectionInfo) {
 		selectionInfo.end.setDate(selectionInfo.end.getDate() - 1);
@@ -511,7 +565,6 @@ export class SchedulerPage extends PageBase {
 
 	getCalendar() {
 		this.fc = this.calendarComponent?.getApi();
-
 	}
 
 	showFilter() {
@@ -576,7 +629,7 @@ export class SchedulerPage extends PageBase {
 		cData.staffList = this.calendarOptions.resources;
 		cData.shiftList = this.shiftList;
 		cData.timeoffTypeList = this.timeoffTypeList;
-
+		cData.currentDate = this.items[0]._CurrentDate;
 		const modal = await this.modalController.create({
 			component: SchedulerGeneratorPage,
 			componentProps: cData,

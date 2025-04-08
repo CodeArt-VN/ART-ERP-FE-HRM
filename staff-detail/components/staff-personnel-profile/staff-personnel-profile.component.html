@@ -22,6 +22,9 @@
 							<small label *ngIf="item?.Id">ID: {{ item?.Id }}</small>
 						</app-form-control>
 						<app-form-control [field]="{ id: 'Code', label: 'Reference code', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'LeaveDaysAllocated', label: 'Leave days allocated', type: 'span-number', form: formGroup }" > </app-form-control>
+						<app-form-control [field]="{ id: 'LeaveDaysUsed', label: 'Leave days used', type: 'span-number', form: formGroup }" > </app-form-control>
+
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control
@@ -69,6 +72,8 @@
 							(change)="saveChange()"
 						>
 						</app-form-control>
+						<app-form-control [field]="{ id: 'LeaveDaysRemaining', label: 'Leave days remaining', type: 'span-number', form: formGroup }" > </app-form-control>
+
 					</ion-col>
 				</ion-row>
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">

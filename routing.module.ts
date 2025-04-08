@@ -54,4 +54,11 @@ export const HRMRoutes: Routes = [
     { path: 'welfare-policy', loadChildren: () => import('./welfare-policy/welfare-policy.module').then(m => m.WelfarePolicyPageModule), canActivate: [AuthGuard] },
     { path: 'welfare-policy/:id', loadChildren: () => import('./welfare-policy-detail/welfare-policy-detail.module').then(m => m.WelfarePolicyDetailPageModule), canActivate: [AuthGuard] },
 
+
+    { path: 'tax-policy', loadChildren: () => import('./tax-policy/tax-policy.module').then(m => m.TaxPolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'tax-policy/:id', loadChildren: () => import('./tax-policy-detail/tax-policy-detail.module').then(m => m.TaxPolicyDetailPageModule), canActivate: [AuthGuard] },
+
+
+    { path: 'salary-policy', loadChildren: () => import('./salary-policy/salary-policy.module').then(m => m.SalaryPolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'salary-policy/:id', loadChildren: () => import('./salary-policy-detail/salary-policy-detail.module').then(m => m.SalaryPolicyDetailPageModule), canActivate: [AuthGuard] },
 ];

@@ -8,12 +8,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 
 @Component({
-	selector: 'app-welfare-policy-detail',
-	templateUrl: 'welfare-policy-detail.page.html',
-	styleUrls: ['welfare-policy-detail.page.scss'],
+	selector: 'app-salary-policy-detail',
+	templateUrl: 'salary-policy-detail.page.html',
+	styleUrls: ['salary-policy-detail.page.scss'],
 	standalone: false,
 })
-export class WelfarePolicyDetailPage extends PageBase {
+export class SalaryPolicyDetailPage extends PageBase {
 	branchList = [];
 	frequencyList = [];
 	typeList = [];

@@ -61,8 +61,11 @@ export class StaffPersonnelFamilyComponent extends PageBase {
 			PlaceOfIssuePassport: [row.PlaceOfIssuePassport],
 			TypeOfPassport: [row.TypeOfPassport],
 			CountryOfIssuePassport: [row.CountryOfIssuePassport],
-			IsDependent: [row.IsDependent],
+			IsDependants: [row.IsDependants],
 			HomeAddress: [row.HomeAddress],
+			IsEmergencyContact: [row.IsEmergencyContact],
+			TaxIdentificationNumber: [row.TaxIdentificationNumber],
+			Job : [row.Job]
 		});
 	}
 
