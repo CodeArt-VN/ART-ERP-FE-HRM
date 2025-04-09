@@ -15,11 +15,16 @@
 					<ion-col size="12" size-sm size-xl="4">
 						<app-form-control (change)="saveChange()" [field]="{id: 'Code', label: 'Code', type: 'text', form: formGroup}"> </app-form-control>
 						<app-form-control (change)="saveChange()" [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup}"> </app-form-control>
+						<app-form-control
+							(change)="saveChange()"
+							[field]="{id: 'Status', label: 'Status', type: 'ng-select', dataSource: statusList, bindLabel: 'Name', bindValue: 'Code', form: formGroup}"
+						>
+						</app-form-control>
 					</ion-col>
 					<ion-col size="12" size-sm size-xl="4">
 						<app-form-control
 							(change)="saveChange()"
-							[field]="{id: 'Type', label: 'HR policy tax', type: 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Id', form: formGroup}"
+							[field]="{id: 'Type', label: 'HR policy tax', type: 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup}"
 						>
 						</app-form-control>
 						<app-form-control

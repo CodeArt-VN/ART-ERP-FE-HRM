@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_PolCompulsoryInsuranceProvider, HRM_StaffProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, HRM_PolCompulsoryInsuranceProvider, HRM_StaffProvider, HRM_TaxPolicyProvider } from 'src/app/services/static/services.service';
 import { FormBuilder } from '@angular/forms';
 
 @Component({
@@ -15,7 +15,7 @@ export class TaxPolicyPage extends PageBase {
 	branchList = [];
 
 	constructor(
-		public pageProvider: HRM_PolCompulsoryInsuranceProvider,
+		public pageProvider: HRM_TaxPolicyProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,

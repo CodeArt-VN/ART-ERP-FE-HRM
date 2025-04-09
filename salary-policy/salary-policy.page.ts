@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_PolCompulsoryInsuranceProvider, HRM_PolWelfareProvider, HRM_StaffProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, HRM_PolCompulsoryInsuranceProvider, HRM_PolWelfareProvider, HRM_SalaryPolicyProvider, HRM_StaffProvider } from 'src/app/services/static/services.service';
 import { FormBuilder } from '@angular/forms';
 
 @Component({
@@ -12,10 +12,9 @@ import { FormBuilder } from '@angular/forms';
 	standalone: false,
 })
 export class SalaryPolicyPage extends PageBase {
-	branchList = [];
 
 	constructor(
-		public pageProvider: HRM_PolWelfareProvider,
+		public pageProvider: HRM_SalaryPolicyProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,

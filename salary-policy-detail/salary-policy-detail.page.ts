@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { HRM_PolWelfareProvider } from 'src/app/services/static/services.service';
+import { HRM_PolWelfareProvider, HRM_SalaryPolicyProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
@@ -14,12 +14,9 @@ import { CommonService } from 'src/app/services/core/common.service';
 	standalone: false,
 })
 export class SalaryPolicyDetailPage extends PageBase {
-	branchList = [];
-	frequencyList = [];
-	typeList = [];
-	currencyUnitTypeList = [];
+	statusList = [];
 	constructor(
-		public pageProvider: HRM_PolWelfareProvider,
+		public pageProvider: HRM_SalaryPolicyProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
@@ -43,42 +40,21 @@ export class SalaryPolicyDetailPage extends PageBase {
 			Name: ['', Validators.required],
 			Code: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9.\\-]+$')]],
 			Remark: [''],
-			Frequency: ['', Validators.required],
-			Value: [''],
-			Type:[''],
-			IsIncome: [''],
-			IsCurrency:[''],
-			IsManagerCanCreateBenefit:[''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
 			IsDeleted: new FormControl({ value: '', disabled: true }),
 			CreatedBy: new FormControl({ value: '', disabled: true }),
 			ModifiedBy: new FormControl({ value: '', disabled: true }),
 			CreatedDate: new FormControl({ value: '', disabled: true }),
 			ModifiedDate: new FormControl({ value: '', disabled: true }),
+			Status: [''],
+			BaseSalary: [''],
+			GrossSalary: [''],
 		});
 	}
 
 	preLoadData() {
-		//frequencyList load tu db
-		this.frequencyList = [
-			{ Id: 1, Code: 'Payroll', Name: 'Payroll' },
-			{ Id: 2, Code: 'Weekly', Name: 'Weekly' },
-			{ Id: 3, Code: 'Monthly', Name: 'Monthly' },
-			{ Id: 4, Code: 'Yearly', Name: 'Yearly' },
-			{ Id: 5, Code: 'Event', Name: 'Event' }, // sự kiện
-		];
-		this.currencyUnitTypeList = [
-			{ Id: 0, Name: 'Written Description' }, // 0 - Diễn giải bằng chữ
-			{ Id: 1, Name: 'Currency Unit' }, // 1 - Dạng đơn vị tiền tệ
-		];
-		//Load danh sách phúc lợi lên gán vào TypeList
-		// this.env.getStatus('WelfareType').then((data: any) => {
-		// 	this.typeList = data;
-		// });
-
-		Promise.all([this.env.getStatus('WelfareType'),this.env.getStatus('WelfareFrequencyType')]).then((values) => {
-			this.typeList = values[0];
-			this.frequencyList = values[1];
+		Promise.all([this.env.getStatus('StandardApprovalStatus')]).then((values) => {
+			this.statusList = values[0];
 		});
 
 		super.preLoadData();

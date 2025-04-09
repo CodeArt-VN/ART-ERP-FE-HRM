@@ -17,7 +17,7 @@
 						<app-form-control (change)="saveChange()" [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup}"> </app-form-control>
 						<app-form-control
 							(change)="saveChange()"
-							[field]="{id: 'Status', label: 'Status', type: 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Id', form: formGroup}"
+							[field]="{id: 'Status', label: 'Status', type: 'ng-select', dataSource: statusList, bindLabel: 'Name', bindValue: 'Code', form: formGroup}"
 						>
 						</app-form-control>
 					

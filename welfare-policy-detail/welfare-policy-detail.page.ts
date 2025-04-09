@@ -2,8 +2,8 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { HRM_PolWelfareProvider } from 'src/app/services/static/services.service';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { HRM_PolWelfareDetailProvider, HRM_PolWelfareProvider, HRM_UDFProvider } from 'src/app/services/static/services.service';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 
@@ -18,8 +18,12 @@ export class WelfarePolicyDetailPage extends PageBase {
 	frequencyList = [];
 	typeList = [];
 	currencyUnitTypeList = [];
+	segmentView = 's1';
+	UDFItems;
 	constructor(
 		public pageProvider: HRM_PolWelfareProvider,
+		public welfareDetailProvider: HRM_PolWelfareDetailProvider,
+		public hrmUDFProvider: HRM_UDFProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
@@ -43,18 +47,15 @@ export class WelfarePolicyDetailPage extends PageBase {
 			Name: ['', Validators.required],
 			Code: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9.\\-]+$')]],
 			Remark: [''],
-			Frequency: ['', Validators.required],
 			Value: [''],
-			Type:[''],
-			IsIncome: [''],
-			IsCurrency:[''],
-			IsManagerCanCreateBenefit:[''],
+			Type: [''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
 			IsDeleted: new FormControl({ value: '', disabled: true }),
 			CreatedBy: new FormControl({ value: '', disabled: true }),
 			ModifiedBy: new FormControl({ value: '', disabled: true }),
 			CreatedDate: new FormControl({ value: '', disabled: true }),
 			ModifiedDate: new FormControl({ value: '', disabled: true }),
+			Lines: this.formBuilder.array([]),
 		});
 	}
 
@@ -67,27 +68,90 @@ export class WelfarePolicyDetailPage extends PageBase {
 			{ Id: 4, Code: 'Yearly', Name: 'Yearly' },
 			{ Id: 5, Code: 'Event', Name: 'Event' }, // sự kiện
 		];
-		this.currencyUnitTypeList = [
-			{ Id: 0, Name: 'Written Description' }, // 0 - Diễn giải bằng chữ
-			{ Id: 1, Name: 'Currency Unit' }, // 1 - Dạng đơn vị tiền tệ
-		];
-		//Load danh sách phúc lợi lên gán vào TypeList
-		// this.env.getStatus('WelfareType').then((data: any) => {
-		// 	this.typeList = data;
-		// });
 
-		Promise.all([this.env.getStatus('WelfareType'),this.env.getStatus('WelfareFrequencyType')]).then((values) => {
+		Promise.all([
+			this.env.getType('WelfareType'),
+			this.env.getType('WelfareFrequencyType'),
+			this.hrmUDFProvider.read({Group: 'Benefits'}),
+		]).then((values : any) => {
 			this.typeList = values[0];
-			this.frequencyList = values[1];
+			// this.frequencyList = values[1];
+			this.UDFItems = values[2].data;
+			super.preLoadData();
 		});
+	}
 
-		super.preLoadData();
+	loadData(event?: any): void {
+		super.loadData(event);
 	}
 
 	loadedData(event) {
+		this.UDFItems.forEach((i) => {
+			i.isEdit = false; // set isEdit = false for all items
+			let line = this.item.Lines?.find((x) => x.IDUDF === i.Id);
+			i._value = line ? line.Value : '';
+			i._checked = line ? true : false;
+			i._isIncome = line ? line.IsIncome : false;
+			i._isCurrency = line ? line.IsCurrency : false;
+			i._isManagerCanCreateBenefit = line ? line.IsManagerCanCreateBenefit : false;
+			i._frequency = line ? line.Frequency : '';
+			let idDetail = line ? line.Id : 0;
+			i._formGroup = this.formBuilder.group({
+				IDUDF: new FormControl({ value: i.Id, disabled: true }),
+				IDPolWelfare: new FormControl({ value: this.item.Id, disabled: true }),
+				Value: [i._value],
+				Id : new FormControl({ value: idDetail, disabled: true }),
+				IsIncome:[line ? line.IsIncome : false],
+				IsCurrency:[line ? line.IsCurrency : false],
+				IsManagerCanCreateBenefit:[line ? line.IsManagerCanCreateBenefit : false],
+				Frequency :[line ? line.Frequency : ''],
+			});
+
+		});
 		super.loadedData(event);
 	}
 	saveChange() {
 		return super.saveChange2();
+	}
+
+	segmentChanged(ev: any) {
+		this.segmentView = ev.detail.value;
+	}
+
+	selectRow(row) {
+		row._checked = !row._checked;
+		if(row._checked) {
+			this.saveRow(row);
+		}else{
+			this.welfareDetailProvider.disable(row._formGroup.getRawValue(), !row._checked).then((data: any) => {
+				this.refresh();
+			});
+		}
+		
+	}
+	editRow(row) {
+		row.isEdit = true;
+	}
+
+	cancelRow(row) {
+		row.isEdit = false;
+	}
+
+	saveRow(row) {
+		row.isEdit = false;
+		row._formGroup.controls.IDUDF.markAsDirty();
+		row._formGroup.controls.IDPolWelfare.markAsDirty();
+		// let arr = <FormArray>this.formGroup.controls.Lines;
+		// let existingRowIndex = arr.controls.findIndex((control: any) => control.controls.IDUDF.value === row._formGroup.get('IDUDF').value);
+		// if (existingRowIndex !== -1) {
+		// 	arr.at(existingRowIndex).patchValue(row._formGroup.getRawValue());
+		// 	Object.keys(this.getDirtyValues(row._formGroup)).forEach((key) => {
+		// 		arr.at(existingRowIndex).get(key).markAsDirty();
+		// 	});
+		// } else {
+		// 	arr.push(row._formGroup);
+		// }
+		// this.formGroup.controls.Lines.markAsDirty();
+		super.saveChange2(row._formGroup,this.pageConfig.pageName,this.welfareDetailProvider).then((data: any) => {this.refresh()});
 	}
 }

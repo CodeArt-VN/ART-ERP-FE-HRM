@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_PolCompulsoryInsuranceProvider, HRM_StaffProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, HRM_PolCompulsoryInsuranceProvider, HRM_StaffProvider, HRM_TaxPolicyProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
@@ -14,10 +14,10 @@ import { CommonService } from 'src/app/services/core/common.service';
 	standalone: false,
 })
 export class TaxPolicyDetailPage extends PageBase {
-	calcType = [];
+	statusList = [];
 	typeList = [];
 	constructor(
-		public pageProvider: HRM_PolCompulsoryInsuranceProvider,
+		public pageProvider: HRM_TaxPolicyProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
@@ -43,6 +43,7 @@ export class TaxPolicyDetailPage extends PageBase {
 			Remark: [''],
 			Type: [''],
 			ContributionRate: [''],
+			Status: [''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
 			IsDeleted: new FormControl({ value: '', disabled: true }),
 			CreatedBy: new FormControl({ value: '', disabled: true }),
@@ -53,8 +54,9 @@ export class TaxPolicyDetailPage extends PageBase {
 	}
 
 	preLoadData() {
-		Promise.all([this.env.getType('HRPolicyTaxType')]).then((values) => {
+		Promise.all([this.env.getType('HRPolicyTaxType'),this.env.getStatus('StandardApprovalStatus')]).then((values) => {
 			this.typeList = values[0];
+			this.statusList = values[1];
 		});
 
 		super.preLoadData();
