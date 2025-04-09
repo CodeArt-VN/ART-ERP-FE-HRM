@@ -1,0 +1,11 @@
+<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+	<div class="row-full">
+		<ion-grid fixed > 
+			<ion-row>
+				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of items">
+					<app-form-control [field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: i._formGroup }"></app-form-control>
+				</ion-col>
+			</ion-row>
+		</ion-grid>
+	</div>
+</div>

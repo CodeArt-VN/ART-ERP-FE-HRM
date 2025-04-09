@@ -58,7 +58,15 @@ export const HRMRoutes: Routes = [
     { path: 'tax-policy', loadChildren: () => import('./tax-policy/tax-policy.module').then(m => m.TaxPolicyPageModule), canActivate: [AuthGuard] },
     { path: 'tax-policy/:id', loadChildren: () => import('./tax-policy-detail/tax-policy-detail.module').then(m => m.TaxPolicyDetailPageModule), canActivate: [AuthGuard] },
 
-
     { path: 'salary-policy', loadChildren: () => import('./salary-policy/salary-policy.module').then(m => m.SalaryPolicyPageModule), canActivate: [AuthGuard] },
     { path: 'salary-policy/:id', loadChildren: () => import('./salary-policy-detail/salary-policy-detail.module').then(m => m.SalaryPolicyDetailPageModule), canActivate: [AuthGuard] },
+
+   
+    { path: 'udf', loadChildren: () => import('./udf/udf.module').then(m => m.UDFPageModule), canActivate: [AuthGuard] },
+    { path: 'udf/:id', loadChildren: () => import('./udf-detail/udf-detail.module').then(m => m.UDFDetailPageModule), canActivate: [AuthGuard] },
+
+    // { path: 'payroll-template', loadChildren: () => import('./salary-policy/salary-policy.module').then(m => m.PayrollTemplatePageModule), canActivate: [AuthGuard] },
+    // { path: 'payroll-template/:id', loadChildren: () => import('./salary-policy-detail/salary-policy-detail.module').then(m => m.PayrollTemplateDetailPageModule), canActivate: [AuthGuard] },
+   
 ];
+

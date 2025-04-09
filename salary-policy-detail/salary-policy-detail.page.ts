@@ -2,10 +2,10 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { HRM_PolWelfareProvider, HRM_SalaryPolicyProvider } from 'src/app/services/static/services.service';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { CommonService } from 'src/app/services/core/common.service';
+import { HRM_PolSalaryProvider, HRM_UDFProvider} from 'src/app/services/static/services.service';
+import { Location } from '@angular/common';
+import { FormArray, FormBuilder, FormControl, Validators} from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
 	selector: 'app-salary-policy-detail',
@@ -14,56 +14,71 @@ import { CommonService } from 'src/app/services/core/common.service';
 	standalone: false,
 })
 export class SalaryPolicyDetailPage extends PageBase {
-	statusList = [];
 	constructor(
-		public pageProvider: HRM_SalaryPolicyProvider,
+		public pageProvider: HRM_PolSalaryProvider,
+		public udfProvider: HRM_UDFProvider,
 		public modalController: ModalController,
+		public formBuilder: FormBuilder,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
 		public loadingController: LoadingController,
-		public env: EnvService,
-		public navCtrl: NavController,
-		public formBuilder: FormBuilder,
+		public env: EnvService,		
 		public route: ActivatedRoute,
+		public navCtrl: NavController,
 		public cdr: ChangeDetectorRef,
-		public router: Router,
-		public commonService: CommonService
+		public location: Location
 	) {
 		super();
 		this.pageConfig.isDetailPage = true;
-		this.buildFormGroup();
-	}
-
-	buildFormGroup() {
-		this.formGroup = this.formBuilder.group({
+		this.id = this.route.snapshot.paramMap.get('id');
+		this.formGroup = formBuilder.group({
 			Id: new FormControl({ value: '', disabled: true }),
-			Name: ['', Validators.required],
-			Code: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9.\\-]+$')]],
+			Code: [''],
+			Name:[''],
 			Remark: [''],
-			IsDisabled: new FormControl({ value: '', disabled: true }),
-			IsDeleted: new FormControl({ value: '', disabled: true }),
-			CreatedBy: new FormControl({ value: '', disabled: true }),
-			ModifiedBy: new FormControl({ value: '', disabled: true }),
-			CreatedDate: new FormControl({ value: '', disabled: true }),
-			ModifiedDate: new FormControl({ value: '', disabled: true }),
-			Status: [''],
-			BaseSalary: [''],
-			GrossSalary: [''],
+			UDFList:[''],
+			Sort: [''],
+			IsDeleted: [''],
+			IsDisabled: [''],
+			CreatedBy: [''],
+			CreatedDate: [''],
+			ModifiedBy: [''],
+			ModifiedDate: [''],
 		});
-	}
-
-	preLoadData() {
-		Promise.all([this.env.getStatus('StandardApprovalStatus')]).then((values) => {
-			this.statusList = values[0];
-		});
-
-		super.preLoadData();
 	}
 
 	loadedData(event) {
+		this.udfProvider.read({}).then((res: any) => {
+			if(res && res.data && res.data.length > 0){
+				this.items = res.data;
+				if(this.item.UDFList){
+					let udfList = JSON.parse(this.item.UDFList);
+					udfList.forEach(i => {
+						let udf = this.items.find((x:any) => x.Id == i);
+						udf.checked=true;
+						super.changeSelection(udf, event);
+					})
+				}
+			}
+		});
+		
 		super.loadedData(event);
+		
+		
 	}
-	saveChange() {
-		return super.saveChange2();
+	
+	changeSelection(i: any, e?: any): void {
+		super.changeSelection(i, e);
+		if(i.selectedItems){
+			let selectedItems =  `[${i.selectedItems.map((x: any) => x.Id).join(',')}]`;
+			this.formGroup.controls.UDFList.setValue(selectedItems);
+			this.formGroup.controls.UDFList.markAsDirty();
+			this.saveChange2();
+		}
+	}
+	
+	segmentView = 's1';
+	segmentChanged(ev: any) {
+		this.segmentView = ev.detail.value;
 	}
 }

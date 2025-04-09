@@ -6,28 +6,32 @@
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
 	<div class="safe-max-width">
-		<app-data-table
-			class="box-shadow responsive"
-			[rows]="items"
-			[trackBy]="'Id'"
-			[(selectedRows)]="selectedItems"
-			[showSpinner]="pageConfig.showSpinner"
-			[showFilter]="pageConfig.isShowSearch"
-			[(query)]="query"
-			(dataInfinite)="loadData($event)"
-			(filter)="onDatatableFilter($event)"
-			(sort)="onSort($event)"
-			(selectedRowsChange)="showCommandBySelectedRows($event)"
-		>
-			<datatable-column [checkbox]="true" name=""></datatable-column>
-			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
-			<datatable-column class="col-name" name="Name" property="Name"></datatable-column>
-			<datatable-column class="col-remark" name="Remark" property="Remark"></datatable-column>
-			<datatable-column class="col-status" name="Status" property="Status"></datatable-column>
-		</app-data-table>
-	</div>
+	<app-data-table
+		class="box-shadow responsive"
+		[rows]="items"
+		[trackBy]="'Id'"
+		[(selectedRows)]="selectedItems"
+		[showSpinner]="pageConfig.showSpinner"
+		[showFilter]="pageConfig.isShowSearch"
+		[(query)]="query"
+		(dataInfinite)="loadData($event)"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+	>
+		<datatable-column [checkbox]="true" ></datatable-column>
+		<datatable-column class="col-id" name="Id" property="Id"[navLink]="pageConfig.pageName"></datatable-column>
+		
+		<datatable-column class="col-name" name="Name" property="Name">
+		
+		</datatable-column>
 
-	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
-		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-	</ion-infinite-scroll>
+		<datatable-column class="col-code" name="Code" property="Code">
+		</datatable-column>
+		<datatable-column class="col-remark" name="Remark" property="Remark">
+		</datatable-column>
+
+
+
+	</app-data-table>
+	</div>
 </ion-content>

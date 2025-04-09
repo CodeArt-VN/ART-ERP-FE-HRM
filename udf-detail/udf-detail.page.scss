@@ -1,0 +1,25 @@
+.cell small {
+	/* border-left: solid 2px; */
+	margin-left: 5px;
+	padding: 2px 4px;
+	background-color: rgba(var(--ion-color-primary-rgb, 0, 0, 0), 0.1);
+	border-radius: 2px;
+}
+
+.right {
+	margin-left: auto;
+	order: 2;
+}
+
+.col-code {
+	max-width: 120px !important;
+	min-width: 120px !important;
+}
+
+form {
+	margin: 0;
+}
+
+.filter .min-btn {
+	margin-left: 0 !important;
+}

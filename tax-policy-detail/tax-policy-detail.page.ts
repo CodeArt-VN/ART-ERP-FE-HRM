@@ -2,8 +2,8 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_PolCompulsoryInsuranceProvider, HRM_StaffProvider, HRM_TaxPolicyProvider } from 'src/app/services/static/services.service';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { HRM_PolTaxProvider } from 'src/app/services/static/services.service';
+import { FormBuilder, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from 'src/app/services/core/common.service';
 
@@ -17,7 +17,7 @@ export class TaxPolicyDetailPage extends PageBase {
 	statusList = [];
 	typeList = [];
 	constructor(
-		public pageProvider: HRM_TaxPolicyProvider,
+		public pageProvider: HRM_PolTaxProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
