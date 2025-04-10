@@ -36,6 +36,7 @@ export class SalaryPolicyDetailPage extends PageBase {
 			Code: [''],
 			Name:[''],
 			Remark: [''],
+			Status: ['Draft'],
 			UDFList:[''],
 			Sort: [''],
 			IsDeleted: [''],
@@ -63,7 +64,9 @@ export class SalaryPolicyDetailPage extends PageBase {
 		});
 		
 		super.loadedData(event);
-		
+		if(!this.item.Id){
+			this.formGroup.controls.Status.markAsDirty();
+		}
 		
 	}
 	

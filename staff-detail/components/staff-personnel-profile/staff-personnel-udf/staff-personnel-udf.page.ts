@@ -14,7 +14,9 @@ import { CommonService } from 'src/app/services/core/common.service';
 	standalone: false,
 })
 export class StaffPersonnelUDFComponent extends PageBase {
-	@Input() IDStaff 
+	@Input() IDStaff;
+	subGroupList: any = [];
+	subGroup: any = [];
 	constructor(
 		public pageProvider: HRM_UDFProvider,
 		public staffUDFProvider: HRM_StaffUDFProvider,
@@ -35,32 +37,70 @@ export class StaffPersonnelUDFComponent extends PageBase {
 	preLoadData(event?: any): void {
 		this.query.Group = 'EmployeeInformation';
 		this.query.IsDisabled = false;
-		super.preLoadData(event);
-	}
-	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		
-		this.staffUDFProvider.getAnItem(this.IDStaff).then((res:any) => {
-			if (res) {
-				this.item = res;
-				this.items.forEach((row) => {
-					row._formGroup = this.formBuilder.group({
-						Id : [res.Id],
-						Label:[row.Name],
-						Code: [row.Code],
-					});
-					for(let i = 0; i< 100; i++){
-						// if(res['UDF' + i] == ){
-						// 	row._formGroup.addControl('UDF' + i, new FormControl(res['UDF' + i]));
-						// }
-					}
-					row._formGroup.addControl(row.Code, new FormControl(''));
-				});
+		Promise.all([this.env.getType('EmployeeInformation', true)]).then((values: any) => {
+			console.log(values);
+			if (values && values[0]) {
+				this.subGroupList = values[0];
 			}
-		}).finally(() => {super.loadedData(event);});
+			super.preLoadData(event);
+		});
+	}
 	
+	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.staffUDFProvider
+			.getAnItem(this.IDStaff)
+			.then((res: any) => {
+				if (res) {
+					this.item = res;
+				}
+				this.subGroup = this.items.reduce(
+					(acc, row) => {
+						const key = row.SubGroup || 'Others';
+
+						// Find existing group
+						let group = acc.find((g: any) => g.Code === key);
+
+						if (!group) {
+							const name = this.subGroupList.find((x: any) => x.Code === key);
+							group = {
+								Code: key,
+								Name: name ? name.Name : key,
+								items: [],
+							};
+							acc.push(group);
+						}
+						row._formGroup = this.formBuilder.group({
+							Id: [this.IDStaff],
+							Name: [row.Name],
+							Code: [row.Code],
+						  });
+						  row._formGroup.addControl(row.Code, new FormControl(res?res['UDF'+row.UDF]:''));
+						  row._formGroup.get('Name').markAsDirty();
+						  row._formGroup.get('Code').markAsDirty();
+						  console.log( row._formGroup);
+						  
+						group.items.push(row);
+						return acc;
+					},
+					[] as { Code: string; Name: string; items: any[] }[]
+				);
+				console.log(this.subGroup);
+				this.openedFields = this.subGroup.map((x: any) => x.Code);
+			})
+			.finally(() => {
+				super.loadedData(event);
+			});
+	}
+	openedFields
+	accordionGroupChange(e) {
+		this.openedFields = e.detail.value;
+	}
+	isAccordionExpanded(id: string): boolean {
+		return this.openedFields.includes(id?.toString());
 	}
 
-	async saveChange() {
-		super.saveChange2();
+	async saveChange(fg) {
+		super.saveChange2(fg,null,this.staffUDFProvider);
 	}
+
 }

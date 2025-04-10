@@ -55,8 +55,6 @@ export class StaffAcademicLevelComponent extends PageBase {
 
 	preLoadData(event = null) {
 		this.query.IDStaff = this.IDStaff;
-		console.log('aaaa');
-		console.log(this.pageConfig);
 		
 		Promise.all([this.env.getType('AcademicRank'), this.env.getType('AcademicLevel'),this.env.getType('Degree')])
 			.then((values) => {

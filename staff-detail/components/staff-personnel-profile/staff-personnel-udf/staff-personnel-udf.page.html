@@ -1,11 +1,34 @@
+<app-page-message [itemsLength]="subGroup?.length" [showSpinner]="pageConfig.showSpinner" >
+	
+</app-page-message>
+
 <div class="main-view" *ngIf="pageConfig.showSpinner == false">
-	<div class="row-full">
-		<ion-grid fixed > 
+	<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
+		<ion-accordion [value]="gr.Code" *ngFor="let gr of subGroup" class="ion-accordion-bg">
+			<div slot="header" class="bold header-ion-accordion clickable" ><ion-text color="primary">{{gr.Name}}</ion-text></div>
+
+			<div class="row" slot="content" class="ion-accordion-bg">
+				<ion-grid fixed style="padding:0px">
+					<ion-row>
+						<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of gr.items">
+							<app-form-control
+								(change)="saveChange(i._formGroup)"
+								[field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: i._formGroup }"
+							></app-form-control>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+		</ion-accordion>
+	</ion-accordion-group>
+	<!-- <div class="row-full hr-group" *ngFor="let gr of subGroup">
+		<ion-label class="bold">{{gr.Name}}</ion-label>
+		<ion-grid fixed>
 			<ion-row>
-				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of items">
-					<app-form-control [field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: i._formGroup }"></app-form-control>
+				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of gr.items">
+					<app-form-control (change)="saveChange(i._formGroup)" [field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: i._formGroup }"></app-form-control>
 				</ion-col>
 			</ion-row>
 		</ion-grid>
-	</div>
+	</div> -->
 </div>

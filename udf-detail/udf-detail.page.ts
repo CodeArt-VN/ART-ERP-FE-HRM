@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
 import { HRM_UDFProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
 	selector: 'app-udf-detail',
@@ -96,6 +97,7 @@ export class UDFDetailPage extends PageBase {
 			.split(' ')
 			.map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
 			.join('');
+			code = lib.rempveSpecialCharacter(code);
 		this.formGroup.controls.Code.setValue(code);
 		this.formGroup.controls.Code.markAsDirty();
 		this.saveChange2();
