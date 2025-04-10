@@ -65,8 +65,8 @@ export const HRMRoutes: Routes = [
     { path: 'udf', loadChildren: () => import('./udf/udf.module').then(m => m.UDFPageModule), canActivate: [AuthGuard] },
     { path: 'udf/:id', loadChildren: () => import('./udf-detail/udf-detail.module').then(m => m.UDFDetailPageModule), canActivate: [AuthGuard] },
 
-    // { path: 'payroll-template', loadChildren: () => import('./salary-policy/salary-policy.module').then(m => m.PayrollTemplatePageModule), canActivate: [AuthGuard] },
-    // { path: 'payroll-template/:id', loadChildren: () => import('./salary-policy-detail/salary-policy-detail.module').then(m => m.PayrollTemplateDetailPageModule), canActivate: [AuthGuard] },
+    { path: 'payroll-template', loadChildren: () => import('./payroll-template/payroll-template.module').then(m => m.PayrollTemplatePageModule), canActivate: [AuthGuard] },
+    { path: 'payroll-template/:id', loadChildren: () => import('./payroll-template-detail/payroll-template-detail.module').then(m => m.PayrollTemplateDetailPageModule), canActivate: [AuthGuard] },
    
 ];
 
