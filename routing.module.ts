@@ -61,7 +61,13 @@ export const HRMRoutes: Routes = [
     { path: 'salary-policy', loadChildren: () => import('./salary-policy/salary-policy.module').then(m => m.SalaryPolicyPageModule), canActivate: [AuthGuard] },
     { path: 'salary-policy/:id', loadChildren: () => import('./salary-policy-detail/salary-policy-detail.module').then(m => m.SalaryPolicyDetailPageModule), canActivate: [AuthGuard] },
 
-   
+    { path: 'employee-policy', loadChildren: () => import('./employee-policy/employee-policy.module').then(m => m.EmployeePolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'employee-policy/:id', loadChildren: () => import('./employee-policy-detail/employee-policy-detail.module').then(m => m.EmployeePolicyDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'staff-decision', loadChildren: () => import('./staff-decision/staff-decision.module').then(m => m.StaffDecisionPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-decision/:id', loadChildren: () => import('./staff-decision-detail/staff-decision-detail.module').then(m => m.StaffDecisionDetailPageModule), canActivate: [AuthGuard] },
+
+
     { path: 'udf', loadChildren: () => import('./udf/udf.module').then(m => m.UDFPageModule), canActivate: [AuthGuard] },
     { path: 'udf/:id', loadChildren: () => import('./udf-detail/udf-detail.module').then(m => m.UDFDetailPageModule), canActivate: [AuthGuard] },
 

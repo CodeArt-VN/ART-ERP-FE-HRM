@@ -54,7 +54,7 @@ export class TaxPolicyDetailPage extends PageBase {
 	}
 
 	preLoadData() {
-		Promise.all([this.env.getType('HRPolicyTaxType'),this.env.getStatus('StandardApprovalStatus')]).then((values) => {
+		Promise.all([this.env.getType('HRPolicyTaxType'),this.env.getStatus('StandardApprovalStatus')]).then((values : any) => {
 			this.typeList = values[0];
 			this.statusList = values[1];
 		});
