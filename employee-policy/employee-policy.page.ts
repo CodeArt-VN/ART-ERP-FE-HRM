@@ -3,7 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import { AlertController, ItemReorderEventDetail, LoadingController, ModalController, NavController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BI_DashboardProvider, BRA_BranchProvider, HRM_StaffPolEmployeeDecisionProvider, SYS_FormProvider } from 'src/app/services/static/services.service';
+import { BI_DashboardProvider, BRA_BranchProvider, HRM_PolEmployeeProvider, HRM_StaffPolEmployeeDecisionProvider, SYS_FormProvider } from 'src/app/services/static/services.service';
 
 @Component({
 	selector: 'app-employee-policy',
@@ -21,7 +21,7 @@ export class EmployeePolicyPage extends PageBase {
 		selectedGroup: null,
 	};
 	constructor(
-		public pageProvider: HRM_StaffPolEmployeeDecisionProvider,
+		public pageProvider: HRM_PolEmployeeProvider,
 		public formProvider: SYS_FormProvider,
 		public branchProvider: BRA_BranchProvider,
 		public modalController: ModalController,

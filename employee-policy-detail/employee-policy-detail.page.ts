@@ -3,11 +3,12 @@ import { NavController, LoadingController, AlertController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_StaffPolEmployeeDecisionProvider, WMS_ZoneProvider } from 'src/app/services/static/services.service';
-import { FormBuilder, Validators, FormControl, FormGroup } from '@angular/forms';
+import { BRA_BranchProvider, HRM_PolEmployeeProvider, HRM_StaffPolEmployeeDecisionProvider, HRM_UDFProvider, WMS_ZoneProvider } from 'src/app/services/static/services.service';
+import { FormBuilder, Validators, FormControl, FormGroup, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
+import { lib } from 'src/app/services/static/global-functions';
 
 declare var Quill: any;
 
@@ -20,13 +21,15 @@ declare var Quill: any;
 export class EmployeePolicyDetaillPage extends PageBase {
 	typeList = [];
 	statusList = [];
+	UDFList = [];
 	branchList = [];
 	showEditorContent = false;
 	editor: any;
 	remarkBeforeChange = '';
 	@ViewChildren('quillEditor') quillElement: QueryList<ElementRef>;
 	constructor(
-		public pageProvider: HRM_StaffPolEmployeeDecisionProvider,
+		public pageProvider: HRM_PolEmployeeProvider,
+		public udfProvider: HRM_UDFProvider,
 		public branchProvider: BRA_BranchProvider,
 		public env: EnvService,
 		public navCtrl: NavController,
@@ -43,6 +46,7 @@ export class EmployeePolicyDetaillPage extends PageBase {
 
 		this.formGroup = formBuilder.group({
 			Id: new FormControl({ value: '', disabled: true }),
+			IDBranch: [this.env.selectedBranch],
 			Code: ['', Validators.required],
 			Name: ['', Validators.required],
 			Remark: [''],
@@ -60,6 +64,8 @@ export class EmployeePolicyDetaillPage extends PageBase {
 			IsAllowEmployeeCreateRequest: [''],
 			IsAllowManagerCreateRequest: [''],
 			ApplyTo: [''],
+			UDFList: [''],//json
+			UDFListArray:this.formBuilder.array([])
 		});
 	}
 
@@ -73,6 +79,24 @@ export class EmployeePolicyDetaillPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.udfProvider.read({}).then((res: any) => {
+			if (res && res.data && res.data.length > 0) {
+				this.UDFList = res.data;
+				if (this.item.UDFList) {
+					let udfList = JSON.parse(this.item.UDFList);
+					udfList.forEach((i) => {
+						let UDF = this.UDFList.find((d) => d.Id == i.IDUDF);
+						if (UDF) {
+							Object.assign(i, { ...UDF }); // clone all fields from UDF into i
+							delete i.Id; // remove Id
+						}
+						console.log(i);
+					});
+					this.item.UDFListArray = udfList;
+					this.patchUDFList();
+				}
+			}
+		});
 		super.loadedData(event, ignoredFromGroup);
 		if (this.item.ApplyTo) {
 			this.formGroup.controls.ApplyTo.setValue(JSON.parse(this.item.ApplyTo));
@@ -81,6 +105,76 @@ export class EmployeePolicyDetaillPage extends PageBase {
 		this.initQuill();
 	}
 
+	patchUDFList() {
+		let groups = this.formGroup.get('UDFListArray') as FormArray;
+		groups.clear();
+		if (this.item?.UDFListArray?.length > 0) {
+			this.item.UDFListArray.forEach((item) => {
+				this.addUDFList(item);
+			});
+		}
+	}
+	openedFields: any = [];
+	addUDFList(field, openField = false) {
+		let groups = <FormArray>this.formGroup.controls.UDFListArray;
+		let group = this.formBuilder.group({
+			Id: [lib.generateUID()],
+			IDUDF: [field?.IDUDF, Validators.required],
+			IsRequired: [field.IsRequired || false],
+			Group: new FormControl({ value: field.Group, disabled: true }),
+			SubGroup: new FormControl({ value: field.SubGroup, disabled: true }),
+			Code: new FormControl({ value: field.Code, disabled: true }),
+			Name: new FormControl({ value: field.Name, disabled: true }),
+			DataType: new FormControl({ value: field.DataType, disabled: true }),
+			ControlType: new FormControl({ value: field.ControlType, disabled: true }),
+			Sort: [field.Sort],
+		});
+		if (openField) {
+			this.openedFields.push(group.controls.Id.value.toString());
+		}
+		groups.push(group);
+	}
+
+	changeUDF(e, fg) {
+		if (!this.openedFields.includes(fg.get('Id').value.toString())) {
+			this.openedFields.push(fg.get('Id').value.toString());
+		}
+		fg.get('IDUDF').setValue(e?.Id);
+		fg.get('DataType').setValue(e?.DataType);
+		fg.get('ControlType').setValue(e?.ControlType);
+		fg.get('Name').setValue(e?.Name);
+		fg.get('Code').setValue(e?.Code);
+
+		fg.get('Name').markAsDirty();
+		fg.get('Code').markAsDirty();
+		this.saveConfig();
+	}
+	
+	removeField(g, index) {
+		let groups = <FormArray>this.formGroup.controls.UDFListArray;
+		if (g.controls.IDUDF.value) {
+			this.env
+				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
+				.then((_) => {
+					//groups.controls[index].get('IsDeleted').setValue(true);
+					groups.removeAt(index);
+					this.saveConfig();
+				})
+				.catch((_) => {});
+		} else{
+			groups.removeAt(index);
+			this.saveConfig();
+		} 
+	}
+
+	saveConfig() {
+		let groups = <FormArray>this.formGroup.controls.UDFListArray;
+		let data = groups.getRawValue().map((i) => ({ IDUDF: i.IDUDF, IsRequired: i.IsRequired, Sort: i.Sort }));
+		console.log(data);
+		this.formGroup.controls.UDFList.setValue(JSON.stringify(data));
+		this.formGroup.get('UDFList').markAsDirty();
+		this.saveChange2();
+	}
 	segmentView = 's1';
 	segmentChanged(ev: any) {
 		this.segmentView = ev.detail.value;
@@ -238,4 +332,28 @@ export class EmployeePolicyDetaillPage extends PageBase {
 			});
 		}
 	}
+
+	accordionGroupChange(e) {
+		this.openedFields = e.detail.value;
+		console.log(this.openedFields);
+	}
+
+	isAccordionExpanded(id: string): boolean {
+		return this.openedFields.includes(id?.toString());
+	}
+	public isDisabled = true;
+
+	toggleReorder() {
+		this.isDisabled = !this.isDisabled;
+	}
+	doReorder(ev, groups) {
+		groups = ev.detail.complete(groups);
+		for (let i = 0; i < groups.length; i++) {
+			const g = groups[i];
+			g.controls.Sort.setValue(i + 1);
+			g.controls.Sort.markAsDirty();
+		}
+		this.saveConfig();
+	}
+	
 }
