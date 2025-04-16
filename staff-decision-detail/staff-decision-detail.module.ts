@@ -5,6 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
 import { StaffDecisionDetailPage } from './staff-decision-detail.page';
+import { StaffDecisionDetailModal } from './staff-decision-detail-modal/staff-decision-detail-modal';
 
 const routes: Routes = [
 	{
@@ -15,6 +16,6 @@ const routes: Routes = [
 
 @NgModule({
 	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-	declarations: [StaffDecisionDetailPage],
+	declarations: [StaffDecisionDetailPage,StaffDecisionDetailModal],
 })
 export class StaffDecisionDetailPageModule {}

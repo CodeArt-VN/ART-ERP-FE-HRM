@@ -1,0 +1,90 @@
+<ion-header>
+	<ion-toolbar>
+		<ion-title>{{item?.Name}}</ion-title>
+
+		<ion-buttons slot="primary">
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+	<div id="detail-page" style="position: absolute"></div>
+	<form [formGroup]="formGroup">
+		<ion-grid fixed>
+			<ion-row>
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+					<ion-list-header class="ion-no-padding">
+						<ion-label color="primary">{{'General infomartion' | translate}}</ion-label>
+					</ion-list-header>
+				</ion-col>
+				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+					<app-form-control 
+						[field]="{id:'StaffList', label: 'Staff', type : 'ng-select-staff',multiple:true,dataSource:_staffDataSource, bindLabel:'FullName',bindValue:'Id', form: formGroup, appendTo:'#detail-page'}"
+					></app-form-control>
+					<app-form-control 
+						[field]="{id:'IsConcurrentPosition', label: 'Staff', type : 'checkbox', form: formGroup}"
+					></app-form-control>
+				</ion-col>
+				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+					<app-form-control
+						[field]="{id:'IDDepartment', label: 'Department', type : 'ng-select-branch',dataSource: branchList, bindValue:'Id', bindLable:'Name', form: formGroup, appendTo:'#detail-page',
+						branchConfig:{selectedBranch:this.env.selectedBranch, showingType:'Department'}
+					}"
+					></app-form-control>
+					<app-form-control
+						[field]="{
+						id: 'IDJobTitle',
+						label: 'Job title',
+						dataSource: jobTitleList,
+						bindLabel: 'Name',
+						bindValue: 'Id',
+						type: 'ng-select-branch',
+						form: formGroup,
+						placeholder: 'Select unit',
+						appendTo:'#detail-page'}"
+					>
+					</app-form-control>
+				</ion-col>
+			</ion-row>
+			<ion-row *ngFor="let gr of UDFList" class="hr-group">
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+					<ion-list-header class="ion-no-padding">
+						<ion-label color="primary">{{gr.Name | translate}}</ion-label>
+					</ion-list-header>
+				</ion-col>
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+					<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+						<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
+							<ion-accordion [value]="sub.Key" *ngFor="let sub of gr.SubGroups" class="ion-accordion-bg">
+								<div slot="header" class="bold header-ion-accordion clickable"><ion-text color="primary">{{sub.Name | translate}}</ion-text></div>
+								<div class="row" slot="content" class="ion-accordion-bg">
+									<ion-grid fixed style="padding: 0px">
+										<ion-row>
+											<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of sub.Items">
+												<app-form-control
+													(change)="saveConfig()"
+													[field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: formGroup.get('EmployeePolicyConfig') }"
+												></app-form-control>
+											</ion-col>
+										</ion-row>
+									</ion-grid>
+								</div>
+							</ion-accordion>
+						</ion-accordion-group>
+					</div>
+				</ion-col>
+			</ion-row>
+			<ion-row>
+				<ion-col>
+					<div class="c-control ion-text-right">
+						<label class="c-label" for=""></label>
+						<ion-button (click)="submit()">{{'Submit' | translate}}</ion-button>
+					</div>
+				</ion-col>
+			</ion-row>
+		</ion-grid>
+	</form>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

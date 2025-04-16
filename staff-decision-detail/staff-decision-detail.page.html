@@ -1,49 +1,52 @@
 <ion-header>
-	<app-detail-toolbar [page]="this"></app-detail-toolbar>
+	<app-toolbar [page]="this">
+		<!-- <ion-button  *ngIf="pageConfig.canApplyDecision && pageConfig.ShowApplyDecision" fill="clear" title="Apply decision" (click)="applyDecision()">
+			<ion-icon name="checkmark-outline"></ion-icon>
+		</ion-button> -->
+	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="ion-padding">
 	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
-	<div class="main-view shadow full-screen ion-padding"  *ngIf="item && pageConfig.showSpinner==false">
+	<div class="main-view shadow full-screen ion-padding" *ngIf="item && pageConfig.showSpinner==false">
 		<ion-grid fixed>
 			<form [formGroup]="formGroup">
 				<ion-row class="hr-group">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 						<ion-list-header class="ion-no-padding">
-							<ion-label color="primary">{{'Staff decision' | translate}}</ion-label>
+							<ion-label color="primary">{{'Staff Decision' | translate}}</ion-label>
 						</ion-list-header>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-						<app-form-control [field]="{id: 'Id', label: 'Id', type: 'number', form: formGroup }" (change)="saveChange()"> </app-form-control>
-						<app-form-control [field]="{id: 'Code', label: 'Code', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
-						<app-form-control [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup }" (change)="saveChange2()">
+							<small label *ngIf="item.Id">Id: {{item.Id}}</small>
+						</app-form-control>
+						<app-form-control [field]="{id: 'Code', label: 'Code', type: 'text', form: formGroup }" (change)="saveChange2()"></app-form-control>
 						<app-form-control
 							[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel:'Name' , bindValue:'Code', form: formGroup , appendTo: '#ng-select-header'}"
-							(change)="saveChange()"
+							(change)="saveChange2()"
 						></app-form-control>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control
-							[field]="{id: 'IDJobTitle',
-							 label: 'Job title',
-							dataSource: jobTitleList,
-							bindLabel: 'Name',
-							bindValue: 'Id',
-							type: 'ng-select-branch', form: formGroup, appendTo: '#ng-select-header'}"
-							(change)="saveChange()"
-						></app-form-control>
-						<app-form-control
-							[field]="{id: 'IDStaff', label: 'Staff', type: 'ng-select-staff', dataSource: staffList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
-							(change)="saveChange()"
-						></app-form-control>
-						<app-form-control
-							[field]="{id: 'IDPolEmployeeDecision', label: 'Employee policy decision', type: 'ng-select', dataSource: polEmployeeDecisionList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
-							(change)="saveChange()"
+							[field]="{id: 'IDPolEmployee', label: 'Employee policy', type: 'ng-select', dataSource: polEmployeeList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="changePolEmployee()"
 						></app-form-control>
 						<app-form-control
 							[field]="{id: 'IDPolSalary', label: 'Salary policy', type: 'ng-select', dataSource: polSalaryList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
 							(change)="saveChange()"
 						></app-form-control>
+						<app-form-control [field]="{id: 'ConsultedPerson', label: 'Consulted person', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+
+						<app-form-control
+							[field]="{id: 'DecisionSignDate', label: 'Decision sign date', type: 'datetime-local', form: formGroup }"
+							(change)="saveChange()"
+						></app-form-control>
+						<app-form-control
+							[field]="{id: 'DecisionEffectiveDate', label: 'Decision effective date', type: 'datetime-local', form: formGroup }"
+							(change)="saveChange()"
+						></app-form-control>
+						<app-form-control [field]="{id: 'ProbationPeriod', label: 'Probation period', type: 'number', form: formGroup }" (change)="saveChange()"></app-form-control>
 					</ion-col>
 				</ion-row>
 			</form>
@@ -62,69 +65,86 @@
 			</ion-toolbar>
 
 			<div class="ion-padding" *ngIf="segmentView == 's1'">
-				<ion-grid fixed>
-					<form [formGroup]="formGroup">
-						<!-- Invoice information -->
-						<ion-row class="hr-group">
-							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
-								<ion-list-header class="ion-no-padding">
-									<ion-label color="primary">{{'General information' | translate}}</ion-label>
-								</ion-list-header>
-							</ion-col>
-							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-								<app-form-control
-									[field]="{id: 'Area', label: 'Area', type: 'ng-select',dataSource : workAreaTypeList ,bindLabel: 'Name',bindValue: 'Code', form: formGroup, appendTo: '#ng-select-header' }"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{branchConfig: {showingType: 'OfficeCenter', selectedBranch: this.env.selectedBranch}, id: 'Office',
-									label: 'Office',
-									dataSource: branchList,
-									bindLabel: 'Name',
-									bindValue: 'Name',
-									type: 'ng-select-branch', form: formGroup, appendTo: '#ng-select-header'}"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{id: 'EmploymentType', label: 'Employment type', type: 'ng-select', dataSource : employmentTypeList ,
-									bindLabel: 'Name',bindValue: 'Code',form: formGroup, appendTo: '#ng-select-header',multiple: true}"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{id: 'WorkType', label: 'Work type', type: 'ng-select', dataSource:workTypeList,bindLabel: 'Name',bindValue: 'Code',form: formGroup , appendTo: '#ng-select-header'}"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control [field]="{id: 'BasicSalary', label: 'Basic salary', type: 'number', form: formGroup }" (change)="saveChange()"></app-form-control>
-								<app-form-control [field]="{id: 'Salary', label: 'salary', type: 'number', form: formGroup }" (change)="saveChange()"></app-form-control>
-							</ion-col>
-							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-								<app-form-control
-									[field]="{id: 'ConsultedPerson', label: 'Consulted person', type: 'text', form: formGroup }"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{id: 'DecisionSignDate', label: 'Decision sign date', type: 'datetime-local', form: formGroup }"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{id: 'DecisionEffectiveDate', label: 'Decision effective date', type: 'datetime-local', form: formGroup }"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{id: 'ProbationPeriod', label: 'Probation period', type: 'number', form: formGroup }"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{id: 'IsConcurrentPosition', label: 'Is concurrent position', type: 'checkbox', form: formGroup }"
-									(change)="saveChange()"
-								></app-form-control>
-								<app-form-control
-									[field]="{id: 'IsNotApplySalary', label: 'Is not apply salary', type: 'checkbox', form: formGroup }"
-									(change)="saveChange()"
-								></app-form-control>
-							</ion-col>
-						</ion-row></form
-				></ion-grid>
+				<div class="table-contain" *ngIf="!pageConfig.showSpinner">
+					<app-data-table [rows]="item?.StaffPolEmployeeDecisionDetails || []" [(selectedRows)]="selectedItems" [showSpinner]="pageConfig.showSpinner">
+						<datatable-empty-message subMessage="Please click add new to start..." *ngIf="pageConfig.canEdit">
+							<ng-template datatable-empty-message-template>
+								<div>
+									<ion-button size="small" (click)="addStaffPolEmployeeDecisionDetail({}, true)">
+										<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+										{{ 'Add staff' | translate }}
+									</ion-button>
+								</div>
+							</ng-template>
+						</datatable-empty-message>
+						<datatable-column [checkbox]="true" name="" *ngIf="pageConfig.canEdit">
+							<ng-template datatable-header-template>
+								<input class="c-checkbox" type="checkbox" (change)="checkAllSelectedItems($event)" />
+							</ng-template>
+						</datatable-column>
+						<datatable-column class="col-id" name="Id" property="Id">
+							<!-- <ng-template let-i="row" datatable-cell-template>
+								<span>{{i?.Id}}</span>
+							</ng-template> -->
+						</datatable-column>
+
+						<datatable-column class="col-name item-name" name="Staff" property="IDStaff">
+							<ng-template let-i="row" datatable-cell-template> <span *ngIf="i?._Staff">{{i._Staff.Code}} - </span><span>{{i._Staff.Name}}</span> </ng-template>
+						</datatable-column>
+
+						<datatable-column class="col-code" name="Department" property="IDDepartment">
+							<ng-template let-i="row" datatable-cell-template>
+								<span *ngIf="i?._Department">{{i._Department.Name}}</span>
+							</ng-template>
+						</datatable-column>
+
+						<datatable-column class="col-code" name="Job title" property="IDJobTitle">
+							<ng-template let-i="row" datatable-cell-template>
+								<span *ngIf="i?._JobTitle">{{i._JobTitle.Name}}</span>
+							</ng-template>
+						</datatable-column>
+
+						<datatable-column class="col-checkbox" name="Concurrent position" property="IsConcurrentPosition"> </datatable-column>
+
+						<datatable-column class="col-code" [name]="udf.Name" property="IDStaff" *ngFor="let udf of UDFList">
+							<ng-template let-i="row" datatable-cell-template>
+								<span>{{i.EmployeePolicyConfig[udf.Code]}}</span>
+							</ng-template>
+						</datatable-column>
+						<!-- <ng-template let-i="row" datatable-cell-template>
+								{{i | json}}
+								<app-input-control [field]="{id:udf.Code,label:udf.Name, type:udf.ControlType,form:i.get('EmployeePolicyConfig')}"></app-input-control>
+							</ng-template> -->
+						<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+							<ng-template datatable-header-template >
+								<ion-icon *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal()"></ion-icon>
+							</ng-template>
+							<ng-template let-i="row" datatable-cell-template>
+								<ion-icon color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal(i)"></ion-icon>
+							</ng-template>
+						</datatable-column>
+
+						<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+							<ng-template datatable-header-template>
+								<ion-icon  *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="trash-outline" (click)="removeAllStaffPolEmployeeDecisionDetail()"></ion-icon>
+							</ng-template>
+							
+							<ng-template let-idx="idx" datatable-cell-template>
+								<ion-icon color="danger" class="min-btn clickable" name="trash-outline" (click)="removeStaffPolEmployeeDecisionDetail(i)"></ion-icon>
+							</ng-template>
+						</datatable-column>
+					</app-data-table>
+				</div>
+				<div class="table-contain">
+					<div class="row" *ngIf="pageConfig.canEdit">
+						<div class="cell">
+							<ion-button fill="clear" size="small" (click)="addStaffPolEmployeeDecisionDetail({},true)">
+								<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+								{{'Add staff' | translate}}
+							</ion-button>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<!-- Order information -->

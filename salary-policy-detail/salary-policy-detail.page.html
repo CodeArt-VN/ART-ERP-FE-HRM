@@ -19,6 +19,9 @@
                             <label class="c-label" for="Id"># Id</label>
                             <input class="c-input" id="Id" formControlName="Id" type="number">
                         </div> -->
+						<app-form-control (change)="saveChange2()" [field]="{ branchConfig:{selectedBranch:this.env.selectedBranch},
+							id: 'IDBranch', label: 'Branch', type: 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form: formGroup,appendTo:'#detail-page'}">
+						</app-form-control>
 
 						<app-form-control (change)="saveChange2()" [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup}">
 							<small label *ngIf="item?.Id">Id: {{item.Id}}</small>

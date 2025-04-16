@@ -14,6 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 	standalone: false,
 })
 export class SalaryPolicyDetailPage extends PageBase {
+	branchList;
 	constructor(
 		public pageProvider: HRM_PolSalaryProvider,
 		public udfProvider: HRM_UDFProvider,
@@ -33,6 +34,7 @@ export class SalaryPolicyDetailPage extends PageBase {
 		this.id = this.route.snapshot.paramMap.get('id');
 		this.formGroup = formBuilder.group({
 			Id: new FormControl({ value: '', disabled: true }),
+			IDBranch: [this.env.selectedBranch],
 			Code: [''],
 			Name:[''],
 			Remark: [''],
@@ -47,7 +49,11 @@ export class SalaryPolicyDetailPage extends PageBase {
 			ModifiedDate: [''],
 		});
 	}
-
+	preLoadData(event?: any): void {
+		this.branchList = [...this.env.branchList];
+		this.query.IDBranch = [null,...this.env.selectedBranchAndChildren].join(',').toString();
+		super.preLoadData(event);
+	}
 	loadedData(event) {
 		this.udfProvider.read({}).then((res: any) => {
 			if(res && res.data && res.data.length > 0){

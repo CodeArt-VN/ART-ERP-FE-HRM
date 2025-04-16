@@ -2,9 +2,8 @@ import { Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { BRA_BranchProvider, HRM_StaffDecisionProvider, SYS_ActionProvider, SYS_IntegrationProviderProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider,  HRM_StaffPolEmployeeDecisionProvider,  SYS_IntegrationProviderProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
-import { SortConfig } from 'src/app/models/options-interface';
 import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
@@ -16,7 +15,7 @@ import { lib } from 'src/app/services/static/global-functions';
 export class StaffDecisionPage extends PageBase {
 	statusList = [];
 	constructor(
-		public pageProvider: HRM_StaffDecisionProvider,
+		public pageProvider: HRM_StaffPolEmployeeDecisionProvider,
 		public providerService: SYS_IntegrationProviderProvider,
 		public branchProvider: BRA_BranchProvider,
 		public modalController: ModalController,
@@ -28,8 +27,6 @@ export class StaffDecisionPage extends PageBase {
 		public location: Location
 	) {
 		super();
-		this.pageConfig.isShowFeature = true;
-		this.pageConfig.isFeatureAsMain = true;
 	}
 
 	preLoadData(event?: any): void {

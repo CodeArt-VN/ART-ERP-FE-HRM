@@ -18,8 +18,8 @@ export class PayrollTemplateDetailPage extends PageBase {
 	payrollTemplateType: any = [];
 	polSalaryList: any = [];
 	UDFList: any = [];
-	statusList:any = [];
-	trackingIDPolSalary
+	statusList: any = [];
+	trackingIDPolSalary;
 	constructor(
 		public pageProvider: HRM_PayrollTemplateProvider,
 		public polSalaryProvider: HRM_PolSalaryProvider,
@@ -54,12 +54,12 @@ export class PayrollTemplateDetailPage extends PageBase {
 			CreatedDate: [''],
 			ModifiedBy: [''],
 			ModifiedDate: [''],
-			DeletedPayrollTemplateDetails : [[]]
+			DeletedPayrollTemplateDetails: [[]],
 		});
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.env.getType('CalculationMethodType'), this.env.getType('PayrollTemplateType'),this.env.getStatus('PurchaseRequest')]).then((values: any) => {
+		Promise.all([this.env.getType('CalculationMethodType'), this.env.getType('PayrollTemplateType'), this.env.getStatus('PurchaseRequest')]).then((values: any) => {
 			this.calculationMethodList = values[0];
 			this.payrollTemplateType = values[1];
 			this.statusList = values[2];
@@ -67,7 +67,7 @@ export class PayrollTemplateDetailPage extends PageBase {
 		});
 	}
 	loadedData(event) {
-		if(this.item?.IDPolSalary){
+		if (this.item?.IDPolSalary) {
 			this.getUDFList(this.item?.IDPolSalary);
 		}
 		this.polSalaryProvider.read({}).then((res: any) => {
@@ -86,29 +86,29 @@ export class PayrollTemplateDetailPage extends PageBase {
 	patchUDF() {
 		let groups = this.formGroup.get('PayrollTemplateDetails') as FormArray;
 		groups.clear();
-		if(this.item?.PayrollTemplateDetails?.length > 0){
-		this.item.PayrollTemplateDetails.forEach((item) => {
-			this.addPayrollTemplateDetail(item);
-		});
+		if (this.item?.PayrollTemplateDetails?.length > 0) {
+			this.item.PayrollTemplateDetails.forEach((item) => {
+				this.addPayrollTemplateDetail(item);
+			});
+		}
 	}
-}
-	addPayrollTemplateDetail(field,openField = false) {
+	addPayrollTemplateDetail(field, openField = false) {
 		let groups = <FormArray>this.formGroup.controls.PayrollTemplateDetails;
 		let group = this.formBuilder.group({
 			IDPayrollTemplate: [this.item.Id],
 			Id: [field?.Id],
-			IDUDF: [field?.IDUDF,Validators.required],
+			IDUDF: [field?.IDUDF, Validators.required],
 			// Id: new FormControl({ value: field?.Id, disabled: true }),
-			Type: ['',Validators.required],
-			Code: new FormControl({ value: field.Code, disabled: true, }),
-			Name:new FormControl({ value: field.Name, disabled: true, }),
+			Type: ['', Validators.required],
+			Code: new FormControl({ value: field.Code, disabled: true }),
+			Name: new FormControl({ value: field.Name, disabled: true }),
 			Remark: [field.Remark],
-			DataType:new FormControl({ value: field.DataType, disabled: true, }),
-			ControlType:new FormControl({ value: field.ControlType, disabled: true, }),
-			IsHidden:[field.IsHidden],
-			IsLock:[field.IsLock],
+			DataType: new FormControl({ value: field.DataType, disabled: true }),
+			ControlType: new FormControl({ value: field.ControlType, disabled: true }),
+			IsHidden: [field.IsHidden],
+			IsLock: [field.IsLock],
 			Sort: [field.Sort],
-			
+
 			IsDisabled: new FormControl({
 				value: field.IsDisabled,
 				disabled: true,
@@ -136,32 +136,33 @@ export class PayrollTemplateDetailPage extends PageBase {
 		});
 		if (field.IsDisabled) group.disable();
 		group.get('IDPayrollTemplate').markAsDirty();
-		if(openField){
+		if (openField) {
 			this.openedFields.push(field?.Id.toString());
 		}
 		groups.push(group);
 	}
 	changePolSalary(e) {
-		
 		let groups = this.formGroup.get('PayrollTemplateDetails') as FormArray;
 		if (groups.controls.length > 0) {
-			this.env.showPrompt('Change policy salary will remove all items in this template. Do you want to continue?', 'Warning', 'Yes', 'No').then((res: any) => {
-				let ids = groups.controls.filter (d=> d.value.Id).map((d) => d.value.Id);
-				this.formGroup.get('DeletedPayrollTemplateDetails').setValue(ids);
-				this.formGroup.get('DeletedPayrollTemplateDetails').markAsDirty();
-				groups.clear();
-				this.getUDFList(e.Id).finally(()=> this.saveChange2());
-				this.trackingIDPolSalary = e.Id;
-			}).catch(err=>{
-				this.formGroup.get('IDPolSalary').setValue(this.trackingIDPolSalary);
-			});
-		}
-		else {
-			this.getUDFList(e.Id).finally(()=> this.saveChange2());
+			this.env
+				.showPrompt('Change policy salary will remove all items in this template. Do you want to continue?', 'Warning', 'Remove all items!', 'No')
+				.then((res: any) => {
+					let ids = groups.controls.filter((d) => d.value.Id).map((d) => d.value.Id);
+					this.formGroup.get('DeletedPayrollTemplateDetails').setValue(ids);
+					this.formGroup.get('DeletedPayrollTemplateDetails').markAsDirty();
+					groups.clear();
+					this.getUDFList(e.Id).finally(() => this.saveChange2());
+					this.trackingIDPolSalary = e.Id;
+				})
+				.catch((err) => {
+					this.formGroup.get('IDPolSalary').setValue(this.trackingIDPolSalary);
+				});
+		} else {
+			this.getUDFList(e.Id).finally(() => this.saveChange2());
 			this.trackingIDPolSalary = e.Id;
 		}
 	}
-	getUDFList(IDPolSalary){
+	getUDFList(IDPolSalary) {
 		return new Promise((resolve, reject) => {
 			this.polSalaryProvider.getAnItem(IDPolSalary).then((res: any) => {
 				if (res) {
@@ -169,9 +170,7 @@ export class PayrollTemplateDetailPage extends PageBase {
 				}
 				resolve(true);
 			});
-
-		})
-		
+		});
 	}
 
 	changeUDF(e, fg) {
@@ -185,30 +184,27 @@ export class PayrollTemplateDetailPage extends PageBase {
 		this.saveChange2();
 	}
 
-
 	removeField(g, index) {
 		let groups = <FormArray>this.formGroup.controls.PayrollTemplateDetails;
-		if(g.controls.Id.value ) {
-		this.env
-			.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
-			.then((_) => {
-				
-				//groups.controls[index].get('IsDeleted').setValue(true);
-				groups.removeAt(index);
-				this.item.PayrollTemplateDetails.splice(index, 1);
-				let DeletedPayrollTemplateDetails = this.formGroup.get('DeletedPayrollTemplateDetails').value;
-				let deletedId = g.controls.Id.value;
-				DeletedPayrollTemplateDetails.push(deletedId);
+		if (g.controls.Id.value) {
+			this.env
+				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
+				.then((_) => {
+					//groups.controls[index].get('IsDeleted').setValue(true);
+					groups.removeAt(index);
+					this.item.PayrollTemplateDetails.splice(index, 1);
+					let DeletedPayrollTemplateDetails = this.formGroup.get('DeletedPayrollTemplateDetails').value;
+					let deletedId = g.controls.Id.value;
+					DeletedPayrollTemplateDetails.push(deletedId);
 
-				this.formGroup.get('DeletedPayrollTemplateDetails').setValue(DeletedPayrollTemplateDetails);
-				this.formGroup.get('DeletedPayrollTemplateDetails').markAsDirty();
-				//  groups.controls[index].markAsDirty();
-				// groups.controls[index].get('IsDeleted').markAsDirty()
-				this.saveChange2();
-			})
-			.catch((_) => {});
-		}
-		else groups.removeAt(index);
+					this.formGroup.get('DeletedPayrollTemplateDetails').setValue(DeletedPayrollTemplateDetails);
+					this.formGroup.get('DeletedPayrollTemplateDetails').markAsDirty();
+					//  groups.controls[index].markAsDirty();
+					// groups.controls[index].get('IsDeleted').markAsDirty()
+					this.saveChange2();
+				})
+				.catch((_) => {});
+		} else groups.removeAt(index);
 	}
 
 	segmentView = 's1';
@@ -226,7 +222,7 @@ export class PayrollTemplateDetailPage extends PageBase {
 		return this.openedFields.includes(id?.toString());
 	}
 	public isDisabled = true;
-	
+
 	toggleReorder() {
 		this.isDisabled = !this.isDisabled;
 	}
@@ -240,7 +236,6 @@ export class PayrollTemplateDetailPage extends PageBase {
 		this.saveChange2();
 	}
 
-	
 	savedChange(savedItem = null, form = this.formGroup) {
 		super.savedChange(savedItem);
 		let groups = this.formGroup.get('PayrollTemplateDetails') as FormArray;
