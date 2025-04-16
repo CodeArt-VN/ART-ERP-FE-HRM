@@ -1,0 +1,114 @@
+<ion-header>
+	<app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Contract template' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+						<!-- <app-form-control [field]="{id: 'Id', label: 'Id', type: 'number', form: formGroup }" (change)="saveChange()"> </app-form-control> -->
+						<app-form-control [field]="{id: 'Name', label: 'Contract name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id: 'Code', label: 'Contract code', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						
+					</ion-col>
+					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+						<app-form-control
+							[field]="{id: 'IDPolTax', label: 'Tax policy', type: 'ng-select', dataSource: polTaxList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+						<app-form-control
+							[field]="{id: 'IDPolInsurance', label: 'Insurance policy', type: 'ng-select', dataSource: polInsuranceList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+						<app-form-control
+							[field]="{id: 'IDPolEmployee', label: 'Employee policy', type: 'ng-select', dataSource: polEmployeeList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+						<app-form-control
+							(change)="saveChange()"
+							[field]="{id: 'Type', label: 'Type', type: 'ng-select-status', dataSource: typeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo: '#ng-select-header'}"
+						>
+						</app-form-control>
+						<app-form-control [field]="{id: 'ReminderBefore', label: 'Reminder before', type: 'number', form: formGroup }" (change)="saveChange()"> </app-form-control>
+					</ion-col>
+				</ion-row>
+			</form>
+		</ion-grid>
+
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'General information' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Contract content' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s3">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				</ion-segment>
+			</ion-toolbar>
+
+			<div class="ion-padding" *ngIf="segmentView == 's1'">
+				<app-form-control [field]="{id: 'Config', label: 'Config', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+			</div>
+
+			<div class="ion-padding" *ngIf="segmentView == 's2'">
+				<ion-toolbar>
+					<ion-buttons slot="end">
+						<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent" (click)="edit()">
+							<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
+						</ion-button>
+						<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent" (click)="preView()">
+							<ion-icon size="medium" name="eye-outline"></ion-icon>
+						</ion-button>
+					</ion-buttons>
+				</ion-toolbar>
+				<div *ngIf="!showEditorContent && item?.Template" [innerHtml]=" item?.Template | safeHtml" class="ql-editor"></div>
+				<form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
+					<!-- Create the editor container -->
+					<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="item.Template ?? '' | safeHtml"></div>
+					<div class="c-control ion-text-right">
+						<label class="c-label" for=""></label>
+						<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
+					</div>
+				</form>
+			</div>
+
+			<!-- Order information -->
+			<div *ngIf="segmentView == 's3'">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<!-- Other information -->
+						<ion-row class="hr-group" *ngIf="item.Id">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control [field]="{id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control [field]="{id: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"></app-form-control>
+							</ion-col>
+						</ion-row>
+					</form>
+				</ion-grid>
+			</div>
+		</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

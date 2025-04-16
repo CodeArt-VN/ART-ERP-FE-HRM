@@ -1,0 +1,63 @@
+<ion-header>
+	<ion-toolbar>
+		<!-- <ion-title>{{'Cancellation reason' | translate}}</ion-title> -->
+		<ion-buttons slot="primary">
+			<ion-button (click)="dismiss()" title="{{'Close' | translate}}" color="medium">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<div id="ng-select-modal" style="position: absolute; z-index: 30005"></div>
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{ 'General information' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+						<app-form-control
+							[field]="{id: 'IDStaffList', label: 'Staff', type: 'ng-select-staff', dataSource: staffDataSource, bindLabel:'Name' , bindValue:'Id', multiple:true,form: formGroup , appendTo: '#ng-select-modal'}"
+						></app-form-control>
+					</ion-col>
+				</ion-row>
+
+		
+				
+				<ng-container *ngFor="let u of UDFList">
+					<ion-row class="hr-group">
+						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary">{{ u.Name | translate}}</ion-label>
+							</ion-list-header>
+						</ion-col>
+						<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+							<app-form-control [field]="{id: 'Value', label: 'Value', type: u.ControlType, form: u._formGroup}"> </app-form-control>
+							<app-form-control
+								[field]="{id:'Frequency', type: 'ng-select', dataSource:frequencyList, bindValue:'Code',bindLabel:'Name' ,form : u._formGroup, appendTo: '#ng-select-modal' }"
+							></app-form-control>
+						</ion-col>
+						<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+							<app-form-control [field]="{id: 'IsIncome', label: 'Is income', type: 'checkbox', form: u._formGroup}"> </app-form-control>
+							<app-form-control [field]="{id: 'IsCurrency', label: 'Is currency', type: 'checkbox', form: u._formGroup}"> </app-form-control>
+							<app-form-control [field]="{id: 'IsManagerCanCreateBenefit', label: 'Is manager can create benefit', type: 'checkbox', form: u._formGroup}">
+							</app-form-control>
+						</ion-col>
+					</ion-row>
+				</ng-container>
+			</form>
+		</ion-grid>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>
+<ion-footer>
+	<ion-toolbar>
+		<ion-button size="large" slot="end" (click)="submitModal()">{{'Save' | translate}}</ion-button>
+
+	</ion-toolbar>
+</ion-footer>

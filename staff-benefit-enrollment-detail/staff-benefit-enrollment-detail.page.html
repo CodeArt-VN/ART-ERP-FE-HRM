@@ -1,0 +1,166 @@
+<ion-header>
+	<app-toolbar [page]="this">
+		<!-- <S -->
+	</app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Staff benefit enrollment' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+						<app-form-control [field]="{id: 'Code', label: 'Code', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control
+							[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel:'Name' , bindValue:'Code', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+						<app-form-control
+							[field]="{id: 'IDPolBenefit', label: 'Benefit policy', type: 'ng-select', dataSource: polBenefitList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="changeBenefitPolicy()"
+						></app-form-control>
+						<app-form-control
+							(change)="saveChange()"
+							[field]="{id: 'Type', label: 'Type', type: 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo:'#ng-select-header'}"
+						>
+						</app-form-control>
+						<app-form-control (change)="saveChange()" [field]="{id: 'EnrollmentDate', label: 'Enrollment date', type: 'datetime-local', form: formGroup}">
+						</app-form-control>
+					</ion-col>
+				</ion-row>
+			</form>
+		</ion-grid>
+
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'Staff benefit list' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				</ion-segment>
+			</ion-toolbar>
+
+			<div class="ion-padding" *ngIf="segmentView == 's1'">
+				<app-data-table
+					class="box-shadow responsive"
+					[rows]="item.StaffPolBenefitEnrollmentDetails ?? []"
+					[trackBy]="'Id'"
+					[(selectedRows)]="selectedItems"
+					[showSpinner]="pageConfig.showSpinner"
+					[showFilter]="pageConfig.isShowSearch"
+					[(query)]="query"
+					(dataInfinite)="loadData($event)"
+					(filter)="onDatatableFilter($event)"
+					(sort)="onSort($event)"
+					(selectedRowsChange)="showCommandBySelectedRows($event)"
+				>
+					<datatable-column [checkbox]="true" name="" *ngIf="pageConfig.canEdit">
+						<ng-template datatable-header-template>
+							<input class="c-checkbox" type="checkbox" (change)="checkAllSelectedItems($event)" />
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+					<datatable-column class="col-name" name="Staff" property="_Staff">
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-avatar class="avatar" slot="start">
+								<ion-img #img [src]="i._Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+							</ion-avatar>
+							<div>
+								<span class="bold">{{i._Staff.FullName}}</span>
+								<small *ngIf="i._Staff.Code" class="no-warp"> {{i._Staff.Code}}</small>
+								<br />
+								{{i.Email}}
+							</div>
+						</ng-template>
+					</datatable-column>
+					<ng-container *ngIf="UDFUsedList.length > 0">
+						<datatable-column *ngFor="let v of UDFUsedList" [class]="v.ControlType =='number' ? 'col-number' :'col-name' " [name]="v.Name" property="Id">
+							<ng-template let-i="row" datatable-cell-template>
+								<ng-container *ngIf="i.BenefitEnrollmentConfig">
+									<span *ngIf="v.ControlType === 'number'; else textTemplate"> {{ i.BenefitEnrollmentConfig[v.Code] | number }} </span>
+									<ng-template #textTemplate>
+										<span>{{ i.BenefitEnrollmentConfig[v.Code] }}</span>
+									</ng-template>
+								</ng-container>
+							</ng-template>
+						</datatable-column>
+					</ng-container>
+
+					<datatable-column class="col-icon" name="" property="Id">
+						<ng-template datatable-header-template>
+							<ion-button *ngIf="pageConfig.canEdit && selectedItems > 0" (click)="editSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
+								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
+							</ion-button>
+						</ng-template>
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-button *ngIf="pageConfig.canEdit" (click)="editLine(i)" size="small" title="{{'Edit' | translate}}" fill="clear">
+								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
+							</ion-button>
+						</ng-template>
+					</datatable-column>
+					<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
+						<ng-template datatable-header-template>
+							<ion-button *ngIf="pageConfig.canEdit && selectedItems > 0" (click)="removeSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
+								<ion-icon color="danger" class="min-btn clickable" slot="icon-only" name="trash-outline"></ion-icon>
+							</ion-button>
+						</ng-template>
+						<ng-template let-i="row" let-idx="idx" datatable-cell-template>
+							<ion-icon color="danger" class="min-btn clickable" slot="icon-only" name="trash-outline" (click)="removeLine(idx)"></ion-icon>
+						</ng-template>
+					</datatable-column>
+				</app-data-table>
+				<div class="table-contain">
+					<div class="row" *ngIf="pageConfig.canEdit">
+						<div class="cell">
+							<ion-button fill="clear" size="small" (click)="showModal()">
+								<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+								{{ 'Add benefit' | translate }}
+							</ion-button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Order information -->
+			<div *ngIf="segmentView == 's2'">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<!-- Other information -->
+						<ion-row class="hr-group" *ngIf="item.Id">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control [field]="{id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control
+									[field]="{id: 'IDBranch', type: 'branch-breadcrumbs', label: 'Branch', form: formGroup, dataSource:env.branchList }"
+								></app-form-control>
+								<app-form-control [field]="{id: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"></app-form-control>
+							</ion-col>
+						</ion-row>
+					</form>
+				</ion-grid>
+			</div>
+		</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>
