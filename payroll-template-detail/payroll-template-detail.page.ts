@@ -255,4 +255,6 @@ export class PayrollTemplateDetailPage extends PageBase {
 			}
 		}
 	}
+
+	
 }

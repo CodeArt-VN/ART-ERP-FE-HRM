@@ -26,6 +26,11 @@
 							[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel:'Name' , bindValue:'Code', form: formGroup , appendTo: '#ng-select-header'}"
 							(change)="saveChange2()"
 						></app-form-control>
+						<app-form-control
+							(change)="saveChange()"
+							[field]="{id: 'ApplyType', label: 'Apply type', type: 'ng-select', dataSource: HRMEffectiveTimeTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo:'#ng-select-header'}"
+						>
+						</app-form-control>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control
@@ -116,7 +121,7 @@
 								<app-input-control [field]="{id:udf.Code,label:udf.Name, type:udf.ControlType,form:i.get('EmployeePolicyConfig')}"></app-input-control>
 							</ng-template> -->
 						<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
-							<ng-template datatable-header-template >
+							<ng-template datatable-header-template>
 								<ion-icon *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal()"></ion-icon>
 							</ng-template>
 							<ng-template let-i="row" datatable-cell-template>
@@ -126,9 +131,15 @@
 
 						<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
 							<ng-template datatable-header-template>
-								<ion-icon  *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="trash-outline" (click)="removeAllStaffPolEmployeeDecisionDetail()"></ion-icon>
+								<ion-icon
+									*ngIf="selectedItems.length>0"
+									color="danger"
+									class="min-btn clickable"
+									name="trash-outline"
+									(click)="removeAllStaffPolEmployeeDecisionDetail()"
+								></ion-icon>
 							</ng-template>
-							
+
 							<ng-template let-idx="idx" datatable-cell-template>
 								<ion-icon color="danger" class="min-btn clickable" name="trash-outline" (click)="removeStaffPolEmployeeDecisionDetail(i)"></ion-icon>
 							</ng-template>

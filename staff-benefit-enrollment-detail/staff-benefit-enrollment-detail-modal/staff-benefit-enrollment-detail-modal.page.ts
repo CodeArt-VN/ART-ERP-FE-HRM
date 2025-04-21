@@ -67,11 +67,8 @@ export class StaffBenefitEnrollmentDetailModalPage extends PageBase {
 					this.staffDataSource.selected.push(e._Staff);
 				}
 			});
-			let values: any =  [];
-			if(this.Items[0].BenefitEnrollmentValue){
-				values = JSON.parse(this.Items[0].BenefitEnrollmentValue);
-				this.UDFList = this.UDFList.filter((e) => values.some((line) => line.IDUDF === e.Id));
-			}
+			let values = this.Items[0].BenefitEnrollmentValue? JSON.parse(this.Items[0].BenefitEnrollmentValue):[];
+			this.UDFList = this.UDFList.filter((e) => this.item.Lines.some((line) => line.IDUDF === e.Id));
 			this.UDFList.forEach((e) => {
 				e.isEdit = false;
 				let line = values.find((d) => d.IDUDF == e.Id) || {};

@@ -51,6 +51,12 @@
 						<ion-label>{{'General information' | translate}}</ion-label>
 					</ion-segment-button>
 					<ion-segment-button value="s2">
+						<ion-label>{{'Contract content' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s3">
+						<ion-label>{{'Condition' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s4">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
@@ -70,7 +76,7 @@
 							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 								<app-form-control
 									(change)="saveChange()"
-									[field]="{id: 'Type', label: 'Type', type: 'ng-select-status', dataSource: typeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo: '#ng-select-header'}"
+									[field]="{id: 'ApplyType', label: 'Apply type', type: 'ng-select-status', dataSource: HRMEffectiveTimeTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo: '#ng-select-header'}"
 								>
 								</app-form-control>
 								<app-form-control
@@ -115,81 +121,128 @@
 							</ion-col>
 						</ion-row>
 
-						<ion-row *ngIf="formGroup.controls.PolInsurance.controls.Id.value" class="hr-group">
+						<ion-row *ngIf="formGroup.controls.PolInsurance.controls.length >0 " class="hr-group">
 							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 								<ion-list-header class="ion-no-padding">
 									<ion-label color="primary">{{'Insurance policy' | translate}}</ion-label>
 								</ion-list-header>
 							</ion-col>
-							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-								<app-form-control
-									(change)="saveConfig()"
-									[field]="{id: 'CalculationMethodType', label: 'Calculation method', type: 'ng-select', dataSource: calculationMethodTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup.controls.PolInsurance ,appendTo:'#ng-select-header'}"
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+								<app-data-table
+									class="box-shadow responsive"
+									[rows]="insuranceList ?? []"
+									[trackBy]="'Id'"
+									[(selectedRows)]="selectedItems"
+									[showSpinner]="pageConfig.showSpinner"
+									[showFilter]="pageConfig.isShowSearch"
+									[(query)]="query"
+									(dataInfinite)="loadData($event)"
+									(filter)="onDatatableFilter($event)"
+									(sort)="onSort($event)"
+									(selectedRowsChange)="showCommandBySelectedRows($event)"
 								>
-								</app-form-control>
-								<app-form-control
-									(change)="saveConfig()"
-									[field]="{id: 'Type', label: 'Type', type: 'ng-select', dataSource: insuranceTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup.controls.PolInsurance,appendTo:'#ng-select-header'}"
-								>
-								</app-form-control>
-							</ion-col>
-							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-								<app-form-control (change)="saveConfig()" [field]="{id: 'RateCo', label: 'Rate co', type: 'number', form: formGroup.controls.PolInsurance}">
-								</app-form-control>
-								<app-form-control (change)="saveConfig()" [field]="{id: 'RateEm', label: 'Rate em', type: 'number', form: formGroup.controls.PolInsurance}">
-								</app-form-control>
+									<datatable-column class="col-name" name="Type" property="Type"></datatable-column>
+									<datatable-column class="col-remark" name="Calculation method type" property="CalculationMethodType"></datatable-column>
+									<datatable-column class="col-remark" name="Rate co" property="RateCo"></datatable-column>
+									<datatable-column class="col-remark" name="Rate em" property="RateEm"></datatable-column>
+									<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+										<!-- <ng-template datatable-header-template >
+										<ion-icon *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal()"></ion-icon>
+									</ng-template> -->
+										<ng-template let-i="row" datatable-cell-template>
+											<ion-icon color="danger" class="min-btn clickable" name="pencil-outline" (click)="editInsuranceLine(i)"></ion-icon>
+										</ng-template>
+									</datatable-column>
+
+									<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+										<!-- <ng-template datatable-header-template>
+										<ion-icon  *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="trash-outline" (click)="removeLine()"></ion-icon>
+									</ng-template> -->
+
+										<ng-template let-i="row" datatable-cell-template>
+											<ion-icon color="danger" class="min-btn clickable" name="trash-outline" (click)="removeInsuranceLine(i)"></ion-icon>
+										</ng-template>
+									</datatable-column>
+								</app-data-table>
 							</ion-col>
 						</ion-row>
 
-						<ion-row *ngIf="formGroup.controls.PolEmployee.controls.Id.value" class="hr-group">
+						<ion-row *ngIf="formGroup.controls.PolBenefit.length > 0" class="hr-group">
 							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 								<ion-list-header class="ion-no-padding">
-									<ion-label color="primary">{{'Employee policy' | translate}}</ion-label>
+									<ion-label color="primary">{{'Allowance & welfare policy' | translate}}</ion-label>
 								</ion-list-header>
 							</ion-col>
 							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
-								<div *ngIf="!showEditorContent && item?.Template" [innerHtml]="contractValue?.PolEmployee?.Remark | safeHtml" class="ql-editor"></div>
-								<form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
-									<!-- Create the editor container -->
-									<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="contractValue?.PolEmployee?.Remark ?? '' | safeHtml"></div>
-									<div class="c-control ion-text-right">
-										<label class="c-label" for=""></label>
-										<ion-button (click)="saveConfig()">{{'Save' | translate}}</ion-button>
-									</div>
-								</form>
+								<ion-row>
+									<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let g of formGroup.controls.PolBenefit.controls">
+										<app-form-control
+											(change)="saveConfig()"
+											[field]="{id:g.get('Code')?.value, label: g.get('Label')?.value, type:g.get('ControlType')?.value, form: g }"
+										>
+										</app-form-control>
+									</ion-col>
+								</ion-row>
 							</ion-col>
-						</ion-row>
-
-						<ion-row *ngIf="formGroup.controls.PolWelfare.length > 0" class="hr-group">
-							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
-								<ion-list-header class="ion-no-padding">
-									<ion-label color="primary">{{'Welfare policy' | translate}}</ion-label>
-								</ion-list-header>
-							</ion-col>
-							<ng-container *ngFor="let g of formGroup.controls.PolWelfare.controls ; let idx">
-								<ion-col *ngIf="idx%2 !=0" size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-									<app-form-control
-										(change)="saveConfig()"
-										[field]="{id:g.get('Code')?.value, label: g.get('Label')?.value, type:g.get('ControlType')?.value, form: g }"
-									>
-									</app-form-control>
-								</ion-col>
-
-								<ion-col *ngIf="idx%2 ==0" size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-									<app-form-control
-										(change)="saveConfig()"
-										[field]="{id:g.get('Code')?.value, label: g.get('Label')?.value, type:g.get('ControlType')?.value, form: g }"
-									>
-									</app-form-control>
-								</ion-col>
-							</ng-container>
 						</ion-row>
 					</form>
 				</ion-grid>
 			</div>
 
-			<!-- Order information -->
 			<div *ngIf="segmentView == 's2'">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<!-- Other information -->
+						<ion-row class="hr-group" *ngIf="item.Id">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12">
+								<ion-toolbar>
+									<ion-buttons slot="end">
+										<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !isCustomTemplate" (click)="edit()">
+											<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
+										</ion-button>
+										<ion-button title="{{'Preview' | translate}}" *ngIf="isCustomTemplate" (click)="preView()">
+											<ion-icon size="medium" name="eye-outline"></ion-icon>
+										</ion-button>
+									</ion-buttons>
+								</ion-toolbar>
+								<div *ngIf="!isCustomTemplate" [innerHtml]="formGroup.controls._ContractContent.value| safeHtml" class="ql-editor"></div>
+								<form *ngIf="isCustomTemplate" [formGroup]="formGroup" id="screenEditor">
+									<!-- Create the editor container -->
+									<div
+										#quillEditor
+										style="min-height: calc(100vh - 400px)"
+										id="editor"
+										[innerHTML]="formGroup.controls._ContractContent.value ?? '' | safeHtml"
+									></div>
+								</form>
+								<div class="c-control ion-text-right">
+									<label class="c-label" for=""></label>
+									<ion-button (click)="saveContractContent()">{{'Save' | translate}}</ion-button>
+								</div>
+							</ion-col>
+						</ion-row>
+					</form></ion-grid
+				>
+			</div>
+
+			<div *ngIf="segmentView == 's3'">
+				<ion-row *ngIf="formGroup.controls.PolEmployee.controls.Id.value" class="hr-group">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12">
+						<div *ngIf="!showEditorContent && contractValue?.PolEmployee?.Remark" [innerHtml]="contractValue?.PolEmployee?.Remark | safeHtml" class="ql-editor"></div>
+						<form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
+							<!-- Create the editor container -->
+							<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="contractValue?.PolEmployee?.Remark ?? '' | safeHtml"></div>
+							<div class="c-control ion-text-right">
+								<label class="c-label" for=""></label>
+								<ion-button (click)="saveConfig()">{{'Save' | translate}}</ion-button>
+							</div>
+						</form>
+					</ion-col>
+				</ion-row>
+			</div>
+
+			<!-- Order information -->
+			<div *ngIf="segmentView == 's4'">
 				<ion-grid fixed>
 					<form [formGroup]="formGroup">
 						<!-- Other information -->

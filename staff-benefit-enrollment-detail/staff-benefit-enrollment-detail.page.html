@@ -12,7 +12,7 @@
 				<ion-row class="hr-group">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 						<ion-list-header class="ion-no-padding">
-							<ion-label color="primary">{{'Staff benefit enrollment' | translate}}</ion-label>
+							<ion-label color="primary">{{'Allowance & welfare policy enrollment' | translate}}</ion-label>
 						</ion-list-header>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
@@ -30,7 +30,7 @@
 						></app-form-control>
 						<app-form-control
 							(change)="saveChange()"
-							[field]="{id: 'Type', label: 'Type', type: 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo:'#ng-select-header'}"
+							[field]="{id: 'ApplyType', label: 'Apply type', type: 'ng-select', dataSource: HRMEffectiveTimeTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo:'#ng-select-header'}"
 						>
 						</app-form-control>
 						<app-form-control (change)="saveChange()" [field]="{id: 'EnrollmentDate', label: 'Enrollment date', type: 'datetime-local', form: formGroup}">
@@ -100,7 +100,7 @@
 
 					<datatable-column class="col-icon" name="" property="Id">
 						<ng-template datatable-header-template>
-							<ion-button *ngIf="pageConfig.canEdit && selectedItems > 0" (click)="editSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
+							<ion-button *ngIf="pageConfig.canEdit && selectedItems.length > 0" (click)="editSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
 								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
 							</ion-button>
 						</ng-template>
@@ -112,7 +112,7 @@
 					</datatable-column>
 					<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
 						<ng-template datatable-header-template>
-							<ion-button *ngIf="pageConfig.canEdit && selectedItems > 0" (click)="removeSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
+							<ion-button *ngIf="pageConfig.canEdit && selectedItems.length > 0" (click)="removeSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
 								<ion-icon color="danger" class="min-btn clickable" slot="icon-only" name="trash-outline"></ion-icon>
 							</ion-button>
 						</ng-template>

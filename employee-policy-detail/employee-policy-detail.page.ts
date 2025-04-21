@@ -3,7 +3,14 @@ import { NavController, LoadingController, AlertController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_PolEmployeeProvider, HRM_StaffPolEmployeeDecisionProvider, HRM_UDFProvider, WMS_ZoneProvider } from 'src/app/services/static/services.service';
+import {
+	BRA_BranchProvider,
+	HRM_PolBenefitProvider,
+	HRM_PolEmployeeProvider,
+	HRM_StaffPolEmployeeDecisionProvider,
+	HRM_UDFProvider,
+	WMS_ZoneProvider,
+} from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl, FormGroup, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
@@ -23,14 +30,16 @@ export class EmployeePolicyDetaillPage extends PageBase {
 	statusList = [];
 	UDFList = [];
 	branchList = [];
-	showEditorContent = false;
+	showEditorContent = true;
 	editor: any;
 	remarkBeforeChange = '';
+	polBenefitList = [];
 	@ViewChildren('quillEditor') quillElement: QueryList<ElementRef>;
 	constructor(
 		public pageProvider: HRM_PolEmployeeProvider,
 		public udfProvider: HRM_UDFProvider,
 		public branchProvider: BRA_BranchProvider,
+		public polBenefitProvider: HRM_PolBenefitProvider,
 		public env: EnvService,
 		public navCtrl: NavController,
 		public route: ActivatedRoute,
@@ -64,16 +73,18 @@ export class EmployeePolicyDetaillPage extends PageBase {
 			IsAllowEmployeeCreateRequest: [''],
 			IsAllowManagerCreateRequest: [''],
 			ApplyTo: [''],
-			UDFList: [''],//json
-			UDFListArray:this.formBuilder.array([])
+			UDFList: [''], //json
+			UDFListArray: this.formBuilder.array([]),
+			IDPolBenefit: [''],
 		});
 	}
 
 	preLoadData(event?: any): void {
 		this.branchList = [...this.env.branchList];
-		Promise.all([this.env.getType('HRPolicyType'), this.env.getStatus('StandardApprovalStatus')]).then((values: any) => {
+		Promise.all([this.env.getType('HRPolicyType'), this.env.getStatus('StandardApprovalStatus'), this.polBenefitProvider.read()]).then((values: any) => {
 			this.typeList = values[0];
 			this.statusList = values[1];
+			this.polBenefitList = values[2].data;
 			super.preLoadData(event);
 		});
 	}
@@ -149,7 +160,7 @@ export class EmployeePolicyDetaillPage extends PageBase {
 		fg.get('Code').markAsDirty();
 		this.saveConfig();
 	}
-	
+
 	removeField(g, index) {
 		let groups = <FormArray>this.formGroup.controls.UDFListArray;
 		if (g.controls.IDUDF.value) {
@@ -161,10 +172,10 @@ export class EmployeePolicyDetaillPage extends PageBase {
 					this.saveConfig();
 				})
 				.catch((_) => {});
-		} else{
+		} else {
 			groups.removeAt(index);
 			this.saveConfig();
-		} 
+		}
 	}
 
 	saveConfig() {
@@ -295,7 +306,18 @@ export class EmployeePolicyDetaillPage extends PageBase {
 			});
 			//choose image
 			//this.editor.getModule("toolbar").addHandler("image", this.imageHandler.bind(this));
-
+			const editorContainer = document.querySelector('#editor .ql-editor') as HTMLElement;
+			if (editorContainer) {
+				editorContainer.style.backgroundColor = '#ffffff';
+				editorContainer.style.height = '100%';
+				editorContainer.style.width = '100%';
+				editorContainer.style.minHeight = 'calc(-400px + 100vh)';
+			}
+			const editorParent = document.querySelector('#editor') as HTMLElement;
+			if (editorParent) {
+				editorParent.style.height = '100%';
+				editorParent.style.width = '100%';
+			}
 			this.editor.on('text-change', (delta, oldDelta, source) => {
 				if (typeof this.editor.root.innerHTML !== 'undefined' && this.item.Remark !== this.editor.root.innerHTML) {
 					this.formGroup.controls.Remark.setValue(this.editor.root.innerHTML);
@@ -355,5 +377,4 @@ export class EmployeePolicyDetaillPage extends PageBase {
 		}
 		this.saveConfig();
 	}
-	
 }

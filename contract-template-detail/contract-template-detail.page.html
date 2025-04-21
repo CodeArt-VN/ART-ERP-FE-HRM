@@ -17,7 +17,6 @@
 						<!-- <app-form-control [field]="{id: 'Id', label: 'Id', type: 'number', form: formGroup }" (change)="saveChange()"> </app-form-control> -->
 						<app-form-control [field]="{id: 'Name', label: 'Contract name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{id: 'Code', label: 'Contract code', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
-						
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control
@@ -30,6 +29,10 @@
 						></app-form-control>
 						<app-form-control
 							[field]="{id: 'IDPolEmployee', label: 'Employee policy', type: 'ng-select', dataSource: polEmployeeList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+						<app-form-control
+							[field]="{id: 'IDPolPaidTimeOff', label: 'Paid time off policy', type: 'ng-select', dataSource: polPaidTimeOffList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
 							(change)="saveChange()"
 						></app-form-control>
 						<app-form-control
@@ -47,7 +50,7 @@
 			<ion-toolbar color="primary">
 				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
 					<ion-segment-button value="s1">
-						<ion-label>{{'General information' | translate}}</ion-label>
+						<ion-label>{{'UDFList' | translate}}</ion-label>
 					</ion-segment-button>
 					<ion-segment-button value="s2">
 						<ion-label>{{'Contract content' | translate}}</ion-label>
@@ -56,10 +59,83 @@
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
+				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
+					<ion-button (click)="addConfig({Id:0},true)">
+						<ion-icon slot="start" name="add"></ion-icon>
+						{{'Add' | translate}}
+					</ion-button>
+				</ion-buttons>
 			</ion-toolbar>
 
 			<div class="ion-padding" *ngIf="segmentView == 's1'">
-				<app-form-control [field]="{id: 'Config', label: 'Config', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+				<ion-grid fixed>
+					<ion-row>
+						<ion-col size="12">
+							<ion-list>
+								<ion-list-header lines="full" class="ion-no-padding">
+									<ion-label>{{'User define' | translate }}</ion-label>
+									<ion-button (click)="toggleReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
+								</ion-list-header>
+								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
+									<ion-reorder-group [disabled]="isDisabled" (ionItemReorder)="doReorder($event, arrayUDF.controls)">
+										<ng-container *ngFor="let g of arrayUDF.controls; let idx = index;">
+											<ion-accordion [value]="g.get('Id').value">
+												<ion-item class="clickable" slot="header" [style.order]="g.get('Sort').value" lines="full">
+													<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
+
+													<ion-label style="margin-right: 0" class="ion-text-wrap clickable"> {{g.get('Name').value}} </ion-label>
+
+													<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
+														<ion-icon slot="icon-only" name="trash"></ion-icon>
+													</ion-button>
+
+													<ion-reorder slot="end"></ion-reorder>
+												</ion-item>
+
+												<div
+													class="ion-padding"
+													slot="content"
+													[ngStyle]="{ 'background': !isAccordionExpanded(g.get('Id').value) ? 'none' : 'var(--table-header-background)' }"
+												>
+													<ion-grid fixed>
+														<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
+															<ion-row>
+																<ion-col size="12" size-xl="6">
+																	<app-form-control
+																		(change)="changeUDF($event,g)"
+																		[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFList,bindLabel:'Name',bindValue:'Id',
+																	 form : g }"
+																	></app-form-control>
+																	<app-form-control
+																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:payrollTemplateType,bindLable:'Name',bindValue:'Code',form : g }"
+																	>
+																	</app-form-control>
+
+																	<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }"> </app-form-control>
+
+																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }"> </app-form-control>
+																	<app-form-control [field]="{id:'IsHidden', label: 'Hidden', type : 'checkbox', form : g }"> </app-form-control>
+																</ion-col>
+																<ion-col size="12" size-xl="6">
+																	<app-form-control [field]="{id:'ControlType', label: 'Control type', type : 'span-text',form : g }">
+																	</app-form-control>
+																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
+																	</app-form-control>
+
+																	<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : g }"></app-form-control>
+																</ion-col>
+															</ion-row>
+														</form>
+													</ion-grid>
+												</div>
+											</ion-accordion>
+										</ng-container>
+									</ion-reorder-group>
+								</ion-accordion-group>
+							</ion-list>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
 			</div>
 
 			<div class="ion-padding" *ngIf="segmentView == 's2'">

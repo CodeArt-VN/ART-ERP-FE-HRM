@@ -21,7 +21,19 @@
 			<datatable-column [checkbox]="true" name=""></datatable-column>
 			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
 			<datatable-column class="col-name flex-break" name="Name" property="Name"></datatable-column>
-
+			<datatable-column
+				class="col-status"
+				name="Status"
+				property="Status"
+				filterControlType="ng-select"
+				[filterDataSource]="statusList"
+				filterBindValue="Code"
+				filterBindLabel="Name"
+			>
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-badge [color]="i.StatusColor" [title]="i.StatusText"> {{i.StatusText | translate}} </ion-badge>
+				</ng-template>
+			</datatable-column>
 		</app-data-table>
 	</div>
 

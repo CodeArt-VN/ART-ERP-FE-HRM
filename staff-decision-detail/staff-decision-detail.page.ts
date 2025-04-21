@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { NavController, LoadingController, AlertController, ModalController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
 import {
 	BRA_BranchProvider,
@@ -31,6 +31,7 @@ export class StaffDecisionDetailPage extends PageBase {
 	UDFListPolEmployee: any = []; // UDFList =[{IDUDF :1, IsRequired:true} ...]
 	loadingUDFList = false;
 	trackingPolEmplyee;
+	HRMEffectiveTimeTypeList = [];
 	constructor(
 		public pageProvider: HRM_StaffPolEmployeeDecisionProvider,
 		public polEmployeeProvider: HRM_PolEmployeeProvider,
@@ -46,7 +47,8 @@ export class StaffDecisionDetailPage extends PageBase {
 		public formBuilder: FormBuilder,
 		public cdr: ChangeDetectorRef,
 		public loadingController: LoadingController,
-		public commonService: CommonService
+		public commonService: CommonService,
+		public router: Router
 	) {
 		super();
 		this.pageConfig.isDetailPage = true;
@@ -74,35 +76,47 @@ export class StaffDecisionDetailPage extends PageBase {
 			DecisionSignDate: [''],
 			DecisionEffectiveDate: [''],
 			ProbationPeriod: [''],
-
+			ApplyType: ['', Validators.required],
 			StaffPolEmployeeDecisionDetails: this.formBuilder.array([]),
 			DeletedPolEmployeeDecisionDetails: [[]],
 		});
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.polSalaryProvider.read(), this.polEmployeeProvider.read(), this.env.getType('UDFGroupsType', true)]).then(
-			(res: any) => {
-				this.statusList = res[0];
-				this.polSalaryList = res[1].data;
-				this.polEmployeeList = res[2].data;
-				this.UDFGroups = res[3];
-				super.preLoadData(event);
+		Promise.all([
+			this.env.getStatus('StandardApprovalStatus'),
+			this.polSalaryProvider.read(),
+			this.polEmployeeProvider.read(),
+			this.env.getType('UDFGroupsType', true),
+			this.env.getType('HRMEffectiveTimeType'),
+		]).then((res: any) => {
+			this.statusList = res[0];
+			this.polSalaryList = res[1].data;
+			this.polEmployeeList = res[2].data;
+			this.UDFGroups = res[3];
+			this.HRMEffectiveTimeTypeList = res[4];
+			super.preLoadData(event);
+		});
+		this.route.queryParams.subscribe(() => {
+			const navigation = this.router.getCurrentNavigation();
+			if (navigation?.extras?.state?.StaffList) {
+				// this.initStaffPolBenefitEnrollmentDetails = navigation.extras.state.StaffList;
+				// this.initPolBenefit = navigation.extras.state.IDPol;
 			}
-		);
+		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		this.selectedItems = [];
 		this.patchStaffPolEmployeeDecisionDetails();
-		
+
 		if (this.item.IDPolEmployee) {
 			this.loadingUDFList = true;
 			this.trackingPolEmplyee = this.item.IDPolEmployee;
-			this.getPolEmployeeUDFList(this.item.IDPolEmployee).finally(()=>{
+			this.getPolEmployeeUDFList(this.item.IDPolEmployee).finally(() => {
 				this.patchEmployeePolicyConfig();
 				super.loadedData(event, ignoredFromGroup);
-			})
+			});
 			this.polEmployeeProvider
 				.getAnItem(this.item.IDPolEmployee)
 				.then((rs: any) => {
@@ -134,7 +148,7 @@ export class StaffDecisionDetailPage extends PageBase {
 			this.formGroup.controls.IDRequester.markAsDirty();
 			this.formGroup.controls.Status.markAsDirty();
 		}
-		if(["Approved","Submitted"].includes(this.item.Status)){
+		if (['Approved', 'Submitted'].includes(this.item.Status)) {
 			this.pageConfig.canEdit = false;
 		}
 	}
@@ -186,53 +200,66 @@ export class StaffDecisionDetailPage extends PageBase {
 		});
 	}
 
-	changePolEmployee(){
-		if(this.item.StaffPolEmployeeDecisionDetails.some(d=> d.DecisionValue)){
-			this.env.showPrompt("Change employee policy can lost data, do you sure to change?",null,"Warning!").then(()=>{
-				let groups = this.formGroup.controls.StaffPolEmployeeDecisionDetails as FormArray;
-				groups.controls.filter(d=> d.value.DecisionValue).forEach(g=>{
-					g.get('DecisionValue').setValue(null);
-					g.get('DecisionValue').markAsDirty();
+	changePolEmployee() {
+		if (this.item.StaffPolEmployeeDecisionDetails.some((d) => d.DecisionValue)) {
+			this.env
+				.showPrompt('Change employee policy can lost data, do you sure to change?', null, 'Warning!')
+				.then(() => {
+					let groups = this.formGroup.controls.StaffPolEmployeeDecisionDetails as FormArray;
+					groups.controls
+						.filter((d) => d.value.DecisionValue)
+						.forEach((g) => {
+							g.get('DecisionValue').setValue(null);
+							g.get('DecisionValue').markAsDirty();
+						});
+					this.saveChange2()
+						.then((savedItem) => {
+							this.item = savedItem;
+							this.loadedData();
+						})
+						.catch((err) => this.refresh());
+				})
+				.catch(() => {
+					this.formGroup.get('IDPolEmployee').setValue(this.trackingPolEmplyee);
+					this.formGroup.get('IDPolEmployee').markAsPristine();
 				});
-				this.saveChange2().then((savedItem)=>{
+		} else {
+			this.saveChange2()
+				.then((savedItem) => {
 					this.item = savedItem;
 					this.loadedData();
-				}).catch(err=> this.refresh());
-			})
-			.catch(()=>{
-				this.formGroup.get('IDPolEmployee').setValue(this.trackingPolEmplyee);
-				this.formGroup.get('IDPolEmployee').markAsPristine();
-			})
-		}else{
-			this.saveChange2().then((savedItem)=>{
-				this.item = savedItem;
-				this.loadedData();
-			}).catch(err=> this.refresh());
+				})
+				.catch((err) => this.refresh());
 		}
 	}
-	getPolEmployeeUDFList(IDPolEmployee ){
-		return new Promise(async (resolve,reject)=>{
+	getPolEmployeeUDFList(IDPolEmployee) {
+		return new Promise(async (resolve, reject) => {
 			if (IDPolEmployee) {
 				this.loadingUDFList = true;
-				await this.polEmployeeProvider.getAnItem(IDPolEmployee).then((rs: any) => {
-					if (rs.UDFList) {
-						let jsParse = JSON.parse(rs.UDFList);
-						if (jsParse && jsParse.length > 0) {
-							this.UDFListPolEmployee = jsParse;
-							let ids = jsParse.map((i) => i.IDUDF);
-							this.UDFProvider.read({ Id: ids }).then((u: any) => {
-								this.UDFList = u.data;
-							}).finally(()=> this.loadingUDFList = false);
+				await this.polEmployeeProvider
+					.getAnItem(IDPolEmployee)
+					.then((rs: any) => {
+						if (rs.UDFList) {
+							let jsParse = JSON.parse(rs.UDFList);
+							if (jsParse && jsParse.length > 0) {
+								this.UDFListPolEmployee = jsParse;
+								let ids = jsParse.map((i) => i.IDUDF);
+								this.UDFProvider.read({ Id: ids })
+									.then((u: any) => {
+										this.UDFList = u.data;
+									})
+									.finally(() => (this.loadingUDFList = false));
+							}
+						} else {
+							this.UDFListPolEmployee = [];
+							this.UDFList = [];
+							this.loadingUDFList = false;
 						}
-					}else {
-						this.UDFListPolEmployee =[];
-						this.UDFList = [];
-						this.loadingUDFList = false;
-					}
-				}).catch(err=> this.loadingUDFList = false);
+					})
+					.catch((err) => (this.loadingUDFList = false));
 			}
 			resolve(true);
-		})
+		});
 	}
 
 	async showModal(i = null) {
@@ -258,7 +285,7 @@ export class StaffDecisionDetailPage extends PageBase {
 					let staffControl = groups.controls.find((d) => d.get('IDStaff').value == i);
 					if (!staffControl) {
 						data.IDStaff = i;
-						this.addStaffPolEmployeeDecisionDetail({...data,Id:0});
+						this.addStaffPolEmployeeDecisionDetail({ ...data, Id: 0 });
 						staffControl = groups.controls.find((d) => d.get('IDStaff').value == i);
 						staffControl.get('IDStaff').markAsDirty();
 						if (data.IDDepartment) staffControl.get('IDDepartment').markAsDirty();
@@ -283,20 +310,17 @@ export class StaffDecisionDetailPage extends PageBase {
 		}
 	}
 
-
-	checkAllSelectedItems(event){
+	checkAllSelectedItems(event) {
 		const isChecked = event.target.checked;
-		this.selectedItems = []
-		if(isChecked){
-
+		this.selectedItems = [];
+		if (isChecked) {
 			this.selectedItems = [];
-			this.item.StaffPolEmployeeDecisionDetails.forEach((i)=>{
+			this.item.StaffPolEmployeeDecisionDetails.forEach((i) => {
 				this.selectedItems.push(i);
-			})
+			});
 		}
-		
 	}
-	removeStaffPolEmployeeDecisionDetail(i){
+	removeStaffPolEmployeeDecisionDetail(i) {
 		this.env.showPrompt('Are you sure you want to delete selected employee decisions?', null, 'Delete').then((_) => {
 			this.formGroup.get('DeletedPolEmployeeDecisionDetails').setValue([i.Id]);
 			this.formGroup.get('DeletedPolEmployeeDecisionDetails').markAsDirty();
@@ -307,9 +331,9 @@ export class StaffDecisionDetailPage extends PageBase {
 		});
 	}
 
-	removeAllStaffPolEmployeeDecisionDetail(){
+	removeAllStaffPolEmployeeDecisionDetail() {
 		this.env.showPrompt('Are you sure you want to delete all selected employee decisions?', null, 'Delete').then((_) => {
-			this.formGroup.get('DeletedPolEmployeeDecisionDetails').setValue(this.selectedItems.map(s=> s.Id));
+			this.formGroup.get('DeletedPolEmployeeDecisionDetails').setValue(this.selectedItems.map((s) => s.Id));
 			this.formGroup.get('DeletedPolEmployeeDecisionDetails').markAsDirty();
 			this.saveChange2().then((savedItem) => {
 				this.item = savedItem;
@@ -318,7 +342,6 @@ export class StaffDecisionDetailPage extends PageBase {
 		});
 	}
 
-	
 	segmentView = 's1';
 	segmentChanged(ev: any) {
 		this.segmentView = ev.detail.value;
@@ -339,6 +362,6 @@ export class StaffDecisionDetailPage extends PageBase {
 	// 			console.log(err);
 	// 		});
 	// 	})
-		
+
 	// }
 }

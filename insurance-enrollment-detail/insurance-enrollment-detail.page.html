@@ -24,13 +24,8 @@
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control
-							[field]="{id:'IDStaffList',label:'Staff', type : 'ng-select-staff',dataSource:staffDataSource,bindLabel:'FullName',bindValue:'Id',clearable:true, multiple:true,form : formGroup,appendTo:'#ng-select-header'}"
 							(change)="saveChange()"
-						>
-						</app-form-control>
-						<app-form-control
-							(change)="saveChange()"
-							[field]="{id: 'Type', label: 'Type', type: 'ng-select', dataSource: typeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo:'#ng-select-header'}"
+							[field]="{id: 'ApplyType', label: 'Apply type', type: 'ng-select', dataSource: HRMEffectiveTimeTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo:'#ng-select-header'}"
 						>
 						</app-form-control>
 						<app-form-control
@@ -40,6 +35,11 @@
 						</app-form-control>
 						<app-form-control (change)="saveChange()" [field]="{id: 'EnrollmentDate', label: 'Enrollment date', type: 'datetime-local', form: formGroup}">
 						</app-form-control>
+						<app-form-control
+							(change)="saveChange()"
+							[field]="{id: 'EnrollmentEffectiveDate', label: 'Enrollment effective date', type: 'datetime-local', form: formGroup}"
+						>
+						</app-form-control>
 					</ion-col>
 				</ion-row>
 			</form>
@@ -48,17 +48,102 @@
 		<div class="row-full shadow full-screen">
 			<ion-toolbar color="primary">
 				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
-					<!-- <ion-segment-button value="s1">
-						<ion-label>{{'Flat list' | translate}}</ion-label>
-					</ion-segment-button> -->
 					<ion-segment-button value="s1">
+						<ion-label>{{'Staff insurance list' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
 			</ion-toolbar>
 
-			<!-- Order information -->
 			<div *ngIf="segmentView == 's1'">
+				<app-data-table
+					class="box-shadow responsive"
+					[rows]="item.StaffPolInsuranceEnrollmentDetails ?? []"
+					[trackBy]="'Id'"
+					[(selectedRows)]="selectedItems"
+					[showSpinner]="pageConfig.showSpinner"
+					[showFilter]="pageConfig.isShowSearch"
+					[(query)]="query"
+					(dataInfinite)="loadData($event)"
+					(filter)="onDatatableFilter($event)"
+					(sort)="onSort($event)"
+					(selectedRowsChange)="showCommandBySelectedRows($event)"
+				>
+					<datatable-column [checkbox]="true" name="" *ngIf="pageConfig.canEdit">
+						<!-- <ng-template datatable-header-template>
+							<input class="c-checkbox" type="checkbox" (change)="checkAllSelectedItems($event)" />
+						</ng-template> -->
+					</datatable-column>
+					<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+					<datatable-column class="col-name" name="Staff" property="_Staff">
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-avatar class="avatar" slot="start">
+								<ion-img #img [src]="i._Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+							</ion-avatar>
+							<div>
+								<span class="bold">{{i._Staff.FullName}}</span>
+								<small *ngIf="i._Staff.Code" class="no-warp"> {{i._Staff.Code}}</small>
+								<br />
+								{{i.Email}}
+							</div>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-number" name="Insurance salary" property="InsuranceSalary">
+						<ng-template let-i="row" datatable-cell-template>
+							<span> {{ i.InsuranceSalary | number }} </span>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-icon" name="" property="Id">
+						<ng-template datatable-header-template>
+							<ion-button
+								*ngIf="pageConfig.canEdit && selectedItems.length > 0"
+								(click)="editSelectedLine()"
+								size="small"
+								title="{{'Edit' | translate}}"
+								fill="clear"
+							>
+								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
+							</ion-button>
+						</ng-template>
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-button *ngIf="pageConfig.canEdit" (click)="editLine(i)" size="small" title="{{'Edit' | translate}}" fill="clear">
+								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
+							</ion-button>
+						</ng-template>
+					</datatable-column>
+					<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
+						<ng-template datatable-header-template>
+							<ion-button
+								*ngIf="pageConfig.canEdit && selectedItems.length > 0"
+								(click)="removeSelectedLine()"
+								size="small"
+								title="{{'Edit' | translate}}"
+								fill="clear"
+							>
+								<ion-icon color="danger" class="min-btn clickable" slot="icon-only" name="trash-outline"></ion-icon>
+							</ion-button>
+						</ng-template>
+						<ng-template let-i="row" let-idx="idx" datatable-cell-template>
+							<ion-icon color="danger" class="min-btn clickable" slot="icon-only" name="trash-outline" (click)="removeLine(idx)"></ion-icon>
+						</ng-template>
+					</datatable-column>
+				</app-data-table>
+				<div class="table-contain">
+					<div class="row" *ngIf="pageConfig.canEdit">
+						<div class="cell">
+							<ion-button fill="clear" size="small" (click)="showModal()">
+								<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+								{{ 'Add insurance' | translate }}
+							</ion-button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Order information -->
+			<div *ngIf="segmentView == 's2'">
 				<ion-grid fixed>
 					<form [formGroup]="formGroup">
 						<!-- Other information -->

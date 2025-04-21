@@ -7,14 +7,16 @@ import {
 	BRA_BranchProvider,
 	HRM_ContractTemplateProvider,
 	HRM_PolEmployeeProvider,
+	HRM_PolicyPaidTimeOffProvider,
 	HRM_PolInsuranceProvider,
 	HRM_PolTaxProvider,
 	WMS_ZoneProvider,
 } from 'src/app/services/static/services.service';
-import { FormBuilder, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { lib } from 'src/app/services/static/global-functions';
 
 declare var Quill: any;
 
@@ -28,19 +30,23 @@ export class ContractTemplateDetailPage extends PageBase {
 	// polEmployeeList;
 	// polInsuranceList;
 	// polTaxList;
+	UDFList: any = [];
 	typeList = [];
 	polEmployeeList = [];
 	polInsuranceList = [];
 	polTaxList = [];
+	polPaidTimeOffList = [];
 	showEditorContent = true;
 	editor: any;
 	templateBeforeChange = '';
+	arrayUDF = this.formBuilder.array([]);
 	@ViewChildren('quillEditor') quillElement: QueryList<ElementRef>;
 	constructor(
 		public pageProvider: HRM_ContractTemplateProvider,
 		public polEmployeeProvider: HRM_PolEmployeeProvider,
 		public polInsuranceProvider: HRM_PolInsuranceProvider,
 		public polTaxProvider: HRM_PolTaxProvider,
+		public polPaidTimeOffProvider: HRM_PolicyPaidTimeOffProvider,
 		public env: EnvService,
 		public navCtrl: NavController,
 		public route: ActivatedRoute,
@@ -70,6 +76,7 @@ export class ContractTemplateDetailPage extends PageBase {
 			IDPolTax: [''],
 			IDPolInsurance: [''],
 			IDPolEmployee: [''],
+			IDPolPaidTimeOff:[''],
 			ReminderBefore: [''],
 			Config: [''],
 			Template: [''],
@@ -77,20 +84,82 @@ export class ContractTemplateDetailPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.polEmployeeProvider.read(), this.polInsuranceProvider.read(), this.polTaxProvider.read(), this.env.getType('HRMContractTemplateType')]).then(
-			(resp: any) => {
-				this.polEmployeeList = resp[0].data;
-				this.polInsuranceList = resp[1].data;
-				this.polTaxList = resp[2].data;
-				this.typeList = resp[3];
-				super.preLoadData(event);
-			}
-		);
+		Promise.all([
+			this.polEmployeeProvider.read(),
+			this.polInsuranceProvider.read(),
+			this.polTaxProvider.read(),
+			this.env.getType('HRMContractTemplateType'),
+			this.polPaidTimeOffProvider.read(),
+		]).then((resp: any) => {
+			this.polEmployeeList = resp[0].data;
+			this.polInsuranceList = resp[1].data;
+			this.polTaxList = resp[2].data;
+			this.typeList = resp[3];
+			this.polPaidTimeOffList = resp[4].data;
+			super.preLoadData(event);
+		});
 	}
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		super.loadedData(event, ignoredFromGroup);
 		if (this.item) this.templateBeforeChange = this.item.Template;
 		this.initQuill();
+	}
+	openedFields: any = [];
+	accordionGroupChange(e) {
+		this.openedFields = e.detail.value;
+		console.log(this.openedFields);
+	}
+	public isDisabled = true;
+
+	toggleReorder() {
+		this.isDisabled = !this.isDisabled;
+	}
+	isAccordionExpanded(id: string): boolean {
+		return this.openedFields.includes(id?.toString());
+	}
+	changeUDF(e, fg) {
+		fg.get('DataType').setValue(e?.DataType);
+		fg.get('ControlType').setValue(e?.ControlType);
+		fg.get('Name').setValue(e?.Name);
+	}
+
+	addConfig(field, openField = false) {
+		let groups = <FormArray>this.arrayUDF;
+		let group = this.formBuilder.group({
+			Id: [lib.generateUID()],
+			Name: new FormControl({ value: field.Name, disabled: true }),
+			IDUDF: [field?.IDUDF, Validators.required],
+			// Id: new FormControl({ value: field?.Id, disabled: true }),
+			Type: ['', Validators.required],
+			DataType: new FormControl({ value: field.DataType, disabled: true }),
+			ControlType: new FormControl({ value: field.ControlType, disabled: true }),
+			IsHidden: [field.IsHidden],
+			IsLock: [field.IsLock],
+			Sort: [field.Sort],
+		});
+		if (openField) {
+			this.openedFields.push(field?.Id.toString());
+		}
+		groups.push(group);
+	}
+
+	removeField(g, index) {
+		let groups = <FormArray>this.formGroup.controls.arrayUDF;
+		if (g.controls.Id.value) {
+			this.env
+				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
+				.then((_) => {
+					let values: any = JSON.parse(this.item.Congif);
+					const indexToRemove = values.findIndex((item) => item.IDUDF === g.controls.IDUDF.value);
+					if (indexToRemove !== -1) {
+						values.splice(indexToRemove, 1);
+						this.formGroup.controls.Config.setValue(JSON.stringify(values));
+						this.formGroup.controls.Config.markAsDirty();
+						this.saveChange2();
+					}
+				})
+				.catch((_) => {});
+		} else groups.removeAt(index);
 	}
 
 	segmentView = 's1';

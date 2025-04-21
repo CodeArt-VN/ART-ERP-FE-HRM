@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef, ElementRef, QueryList, ViewChildren } from '@angular/core';
-import { NavController, LoadingController, AlertController } from '@ionic/angular';
+import { NavController, LoadingController, AlertController, ModalController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
@@ -15,11 +15,12 @@ import {
 	HRM_UDFProvider,
 	WMS_ZoneProvider,
 } from 'src/app/services/static/services.service';
-import { FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
+import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { HRM_PolEmployee, HRM_PolTax } from 'src/app/models/model-list-interface';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { InsurancePolicyDetailModalPage } from '../insurance-policy-detail/insurance-policy-detail-modal/insurance-policy-detail-modal.page';
 
 declare var Quill: any;
 
@@ -32,7 +33,7 @@ declare var Quill: any;
 export class StaffContractDetailPage extends PageBase {
 	statusList = [];
 	contractTemplateList = [];
-	typeList = [];
+	HRMEffectiveTimeTypeList = [];
 	contractTypeList = [];
 	taxTypeList = [];
 	insuranceTypeList = [];
@@ -40,20 +41,24 @@ export class StaffContractDetailPage extends PageBase {
 	UDFList = [];
 	editor: any;
 	remarkBeforeChange = '';
-	showEditorContent = true;
+	showEditorContent = false;
 	contractValue: any;
+	insuranceList = [];
+	isCustomTemplate = false;
+	trackingTemplate;
 	@ViewChildren('quillEditor') quillElement: QueryList<ElementRef>;
 	constructor(
 		public pageProvider: HRM_StaffContractProvider,
 		public staffProvider: HRM_StaffProvider,
 		public polTaxProvider: HRM_PolTaxProvider,
 		public polInsurance: HRM_PolInsuranceProvider,
-		public polWelfare: HRM_PolBenefitProvider,
+		public polBenefit: HRM_PolBenefitProvider,
 		public polEmployee: HRM_PolEmployeeProvider,
 		public hrmUDF: HRM_UDFProvider,
 		public contractTemplateProvider: HRM_ContractTemplateProvider,
 		public env: EnvService,
 		public navCtrl: NavController,
+		public modalController: ModalController,
 		public route: ActivatedRoute,
 		public alertCtrl: AlertController,
 		public formBuilder: FormBuilder,
@@ -82,9 +87,9 @@ export class StaffContractDetailPage extends PageBase {
 			EffectiveDate: ['', Validators.required],
 			ContractDate: ['', Validators.required],
 			EndDate: [''],
-			Type: [''],
+			ApplyType: [''],
 			Status: ['Draft', Validators.required],
-			ContractType: [''],
+			ContractType: ['', Validators.required],
 			IDContractor: new FormControl({ value: '', disabled: true }),
 			ContractValue: [],
 			PolTax: this.formBuilder.group({
@@ -92,18 +97,13 @@ export class StaffContractDetailPage extends PageBase {
 				Type: [],
 				ContributionRate: [],
 			}),
-			PolInsurance: this.formBuilder.group({
-				Id: [],
-				Type: [],
-				CalculationMethodType: [],
-				RateCo: [],
-				RateEm: [],
-			}),
+			PolInsurance: this.formBuilder.array([]),
 			PolEmployee: this.formBuilder.group({
 				Id: [],
 				Remark: [],
 			}),
-			PolWelfare: this.formBuilder.array([]),
+			PolBenefit: this.formBuilder.array([]),
+			_ContractContent: [],
 		});
 	}
 
@@ -120,6 +120,7 @@ export class StaffContractDetailPage extends PageBase {
 			this.env.getType('CalculationMethodType'),
 			this.env.getType('HRMInsuranceType'),
 			this.hrmUDF.read({ Group: 'Benefits' }),
+			this.env.getType('HRMEffectiveTimeType'),
 		]).then((res: any) => {
 			this.statusList = res[0];
 			this.contractTemplateList = res[1].data;
@@ -128,12 +129,17 @@ export class StaffContractDetailPage extends PageBase {
 			this.calculationMethodTypeList = res[4];
 			this.insuranceTypeList = res[5];
 			this.UDFList = res[6].data;
+			this.HRMEffectiveTimeTypeList = res[7];
 
 			super.preLoadData(event);
 		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		if (['Approved', 'Submitted'].includes(this.item.Status)) {
+			this.pageConfig.canEdit = false;
+			this.showEditorContent = false;
+		}
 		super.loadedData(event, ignoredFromGroup);
 		if (this.item?.Id == 0) {
 			this.formGroup.controls.Status.markAsDirty();
@@ -143,10 +149,10 @@ export class StaffContractDetailPage extends PageBase {
 			if (this.item._Contractor) {
 				this.staffDataSource.selected.push(this.item._Contractor);
 			}
-			if (this.item.PolWelfareDetails?.Lines) {
-				const polWelfareLines = this.item.PolWelfareDetails.Lines;
-				(this.formGroup.controls.PolWelfare as FormArray).clear();
-				polWelfareLines.forEach((line) => {
+			if (this.item.PolBenefitDetails?.Lines) {
+				const polBenefitLines = this.item.PolBenefitDetails.Lines;
+				(this.formGroup.controls.PolBenefit as FormArray).clear();
+				polBenefitLines.forEach((line) => {
 					const group = this.formBuilder.group({
 						IDUDF: [line.IDUDF],
 						Code: [this.UDFList.find((d) => d.Id == line.IDUDF).Code],
@@ -155,85 +161,159 @@ export class StaffContractDetailPage extends PageBase {
 						ControlType: [this.UDFList.find((d) => d.Id === line.IDUDF)?.ControlType],
 					});
 					group.addControl(this.UDFList.find((d) => d.Id == line.IDUDF).Code, new FormControl(line.Value));
-					(this.formGroup.controls.PolWelfare as FormArray).push(group);
+					(this.formGroup.controls.PolBenefit as FormArray).push(group);
 				});
 			}
+			if (this.item.PolInsuranceDetail?.Lines) {
+				const polInsuranceLines = this.item.PolInsuranceDetail.Lines;
+				(this.formGroup.controls.PolInsurance as FormArray).clear();
+				polInsuranceLines.forEach((line) => {
+					const group = this.formBuilder.group({
+						Id: new FormControl({ value: line.Id, disabled: true }),
+						Type: [line.Type, Validators.required],
+						CalculationMethodType: [line.CalculationMethodType, Validators.required],
+						RateCo: [line.RateCo, Validators.required],
+						RateEm: [line.RateEm, Validators.required],
+						IsManagerCanCreateInsurance: [line.IsManagerCanCreateInsurance],
+					});
+					(this.formGroup.controls.PolInsurance as FormArray).push(group);
+				});
+				this.insuranceList = this.item.PolInsuranceDetail.Lines;
+			}
+			if (this.item._ContractTemplate?.Template) {
+				this.formGroup.controls._ContractContent.patchValue(this.item._ContractTemplate?.Template);
+			}
+
 			if (this.item.ContractValue) {
 				let value = JSON.parse(this.item.ContractValue);
 				this.contractValue = value;
 				this.formGroup.controls.PolTax.patchValue(value.PolTax);
-				this.formGroup.controls.PolInsurance.patchValue(value.PolInsurance);
+				// this.formGroup.controls.PolInsurance.patchValue(value.PolInsurance);
 				this.formGroup.controls.PolEmployee.patchValue(value.PolEmployee);
-				(this.formGroup.controls.PolWelfare as FormArray).clear();
-				if (value.PolWelfare) {
-					value.PolWelfare.forEach((welfare) => {
-						let groups = <FormArray>this.formGroup.controls.PolWelfare;
+				(this.formGroup.controls.PolBenefit as FormArray).clear();
+				if (value.PolBenefit) {
+					let groups = <FormArray>this.formGroup.controls.PolBenefit;
+					(this.formGroup.controls.PolBenefit as FormArray).clear();
+					value.PolBenefit.forEach((benifit) => {
 						let group = this.formBuilder.group({
-							IDUDF: [welfare.IDUDF],
-							Code: [welfare.Code],
-							Value: [welfare.Value],
-							ControlType: [this.UDFList.find((d) => d.Id == welfare.IDUDF).ControlType],
+							IDUDF: [benifit.IDUDF],
+							Code: [benifit.Code],
+							Value: [benifit.Value],
+							ControlType: [this.UDFList.find((d) => d.Id == benifit.IDUDF).ControlType],
 						});
-						group.addControl(welfare.Code, new FormControl(welfare.Value));
+						group.addControl(benifit.Code, new FormControl(benifit.Value));
+						groups.push(group);
+					});
+				}
+				if (value.PolInsurance) {
+					this.insuranceList = [...value.PolInsurance];
+					let groups = <FormArray>this.formGroup.controls.PolInsurance;
+					(this.formGroup.controls.PolInsurance as FormArray).clear();
+					value.PolInsurance.forEach((i) => {
+						let group = this.formBuilder.group({
+							Id: new FormControl({ value: i.Id, disabled: true }),
+							Type: [i.Type, Validators.required],
+							CalculationMethodType: [i.CalculationMethodType, Validators.required],
+							RateCo: [i.RateCo, Validators.required],
+							RateEm: [i.RateEm, Validators.required],
+							IsManagerCanCreateInsurance: [i.IsManagerCanCreateInsurance],
+						});
 						groups.push(group);
 					});
 				}
 			}
+			this.trackingTemplate = this.item.IDContractTemplate;
 		}
 		this.staffDataSource.initSearch();
 		console.log(this.formGroup);
 	}
 
-	changeTemplate(event) {
-		Promise.all([this.polTaxProvider.getAnItem(event.IDPolTax), this.polInsurance.getAnItem(event.IDPolInsurance), this.polEmployee.getAnItem(event.IDPolEmployee)]).then(
-			(result: any) => {
-				this.formGroup.controls.PolTax.patchValue(result[0]);
-				this.formGroup.controls.PolInsurance.patchValue(result[1]);
-				this.formGroup.controls.PolEmployee.patchValue(result[2]);
-				if (result[2].IDPolWelfare) {
-					this.polWelfare.getAnItem(result[2].IDPolWelfare).then((items: any) => {
-						(this.formGroup.controls.PolWelfare as FormArray).clear();
-						for (let i of items.Lines) {
-							let groups = <FormArray>this.formGroup.controls.PolWelfare;
-							let group = this.formBuilder.group({
-								IDUDF: [i.IDUDF],
-								Id: [i.Id],
-								Code: [this.UDFList.find((d) => d.Id == i.IDUDF).Code],
-								Label: [this.UDFList.find((d) => d.Id == i.IDUDF).Name],
-								ControlType: [this.UDFList.find((d) => d.Id == i.IDUDF).ControlType],
-								Value: i.Value,
-							});
-							group.addControl(this.UDFList.find((d) => d.Id == i.IDUDF).Code, new FormControl(i.Value));
-							groups.push(group);
-						}
-						console.log(this.formGroup);
+	loadPolicies(event) {
+		return Promise.all([
+			this.polTaxProvider.getAnItem(event.IDPolTax),
+			this.polInsurance.getAnItem(event.IDPolInsurance),
+			this.polEmployee.getAnItem(event.IDPolEmployee),
+		]).then((result: any) => {
+			this.formGroup.controls.PolTax.patchValue(result[0]);
+			// this.formGroup.controls.PolInsurance.patchValue(result[1]);
+			this.formGroup.controls.PolEmployee.patchValue(result[2]);
+			if (result[2].PolBenefitLines?.length > 0) {
+				(this.formGroup.controls.PolBenefit as FormArray).clear();
+				for (let i of result[2].PolBenefitLines) {
+					let groups = <FormArray>this.formGroup.controls.PolBenefit;
+					let group = this.formBuilder.group({
+						IDUDF: [i.IDUDF],
+						Id: [i.Id],
+						Code: [this.UDFList.find((d) => d.Id == i.IDUDF).Code],
+						Label: [this.UDFList.find((d) => d.Id == i.IDUDF).Name],
+						ControlType: [this.UDFList.find((d) => d.Id == i.IDUDF).ControlType],
+						Value: i.Value,
 					});
+					group.addControl(this.UDFList.find((d) => d.Id == i.IDUDF).Code, new FormControl(i.Value));
+					groups.push(group);
 				}
-				console.log(this.formGroup);
 			}
-		);
+			if (result[1]) {
+				this.insuranceList = result[1].Lines;
+				let groups = <FormArray>this.formGroup.controls.PolInsurance;
+				(this.formGroup.controls.PolInsurance as FormArray).clear();
+				result[1].Lines.forEach((i) => {
+					let group = this.formBuilder.group({
+						Id: new FormControl({ value: i.Id, disabled: true }),
+						Type: [i.Type, Validators.required],
+						CalculationMethodType: [i.CalculationMethodType, Validators.required],
+						RateCo: [i.RateCo, Validators.required],
+						RateEm: [i.RateEm, Validators.required],
+						IsManagerCanCreateInsurance: [i.IsManagerCanCreateInsurance],
+					});
+					groups.push(group);
+				});
+			}
+			console.log(this.formGroup);
+		});
+	}
 
-		if (this.formGroup.controls.PolTax.value.Id) {
+	changeTemplate(event) {
+		if (this.formGroup.controls.ContractValue.value) {
 			this.env
 				.showPrompt('Changing the contract template will erase the values of the modified policies. Are you sure you want to proceed?', null, 'Change contract template')
 				.then((_) => {
 					this.formGroup.controls.ContractValue.setValue(null);
 					this.formGroup.controls.ContractValue.markAsDirty();
-					this.saveChange();
+
+					this.loadPolicies(event).then((_) => {
+						this.formGroup.controls._ContractContent.setValue(event.Remark);
+						this.saveConfig();
+					});
+					this.trackingTemplate = event.Id;
 				})
 				.catch((err) => {
-					return; // Ensure the function exits here
+					if (this.trackingTemplate) {
+						this.formGroup.controls.IDContractTemplate.setValue(this.trackingTemplate);
+					}
 				});
 		} else {
-			this.saveChange();
+			this.loadPolicies(event).then((_) => {
+				this.formGroup.controls._ContractContent.setValue(event.Remark);
+				this.saveConfig();
+			});
+			this.trackingTemplate = event.Id;
 		}
+	}
+
+	saveContractContent(){
+		this.formGroup.controls.Template.setValue(this.formGroup.controls._ContractContent.value);
+		this.formGroup.controls.isCustomTemplate.setValue(true);
+		this.formGroup.controls.isCustomTemplate.markAsDirty();
+		this.formGroup.controls.Template.markAsDirty();
+		this.saveConfig();
 	}
 
 	saveConfig() {
 		const polTaxValue = this.formGroup.controls.PolTax.value;
-		const polInsuranceValue = this.formGroup.controls.PolInsurance.value;
+		const polInsuranceValue = this.formGroup.controls.PolInsurance.getRawValue();
 		const polEmployee = this.formGroup.controls.PolEmployee.value;
-		const polWelfareValue = this.formGroup.controls.PolWelfare.value.map((group) => {
+		const polBenefitValue = this.formGroup.controls.PolBenefit.value.map((group) => {
 			const controlCode = group.Code;
 			return {
 				IDUDF: group.IDUDF,
@@ -246,11 +326,12 @@ export class StaffContractDetailPage extends PageBase {
 			PolTax: polTaxValue,
 			PolInsurance: polInsuranceValue,
 			PolEmployee: polEmployee,
-			PolWelfare: polWelfareValue,
+			PolBenefit: polBenefitValue,
 		};
 
 		this.formGroup.controls.ContractValue.setValue(JSON.stringify(contractValue));
 		this.formGroup.controls.ContractValue.markAsDirty();
+		this.contractValue = contractValue;
 		this.saveChange();
 	}
 
@@ -259,8 +340,14 @@ export class StaffContractDetailPage extends PageBase {
 		this.segmentView = ev.detail.value;
 	}
 
+	savedChange(savedItem?: any, form?: FormGroup<any>): void {
+		super.savedChange(savedItem);
+		this.item = savedItem;
+		this.loadedData();
+	}
+
 	async saveChange() {
-		super.saveChange2();
+		return super.saveChange2();
 	}
 
 	ngAfterViewInit() {
@@ -302,24 +389,24 @@ export class StaffContractDetailPage extends PageBase {
 			this.editor.root.textContent = richTextContent;
 		}
 
-		this.formGroup.controls.PolEmployee.get('Remark').setValue(this.editor.root.innerHTML);
+		this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
 		if (this.editor.root.innerHTML == '<p><br></p>') {
-			this.formGroup.controls.PolEmployee.get('Remark').setValue(this.editor.root.innerHTML);
+			this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
 		}
 		this.saveConfig();
 	}
 	edit() {
-		this.showEditorContent = true;
-		if (this.contractValue && this.contractValue.PolEmployee) {
-			this.contractValue.PolEmployee.Remark = this.contractValue.PolEmployee.Remark ?? this.editor?.root?.innerHTML ?? '';
-			this.remarkBeforeChange = this.contractValue.PolEmployee.Remark;
+		this.isCustomTemplate = true;
+		if (this.item?._ContractContent) {
+			this.item._ContractContent = this.item._ContractContent ?? this.editor?.root?.innerHTML ?? '';
+			this.remarkBeforeChange = this.item._ContractContent;
 		}
 	}
 	preView() {
-		this.showEditorContent = false;
-		if (this.contractValue && this.contractValue.PolEmployee) {
-			this.remarkBeforeChange = this.contractValue.PolEmployee.Remark;
-			this.contractValue.PolEmployee.Remark = this.editor?.root?.innerHTML ?? '';
+		this.isCustomTemplate = false;
+		if (this.item?._ContractContent) {
+			this.remarkBeforeChange = this.item._ContractContent;
+			this.item._ContractContent= this.editor?.root?.innerHTML ?? '';
 		}
 	}
 	initQuill() {
@@ -363,16 +450,30 @@ export class StaffContractDetailPage extends PageBase {
 				theme: 'snow',
 				placeholder: 'Typing ...',
 			});
+
+			// Set default background color to white for the editor area
+			const editorContainer = document.querySelector('#editor .ql-editor') as HTMLElement;
+			if (editorContainer) {
+				editorContainer.style.backgroundColor = '#ffffff';
+				editorContainer.style.height = '100%';
+				editorContainer.style.width = '100%';
+				editorContainer.style.minHeight = 'calc(-400px + 100vh)';
+			}
+			const editorParent = document.querySelector('#editor') as HTMLElement;
+			if (editorParent) {
+				editorParent.style.height = '100%';
+				editorParent.style.width = '100%';
+			}
 			//choose image
 			//this.editor.getModule("toolbar").addHandler("image", this.imageHandler.bind(this));
 
 			this.editor.on('text-change', (delta, oldDelta, source) => {
-				if (typeof this.editor.root.innerHTML !== 'undefined' && this.item.PolEmployee?.Remark !== this.editor.root.innerHTML) {
-					this.formGroup.controls.PolEmployee.get('Remark').setValue(this.editor.root.innerHTML);
-					this.formGroup.controls.PolEmployee.get('Remark').markAsDirty();
+				if (typeof this.editor.root.innerHTML !== 'undefined' && this.item.Template.value !== this.editor.root.innerHTML) {
+					this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
+					this.formGroup.controls.Template.markAsDirty();
 				}
 				if (this.editor.root.innerHTML == '<p><br></p>') {
-					this.formGroup.controls.PolEmployee.get('Remark').setValue(null);
+					this.formGroup.controls.Template.setValue(null);
 				}
 			});
 
@@ -401,6 +502,38 @@ export class StaffContractDetailPage extends PageBase {
 				event.preventDefault();
 			});
 		}
+	}
+
+	editInsuranceLine(i) {
+		const groups = <FormArray>this.formGroup.controls.PolInsurance;
+		const group = groups.controls.find((x) => x.get('Id').value === i.Id);
+		this.showModal(group);
+	}
+
+	removeInsuranceLine(i) {
+		this.env.showPrompt('Are you sure you want to delete selected insurance?', null, 'Delete').then((_) => {
+			const polInsuranceArray = this.formGroup.controls.PolInsurance as FormArray;
+			const indexToRemove = polInsuranceArray.controls.findIndex((control) => control.get('Id').value === i.Id);
+			if (indexToRemove !== -1) {
+				polInsuranceArray.removeAt(indexToRemove);
+				this.formGroup.controls.PolInsurance.markAsDirty();
+			}
+			this.saveConfig();
+		});
+	}
+
+	async showModal(i) {
+		const modal = await this.modalController.create({
+			component: InsurancePolicyDetailModalPage,
+			backdropDismiss: false,
+			cssClass: 'modal90',
+			componentProps: {
+				line: i,
+			},
+		});
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+		if (data) this.saveConfig();
 	}
 
 	// applyPolicyFromContract() {

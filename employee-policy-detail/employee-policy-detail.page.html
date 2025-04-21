@@ -63,6 +63,11 @@
 						<ion-col size="12" size-sm size-xl="4">
 							<app-form-control
 								(change)="saveChange()"
+								[field]="{id: 'IDPolBenefit', label: 'Allowance & welfare policy', type: 'ng-select', dataSource: polBenefitList, bindLabel: 'Name', bindValue: 'Id', form: formGroup,appendTo: '#ng-select-header'}"
+							>
+							</app-form-control>
+							<app-form-control
+								(change)="saveChange()"
 								[field]="{id: 'ApplyTo', label: 'Apply to', type: 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', form: formGroup, multiple: true, appendTo: '#ng-select-header'}"
 							>
 							</app-form-control>
@@ -157,7 +162,7 @@
 																<ion-col size="12" size-xl="6">
 																	<app-form-control
 																		(change)="changeUDF($event,g)"
-																		[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource: UDFList,bindLabel:'Name',bindValue:'Id',
+																		[field]="{id:'IDUDF', label: 'Field', type : 'ng-select', dataSource: UDFList,bindLabel:'Name',bindValue:'Id',
 																	 form : g ,appendTo: '#ng-select-header'}"
 																	></app-form-control>
 																	<app-form-control (change)="saveConfig()"[field]="{id:'IsRequired', label: 'Require', type : 'checkbox', form : g }" (change)="saveChange2()">

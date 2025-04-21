@@ -9,7 +9,7 @@
 				<ion-row class="hr-group">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 						<ion-list-header class="ion-no-padding">
-							<ion-label color="primary">{{'Benefit policy' | translate}}</ion-label>
+							<ion-label color="primary">{{'Allowance & welfare policy' | translate}}</ion-label>
 						</ion-list-header>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
@@ -36,7 +36,7 @@
 		<div *ngIf="segmentView == 's1' && !pageConfig.showSpinner">
 			<app-data-table
 				class="box-shadow responsive"
-				[rows]="UDFItems"
+				[rows]="item.Lines"
 				[trackBy]="'Id'"
 				[showSpinner]="pageConfig.showSpinner"
 				[showFilter]="pageConfig.isShowSearch"
@@ -45,68 +45,68 @@
 				(filter)="onDatatableFilter($event)"
 				(sort)="onSort($event)"
 			>
-				<datatable-column [checkbox]="true" name="" property="_checked">
+				<!-- <datatable-column [checkbox]="true" name="" property="_checked">
 					<ng-template let-i="row" datatable-cell-template>
 						<ion-checkbox [checked]="i?._checked" (ionChange)="selectRow(i)"></ion-checkbox>
 					</ng-template>
+				</datatable-column> -->
+				<datatable-column class="col-name" name="Name" property="UDFName"> </datatable-column>
+				<datatable-column class="col-code" name="Is income" property="IsIncome">
+					<ng-template let-i="row" datatable-cell-template>
+						<ion-icon *ngIf="!i?.isEdit" class="min-btn" [name]="i.IsIncome?'checkmark-outline': 'ban-outline'" [color]="i.IsIncome?'primary':'red'"></ion-icon>
+					</ng-template>
 				</datatable-column>
-				<datatable-column class="col-name" name="Name" property="Name"></datatable-column>
-				<datatable-column class="col-code" name="Is income" property="_isIncome">
+				<datatable-column class="col-code" name="Is currency" property="IsCurrency">
+					<ng-template let-i="row" datatable-cell-template>
+						<ion-icon *ngIf="!i?.isEdit" class="min-btn" [name]="i.IsCurrency?'checkmark-outline': 'ban-outline' "></ion-icon>
+					</ng-template>
+				</datatable-column>
+				<datatable-column class="col-code" name="Is manager can create benefit" property="IsManagerCanCreateBenefit">
 					<ng-template let-i="row" datatable-cell-template>
 						<ion-icon
-							*ngIf="!i?.isEdit && i?._checked"
+							*ngIf="!i?.isEdit"
 							class="min-btn"
-							[name]="i._isIncome?'checkmark-outline': 'ban-outline'"
-							[color]="i._isIncome?'primary':'red'"
+							[name]="i.IsManagerCanCreateBenefit?'checkmark-outline': 'ban-outline' "
+							[color]="i.IsManagerCanCreateBenefit?'red':''"
 						></ion-icon>
-						<app-input-control *ngIf="i?.isEdit" [field]="{id:'IsIncome', type: 'checkbox', form : i?._formGroup }"></app-input-control>
 					</ng-template>
 				</datatable-column>
-				<datatable-column class="col-code" name="Is currency" property="_isCurrency">
+				<datatable-column class="col-name" name="Frequency" property="Frequency"> </datatable-column>
+				<datatable-column class="col-number" name="Value" property="_Value">
 					<ng-template let-i="row" datatable-cell-template>
-						<ion-icon *ngIf="!i?.isEdit && i?._checked" class="min-btn" [name]="i._isCurrency?'checkmark-outline': 'ban-outline' "></ion-icon>
-						<app-input-control *ngIf="i?.isEdit" [field]="{id:'IsCurrency', type: 'checkbox', form : i?._formGroup }"></app-input-control>
+						<span *ngIf="!i?.isEdit">{{i?._Value | number:'1.0-0'}}</span>
 					</ng-template>
 				</datatable-column>
-				<datatable-column class="col-code" name="Is manager can create benefit" property="_isManagerCanCreateBenefit">
+				<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+					<!-- <ng-template datatable-header-template >
+						<ion-icon *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal()"></ion-icon>
+					</ng-template> -->
 					<ng-template let-i="row" datatable-cell-template>
-						<ion-icon
-							*ngIf="!i?.isEdit && i?._checked"
-							class="min-btn"
-							[name]="i._isManagerCanCreateBenefit?'checkmark-outline': 'ban-outline' "
-							[color]="i._isManagerCanCreateBenefit?'red':''"
-						></ion-icon>
-						<app-input-control *ngIf="i?.isEdit" [field]="{id:'IsManagerCanCreateBenefit', type: 'checkbox', form : i?._formGroup }"></app-input-control>
+						<ion-icon color="danger" class="min-btn clickable" name="pencil-outline" (click)="editLine(i)"></ion-icon>
 					</ng-template>
 				</datatable-column>
-				<datatable-column class="col-name" name="Frequency" property="_frequency">
+
+				<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+					<!-- <ng-template datatable-header-template>
+						<ion-icon  *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="trash-outline" (click)="removeLine()"></ion-icon>
+					</ng-template> -->
+
 					<ng-template let-i="row" datatable-cell-template>
-						<span *ngIf="!i?.isEdit">{{i?._frequency | translate}}</span>
-						<app-input-control
-							*ngIf="i?.isEdit"
-							[field]="{id:'Frequency', type: 'ng-select', dataSource:frequencyList, bindValue:'Code',bindLabel:'Name' ,form : i?._formGroup }"
-						></app-input-control>
-					</ng-template>
-				</datatable-column>
-				<datatable-column class="col-number" name="Value" property="Name">
-					<ng-template let-i="row" datatable-cell-template>
-						<span *ngIf="!i?.isEdit">{{i?._value | number:'1.0-0'}}</span>
-						<app-input-control *ngIf="i?.isEdit" [field]="{id:'Value', type: i?.ControlType, form : i?._formGroup }"></app-input-control>
-					</ng-template>
-				</datatable-column>
-				<datatable-column class="col-icon" name="" property="Id">
-					<ng-template let-i="row" datatable-cell-template>
-						<ion-button *ngIf="!i?.isEdit && i?._checked" (click)="editRow(i)" size="small" title="{{'Edit' | translate}}" fill="clear">
-							<ion-icon slot="icon-only" name="pencil"></ion-icon>
-						</ion-button>
-						<div class="text-center">
-							<ion-button *ngIf="i?.isEdit" (click)="saveRow(i)" size="small"> {{'Save' | translate}} </ion-button>
-							<br />
-							<ion-button *ngIf="i?.isEdit" (click)="cancelRow(i)" size="small" fill="outline"> {{'Cancel' | translate}} </ion-button>
-						</div>
+						<ion-icon color="danger" class="min-btn clickable" name="trash-outline" (click)="removeLine(i)"></ion-icon>
 					</ng-template>
 				</datatable-column>
 			</app-data-table>
+			<div class="table-contain">
+				<div class="row" *ngIf="pageConfig.canEdit">
+					<div class="cell">
+						<ion-button fill="clear" size="small" (click)="openModal = true;addLine({},true)">
+							<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+							{{ 'Add allowance & benefit' | translate }}
+						</ion-button>
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 		<div *ngIf="segmentView == 's2'">
@@ -130,6 +130,5 @@
 					</ion-row></form
 			></ion-grid>
 		</div>
-
 	</div>
 </ion-content>
