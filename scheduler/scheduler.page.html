@@ -52,6 +52,9 @@
 			<ion-button *ngIf="id" (click)="massShiftAssignment()" title="{{'Mass shift allocation' | translate}}">
 				<ion-icon slot="icon-only" name="trail-sign-outline"></ion-icon>
 			</ion-button>
+			<ion-button *ngIf="id" (click)="massOTAssignment()" title="{{'Register overtime' | translate}}">
+				<ion-icon slot="icon-only" name="flash-outline"></ion-icon>
+			</ion-button>
 			<ion-button *ngIf="id" (click)="showStaffPickerModal()" title="{{'Add staff into working schedule' | translate}}">
 				<ion-icon slot="icon-only" name="person-add-outline"></ion-icon>
 			</ion-button>

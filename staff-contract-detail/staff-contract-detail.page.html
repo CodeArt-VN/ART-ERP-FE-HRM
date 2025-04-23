@@ -130,7 +130,7 @@
 							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
 								<app-data-table
 									class="box-shadow responsive"
-									[rows]="insuranceList ?? []"
+									[rows]="insuranceList||[]"
 									[trackBy]="'Id'"
 									[(selectedRows)]="selectedItems"
 									[showSpinner]="pageConfig.showSpinner"
@@ -183,6 +183,35 @@
 										</app-form-control>
 									</ion-col>
 								</ion-row>
+							</ion-col>
+						</ion-row>
+
+						<ion-row *ngFor="let gr of arrayUDFGroup" class="hr-group">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{gr.Name | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+								<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+									<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
+										<ion-accordion [value]="sub.Key" *ngFor="let sub of gr.SubGroups" class="ion-accordion-bg">
+											<div slot="header" class="bold header-ion-accordion clickable"><ion-text color="primary">{{sub.Name | translate}}</ion-text></div>
+											<div class="row" slot="content" class="ion-accordion-bg">
+												<ion-grid fixed style="padding: 0px">
+													<ion-row>
+														<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of sub.Items">
+															<app-form-control
+																(change)="saveConfig()"
+																[field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: formGroup.controls.UDFConfig }"
+															></app-form-control>
+														</ion-col>
+													</ion-row>
+												</ion-grid>
+											</div>
+										</ion-accordion>
+									</ion-accordion-group>
+								</div>
 							</ion-col>
 						</ion-row>
 					</form>

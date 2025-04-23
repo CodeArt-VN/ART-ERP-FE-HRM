@@ -5,9 +5,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OvertimePolicyPage } from './overtime-policy.page';
 import { ShareModule } from 'src/app/share.module';
+import { OvertimeRequestModalPage } from '../overtime-request-modal/overtime-request-modal.page';
 
 @NgModule({
 	imports: [IonicModule, CommonModule, FormsModule, ShareModule, RouterModule.forChild([{ path: '', component: OvertimePolicyPage }])],
-	declarations: [OvertimePolicyPage],
+	declarations: [OvertimePolicyPage,OvertimeRequestModalPage],
 })
 export class OvertimePolicyPageModule {}

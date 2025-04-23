@@ -148,6 +148,7 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 			BenefitEnrollmentValue: [line.BenefitEnrollmentValue],
 		});
 		groups.push(group);
+		line.BenefitEnrollmentConfig = {};
 		this.patchBenefitEnrollmentConfig(line);
 		// this.showModal(line);
 	}
@@ -313,7 +314,10 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 					this.formGroup.controls.IDPolBenefit.setValue(this.trackingIDPolBenefit);
 				});
 		} else {
-			this.saveChange();
+			this.saveChange2().then((savedItem)=>{
+				this.item = savedItem;
+				this.loadedData();
+			});
 		}
 		this.trackingIDPolBenefit = this.formGroup.controls.IDPolBenefit.value;
 	}

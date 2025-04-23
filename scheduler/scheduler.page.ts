@@ -19,6 +19,7 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
+import { OvertimeRequestModalPage } from '../overtime-request-modal/overtime-request-modal.page';
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -629,9 +630,39 @@ export class SchedulerPage extends PageBase {
 		cData.staffList = this.calendarOptions.resources;
 		cData.shiftList = this.shiftList;
 		cData.timeoffTypeList = this.timeoffTypeList;
-		cData.currentDate = this.items[0]._CurrentDate;
+		cData.currentDate = this.items[0]?._CurrentDate;
 		const modal = await this.modalController.create({
 			component: SchedulerGeneratorPage,
+			componentProps: cData,
+			cssClass: 'my-custom-class',
+		});
+		console.log(cData);
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+
+		if (data) {
+			data.IDTimesheet = this.id;
+			console.log(data);
+			this.pageProvider.save(data).then((resp) => {
+				this.loadData(null);
+			});
+		}
+	}
+
+	async massOTAssignment(cData = null) {
+		if (!cData) {
+			cData = {
+				FromDate: this.query.WorkingDateFrom,
+				ToDate: this.query.WorkingDateEnd,
+			};
+		}
+
+		cData.staffList = this.calendarOptions.resources;
+		cData.shiftList = this.shiftList;
+		cData.timeoffTypeList = this.timeoffTypeList;
+		cData.currentDate = this.items[0]?._CurrentDate;
+		const modal = await this.modalController.create({
+			component: OvertimeRequestModalPage,
 			componentProps: cData,
 			cssClass: 'my-custom-class',
 		});

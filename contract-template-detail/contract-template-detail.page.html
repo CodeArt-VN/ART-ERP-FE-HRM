@@ -72,65 +72,55 @@
 					<ion-row>
 						<ion-col size="12">
 							<ion-list>
+								<!-- <ion-list-header *ngFor="let gr of groups"lines="full" class="ion-no-padding">
+									<ion-label>{{gr.Group | translate }}</ion-label>
+								</ion-list-header> -->
 								<ion-list-header lines="full" class="ion-no-padding">
 									<ion-label>{{'User define' | translate }}</ion-label>
-									<ion-button (click)="toggleReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
 								</ion-list-header>
 								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
-									<ion-reorder-group [disabled]="isDisabled" (ionItemReorder)="doReorder($event, arrayUDF.controls)">
-										<ng-container *ngFor="let g of arrayUDF.controls; let idx = index;">
-											<ion-accordion [value]="g.get('Id').value">
-												<ion-item class="clickable" slot="header" [style.order]="g.get('Sort').value" lines="full">
-													<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
+									<ng-container *ngFor="let g of formGroup.controls.ArrayUDF.controls; let idx = index;">
+										<ion-accordion [value]="g.get('Id').value">
+											<ion-item class="clickable" slot="header" lines="full">
+												<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
 
-													<ion-label style="margin-right: 0" class="ion-text-wrap clickable"> {{g.get('Name').value}} </ion-label>
+												<ion-label style="margin-right: 0" class="ion-text-wrap clickable"> {{g.get('Name').value}} </ion-label>
 
-													<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
-														<ion-icon slot="icon-only" name="trash"></ion-icon>
-													</ion-button>
+												<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
+													<ion-icon slot="icon-only" name="trash"></ion-icon>
+												</ion-button>
+											</ion-item>
 
-													<ion-reorder slot="end"></ion-reorder>
-												</ion-item>
-
-												<div
-													class="ion-padding"
-													slot="content"
-													[ngStyle]="{ 'background': !isAccordionExpanded(g.get('Id').value) ? 'none' : 'var(--table-header-background)' }"
-												>
-													<ion-grid fixed>
-														<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
-															<ion-row>
-																<ion-col size="12" size-xl="6">
-																	<app-form-control
-																		(change)="changeUDF($event,g)"
-																		[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFList,bindLabel:'Name',bindValue:'Id',
-																	 form : g }"
-																	></app-form-control>
-																	<app-form-control
-																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:payrollTemplateType,bindLable:'Name',bindValue:'Code',form : g }"
-																	>
-																	</app-form-control>
-
-																	<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }"> </app-form-control>
-
-																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }"> </app-form-control>
-																	<app-form-control [field]="{id:'IsHidden', label: 'Hidden', type : 'checkbox', form : g }"> </app-form-control>
-																</ion-col>
-																<ion-col size="12" size-xl="6">
-																	<app-form-control [field]="{id:'ControlType', label: 'Control type', type : 'span-text',form : g }">
-																	</app-form-control>
-																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
-																	</app-form-control>
-
-																	<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : g }"></app-form-control>
-																</ion-col>
-															</ion-row>
-														</form>
-													</ion-grid>
-												</div>
-											</ion-accordion>
-										</ng-container>
-									</ion-reorder-group>
+											<div
+												class="ion-padding"
+												slot="content"
+												[ngStyle]="{ 'background': !isAccordionExpanded(g.get('Id').value) ? 'none' : 'var(--table-header-background)' }"
+											>
+												<ion-grid fixed>
+													<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
+														<ion-row>
+															<ion-col size="12" size-xl="6">
+																<app-form-control
+																	(change)="changeUDF($event,g)"
+																	[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:g.controls.DataSource.value, bindLabel:'Name',bindValue:'Id',
+																	form : g , appendTo: '#ng-select-header', treeConfig: {searchFnDefault: true,isTree: true, isCollapsed: true}}"
+																></app-form-control>
+																<app-form-control (change)="saveConfig()" *ngIf="g.get('IDUDF').value" [field]="{id:'IsRequired', label: 'Required', type : 'checkbox', form : g }"></app-form-control>
+															
+															</ion-col>
+															<ion-col size="12" size-xl="6">
+																<app-form-control [field]="{id:'Group', label: 'Group', type : 'span-text', form : g }"></app-form-control>
+																<app-form-control [field]="{id:'SubGroup', label: 'Sub group', type : 'span-text', form : g }"></app-form-control>
+																<app-form-control
+																	[field]="{id:'Code', label: 'Code', type : 'span-text', form : g }"
+																></app-form-control>
+															</ion-col>
+														</ion-row>
+													</form>
+												</ion-grid>
+											</div>
+										</ion-accordion>
+									</ng-container>
 								</ion-accordion-group>
 							</ion-list>
 						</ion-col>

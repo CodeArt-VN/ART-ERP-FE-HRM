@@ -22,8 +22,34 @@
 									(change)="saveChange();"
 									[field]="{id:'Type', label:'Shift type', type:'ng-select', dataSource:typeList, bindLabel:'Name', bindValue:'Code', form:formGroup,appendTo:'#detail-page'}"
 								></app-form-control>
-								<app-form-control (change)="saveChange();" [field]="{id:'Start', label:'Starting time', type:'time', form:formGroup}"></app-form-control>
-								<app-form-control (change)="saveChange();" [field]="{id:'End', label:'Finishing time', type:'time', form:formGroup}"></app-form-control>
+								<app-form-control (change)="saveChange();" [field]="{id:'EffectiveDate', label:'Effective date', type:'datetime-local', form:formGroup}"></app-form-control>
+								<!-- <app-form-control (change)="saveChange();" [field]="{id:'Start', label:'Starting time', type:'time', form:formGroup}"></app-form-control> -->
+								<div class="c-control">
+									<label class="c-label" for="Start"
+										>{{'Starting time' | translate}}
+										<span
+											*ngIf="!formGroup.controls.Start.valid && !formGroup.controls.Start.pending && (formGroup.controls.Start.dirty || submitAttempt)"
+											ion-text
+											color="danger"
+											>(*)</span
+										>
+									</label>
+									<input class="c-input" id="Start" (change)="saveChange();" formControlName="Start" type="time" step="7" />
+								</div>
+
+								<div class="c-control">
+									<label class="c-label" for="Start"
+										>{{'Finishing time' | translate}}
+										<span
+											*ngIf="!formGroup.controls.Start.valid && !formGroup.controls.Start.pending && (formGroup.controls.Start.dirty || submitAttempt)"
+											ion-text
+											color="danger"
+											>(*)</span
+										>
+									</label>
+									<input class="c-input" id="Start" (change)="saveChange();" formControlName="End" type="time" step="7" />
+								</div>
+								<!-- <app-form-control (change)="saveChange();" [field]="{id:'End', label:'Finishing time', type:'time', form:formGroup}"></app-form-control> -->
 								<app-form-control
 									(change)="saveChange();"
 									[field]="{id:'MaxMinuteOfOTInCycle', label:'Maximum overtime of the period (minutes)', type:'number', form:formGroup}"
