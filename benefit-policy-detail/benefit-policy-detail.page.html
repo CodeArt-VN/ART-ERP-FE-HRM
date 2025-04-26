@@ -74,7 +74,7 @@
 				<datatable-column class="col-name" name="Frequency" property="Frequency"> </datatable-column>
 				<datatable-column class="col-number" name="Value" property="_Value">
 					<ng-template let-i="row" datatable-cell-template>
-						<span *ngIf="!i?.isEdit">{{i?._Value | number:'1.0-0'}}</span>
+						<span *ngIf="!i?.isEdit">{{i?._Value}}</span>
 					</ng-template>
 				</datatable-column>
 				<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">

@@ -54,6 +54,7 @@
 
 			<div class="ion-padding" *ngIf="segmentView == 's1'">
 				<app-data-table
+					*ngIf="!pageConfig.showSpinner"
 					class="box-shadow responsive"
 					[rows]="item.StaffPolBenefitEnrollmentDetails ?? []"
 					[trackBy]="'Id'"
@@ -71,7 +72,6 @@
 							<input class="c-checkbox" type="checkbox" (change)="checkAllSelectedItems($event)" />
 						</ng-template>
 					</datatable-column>
-					<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
 					<datatable-column class="col-name" name="Staff" property="_Staff">
 						<ng-template let-i="row" datatable-cell-template>
 							<ion-avatar class="avatar" slot="start">
@@ -86,7 +86,7 @@
 						</ng-template>
 					</datatable-column>
 					<ng-container *ngIf="UDFUsedList.length > 0">
-						<datatable-column *ngFor="let v of UDFUsedList" [class]="v.ControlType =='number' ? 'col-number' :'col-name' " [name]="v.Name" property="Id">
+						<datatable-column *ngFor="let v of UDFUsedList" [class]="v.ControlType =='number' ? 'col-number' :'col-name' " [name]="v.Name" property="_Staff">
 							<ng-template let-i="row" datatable-cell-template>
 								<ng-container *ngIf="i.BenefitEnrollmentConfig">
 									<span *ngIf="v.ControlType === 'number'; else textTemplate"> {{ i.BenefitEnrollmentConfig[v.Code] | number }} </span>
@@ -98,9 +98,15 @@
 						</datatable-column>
 					</ng-container>
 
-					<datatable-column class="col-icon" name="" property="Id">
+					<datatable-column class="col-icon" name="" property="_Staff">
 						<ng-template datatable-header-template>
-							<ion-button *ngIf="pageConfig.canEdit && selectedItems.length > 0" (click)="editSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
+							<ion-button
+								*ngIf="pageConfig.canEdit && selectedItems.length > 0"
+								(click)="editSelectedLine()"
+								size="small"
+								title="{{'Edit' | translate}}"
+								fill="clear"
+							>
 								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
 							</ion-button>
 						</ng-template>
@@ -112,7 +118,13 @@
 					</datatable-column>
 					<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
 						<ng-template datatable-header-template>
-							<ion-button *ngIf="pageConfig.canEdit && selectedItems.length > 0" (click)="removeSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
+							<ion-button
+								*ngIf="pageConfig.canEdit && selectedItems.length > 0"
+								(click)="removeSelectedLine()"
+								size="small"
+								title="{{'Edit' | translate}}"
+								fill="clear"
+							>
 								<ion-icon color="danger" class="min-btn clickable" slot="icon-only" name="trash-outline"></ion-icon>
 							</ion-button>
 						</ng-template>

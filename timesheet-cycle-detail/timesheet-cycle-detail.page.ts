@@ -16,6 +16,7 @@ import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typ
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { lib } from 'src/app/services/static/global-functions';
 import { PointModalPage } from '../point-modal/point-modal.page';
+import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 
 @Component({
 	selector: 'app-timesheet-cycle-detail',
@@ -395,4 +396,17 @@ export class TimesheetCycleDetailPage extends PageBase {
 		});
 		await modal.present();
 	}
+
+	async openModalPayroll(){
+		const modal = await this.modalController.create({
+			component: StaffPayrollModalPage,
+			componentProps: {
+				IDTimesheet: parseInt(this.IDTimesheet),
+				IDTimesheetCycle: parseInt(this.id),
+			},
+			cssClass: 'modal30',
+		});
+		await modal.present();
+	}
+
 }

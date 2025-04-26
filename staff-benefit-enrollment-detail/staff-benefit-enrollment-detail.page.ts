@@ -127,6 +127,7 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 		if (['Approved', 'Submitted'].includes(this.item.Status)) {
 			this.pageConfig.canEdit = false;
 		}
+		console.log(this.item.StaffPolBenefitEnrollmentDetails);
 	}
 
 	patchFormArray() {
@@ -206,11 +207,12 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 		let values: any = line.BenefitEnrollmentValue ? JSON.parse(line.BenefitEnrollmentValue) : [];
 		values.forEach((e) => {
 			let item = this.UDFList.find((d) => d.Id == e.IDUDF);
-			if (item)
+			if (item) {
 				if (!this.UDFUsedList.some((d) => d.Id == item.Id)) {
 					this.UDFUsedList.push(item);
 				}
-			line.BenefitEnrollmentConfig[item.Code] = e.Value;
+				line.BenefitEnrollmentConfig[item.Code] = e.Value;
+			}
 		});
 		// this.UDFUsedList =
 		// this.UDFList.forEach((e) => {

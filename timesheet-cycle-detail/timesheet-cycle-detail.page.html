@@ -37,6 +37,10 @@
 			</ion-button>
 			<span class="split ion-hide-sm-down">|</span>
 
+			<ion-button (click)="openModalPayroll()" title="{{'Staff payroll' | translate}}">
+				<ion-icon name="calculator-outline" slot="icon-only"></ion-icon>
+			</ion-button>
+
 			<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
 				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
 			</ion-button>

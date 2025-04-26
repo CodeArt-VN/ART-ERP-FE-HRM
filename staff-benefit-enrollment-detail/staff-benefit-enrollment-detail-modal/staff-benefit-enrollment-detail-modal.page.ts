@@ -67,7 +67,7 @@ export class StaffBenefitEnrollmentDetailModalPage extends PageBase {
 					this.staffDataSource.selected.push(e._Staff);
 				}
 			});
-			let values = this.Items[0].BenefitEnrollmentValue? JSON.parse(this.Items[0].BenefitEnrollmentValue):[];
+			let values = this.Items[0].BenefitEnrollmentValue ? JSON.parse(this.Items[0].BenefitEnrollmentValue) : [];
 			this.UDFList = this.UDFList.filter((e) => this.item.Lines.some((line) => line.IDUDF === e.Id));
 			this.UDFList.forEach((e) => {
 				e.isEdit = false;
@@ -140,6 +140,7 @@ export class StaffBenefitEnrollmentDetailModalPage extends PageBase {
 			IDStaff,
 			BenefitEnrollmentValue: JSON.stringify(
 				udfValues.map(({ Frequency, IsCurrency, IsIncome, IsManagerCanCreateBenefit, Value, IDUDF }) => ({
+					IDStaff,
 					Frequency,
 					IsCurrency,
 					IsIncome,
