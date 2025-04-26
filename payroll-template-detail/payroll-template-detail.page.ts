@@ -20,6 +20,8 @@ export class PayrollTemplateDetailPage extends PageBase {
 	UDFList: any = [];
 	statusList: any = [];
 	trackingIDPolSalary;
+	arrayUDFGroup: any = [];
+	openedFieldValues = [];
 	constructor(
 		public pageProvider: HRM_PayrollTemplateProvider,
 		public polSalaryProvider: HRM_PolSalaryProvider,
@@ -57,26 +59,37 @@ export class PayrollTemplateDetailPage extends PageBase {
 			DeletedPayrollTemplateDetails: [[]],
 		});
 	}
-
+	UDFGroups;
 	preLoadData(event?: any): void {
-		Promise.all([this.env.getType('CalculationMethodType'), this.env.getType('PayrollTemplateType'), this.env.getStatus('PurchaseRequest')]).then((values: any) => {
+		Promise.all([
+			this.env.getType('CalculationMethodType'),
+			this.env.getType('PayrollTemplateType'),
+			this.env.getStatus('PurchaseRequest'),
+			this.env.getType('UDFGroupsType', true),
+		]).then((values: any) => {
 			this.calculationMethodList = values[0];
 			this.payrollTemplateType = values[1];
 			this.statusList = values[2];
+			this.UDFGroups = values[3];
 			super.preLoadData(event);
 		});
 	}
 	loadedData(event) {
 		if (this.item?.IDPolSalary) {
-			this.getUDFList(this.item?.IDPolSalary);
+			this.getUDFList(this.item?.IDPolSalary).then((res: any) => {
+				this.patchUDF();
+				super.loadedData(event);
+			});
+		} else {
+			this.patchUDF();
+			super.loadedData(event);
 		}
 		this.polSalaryProvider.read({}).then((res: any) => {
 			if (res && res.data && res.data.length > 0) {
 				this.polSalaryList = res.data;
 			}
 		});
-		this.patchUDF();
-		super.loadedData(event);
+
 		if (!this.item.Id) {
 			this.formGroup.controls.Status.markAsDirty();
 		}
@@ -90,10 +103,44 @@ export class PayrollTemplateDetailPage extends PageBase {
 			this.item.PayrollTemplateDetails.forEach((item) => {
 				this.addPayrollTemplateDetail(item);
 			});
+
+			console.log(this.arrayUDFGroup);
 		}
+		this.arrayUDFGroup = this.UDFList.filter((u) => this.item?.PayrollTemplateDetails?.map((s) => s.IDUDF).includes(u.Id)).reduce((acc, item) => {
+			let code = item.Group || 'No Group';
+			let subGroup = item.SubGroup || 'No SubGroup';
+			let groupName = this.UDFGroups.find((d) => d.Code == item.Group)?.Name || code;
+			// Find or create the group
+			let groupItem = acc.find((g) => g.Code === code);
+			if (!groupItem) {
+				groupItem = { Code: code, SubGroups: [], Name: groupName };
+				acc.push(groupItem);
+			}
+
+			// Find or create the subGroup inside the group
+			let subGroupItem = groupItem.SubGroups.find((sg) => sg.Code === subGroup);
+			let subName = this.UDFGroups.find((d) => d.Code == subGroup)?.Name || subGroup;
+			if (!subGroupItem) {
+				subGroupItem = { Code: subGroup, Items: [], Name: subName, Key: code + '-' + subGroup };
+				groupItem.SubGroups.push(subGroupItem);
+				this.openedFieldValues.push(subGroupItem.Key);
+			}
+			// Add the item
+			subGroupItem.Items.push(groups.controls.find((d) => d.get('IDUDF').value == item.Id));
+			return acc;
+		}, []);
+	}
+	parseItem(i) {
+		console.log(i);
+		console.log(i.get('UDFValue').value);
+		console.log(i.get('ControlType').value);
+		console.log(i.get('Name').value);
 	}
 	addPayrollTemplateDetail(field, openField = false) {
 		let groups = <FormArray>this.formGroup.controls.PayrollTemplateDetails;
+		if (this.UDFList.length > 0) {
+			field.ControlType = this.UDFList.find((d) => d.Id == field.IDUDF)?.ControlType;
+		}
 		let group = this.formBuilder.group({
 			IDPayrollTemplate: [this.item.Id],
 			Id: [field?.Id],
@@ -103,6 +150,8 @@ export class PayrollTemplateDetailPage extends PageBase {
 			Code: new FormControl({ value: field.Code, disabled: true }),
 			Name: new FormControl({ value: field.Name, disabled: true }),
 			Remark: [field.Remark],
+
+			UDFValue: [field.UDFValue],
 			DataType: new FormControl({ value: field.DataType, disabled: true }),
 			ControlType: new FormControl({ value: field.ControlType, disabled: true }),
 			IsHidden: [field.IsHidden],
@@ -255,6 +304,4 @@ export class PayrollTemplateDetailPage extends PageBase {
 			}
 		}
 	}
-
-	
 }

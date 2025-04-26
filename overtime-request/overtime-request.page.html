@@ -1,0 +1,47 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+	<ion-toolbar class="no-padding">
+		<!-- <ion-buttons slot="start">
+			<ion-button color="dark" class="ion-hide-sm-down"> {{'Shift allocation' | translate}} </ion-button>
+		</ion-buttons>
+		<ion-buttons slot="end">
+			<ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
+				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+			</ion-button>
+
+			<ion-button title="{{'Help' | translate}}" (click)="help()">
+				<ion-icon slot="icon-only" name="help-circle-outline"></ion-icon>
+			</ion-button>
+
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons> -->
+	</ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+	<div id="detail-page" style="position: absolute"></div>
+	<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-id" name="Requester" property="IDRequester"></datatable-column>
+			<datatable-column class="col-id" name="Timesheet" property="Timesheet"></datatable-column>
+			<datatable-column class="col-date" name="Start date" property="StartDate"></datatable-column>
+			<datatable-column class="col-date" name="End date" property="EndDate"></datatable-column>
+			<datatable-column class="col-name" name="Status" property="Status"></datatable-column>
+			<datatable-column class="col-remark" name="Remark" property="Remark"></datatable-column>
+		</app-data-table>
+</ion-content>

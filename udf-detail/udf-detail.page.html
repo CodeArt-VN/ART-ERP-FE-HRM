@@ -22,16 +22,17 @@
 						[field]="{id:'Group', type: 'ng-select',dataSource:groupList, bindLabel:'Name',bindValue:'Code', form : formGroup, appendTo: '#detail-page'
 						 }"
 					></app-form-control>
-					<app-form-control [field]="{id:'SubGroup', type: 'ng-select',dataSource:subGroupList, bindLabel:'Name',bindValue:'Code', form : formGroup,appendTo: '#detail-page' }"></app-form-control>
+					<app-form-control  (change)="saveChange2()"
+					[field]="{id:'SubGroup', type: 'ng-select',dataSource:subGroupList, bindLabel:'Name',bindValue:'Code', form : formGroup,appendTo: '#detail-page' }"></app-form-control>
 				</ion-col>
 				<ion-col>
-					<app-form-control
+					<app-form-control (change)="saveChange2()"
 						[field]="{id:'DataType',label:'Data type', type: 'ng-select',dataSource:dataTypeList, bindLabel:'Name',bindValue:'Name', form : formGroup,appendTo: '#detail-page' }"
 					></app-form-control>
-					<app-form-control
+					<app-form-control  (change)="saveChange2()"
 						[field]="{id:'ControlType',label:'Control type',  type: 'ng-select', dataSource:controlTypeList, bindLabel:'Name',bindValue:'Code',  form : formGroup,appendTo: '#detail-page' }"
 					></app-form-control>
-					<app-form-control
+					<app-form-control  (change)="saveChange2()"
 						[field]="{id:'IsActive', label:'Active', type: 'checkbox', form : formGroup}"
 					></app-form-control>
 				</ion-col>

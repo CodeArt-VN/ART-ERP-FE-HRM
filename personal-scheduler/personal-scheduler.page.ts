@@ -5,6 +5,7 @@ import { PageBase } from 'src/app/page-base';
 import {
 	HRM_OpenScheduleProvider,
 	HRM_ShiftProvider,
+	HRM_StaffRecordOvertimeProvider,
 	HRM_StaffScheduleProvider,
 	HRM_StaffTimesheetEnrollmentProvider,
 	HRM_TimesheetLogProvider,
@@ -41,6 +42,7 @@ export class PersonalSchedulerPage extends PageBase {
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
+		public overtimeRecordProvider: HRM_StaffRecordOvertimeProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public officeProvider: OST_OfficeProvider,
 		public shiftProvider: HRM_ShiftProvider,
@@ -98,23 +100,61 @@ export class PersonalSchedulerPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		this.items.forEach((e) => {
-			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
-			if (shift) {
-				e.Color = shift.Color;
-				e.ShiftStart = shift.Start;
-				e.ShiftEnd = shift.End;
-			}
-			if (e.TimeOffType) {
-				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-				e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
-			}
-		});
-		this.calendarOptions.events = this.items;
-
-		this.getCalendar();
-		this.fc?.updateSize();
-		super.loadedData(event, ignoredFromGroup);
+		if(this.query.IDStaff){
+			this.query.StartDateFrom = this.query.WorkingDateFrom;
+			this.query.StartDateTo = this.query.WorkingDateTo;
+			this.overtimeRecordProvider.read(this.query).then((values:any) => {
+				console.log('tăng ca:');
+				console.log(values?.data);
+				// {
+				// 	"id": 50979,
+				// 	"title": "A2",
+				// 	"start": "2025-04-01T00:00:00",
+				// 	"resourceId": 2820,
+				// 	"IDStaff": 2820,
+				// 	"ShiftType": "AfternoonShift",
+				// 	"IDTimesheet": 99,
+				// 	"IDShift": 65,
+				// 	"WorkingDate": "2025-04-01T00:00:00",
+				// 	"Remark": null,
+				// 	"IsPublished": false,
+				// 	"TimeOffType": null,
+				// 	"IsBookBreakfastCatering": false,
+				// 	"IsBookLunchCatering": false,
+				// 	"IsBookDinnerCatering": false,
+				// 	"_CurrentDate": "2025-04-25T14:48:31.1819478"
+				//   }
+				  values?.data?.forEach(i => {
+					this.items.push({
+						"title": "OT",
+						start:i.StartDate,
+						"IDStaff": i.IDStaff,
+						TimeOffType: null,
+						ShiftStart :lib.dateFormat( i.StartDate,'hh:MM'),
+						ShiftEnd : lib.dateFormat(i.EndDate,'hh:MM')
+					});
+				});
+				this.items.forEach((e) => {
+					let shift = this.shiftList.find((d) => d.Id == e.IDShift);
+					if (shift) {
+						e.Color = shift.Color;
+						e.ShiftStart = shift.Start;
+						e.ShiftEnd = shift.End;
+					}
+					if (e.TimeOffType) {
+						let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+						e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+					}
+				});
+				this.calendarOptions.events = this.items;
+		
+				this.getCalendar();
+				this.fc?.updateSize();
+				super.loadedData(event, ignoredFromGroup);
+			})
+			// this.query.EndDate = this.query.WorkingDateFrom;
+		}
+		
 	}
 
 	calendarOptions: any = {

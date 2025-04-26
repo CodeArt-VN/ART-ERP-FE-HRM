@@ -87,5 +87,8 @@ export const HRMRoutes: Routes = [
     { path: 'staff-benefit-enrollment', loadChildren: () => import('./staff-benefit-enrollment/staff-benefit-enrollment.module').then(m => m.StaffBenefitEnrollmentPageModule), canActivate: [AuthGuard] },
     { path: 'staff-benefit-enrollment/:id', loadChildren: () => import('./staff-benefit-enrollment-detail/staff-benefit-enrollment-detail.module').then(m => m.StaffBenefitEnrollmentDetailPageModule), canActivate: [AuthGuard] },
    
+    { path: 'overtime-request', loadChildren: () => import('./overtime-request/overtime-request.module').then(m => m.OvertimeRequestPageModule), canActivate: [AuthGuard] },
+    { path: 'overtime-request/:id', loadChildren: () => import('./overtime-request-detail/overtime-request-detail.module').then(m => m.OvertimeRequestDetailPageModule), canActivate: [AuthGuard] },
+
 ];
 

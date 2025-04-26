@@ -20,6 +20,8 @@ import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
 import { OvertimeRequestModalPage } from '../overtime-request-modal/overtime-request-modal.page';
+import { OvertimePolicyDetailPage } from '../overtime-policy-detail/overtime-policy-detail.page';
+import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -650,21 +652,32 @@ export class SchedulerPage extends PageBase {
 	}
 
 	async massOTAssignment(cData = null) {
+		
 		if (!cData) {
 			cData = {
 				FromDate: this.query.WorkingDateFrom,
 				ToDate: this.query.WorkingDateEnd,
 			};
 		}
-
+		cData.id = 0;
+		cData.item = {
+			staffList : this.calendarOptions.resources,
+			Config : JSON.stringify({TimeFrames: [], Staffs: []}),
+			IDTimesheet : this.id,
+			_StaffDataSource : [...this.calendarOptions.resources.map((m) =>{
+				return {
+					Id : m.IDStaff,
+					Code: m.Code,
+					FullName : m.FullName,
+				}
+			})],
+		}
 		cData.staffList = this.calendarOptions.resources;
-		cData.shiftList = this.shiftList;
-		cData.timeoffTypeList = this.timeoffTypeList;
-		cData.currentDate = this.items[0]?._CurrentDate;
+		cData.isFromModal = true;
 		const modal = await this.modalController.create({
-			component: OvertimeRequestModalPage,
+			component: OvertimeRequestDetailPage,
 			componentProps: cData,
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90',
 		});
 		console.log(cData);
 		await modal.present();
