@@ -27,8 +27,11 @@ export class StaffPayrollConfigPage extends PageBase {
 	timesheetCycleList: any = [];
 	timesheetList: any = [];
 	UDFList: any = [];
+	UDFGroups: any = [];
+	arrayUDFGroup :any = [];
 	statusList: any = [];
 	trackingIDPolSalary;
+	alwaysReturnProps = ['Id', 'IDBranch','IDTimesheetCycle','IDTimesheet'];
 	constructor(
 		public pageProvider: HRM_StaffPayrollProvider,
 		public payrollTemplateProvider: HRM_PayrollTemplateProvider,
@@ -58,7 +61,7 @@ export class StaffPayrollConfigPage extends PageBase {
 			Code: [''],
 			Name: [''],
 			Remark: [''],
-			Status: ['Draft'],
+			Status: new FormControl({ value: 'Draft', disabled: true }),
 			StaffPayrollConfig: this.formBuilder.array([]),
 			Sort: [''],
 			IsDeleted: [''],
@@ -79,40 +82,66 @@ export class StaffPayrollConfigPage extends PageBase {
 			this.payrollTemplateProvider.read(),
 			this.timesheetCycleProvider.read(),
 			this.timesheetProvider.read(),
+			this.env.getType('UDFGroupsType', true),
+
 		]).then((values: any) => {
 			this.payrollTemplateType = values[0];
 			this.statusList = values[1];
 			this.payrollTemplateList = values[2].data;
 			this.timesheetCycleList = values[3].data;
 			this.timesheetList = values[4].data;
+			this.UDFGroups = values[5];
 			super.preLoadData(event);
 		});
 	}
 	loadedData(event) {
-		if (this.item?.IDPolSalary) {
-			this.getUDFList(this.item?.IDPolSalary);
-		}
+		
+		this.patchUDF();
+		super.loadedData(event);
 		// this.polSalaryProvider.read({}).then((res: any) => {
 		// 	if (res && res.data && res.data.length > 0) {
 		// 		this.polSalaryList = res.data;
 		// 	}
 		// });
-		this.patchUDF();
-		super.loadedData(event);
 		if (!this.item.Id) {
 			this.formGroup.controls.Status.markAsDirty();
 		}
 		this.trackingIDPolSalary = this.item?.IDPolSalary;
 	}
-
+	openedFieldValues = [];
 	patchUDF() {
 		let groups = this.formGroup.get('StaffPayrollConfig') as FormArray;
+		this.arrayUDFGroup = []
 		groups.clear();
 		if (this.item?.StaffPayrollConfig?.length > 0) {
 			this.item.StaffPayrollConfig.forEach((item) => {
 				this.addPayrollTemplateDetail(item);
 			});
+			this.arrayUDFGroup = this.item?.StaffPayrollConfig?.reduce((acc, item) => {
+				let code = item.Group || 'No Group';
+				let subGroup = item.SubGroup || 'No SubGroup';
+				let groupName = this.UDFGroups.find((d) => d.Code == item.Group)?.Name || code;
+				// Find or create the group
+				let groupItem = acc.find((g) => g.Code === code);
+				if (!groupItem) {
+					groupItem = { Code: code, SubGroups: [], Name: groupName };
+					acc.push(groupItem);
+				}
+	
+				// Find or create the subGroup inside the group
+				let subGroupItem = groupItem.SubGroups.find((sg) => sg.Code === subGroup);
+				let subName = this.UDFGroups.find((d) => d.Code == subGroup)?.Name || subGroup;
+				if (!subGroupItem) {
+					subGroupItem = { Code: subGroup, Items: [], Name: subName, Key: code + '-' + subGroup };
+					groupItem.SubGroups.push(subGroupItem);
+					this.openedFieldValues.push(subGroupItem.Key);
+				}
+				// Add the item
+				subGroupItem.Items.push(groups.controls.find((d) => d.get('IDUDF').value == item.IDUDF));
+				return acc;
+			}, []);
 		}
+	
 	}
 	addPayrollTemplateDetail(field, openField = false) {
 		let groups = <FormArray>this.formGroup.controls.StaffPayrollConfig;
@@ -122,6 +151,7 @@ export class StaffPayrollConfigPage extends PageBase {
 			IDUDF: [field?.IDUDF, Validators.required],
 			// Id: new FormControl({ value: field?.Id, disabled: true }),
 			Type: ['', Validators.required],
+			UDFValue: [field.UDFValue],
 			Code: new FormControl({ value: field.Code, disabled: true }),
 			Name: new FormControl({ value: field.Name, disabled: true }),
 			Remark: [field.Remark],

@@ -170,7 +170,7 @@
 														
 														<app-form-control
 															(change)="saveChange2()"
-															[field]="{ id: 'UDFValue',dataSource:UDFList, type: i.get('ControlType').value, label:i.get('Name').value, form: i }"
+															[field]="{ id: 'UDFValue', type: i.get('ControlType').value, label:i.get('Name').value,dataSource:UDFList, form: i,appendTo:'#detail-page' }"
 														></app-form-control>
 													</ion-col>
 												</ion-row>

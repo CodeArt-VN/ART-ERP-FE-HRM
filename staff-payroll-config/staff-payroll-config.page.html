@@ -50,6 +50,9 @@
 						<ion-label>{{'UDF list' | translate}}</ion-label>
 					</ion-segment-button>
 					<ion-segment-button value="s2">
+						<ion-label>{{'Define value' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s3">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
@@ -147,6 +150,40 @@
 				</ion-grid>
 			</div>
 			<div *ngIf="segmentView == 's2'">
+				<ion-grid fixed *ngIf="arrayUDFGroup.length > 0">
+					<ion-row *ngFor="let gr of arrayUDFGroup" class="hr-group">
+						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary">{{gr.Name | translate}}</ion-label>
+							</ion-list-header>
+						</ion-col>
+						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+							<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+								<ion-accordion-group [multiple]="true" [value]="openedFieldValues" (ionChange)="accordionGroupChange($event)">
+									<ion-accordion [value]="sub.Key" *ngFor="let sub of gr.SubGroups" class="ion-accordion-bg">
+										<div slot="header" class="bold header-ion-accordion clickable"><ion-text color="primary">{{sub.Name | translate}}</ion-text></div>
+										<div class="row" slot="content" class="ion-accordion-bg">
+											<ion-grid fixed style="padding: 0px">
+												<ion-row>
+													<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of sub.Items">
+														<!-- {{parseItem(i)}} -->
+														
+														<app-form-control
+															(change)="saveChange2()"
+															[field]="{ id: 'UDFValue', type: i.get('ControlType').value, label:i.get('Name').value,dataSource:item.StaffPayrollConfig, form: i,appendTo:'#detail-page' }"
+														></app-form-control>
+													</ion-col>
+												</ion-row>
+											</ion-grid>
+										</div>
+									</ion-accordion>
+								</ion-accordion-group>
+								</div>
+						</ion-col>
+					</ion-row>	
+				</ion-grid>
+			</div>
+			<div *ngIf="segmentView == 's3'">
 				<div class="ion-padding">
 					<ion-grid fixed>
 						<ion-row class="hr-group" *ngIf="item?.Id">
