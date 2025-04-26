@@ -43,7 +43,8 @@ export class UDFPage extends PageBase {
 			{ Name: 'date' },
 			{ Name: 'nvarchar' },
 			{ Name: 'number' },
-			{ Name: 'bit' }
+			{ Name: 'bit' },
+			{ Name: 'formula' },
 		];
 		Promise.all([this.env.getType('ControlType'),this.env.getType('UDFGroupsType')]).then((values: any) => {
 			this.controlTypeList = values[0];

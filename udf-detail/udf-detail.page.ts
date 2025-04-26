@@ -38,6 +38,7 @@ export class UDFDetailPage extends PageBase {
 			Code: ['', Validators.required],
 			Name: ['', Validators.required],
 			Group: ['', Validators.required],
+			DefaultValue:[''],
 			SubGroup: [''],
 			ControlType: ['', Validators.required],
 			DataType: ['', Validators.required],
