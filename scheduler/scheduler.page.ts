@@ -9,18 +9,16 @@ import {
 	HRM_StaffTimesheetEnrollmentProvider,
 	HRM_TimesheetProvider,
 	OST_OfficeProvider,
+	HRM_StaffOvertimeRequestProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
 import { lib } from 'src/app/services/static/global-functions';
-import { ApiSetting } from 'src/app/services/static/api-setting';
 import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
-import { OvertimeRequestModalPage } from '../overtime-request-modal/overtime-request-modal.page';
-import { OvertimePolicyDetailPage } from '../overtime-policy-detail/overtime-policy-detail.page';
 import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
 @Component({
 	selector: 'app-scheduler',
@@ -36,12 +34,14 @@ export class SchedulerPage extends PageBase {
 	shiftList = [];
 	shifTypeList = [];
 	timeoffTypeList = [];
+	OTStatusList = [];
 	fc: any = null;
 
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
+		public overtimeRequestProvider: HRM_StaffOvertimeRequestProvider,
 		public officeProvider: OST_OfficeProvider,
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
@@ -59,33 +59,39 @@ export class SchedulerPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.officeProvider.read(), this.env.getType('ShiftType'), this.timesheetProvider.read(), this.shiftProvider.read(), this.env.getType('TimeOffType')]).then(
-			(values) => {
-				this.officeList = values[0]['data'];
-				this.shifTypeList = values[1];
-				this.timesheetList = values[2]['data'];
-				this.shiftList = values[3]['data'];
-				this.timeoffTypeList = values[4];
-				this.shiftList.forEach((s) => {
-					let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
-					if (shiftType) {
-						s.Color = shiftType.Color;
-						s.color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
-						s.ShiftType = shiftType.Name;
-					}
-
-					s.Start = lib.dateFormat('2000-01-01 ' + s.Start, 'hh:MM');
-					s.End = lib.dateFormat('2000-01-01 ' + s.End, 'hh:MM');
-				});
-				if (this.id) {
-					this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
-				} else if (this.timesheetList.length) {
-					this.selectedTimesheet = this.timesheetList[0];
-					this.id = this.selectedTimesheet.Id;
+		Promise.all([
+			this.officeProvider.read(),
+			this.env.getType('ShiftType'),
+			this.timesheetProvider.read(),
+			this.shiftProvider.read(),
+			this.env.getType('TimeOffType'),
+			this.env.getStatus('StandardApprovalStatus'),
+		]).then((values) => {
+			this.officeList = values[0]['data'];
+			this.shifTypeList = values[1];
+			this.timesheetList = values[2]['data'];
+			this.shiftList = values[3]['data'];
+			this.timeoffTypeList = values[4];
+			this.shiftList.forEach((s) => {
+				let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
+				if (shiftType) {
+					s.Color = shiftType.Color;
+					s.color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
+					s.ShiftType = shiftType.Name;
 				}
-				super.preLoadData(event);
+
+				s.Start = lib.dateFormat('2000-01-01 ' + s.Start, 'hh:MM');
+				s.End = lib.dateFormat('2000-01-01 ' + s.End, 'hh:MM');
+			});
+			this.OTStatusList = values[5];
+			if (this.id) {
+				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+			} else if (this.timesheetList.length) {
+				this.selectedTimesheet = this.timesheetList[0];
+				this.id = this.selectedTimesheet.Id;
 			}
-		);
+			super.preLoadData(event);
+		});
 	}
 
 	loadData(event?: any): void {
@@ -98,7 +104,7 @@ export class SchedulerPage extends PageBase {
 		this.query.ShiftType = JSON.stringify(this.shifTypeList.filter((d) => d.isChecked).map((m) => m.Code));
 		this.query.IDOffice = JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id));
 		this.query.Take = 50000;
-
+		this.query.ParseOvertimeConfig = true;
 		this.clearData();
 		if (this.id) {
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp) => {
@@ -112,8 +118,46 @@ export class SchedulerPage extends PageBase {
 			this.loadedData(event);
 		}
 	}
-
+	
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.overtimeRequestProvider
+			.read(this.query)
+			.then((values: any) => {
+				console.log('tăng ca:');
+				console.log(values?.data);
+				values?.data?.forEach((e) => {
+					e.PolRates.forEach((i) => {
+						this.items.push({
+							id: lib.generateUID(),
+							IDTimeSheet: this.id,
+							resourceId: i.IDStaff,
+							ShiftType: 'OT',
+							title: 'OT',
+							start: i.Start,
+							IDStaff: i.IDStaff,
+							TimeOffType: null,
+							color:  lib.getCssVariableValue('--ion-color-' + this.OTStatusList.find((d) => d.Code == e.Status)?.Color.toLowerCase()),
+							ShiftStart: lib.dateFormat(i.Start, 'hh:MM'),
+							ShiftEnd: lib.dateFormat(i.End, 'hh:MM'),
+						});
+					});
+				});
+				this.patchItems();
+
+				this.calendarOptions.events = this.items;
+				this.getCalendar();
+				this.fc?.updateSize();
+				super.loadedData(event, ignoredFromGroup);
+			})
+			.catch((err) => {
+				this.patchItems();
+				this.calendarOptions.events = this.items;
+				this.getCalendar();
+				this.fc?.updateSize();
+				super.loadedData(event, ignoredFromGroup);
+			});
+	}
+	patchItems() {
 		this.items.forEach((e) => {
 			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
 			if (shift) {
@@ -136,12 +180,8 @@ export class SchedulerPage extends PageBase {
 				}
 			}
 		});
-
-		this.calendarOptions.events = this.items;
-		this.getCalendar();
-		this.fc?.updateSize();
-		super.loadedData(event, ignoredFromGroup);
 	}
+	
 	calendarOptions: any = {
 		plugins: [resourceTimelinePlugin, interactionPlugin],
 		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
@@ -404,7 +444,7 @@ export class SchedulerPage extends PageBase {
 								try {
 									let obj = JSON.parse(savedItem);
 									console.log(obj);
-									if(obj.IDRequest){
+									if (obj.IDRequest) {
 										that.env.showPrompt('This leave request has been approved. Do you want to navigate to the leave request page?', null, null).then((_) => {
 											that.navCtrl.navigateForward('/request/' + obj.IDRequest);
 										});
@@ -652,7 +692,6 @@ export class SchedulerPage extends PageBase {
 	}
 
 	async massOTAssignment(cData = null) {
-		
 		if (!cData) {
 			cData = {
 				FromDate: this.query.WorkingDateFrom,
@@ -661,34 +700,45 @@ export class SchedulerPage extends PageBase {
 		}
 		cData.id = 0;
 		cData.item = {
-			staffList : this.calendarOptions.resources,
-			Config : JSON.stringify({TimeFrames: [], Staffs: []}),
-			IDTimesheet : this.id,
-			_StaffDataSource : [...this.calendarOptions.resources.map((m) =>{
-				return {
-					Id : m.IDStaff,
-					Code: m.Code,
-					FullName : m.FullName,
-				}
-			})],
-		}
-		cData.staffList = this.calendarOptions.resources;
-		cData.isFromModal = true;
+			//staffList: this.calendarOptions.resources,
+			Config: JSON.stringify({ TimeFrames: [], Staffs: [] }),
+			IDTimesheet: parseInt(this.id) ,
+			Id:0
+			// _StaffDataSource: [
+			// 	...this.calendarOptions.resources.map((m) => {
+			// 		return {
+			// 			Id: m.IDStaff,
+			// 			Code: m.Code,
+			// 			FullName: m.FullName,
+			// 		};
+			// 	}),
+			// ],
+		};
 		const modal = await this.modalController.create({
 			component: OvertimeRequestDetailPage,
 			componentProps: cData,
 			cssClass: 'modal90',
 		});
-		console.log(cData);
 		await modal.present();
 		const { data } = await modal.onWillDismiss();
-
-		if (data) {
-			data.IDTimesheet = this.id;
-			console.log(data);
-			this.pageProvider.save(data).then((resp) => {
-				this.loadData(null);
-			});
+		if(data) this.refresh();
+		// if (data) {
+		// 	data.IDTimesheet = this.id;
+		// 	console.log(data);
+		// 	this.pageProvider.save(data).then((resp) => {
+		// 		this.loadData(null);
+		// 	});
+		// }
+	}
+	getColor(code) {
+		switch (code) {
+			case 'warning':
+				return lib.getCssVariableValue('--ion-color-warning');
+			case 'danger':
+				return lib.getCssVariableValue('--ion-color-danger');
+			case 'dark':
+				return lib.getCssVariableValue('--ion-color-dark');
 		}
+		return;
 	}
 }

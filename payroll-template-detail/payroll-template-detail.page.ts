@@ -64,7 +64,7 @@ export class PayrollTemplateDetailPage extends PageBase {
 		Promise.all([
 			this.env.getType('CalculationMethodType'),
 			this.env.getType('PayrollTemplateType'),
-			this.env.getStatus('PurchaseRequest'),
+			this.env.getStatus('StandardApprovalStatus'),
 			this.env.getType('UDFGroupsType', true),
 		]).then((values: any) => {
 			this.calculationMethodList = values[0];

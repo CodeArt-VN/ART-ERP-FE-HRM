@@ -6,6 +6,7 @@ import { HRM_ShiftProvider, HRM_StaffOvertimeRequestProvider } from 'src/app/ser
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { environment } from 'src/environments/environment';
 import { HRM_StaffOvertimeRequest } from 'src/app/models/model-list-interface';
+import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
 
 @Component({
 	selector: 'app-overtime-request',
@@ -14,7 +15,6 @@ import { HRM_StaffOvertimeRequest } from 'src/app/models/model-list-interface';
 	standalone: false,
 })
 export class OvertimeRequestPage extends PageBase {
-
 	staffList = [];
 	imgPath = environment.staffAvatarsServer;
 
@@ -45,6 +45,26 @@ export class OvertimeRequestPage extends PageBase {
 		// 	Remark: [false],
 		// 	Config: [false],
 		// });
+	}
+
+	add(): void {
+		let newItem = {
+			Id: 0,
+			IsDisabled: false,
+		};
+		this.showModal(newItem);
+	}
+
+	async showModal(i) {
+		const modal = await this.modalController.create({
+			component: OvertimeRequestDetailPage,
+			componentProps: {
+				id: i.Id,
+				item: i,
+			},
+			cssClass: 'modal90',
+		});
+		return await modal.present();
 	}
 	preLoadData(event?: any): void {
 		super.preLoadData(event);
