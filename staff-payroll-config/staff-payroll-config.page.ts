@@ -4,8 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import {
 	HRM_PayrollTemplateProvider,
-	HRM_PolSalaryProvider,
-	HRM_StaffPayrollProvider,
+	HRM_StaffPayrollConfigProvider,
 	HRM_TimesheetCycleProvider,
 	HRM_TimesheetProvider,
 	HRM_UDFProvider,
@@ -33,7 +32,7 @@ export class StaffPayrollConfigPage extends PageBase {
 	trackingIDPolSalary;
 	alwaysReturnProps = ['Id', 'IDBranch','IDTimesheetCycle','IDTimesheet'];
 	constructor(
-		public pageProvider: HRM_StaffPayrollProvider,
+		public pageProvider: HRM_StaffPayrollConfigProvider,
 		public payrollTemplateProvider: HRM_PayrollTemplateProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
@@ -83,7 +82,7 @@ export class StaffPayrollConfigPage extends PageBase {
 			this.timesheetCycleProvider.read(),
 			this.timesheetProvider.read(),
 			this.env.getType('UDFGroupsType', true),
-
+			this.udfProvider.read()
 		]).then((values: any) => {
 			this.payrollTemplateType = values[0];
 			this.statusList = values[1];
@@ -91,7 +90,9 @@ export class StaffPayrollConfigPage extends PageBase {
 			this.timesheetCycleList = values[3].data;
 			this.timesheetList = values[4].data;
 			this.UDFGroups = values[5];
+			this.UDFList = values[6].data;
 			super.preLoadData(event);
+
 		});
 	}
 	loadedData(event) {

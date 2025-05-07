@@ -58,10 +58,10 @@
 					<ion-col size="12" size-sm size-xl="8">
 						<ion-toolbar>
 							<ion-buttons slot="end">
-								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent.ComplianceRules" (click)="edit()">
+								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent.ComplianceRules" (click)="edit(editorComplianceRules,'ComplianceRules')">
 									<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
 								</ion-button>
-								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent.ComplianceRules" (click)="preView()">
+								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent.ComplianceRules" (click)="preView(editorComplianceRules,'ComplianceRules')">
 									<ion-icon size="medium" name="eye-outline"></ion-icon>
 								</ion-button>
 							</ion-buttons>
@@ -70,7 +70,7 @@
 					
 						<form *ngIf="showEditorContent.ComplianceRules" [formGroup]="formGroup" id="screenEditor">
 							<!-- Create the editor container -->
-							<div #quillEditorComplianceRules style="min-height: calc(100vh - 400px)" id="editorComplianceRules" [innerHTML]="item.Compliancerules ?? '' | safeHtml"></div>
+							<div #quillEditorComplianceRules style="min-height: calc(100vh - 400px)" id="quillEditorComplianceRules" [innerHTML]="item.Compliancerules ?? '' | safeHtml"></div>
 							<div class="c-control ion-text-right">
 								<label class="c-label" for=""></label>
 								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
@@ -88,10 +88,10 @@
 					<ion-col size="12" size-sm size-xl="8">
 						<ion-toolbar>
 							<ion-buttons slot="end">
-								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent.DisciplinaryActions" (click)="edit()">
+								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent.DisciplinaryActions" (click)="edit(editorDisciplinaryActions,'DisciplinaryActions')">
 									<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
 								</ion-button>
-								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent.DisciplinaryActions" (click)="preView()">
+								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent.DisciplinaryActions" (click)="preView(editorDisciplinaryActions,'DisciplinaryActions')">
 									<ion-icon size="medium" name="eye-outline"></ion-icon>
 								</ion-button>
 							</ion-buttons>
@@ -100,7 +100,7 @@
 					
 						<form *ngIf="showEditorContent.DisciplinaryActions" [formGroup]="formGroup" id="screenEditor">
 							<!-- Create the editor container -->
-							<div #quillEditorDisciplinaryActions style="min-height: calc(100vh - 400px)" id="editorComplianceRules" [innerHTML]="item.Template ?? '' | safeHtml"></div>
+							<div #quillEditorDisciplinaryActions style="min-height: calc(100vh - 400px)" id="quillEditorDisciplinaryActions" [innerHTML]="item.Template ?? '' | safeHtml"></div>
 							<div class="c-control ion-text-right">
 								<label class="c-label" for=""></label>
 								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>

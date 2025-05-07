@@ -46,7 +46,7 @@ export class StaffContractDetailPage extends PageBase {
 	UDFGroups = [];
 	isCustomTemplate = false;
 	trackingTemplate;
-	@ViewChildren('quillEditor') quillElement: QueryList<ElementRef>;
+	@ViewChildren('quillEditor')  quillElement: QueryList<ElementRef>;
 	constructor(
 		public pageProvider: HRM_StaffContractProvider,
 		public staffProvider: HRM_StaffProvider,

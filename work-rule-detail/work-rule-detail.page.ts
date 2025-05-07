@@ -3,7 +3,7 @@ import { NavController, LoadingController, AlertController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_StaffProvider, HRM_WorkRuleGroupProvider, HRM_WorkRuleProvider } from 'src/app/services/static/services.service';
+import {  HRM_StaffProvider, HRM_WorkRuleGroupProvider, HRM_WorkRuleProvider,  } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
@@ -32,7 +32,7 @@ export class WorkRuleDetailPage extends PageBase {
 	};
 
 	constructor(
-		public pageProvider: HRM_WorkRuleProvider,
+		public pageProvider: HRM_WorkRuleProvider ,
 		public workRuleGroupProvider: HRM_WorkRuleGroupProvider,
 		public staffProvider: HRM_StaffProvider,
 		public env: EnvService,
@@ -95,7 +95,7 @@ export class WorkRuleDetailPage extends PageBase {
 			this.templateBeforeChange.ComplianceRules = this.item.ComplianceRules;
 			this.templateBeforeChange.DisciplinaryActions = this.item.DisciplinaryActions;
 		} 
-		this.initQuill();
+		// this.initQuill();
 		if (this.item?.Id) {
 			this.formGroup.get('IDBranch').markAsDirty();
 		}
@@ -119,9 +119,11 @@ export class WorkRuleDetailPage extends PageBase {
 
 	initQuill() {
 		if (typeof Quill !== 'undefined') {
-			const existingToolbar = document.querySelector('.ql-toolbar');
-			if (existingToolbar) {
-				existingToolbar.parentNode.removeChild(existingToolbar);
+			const existingToolbars = document.querySelectorAll('.ql-toolbar');
+			if (existingToolbars && existingToolbars.length > 0) {
+				existingToolbars.forEach((toolbar) => {
+					toolbar.parentNode.removeChild(toolbar);
+				});
 			}
 			this.editorDisciplinaryActions = new Quill('#quillEditorDisciplinaryActions', {
 				modules: {
@@ -196,6 +198,34 @@ export class WorkRuleDetailPage extends PageBase {
 			//choose image
 			//this.editor.getModule("toolbar").addHandler("image", this.imageHandler.bind(this));
 
+			const quillEditorDisciplinaryActionsContainer = document.querySelector('#quillEditorDisciplinaryActions .ql-editor') as HTMLElement;
+			if (quillEditorDisciplinaryActionsContainer) {
+				quillEditorDisciplinaryActionsContainer.style.backgroundColor = '#ffffff';
+				quillEditorDisciplinaryActionsContainer.style.height = '100%';
+				quillEditorDisciplinaryActionsContainer.style.width = '100%';
+				quillEditorDisciplinaryActionsContainer.style.minHeight = 'calc(-400px + 100vh)';
+			}
+			const quillEditorDisciplinaryActionsParent = document.querySelector('#quillEditorDisciplinaryActions') as HTMLElement;
+			if (quillEditorDisciplinaryActionsParent) {
+				quillEditorDisciplinaryActionsParent.style.height = '100%';
+				quillEditorDisciplinaryActionsParent.style.width = '100%';
+			}
+
+
+			const quillEditorComplianceRulesContainer = document.querySelector('#quillEditorComplianceRules .ql-editor') as HTMLElement;
+			if (quillEditorComplianceRulesContainer) {
+				quillEditorComplianceRulesContainer.style.backgroundColor = '#ffffff';
+				quillEditorComplianceRulesContainer.style.height = '100%';
+				quillEditorComplianceRulesContainer.style.width = '100%';
+				quillEditorComplianceRulesContainer.style.minHeight = 'calc(-400px + 100vh)';
+			}
+			const quillEditorComplianceRulesParent = document.querySelector('#quillEditorComplianceRules') as HTMLElement;
+			if (quillEditorComplianceRulesParent) {
+				quillEditorComplianceRulesParent.style.height = '100%';
+				quillEditorComplianceRulesParent.style.width = '100%';
+			}
+
+
 			this.editorDisciplinaryActions.on('text-change', (delta, oldDelta, source) => {
 				if (typeof this.editorDisciplinaryActions.root.innerHTML !== 'undefined' && this.item.DisciplinaryActions !== this.editorDisciplinaryActions.root.innerHTML) {
 					this.formGroup.controls.DisciplinaryActions.setValue(this.editorDisciplinaryActions.root.innerHTML);
@@ -208,8 +238,8 @@ export class WorkRuleDetailPage extends PageBase {
 
 			this.editorComplianceRules.on('text-change', (delta, oldDelta, source) => {
 				if (typeof this.editorComplianceRules.root.innerHTML !== 'undefined' && this.item.ComplianceRules !== this.editorComplianceRules.root.innerHTML) {
-					this.formGroup.controls.DisciplinaryActions.setValue(this.editorComplianceRules.root.innerHTML);
-					this.formGroup.controls.DisciplinaryActions.markAsDirty();
+					this.formGroup.controls.ComplianceRules.setValue(this.editorComplianceRules.root.innerHTML);
+					this.formGroup.controls.ComplianceRules.markAsDirty();
 				}
 				if (this.editorComplianceRules.root.innerHTML == '<p><br></p>') {
 					this.formGroup.controls.ComplianceRules.setValue(null);

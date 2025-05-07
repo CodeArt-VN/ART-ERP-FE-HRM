@@ -10,6 +10,7 @@ import {
 	HRM_TimesheetProvider,
 	OST_OfficeProvider,
 	HRM_StaffOvertimeRequestProvider,
+	HRM_StaffRecordOvertimeProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
@@ -36,12 +37,14 @@ export class SchedulerPage extends PageBase {
 	timeoffTypeList = [];
 	OTStatusList = [];
 	fc: any = null;
-
+	isOpenPopover = false;
+	staffList = [];
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public overtimeRequestProvider: HRM_StaffOvertimeRequestProvider,
+		public staffRecordOvertimeProvider : HRM_StaffRecordOvertimeProvider,
 		public officeProvider: OST_OfficeProvider,
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
@@ -110,7 +113,7 @@ export class SchedulerPage extends PageBase {
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp) => {
 				let resources = resp['data'];
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-
+				this.staffList = resources.map((m) => m.IDStaff);
 				this.calendarOptions.resources = resources;
 			});
 			super.loadData(event);
@@ -118,7 +121,7 @@ export class SchedulerPage extends PageBase {
 			this.loadedData(event);
 		}
 	}
-	
+
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		this.overtimeRequestProvider
 			.read(this.query)
@@ -137,7 +140,7 @@ export class SchedulerPage extends PageBase {
 							start: i.Start,
 							IDStaff: i.IDStaff,
 							TimeOffType: null,
-							color:  lib.getCssVariableValue('--ion-color-' + this.OTStatusList.find((d) => d.Code == e.Status)?.Color.toLowerCase()),
+							color: lib.getCssVariableValue('--ion-color-' + this.OTStatusList.find((d) => d.Code == e.Status)?.Color.toLowerCase()),
 							ShiftStart: lib.dateFormat(i.Start, 'hh:MM'),
 							ShiftEnd: lib.dateFormat(i.End, 'hh:MM'),
 						});
@@ -182,7 +185,7 @@ export class SchedulerPage extends PageBase {
 			}
 		});
 	}
-	
+
 	calendarOptions: any = {
 		plugins: [resourceTimelinePlugin, interactionPlugin],
 		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
@@ -723,7 +726,7 @@ export class SchedulerPage extends PageBase {
 		});
 		await modal.present();
 		const { data } = await modal.onWillDismiss();
-		if(data) this.refresh();
+		if (data) this.refresh();
 		// if (data) {
 		// 	data.IDTimesheet = this.id;
 		// 	console.log(data);
@@ -742,5 +745,77 @@ export class SchedulerPage extends PageBase {
 				return lib.getCssVariableValue('--ion-color-dark');
 		}
 		return;
+	}
+
+	@ViewChild('importfile') importfile: any;
+	onClickImport() {
+		this.importfile.nativeElement.value = '';
+		this.importfile.nativeElement.click();
+	}
+
+	importOvertimeRecords(event) {
+		if (event.target.files.length == 0) return;
+		this.env
+			.showLoading('Please wait for a few moments', this.staffRecordOvertimeProvider.import(event.target.files[0]))
+			.then((resp : any) => {
+				this.refresh();
+				if (resp.ErrorList && resp.ErrorList.length) {
+					let message = '';
+					for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
+						if (i == 5) message += '<br> Còn nữa...';
+						else {
+							const e = resp.ErrorList[i];
+							message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
+						}
+					this.env
+						.showPrompt(
+							{
+								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								value: { value: resp.ErrorList.length, value1: message },
+							},
+							'Bạn có muốn xem lại các mục bị lỗi?',
+							'Có lỗi import dữ liệu'
+						)
+						.then((_) => {
+							this.downloadURLContent(resp.FileUrl);
+						})
+						.catch((e) => {});
+				} else {
+					this.env.showMessage('Import completed!', 'success');
+				}
+			})
+			.catch((err) => {
+				if (err.statusText == 'Conflict') {
+					// var contentDispositionHeader = err.headers.get('Content-Disposition');
+					// var result = contentDispositionHeader.split(';')[1].trim().split('=')[1];
+					// this.downloadContent(result.replace(/"/g, ''),err._body);
+					this.downloadURLContent(err._body);
+				}
+			});
+
+	}
+
+	exportOvertimeRecords() {
+		if (this.submitAttempt) return;
+		let queryRecord = {
+			IDStaff : JSON.stringify(this.staffList),
+		}
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', this.staffRecordOvertimeProvider.export(queryRecord))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+
+	}
+
+	@ViewChild('Popover') Popover!: HTMLIonPopoverElement;
+	presentPopover(e) {
+		this.Popover.event = e;
+		this.isOpenPopover = !this.isOpenPopover;
 	}
 }

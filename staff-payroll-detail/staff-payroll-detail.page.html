@@ -1,11 +1,38 @@
 <ion-header>
 	<app-toolbar [page]="this">
+		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Import / Export' | translate}}" (click)="presentPopover($event)">
+			<ion-icon slot="icon-only" name="document-attach-outline"></ion-icon>
+		</ion-button>
+
+		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Calc salary' | translate}}" (click)="calcSalary()">
+			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
+		</ion-button>
 		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Open payroll config' | translate}}" (click)="nav('staff-payroll/config/'+item.Id,'forward')">
 			<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
 		</ion-button>
+		<ion-popover #Popover [isOpen]="isOpenPopover" (didDismiss)="isOpenPopover = false">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<ion-item (click)="onClickImport()" [button]="true" [detail]="false" title="{{'Import' | translate}}">
+							<ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+							<ion-label> {{'Import' | translate}}</ion-label>
+							<input class="hide-all" #importfile type="file" accept=".xlsx" (change)="importPayrollRecords($event)" />
+						</ion-item>
+						<ion-item (click)="exportPayrollRecords()" [button]="true" [detail]="false" title="{{'Export' | translate}}">
+							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+							<ion-label> {{'Export' | translate}}</ion-label>
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+			<!-- <ion-button *ngIf="!pageConfig.showSpinner" title="{{'Export' | translate}}" (click)="exportPayrollRecords()">
+				<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
+			</ion-button> -->
+		</ion-popover>
 	</app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme >
+<ion-content appScrollbarTheme>
 	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
 		<ion-refresher-content></ion-refresher-content>
 	</ion-refresher>
@@ -44,7 +71,7 @@
 			<ng-container *ngFor="let c of item.StaffPayrollConfig ; let idx = index">
 				<datatable-column class="col-remark" [name]="c.Name" property="Id">
 					<ng-template let-i="row" datatable-cell-template>
-						<ng-container *ngIf="c.DataType == 'int' || c.DataType == 'number' ; else textTemplate"> {{c.UDFValue | number:'1.0-0'}} </ng-container>
+						<ng-container *ngIf="c.DataType == 'int' || c.DataType == 'number' || c.DataType == 'decimal' ; else textTemplate"> {{c.UDFValue | number:'1.0-0'}} </ng-container>
 						<ng-template #textTemplate> {{c.UDFValue}} </ng-template>
 					</ng-template>
 				</datatable-column>
