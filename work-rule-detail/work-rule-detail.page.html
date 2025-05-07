@@ -70,7 +70,7 @@
 					
 						<form *ngIf="showEditorContent.ComplianceRules" [formGroup]="formGroup" id="screenEditor">
 							<!-- Create the editor container -->
-							<div #quillEditorComplianceRules style="min-height: calc(100vh - 400px)" id="quillEditorComplianceRules" [innerHTML]="item.Compliancerules ?? '' | safeHtml"></div>
+							<div #quillEditorComplianceRules style="min-height: calc(100vh - 400px)" id="quillEditorComplianceRules" [innerHTML]="item.ComplianceRules ?? '' | safeHtml"></div>
 							<div class="c-control ion-text-right">
 								<label class="c-label" for=""></label>
 								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
@@ -97,10 +97,10 @@
 							</ion-buttons>
 						</ion-toolbar>
 						<div *ngIf="!showEditorContent.DisciplinaryActions && item?.DisciplinaryActions" [innerHtml]=" item?.DisciplinaryActions | safeHtml" class="ql-editor"></div>
-					
+						
 						<form *ngIf="showEditorContent.DisciplinaryActions" [formGroup]="formGroup" id="screenEditor">
 							<!-- Create the editor container -->
-							<div #quillEditorDisciplinaryActions style="min-height: calc(100vh - 400px)" id="quillEditorDisciplinaryActions" [innerHTML]="item.Template ?? '' | safeHtml"></div>
+							<div #quillEditorDisciplinaryActions style="min-height: calc(100vh - 400px)" id="quillEditorDisciplinaryActions" [innerHTML]="item.DisciplinaryActions ?? '' | safeHtml"></div>
 							<div class="c-control ion-text-right">
 								<label class="c-label" for=""></label>
 								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
