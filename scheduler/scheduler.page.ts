@@ -131,6 +131,7 @@ export class SchedulerPage extends PageBase {
 							id: lib.generateUID(),
 							IDTimeSheet: this.id,
 							resourceId: i.IDStaff,
+							IDOTRequest: e.Id,
 							ShiftType: 'OT',
 							title: 'OT',
 							start: i.Start,
@@ -482,19 +483,25 @@ export class SchedulerPage extends PageBase {
 		});
 	}
 	eventClick(arg) {
-		this.massShiftAssignment({
-			FromDate: arg.event.startStr.substr(0, 10),
-			ToDate: arg.event.startStr.substr(0, 10),
-			DaysOfWeek: [arg.event.start.getDay()],
-			IDShift: arg.event.extendedProps.IDShift,
-			TimeOffType: arg.event.extendedProps.TimeOffType,
-			Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
-			IsAllStaff: false,
-			IsOpenShift: false,
-			IsBookLunchCatering: arg.event.extendedProps.IsBookLunchCatering,
-			IsBookBreakfastCatering: arg.event.extendedProps.IsBookBreakfastCatering,
-			IsBookDinnerCatering: arg.event.extendedProps.IsBookDinnerCatering,
-		});
+		if( arg.event.extendedProps.ShiftType == 'OT' ) {
+			this.massOTAssignment(arg?.event?.extendedProps);
+		}
+		else{
+			this.massShiftAssignment({
+				FromDate: arg.event.startStr.substr(0, 10),
+				ToDate: arg.event.startStr.substr(0, 10),
+				DaysOfWeek: [arg.event.start.getDay()],
+				IDShift: arg.event.extendedProps.IDShift,
+				TimeOffType: arg.event.extendedProps.TimeOffType,
+				Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
+				IsAllStaff: false,
+				IsOpenShift: false,
+				IsBookLunchCatering: arg.event.extendedProps.IsBookLunchCatering,
+				IsBookBreakfastCatering: arg.event.extendedProps.IsBookBreakfastCatering,
+				IsBookDinnerCatering: arg.event.extendedProps.IsBookDinnerCatering,
+			});
+		}
+		
 	}
 	eventDrop(info) {
 		const event = info.event; // The event after being dropped
@@ -692,28 +699,23 @@ export class SchedulerPage extends PageBase {
 	}
 
 	async massOTAssignment(cData = null) {
-		if (!cData) {
+		if (cData) {
 			cData = {
-				FromDate: this.query.WorkingDateFrom,
-				ToDate: this.query.WorkingDateEnd,
+				id : cData.IDOTRequest,
 			};
 		}
-		cData.id = 0;
-		cData.item = {
-			//staffList: this.calendarOptions.resources,
-			Config: JSON.stringify({ TimeFrames: [], Staffs: [] }),
-			IDTimesheet: parseInt(this.id) ,
-			Id:0
-			// _StaffDataSource: [
-			// 	...this.calendarOptions.resources.map((m) => {
-			// 		return {
-			// 			Id: m.IDStaff,
-			// 			Code: m.Code,
-			// 			FullName: m.FullName,
-			// 		};
-			// 	}),
-			// ],
-		};
+		else{
+			cData = {
+				id: 0,
+				item : {
+					Config: JSON.stringify({ TimeFrames: [], Staffs: [] }),
+					IDTimesheet: parseInt(this.id) ,
+					Id:0
+				
+				}
+			}
+		}
+	
 		const modal = await this.modalController.create({
 			component: OvertimeRequestDetailPage,
 			componentProps: cData,

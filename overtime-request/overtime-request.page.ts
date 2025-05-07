@@ -7,6 +7,7 @@ import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { environment } from 'src/environments/environment';
 import { HRM_StaffOvertimeRequest } from 'src/app/models/model-list-interface';
 import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
+import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
 	selector: 'app-overtime-request',
@@ -17,7 +18,7 @@ import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-r
 export class OvertimeRequestPage extends PageBase {
 	staffList = [];
 	imgPath = environment.staffAvatarsServer;
-
+	statusList = [];
 	constructor(
 		public pageProvider: HRM_StaffOvertimeRequestProvider,
 		public shiftProvider: HRM_ShiftProvider,
@@ -46,7 +47,22 @@ export class OvertimeRequestPage extends PageBase {
 		// 	Config: [false],
 		// });
 	}
-
+	preLoadData(event?: any): void {
+		this.query.SortBy = 'Id_desc';
+		Promise.all([
+			this.env.getStatus('StandardApprovalStatus')
+		]).then((values) => {
+			this.statusList = values[0];
+			super.preLoadData(event);
+		});
+	}
+	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.items.forEach((i) => {
+			i.StatusText = lib.getAttrib(i.Status, this.statusList, 'Name', '--', 'Code');
+			i.StatusColor = lib.getAttrib(i.Status, this.statusList, 'Color', 'dark', 'Code');
+		});
+		super.loadedData(event, ignoredFromGroup);
+	}
 	add(): void {
 		let newItem = {
 			Id: 0,
@@ -65,8 +81,5 @@ export class OvertimeRequestPage extends PageBase {
 			cssClass: 'modal90',
 		});
 		return await modal.present();
-	}
-	preLoadData(event?: any): void {
-		super.preLoadData(event);
 	}
 }

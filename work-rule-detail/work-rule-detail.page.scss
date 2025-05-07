@@ -1,0 +1,22 @@
+.full-screen {
+	min-height: calc(100vh - 97px);
+}
+
+.full-screen {
+	min-height: calc(100vh - 97px);
+}
+
+.quill-fullscreen {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 1000;
+	background-color: white;
+	overflow: hidden;
+}
+
+.quill-container-fullscreen {
+	height: 100%;
+	overflow: auto;
+}

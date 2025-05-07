@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { NavController, LoadingController, AlertController, ModalController } from '@ionic/angular';
+import { NavController, NavParams, LoadingController, AlertController, ModalController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
@@ -27,6 +27,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public env: EnvService,
+		public navParams: NavParams,
 		public modalController: ModalController,
 		public navCtrl: NavController,
 		public route: ActivatedRoute,
@@ -76,6 +77,10 @@ export class OvertimeRequestDetailPage extends PageBase {
 			this.route.params.subscribe((params) => {
 				this.id = params['id'];
 			});
+			if (this.navParams.data) {
+				this.id = this.navParams.data.id;
+			//	console.log(this.navParams.data);
+			}
 			super.preLoadData(event);
 		});
 	}
@@ -89,10 +94,19 @@ export class OvertimeRequestDetailPage extends PageBase {
 			this.trackingTimesheet = this.item.IDTimesheet;
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.item?.IDTimesheet }).then((resp) => {
 				this.staffList = resp['data'];
+				if(!this.pageConfig.canEdit){
+					this.staffList.forEach((i) => {
+						i.disabled = true;
+					})
+
+				}
 				console.log(this.staffList);
 				this.patchConfig();
 			});
 		} else this.patchConfig();
+		if(['Submitted','Canceled','Approved'].includes(this.item.Status)){
+			this.pageConfig.canEdit = false;
+		}
 		super.loadedData(event);
 		if (!this.item?.Id) {
 			this.formGroup.get('IDRequester').markAsDirty();
@@ -135,8 +149,6 @@ export class OvertimeRequestDetailPage extends PageBase {
 			this.formGroup.get('CanTransferToDayOff').setValue(valueConfig.CanTransferToDayOff);
 		}
 
-		
-		
 		if (!this.pageConfig.canEdit) timeFramesGroup.disable();
 	}
 
@@ -184,25 +196,27 @@ export class OvertimeRequestDetailPage extends PageBase {
 		};
 		this.formGroup.get('Config').setValue(JSON.stringify(config));
 		this.formGroup.get('Config').markAsDirty();
-		return this.saveChange().then((savedItem)=> this.modalController.dismiss(savedItem));
+		return this.saveChange().then((savedItem) => this.modalController.dismiss(savedItem));
 	}
 	changeTimesheet() {
 		let promise: Promise<any>;
 		if (this.formGroup.controls.Staffs.value.length > 0) {
 			promise = this.env.showPrompt('Do you want to change timesheet?', 'Change Timesheet', 'Change', 'OK');
 		} else promise = Promise.resolve(true);
-		promise.then(() => {
-			this.formGroup.controls.Staffs.setValue([]);
-			this.formGroup.controls.Staffs.markAsDirty();
-			this.saveConfig()
-				.then((savedItem) => {
-					this.item = savedItem;
-					this.loadedData();
-				})
-				
-		}).catch((err) => {
-			this.formGroup.controls.IDTimesheet.setValue(this.trackingTimesheet);
-		});
+		promise
+			.then(() => {
+				this.formGroup.controls.Staffs.setValue([]);
+				this.formGroup.controls.Staffs.markAsDirty();
+				this.loadedData();
+
+				// this.saveConfig()
+				// 	.then((savedItem) => {
+				// 		this.item = savedItem;
+				// 	})
+			})
+			.catch((err) => {
+				this.formGroup.controls.IDTimesheet.setValue(this.trackingTimesheet);
+			});
 	}
 	// async showStaffPickerModal() {
 	// 	const modal = await this.modalController.create({
@@ -276,7 +290,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 			});
 		}
 		this.formGroup.get('Staffs').setValue(this.selectedRows.map((x) => x.Id));
-		this.saveConfig();
+		//this.saveConfig();
 	}
 	isAllRowChecked = false;
 	selectedRows = [];

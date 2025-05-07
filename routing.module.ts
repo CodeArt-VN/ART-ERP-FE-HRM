@@ -93,6 +93,16 @@ export const HRMRoutes: Routes = [
    
     { path: 'overtime-request', loadChildren: () => import('./overtime-request/overtime-request.module').then(m => m.OvertimeRequestPageModule), canActivate: [AuthGuard] },
     { path: 'overtime-request/:id', loadChildren: () => import('./overtime-request-detail/overtime-request-detail.module').then(m => m.OvertimeRequestDetailPageModule), canActivate: [AuthGuard] },
+   
+    { path: 'work-rule-group', loadChildren: () => import('./work-rule-group/work-rule-group.module').then(m => m.WorkRuleGroupPageModule), canActivate: [AuthGuard] },
+    { path: 'work-rule-group/:id', loadChildren: () => import('./work-rule-group-detail/work-rule-group-detail.module').then(m => m.WorkRuleGroupDetailPageModule), canActivate: [AuthGuard] },
+
+
+    { path: 'work-rule', loadChildren: () => import('./work-rule/work-rule.module').then(m => m.WorkRulePageModule), canActivate: [AuthGuard] },
+    { path: 'work-rule/:id', loadChildren: () => import('./work-rule-detail/work-rule-detail.module').then(m => m.WorkRuleDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'work-rule-violation', loadChildren: () => import('./work-rule-violation/work-rule-violation.module').then(m => m.WorkRuleViolationPageModule), canActivate: [AuthGuard] },
+    { path: 'work-rule-violation/:id', loadChildren: () => import('./work-rule-violation-detail/work-rule-violation-detail.module').then(m => m.WorkRuleViolationDetailPageModule), canActivate: [AuthGuard] },
 
 ];
 
