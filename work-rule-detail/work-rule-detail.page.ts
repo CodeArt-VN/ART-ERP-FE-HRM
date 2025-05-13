@@ -95,7 +95,7 @@ export class WorkRuleDetailPage extends PageBase {
 			this.templateBeforeChange.ComplianceRules = this.item.ComplianceRules;
 			this.templateBeforeChange.DisciplinaryActions = this.item.DisciplinaryActions;
 		} 
-		// this.initQuill();
+		this.initQuill();
 		if (this.item?.Id) {
 			this.formGroup.get('IDBranch').markAsDirty();
 		}
