@@ -34,7 +34,11 @@ export class WorkRulePage extends PageBase {
 		super.preLoadData(event);
 	}
 	loadedData(event) {
+		this.items.forEach((item) => {
+			item.BranchName = this.env.branchList.find((branch) => branch.Id == item.IDBranch)?.Name;
+		})
 		super.loadedData(event);
+		
 	}
 
 }

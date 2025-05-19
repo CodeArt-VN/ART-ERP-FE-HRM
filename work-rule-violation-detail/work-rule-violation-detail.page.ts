@@ -52,7 +52,7 @@ export class WorkRuleViolationDetailPage extends PageBase {
 			PenaltyDate: [''],
 			Amount: [''],
 			AttachmentURL: [''],
-			Status: [''],
+			Status: ['Draft'],
 			Remark: [''],
 			Sort: [''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
@@ -75,7 +75,12 @@ export class WorkRuleViolationDetailPage extends PageBase {
 		})
 	}
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		
 		super.loadedData(event, ignoredFromGroup);
+		if(!this.item.Id){
+			this.formGroup.controls.IDBranch.markAsDirty();
+			this.formGroup.controls.Status.markAsDirty();
+		}
 		if(this.item._Staff) this._staffDataSource.selected.push(this.item._Staff);
 		this._staffDataSource.initSearch();
 		if (this.item) this.templateBeforeChange = this.item.Template;

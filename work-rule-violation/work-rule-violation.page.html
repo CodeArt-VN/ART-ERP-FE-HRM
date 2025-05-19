@@ -1,7 +1,7 @@
 <ion-header>
 	<app-toolbar [page]="this"></app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+<ion-content appScrollbarTheme class="header-table" scroll-x="true">
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
 	<div class="safe-max-width">
@@ -20,32 +20,28 @@
 		>
 			<datatable-column [checkbox]="true" name=""></datatable-column>
 			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
-			<datatable-column class="col-id" name="Branch" property="IDBranch" [navLink]="pageConfig.pageName"></datatable-column>
-			<!-- <datatable-column class="col-name" name="Staff" property="_Staff">
+			<datatable-column class="col-name flex-break" name="Name" property="Name"></datatable-column>
+			<datatable-column class="col-name" name="Branch" property="BranchName"></datatable-column>
+			<datatable-column class="col-name" name="Staff" property="_Staff">
 				<ng-template let-i="row" datatable-cell-template>
-					<ion-avatar class="avatar" slot="start">
-						<ion-img #img [src]="i._Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+					<ion-avatar slot="start">
+						<ion-img #img [src]="imgPath + i._Staff.Code + '.jpg'" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
 					</ion-avatar>
 					<div>
 						<span class="bold">{{i._Staff.FullName}}</span>
 						<small *ngIf="i._Staff.Code" class="no-warp"> {{i._Staff.Code}}</small>
 						<br />
-						{{i.Email}}
 					</div>
 				</ng-template>
-			</datatable-column> -->
+			</datatable-column>
 			<datatable-column class="col-date" format="yyyy-MM-dd" name="Violation date" property="ViolationDate" filterControlType="date"></datatable-column>
 			<datatable-column class="col-date" format="yyyy-MM-dd" name="Penalty date" property="PenaltyDate" filterControlType="date"></datatable-column>
-			<datatable-column class="col-date" format="1.0-0" name="Amount" property="Amount"></datatable-column>
-			<datatable-column class="col-name flex-break" name="Name" property="Name"></datatable-column>
-			<datatable-column class="col-number bold" name="Status" property="Status"></datatable-column>
-		
-
-			<!-- <datatable-column class="col-status" name="Status" property="Status" filterControlType="ng-select" [filterDataSource]="statusList">
+			<datatable-column class="col-number" format="1.0-0" name="Amount" property="Amount"></datatable-column>
+			<datatable-column class="col-status" name="Status" property="Status" filterControlType="ng-select" [filterDataSource]="statusList">
 				<ng-template let-i="row" datatable-cell-template>
 					<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name | translate}} </ion-badge>
 				</ng-template>
-			</datatable-column> -->
+			</datatable-column>
 		</app-data-table>
 	</div>
 

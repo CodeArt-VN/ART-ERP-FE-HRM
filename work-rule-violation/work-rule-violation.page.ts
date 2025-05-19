@@ -13,6 +13,7 @@ import { SortConfig } from 'src/app/models/options-interface';
 	standalone: false,
 })
 export class WorkRuleViolationPage extends PageBase {
+	statusList: any[] = [];
 	constructor(
 		public pageProvider: HRM_StaffWorkRuleViolationProvider,
 		public branchProvider: BRA_BranchProvider,
@@ -30,9 +31,16 @@ export class WorkRuleViolationPage extends PageBase {
 	preLoadData(event?: any): void {
 		let sorted: SortConfig[] = [{ Dimension: 'Id', Order: 'DESC' }];
 		this.pageConfig.sort = sorted;
+		Promise.all([this.env.getStatus('StandardApprovalStatus')]).then((values) => {
+			this.statusList = values[0];
+		});
 		super.preLoadData(event);
 	}
 	loadedData(event) {
+		this.items.forEach((i) => {
+			i.BranchName = this.env.branchList.find((branch) => branch.Id == i.IDBranch)?.Name;
+			i._Status = this.statusList.find((d) => d.Code == i.Status);
+		})
 		super.loadedData(event);
 	}
 
