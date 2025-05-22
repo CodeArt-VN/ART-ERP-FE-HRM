@@ -1,0 +1,33 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="header-table">
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+		>
+			<datatable-column [checkbox]="true"></datatable-column>
+			<datatable-column class="col-id" name="Id" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+
+			<datatable-column class="col-name" name="Time sheet" property="_Timesheet">
+				<ng-template let-i="row" datatable-cell-template> {{i._Timesheet.TimesheetName | translate}} </ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-name" name="Payroll template" property="_PayrollTemplate">
+				<ng-template let-i="row" datatable-cell-template> {{i._PayrollTemplate.PayrollTemplateName | translate}} </ng-template>
+			</datatable-column>
+		</app-data-table>
+	</div>
+</ion-content>

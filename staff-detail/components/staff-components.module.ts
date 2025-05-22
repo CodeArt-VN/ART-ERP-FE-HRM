@@ -27,6 +27,7 @@ import { StaffForeignLanguageComponent } from './staff-personnel-profile/staff-f
 import { StaffSpecializedFieldComponent } from './staff-personnel-profile/staff-specialized-field/staff-specialized-field.component';
 import { StaffSpecializedSkillComponent } from './staff-personnel-profile/staff-specialized-skill/staff-specialized-skill.component';
 import { StaffWorkExperienceComponent } from './staff-personnel-profile/staff-work-experience/staff-work-experience.component';
+import { StaffPersonnelUDFComponent } from './staff-personnel-profile/staff-personnel-udf/staff-personnel-udf.page';
 
 @NgModule({
 	imports: [
@@ -61,7 +62,8 @@ import { StaffWorkExperienceComponent } from './staff-personnel-profile/staff-wo
 		StaffForeignLanguageComponent,
 		StaffSpecializedFieldComponent,
 		StaffSpecializedSkillComponent,
-		StaffWorkExperienceComponent
+		StaffWorkExperienceComponent,
+		StaffPersonnelUDFComponent,
 	],
 	exports: [
 		StaffPersonnelProfileComponent,
@@ -85,7 +87,8 @@ import { StaffWorkExperienceComponent } from './staff-personnel-profile/staff-wo
 		StaffForeignLanguageComponent,
 		StaffSpecializedFieldComponent,
 		StaffSpecializedSkillComponent,
-		StaffWorkExperienceComponent
+		StaffWorkExperienceComponent,
+		
 	],
 })
 export class StaffComponentsModule {}

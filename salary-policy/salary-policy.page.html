@@ -1,0 +1,38 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="header-table">
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+	<app-data-table
+		class="box-shadow responsive"
+		[rows]="items"
+		[trackBy]="'Id'"
+		[(selectedRows)]="selectedItems"
+		[showSpinner]="pageConfig.showSpinner"
+		[showFilter]="pageConfig.isShowSearch"
+		[(query)]="query"
+		(dataInfinite)="loadData($event)"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+	>
+		<datatable-column [checkbox]="true" ></datatable-column>
+		<datatable-column class="col-id" name="Id" property="Id"[navLink]="pageConfig.pageName"></datatable-column>
+		
+		<datatable-column class="col-name" name="Name" property="Name">
+		
+		</datatable-column>
+
+		<datatable-column class="col-code" name="Code" property="Code">
+		</datatable-column>
+		<datatable-column class="col-remark" name="Remark" property="Remark">
+		</datatable-column>
+
+		<datatable-column class="col-status" name="Status" property="Status">
+		</datatable-column>
+
+	</app-data-table>
+	</div>
+</ion-content>

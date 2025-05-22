@@ -1,0 +1,299 @@
+<ion-header>
+	<app-toolbar [page]="this">
+		<!-- <ion-button class="clickable" title="{{'Apply contract' | translate}}" (click)="applyPolicyFromContract()">
+			<ion-icon name="checkmark-outline" color="success" slot="icon-only"></ion-icon>
+		</ion-button> -->
+	</app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Staff contract' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+						<app-form-control [field]="{id: 'Code', label: 'Contract code', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control [field]="{id: 'Name', label: 'Contract name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<app-form-control
+							[field]="{id: 'IDStaff', label: 'Staff', type: 'ng-select-staff', dataSource: staffDataSource, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+						<app-form-control
+							[field]="{id: 'IDContractor', label: 'Contractor', type: 'ng-select-staff', dataSource: staffDataSource, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+						<app-form-control
+							[field]="{id: 'IDContractTemplate', label: 'Contract template', type: 'ng-select', dataSource: contractTemplateList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="changeTemplate($event)"
+						></app-form-control>
+						<app-form-control
+							[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel:'Name' , bindValue:'Code', form: formGroup , appendTo: '#ng-select-header'}"
+							(change)="saveChange()"
+						></app-form-control>
+					</ion-col>
+				</ion-row>
+			</form>
+		</ion-grid>
+
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'General information' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Contract content' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s3">
+						<ion-label>{{'Condition' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s4">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				</ion-segment>
+			</ion-toolbar>
+
+			<div class="ion-padding" *ngIf="segmentView == 's1'">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<!-- Other information -->
+						<ion-row class="hr-group">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'General information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id: 'ApplyType', label: 'Apply type', type: 'ng-select-status', dataSource: HRMEffectiveTimeTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo: '#ng-select-header'}"
+								>
+								</app-form-control>
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id: 'ContractType', label: 'Contract type', type: 'ng-select-status', dataSource: contractTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo: '#ng-select-header'}"
+								>
+								</app-form-control>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control
+									[field]="{id: 'EffectiveDate', label: 'Effective date', type: 'datetime-local', form: formGroup }"
+									(change)="saveChange()"
+								></app-form-control>
+								<app-form-control [field]="{id: 'EndDate', label: 'End date', type: 'datetime-local',form: formGroup }" (change)="saveChange()"></app-form-control>
+								<app-form-control
+									[field]="{id: 'ContractDate', label: 'Contract date', type: 'datetime-local',form: formGroup }"
+									(change)="saveChange()"
+								></app-form-control>
+							</ion-col>
+						</ion-row>
+
+						<ion-row *ngIf="formGroup.controls.PolTax.controls.Id.value" class="hr-group">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Tax policy' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control
+									(change)="saveConfig()"
+									[field]="{id: 'Type', label: 'Type', type: 'ng-select-status', dataSource: taxTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup.controls.PolTax,appendTo: '#ng-select-header'}"
+								>
+								</app-form-control>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control
+									*ngIf="formGroup.controls.PolTax.controls.Type.value == 'FixedTax'"
+									(change)="saveConfig()"
+									[field]="{id: 'ContributionRate', label: 'Contribution rate', type: 'number', form: formGroup.controls.PolTax}"
+								>
+								</app-form-control>
+							</ion-col>
+						</ion-row>
+
+						<ion-row *ngIf="formGroup.controls.PolInsurance.controls.length >0 " class="hr-group">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Insurance policy' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+								<app-data-table
+									class="box-shadow responsive"
+									[rows]="insuranceList||[]"
+									[trackBy]="'Id'"
+									[(selectedRows)]="selectedItems"
+									[showSpinner]="pageConfig.showSpinner"
+									[showFilter]="pageConfig.isShowSearch"
+									[(query)]="query"
+									(dataInfinite)="loadData($event)"
+									(filter)="onDatatableFilter($event)"
+									(sort)="onSort($event)"
+									(selectedRowsChange)="showCommandBySelectedRows($event)"
+								>
+									<datatable-column class="col-name" name="Type" property="Type"></datatable-column>
+									<datatable-column class="col-remark" name="Calculation method type" property="CalculationMethodType"></datatable-column>
+									<datatable-column class="col-remark" name="Rate co" property="RateCo"></datatable-column>
+									<datatable-column class="col-remark" name="Rate em" property="RateEm"></datatable-column>
+									<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+										<!-- <ng-template datatable-header-template >
+										<ion-icon *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal()"></ion-icon>
+									</ng-template> -->
+										<ng-template let-i="row" datatable-cell-template>
+											<ion-icon color="danger" class="min-btn clickable" name="pencil-outline" (click)="editInsuranceLine(i)"></ion-icon>
+										</ng-template>
+									</datatable-column>
+
+									<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
+										<!-- <ng-template datatable-header-template>
+										<ion-icon  *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="trash-outline" (click)="removeLine()"></ion-icon>
+									</ng-template> -->
+
+										<ng-template let-i="row" datatable-cell-template>
+											<ion-icon color="danger" class="min-btn clickable" name="trash-outline" (click)="removeInsuranceLine(i)"></ion-icon>
+										</ng-template>
+									</datatable-column>
+								</app-data-table>
+							</ion-col>
+						</ion-row>
+
+						<ion-row *ngIf="formGroup.controls.PolBenefit.length > 0" class="hr-group">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Allowance & welfare policy' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+								<ion-row>
+									<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let g of formGroup.controls.PolBenefit.controls">
+										<app-form-control
+											(change)="saveConfig()"
+											[field]="{id:g.get('Code')?.value, label: g.get('Label')?.value, type:g.get('ControlType')?.value, form: g }"
+										>
+										</app-form-control>
+									</ion-col>
+								</ion-row>
+							</ion-col>
+						</ion-row>
+
+						<ion-row *ngFor="let gr of arrayUDFGroup" class="hr-group">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{gr.Name | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+								<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+									<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
+										<ion-accordion [value]="sub.Key" *ngFor="let sub of gr.SubGroups" class="ion-accordion-bg">
+											<div slot="header" class="bold header-ion-accordion clickable"><ion-text color="primary">{{sub.Name | translate}}</ion-text></div>
+											<div class="row" slot="content" class="ion-accordion-bg">
+												<ion-grid fixed style="padding: 0px">
+													<ion-row>
+														<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of sub.Items">
+															<app-form-control
+																(change)="saveConfig()"
+																[field]="{ id: i.Code,dataSource:UDFList, type: i.ControlType, label: i.Name, form: formGroup.controls.UDFConfig }"
+															></app-form-control>
+														</ion-col>
+													</ion-row>
+												</ion-grid>
+											</div>
+										</ion-accordion>
+									</ion-accordion-group>
+								</div>
+							</ion-col>
+						</ion-row>
+					</form>
+				</ion-grid>
+			</div>
+
+			<div *ngIf="segmentView == 's2'">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<!-- Other information -->
+						<ion-row class="hr-group" *ngIf="item.Id">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12">
+								<ion-toolbar>
+									<ion-buttons slot="end">
+										<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !isCustomTemplate" (click)="edit()">
+											<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
+										</ion-button>
+										<ion-button title="{{'Preview' | translate}}" *ngIf="isCustomTemplate" (click)="preView()">
+											<ion-icon size="medium" name="eye-outline"></ion-icon>
+										</ion-button>
+									</ion-buttons>
+								</ion-toolbar>
+								<div *ngIf="!isCustomTemplate" [innerHtml]="formGroup.controls._ContractContent.value| safeHtml" class="ql-editor"></div>
+								<form *ngIf="isCustomTemplate" [formGroup]="formGroup" id="screenEditor">
+									<!-- Create the editor container -->
+									<div
+										#quillEditor
+										style="min-height: calc(100vh - 400px)"
+										id="editor"
+										[innerHTML]="formGroup.controls._ContractContent.value ?? '' | safeHtml"
+									></div>
+								</form>
+								<div class="c-control ion-text-right">
+									<label class="c-label" for=""></label>
+									<ion-button (click)="saveContractContent()">{{'Save' | translate}}</ion-button>
+								</div>
+							</ion-col>
+						</ion-row>
+					</form></ion-grid
+				>
+			</div>
+
+			<div *ngIf="segmentView == 's3'">
+				<ion-row *ngIf="formGroup.controls.PolEmployee.controls.Id.value" class="hr-group">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12">
+						<div *ngIf="formGroup.controls.PolEmployee?.controls.Remark?.value"[innerHtml]="formGroup.controls.PolEmployee?.controls.Remark | safeHtml" class="ql-editor"></div>
+						<!-- <form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
+							<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="contractValue?.PolEmployee?.Remark ?? '' | safeHtml"></div>
+							<div class="c-control ion-text-right">
+								<label class="c-label" for=""></label>
+								<ion-button (click)="saveConfig()">{{'Save' | translate}}</ion-button>
+							</div>
+						</form> -->
+					</ion-col>
+				</ion-row>
+			</div>
+
+			<!-- Order information -->
+			<div *ngIf="segmentView == 's4'">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<!-- Other information -->
+						<ion-row class="hr-group" *ngIf="item.Id">
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control [field]="{id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+								<app-form-control [field]="{id: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"></app-form-control>
+							</ion-col>
+						</ion-row>
+					</form>
+				</ion-grid>
+			</div>
+		</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

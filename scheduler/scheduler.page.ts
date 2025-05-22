@@ -9,16 +9,18 @@ import {
 	HRM_StaffTimesheetEnrollmentProvider,
 	HRM_TimesheetProvider,
 	OST_OfficeProvider,
+	HRM_StaffOvertimeRequestProvider,
+	HRM_StaffRecordOvertimeProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
 import { lib } from 'src/app/services/static/global-functions';
-import { ApiSetting } from 'src/app/services/static/api-setting';
 import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
+import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -33,12 +35,16 @@ export class SchedulerPage extends PageBase {
 	shiftList = [];
 	shifTypeList = [];
 	timeoffTypeList = [];
+	OTStatusList = [];
 	fc: any = null;
-
+	isOpenPopover = false;
+	staffList = [];
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
+		public overtimeRequestProvider: HRM_StaffOvertimeRequestProvider,
+		public staffRecordOvertimeProvider : HRM_StaffRecordOvertimeProvider,
 		public officeProvider: OST_OfficeProvider,
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
@@ -56,33 +62,39 @@ export class SchedulerPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.officeProvider.read(), this.env.getType('ShiftType'), this.timesheetProvider.read(), this.shiftProvider.read(), this.env.getType('TimeOffType')]).then(
-			(values) => {
-				this.officeList = values[0]['data'];
-				this.shifTypeList = values[1];
-				this.timesheetList = values[2]['data'];
-				this.shiftList = values[3]['data'];
-				this.timeoffTypeList = values[4];
-				this.shiftList.forEach((s) => {
-					let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
-					if (shiftType) {
-						s.Color = shiftType.Color;
-						s.color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
-						s.ShiftType = shiftType.Name;
-					}
-
-					s.Start = lib.dateFormat('2000-01-01 ' + s.Start, 'hh:MM');
-					s.End = lib.dateFormat('2000-01-01 ' + s.End, 'hh:MM');
-				});
-				if (this.id) {
-					this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
-				} else if (this.timesheetList.length) {
-					this.selectedTimesheet = this.timesheetList[0];
-					this.id = this.selectedTimesheet.Id;
+		Promise.all([
+			this.officeProvider.read(),
+			this.env.getType('ShiftType'),
+			this.timesheetProvider.read(),
+			this.shiftProvider.read(),
+			this.env.getType('TimeOffType'),
+			this.env.getStatus('StandardApprovalStatus'),
+		]).then((values) => {
+			this.officeList = values[0]['data'];
+			this.shifTypeList = values[1];
+			this.timesheetList = values[2]['data'];
+			this.shiftList = values[3]['data'];
+			this.timeoffTypeList = values[4];
+			this.shiftList.forEach((s) => {
+				let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
+				if (shiftType) {
+					s.Color = shiftType.Color;
+					s.color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
+					s.ShiftType = shiftType.Name;
 				}
-				super.preLoadData(event);
+
+				s.Start = lib.dateFormat('2000-01-01 ' + s.Start, 'hh:MM');
+				s.End = lib.dateFormat('2000-01-01 ' + s.End, 'hh:MM');
+			});
+			this.OTStatusList = values[5];
+			if (this.id) {
+				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+			} else if (this.timesheetList.length) {
+				this.selectedTimesheet = this.timesheetList[0];
+				this.id = this.selectedTimesheet.Id;
 			}
-		);
+			super.preLoadData(event);
+		});
 	}
 
 	loadData(event?: any): void {
@@ -95,13 +107,13 @@ export class SchedulerPage extends PageBase {
 		this.query.ShiftType = JSON.stringify(this.shifTypeList.filter((d) => d.isChecked).map((m) => m.Code));
 		this.query.IDOffice = JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id));
 		this.query.Take = 50000;
-
+		this.query.ParseOvertimeConfig = true;
 		this.clearData();
 		if (this.id) {
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp) => {
 				let resources = resp['data'];
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-
+				this.staffList = resources.map((m) => m.IDStaff);
 				this.calendarOptions.resources = resources;
 			});
 			super.loadData(event);
@@ -111,6 +123,45 @@ export class SchedulerPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.overtimeRequestProvider
+			.read(this.query)
+			.then((values: any) => {
+				console.log('tăng ca:');
+				console.log(values?.data);
+				values?.data?.forEach((e) => {
+					e.PolRates.forEach((i) => {
+						this.items.push({
+							id: lib.generateUID(),
+							IDTimeSheet: this.id,
+							resourceId: i.IDStaff,
+							IDOTRequest: e.Id,
+							ShiftType: 'OT',
+							title: 'OT',
+							start: i.Start,
+							IDStaff: i.IDStaff,
+							TimeOffType: null,
+							color: lib.getCssVariableValue('--ion-color-' + this.OTStatusList.find((d) => d.Code == e.Status)?.Color.toLowerCase()),
+							ShiftStart: lib.dateFormat(i.Start, 'hh:MM'),
+							ShiftEnd: lib.dateFormat(i.End, 'hh:MM'),
+						});
+					});
+				});
+				this.patchItems();
+
+				this.calendarOptions.events = this.items;
+				this.getCalendar();
+				this.fc?.updateSize();
+				super.loadedData(event, ignoredFromGroup);
+			})
+			.catch((err) => {
+				this.patchItems();
+				this.calendarOptions.events = this.items;
+				this.getCalendar();
+				this.fc?.updateSize();
+				super.loadedData(event, ignoredFromGroup);
+			});
+	}
+	patchItems() {
 		this.items.forEach((e) => {
 			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
 			if (shift) {
@@ -133,11 +184,6 @@ export class SchedulerPage extends PageBase {
 				}
 			}
 		});
-
-		this.calendarOptions.events = this.items;
-		this.getCalendar();
-		this.fc?.updateSize();
-		super.loadedData(event, ignoredFromGroup);
 	}
 
 	calendarOptions: any = {
@@ -225,6 +271,12 @@ export class SchedulerPage extends PageBase {
 				headerContent: 'Chức danh',
 				width: 150,
 			},
+			{
+				headerDidMount: this.headerDidMount.bind(this),
+				field: 'LeaveDaysRemaining',
+				headerContent: 'Ngày phép',
+				width: 80,
+			},
 		],
 
 		//resourceAreaHeaderContent: 'Nhân sự',
@@ -260,12 +312,23 @@ export class SchedulerPage extends PageBase {
 		displayEventTime: false,
 		editable: true,
 		selectable: true,
-		eventDurationEditable: false,
+		eventDurationEditable: true, // Cho phép kéo dài sự kiện
 		eventOverlap: true,
-		droppable: true, 
+		droppable: true,
 
-		eventContent: function (arg) {
-			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small><ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon></ion-text>`;
+		eventContent: (arg) => {
+			let htmlRemoveButton = ``;
+			if (this.pageConfig.canEdit) {
+				htmlRemoveButton = `<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>`;
+			}
+			if (!this.pageConfig.canEditPassDay) {
+				let d1 = lib.dateFormat(arg.event.extendedProps.WorkingDate);
+				let d2 = lib.dateFormat(arg.event.extendedProps._CurrentDate);
+				if (d1 <= d2) {
+					htmlRemoveButton = '';
+				}
+			}
+			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small> ${htmlRemoveButton} </ion-text>`;
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
 				booked += arg.event.extendedProps.IsBookLunchCatering ? 'L' : '';
@@ -273,8 +336,10 @@ export class SchedulerPage extends PageBase {
 				html = `<ion-icon class="lunch-booked" name="restaurant-outline"></ion-icon>(${booked}) - ` + html;
 			}
 			if (arg.event.extendedProps.TimeOffType) {
-				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text> <ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
+				if (!this.pageConfig.canEditLeaveDay) htmlRemoveButton = '';
+				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text>  ${htmlRemoveButton}`;
 			}
+
 			return {
 				html: html,
 			};
@@ -288,11 +353,36 @@ export class SchedulerPage extends PageBase {
 		eventDidMount: this.eventDidMount.bind(this),
 		select: this.select.bind(this),
 		dateClick: this.dateClick.bind(this), // bind is important!
-		eventClick: null,//this.eventClick.bind(this),
+		eventClick: null, //this.eventClick.bind(this),
 		eventChange: this.eventChange.bind(this),
 		eventDrop: this.eventDrop.bind(this),
+		eventResize: this.eventResize.bind(this),
 	};
 
+	eventResize(info) {
+		const event = info.event; // Sự kiện sau khi được kéo dài
+		const newStart = event.start; // Thời gian bắt đầu mới
+		const newEnd = event.end; // Thời gian kết thúc mới
+
+		// Cập nhật dữ liệu sự kiện
+		const updatedEvent = {
+			Id: event.id,
+			WorkingDate: newStart?.toISOString(),
+			EndDate: newEnd ? newEnd.toISOString() : null,
+		};
+
+		// Gửi dữ liệu cập nhật lên server
+		this.pageProvider
+			.save(updatedEvent)
+			.then(() => {
+				this.env.showMessage('Event updated successfully', 'success');
+			})
+			.catch((err) => {
+				this.env.showMessage('Error updating event', 'danger');
+				console.error(err);
+				info.revert(); // Hoàn tác nếu có lỗi
+			});
+	}
 
 	headerDidMount(arg) {
 		let that = this;
@@ -342,31 +432,45 @@ export class SchedulerPage extends PageBase {
 	}
 	eventDidMount(arg) {
 		let that = this;
-		arg.el.querySelector('.del-event-btn').onclick = function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			that.env
-				.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
-				.then((_) => {
-					that.submitAttempt = true;
-					that.pageProvider
-						.delete([{ Id: parseInt(arg.event.id) }])
-						.then((savedItem: any) => {
-							arg.event.remove();
-							that.submitAttempt = false;
-						})
-						.catch((err) => {
-							that.submitAttempt = false;
-						});
-				})
-				.catch((e) => {});
-		};
+		if (arg.el.querySelector('.del-event-btn')) {
+			arg.el.querySelector('.del-event-btn').onclick = function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				that.env
+					.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
+					.then((_) => {
+						that.submitAttempt = true;
+						let ids = `[${parseInt(arg.event.id)}]`;
+						that.pageProvider.commonService
+							.connect('PUT', 'HRM/StaffSchedule/DeleteSchedule/' + ids, null)
+							.toPromise()
+							.then((savedItem: any) => {
+								try {
+									let obj = JSON.parse(savedItem);
+									console.log(obj);
+									if (obj.IDRequest) {
+										that.env.showPrompt('This leave request has been approved. Do you want to navigate to the leave request page?', null, null).then((_) => {
+											that.navCtrl.navigateForward('/request/' + obj.IDRequest);
+										});
+									}
+								} catch (err) {
+									arg.event.remove();
+									that.submitAttempt = false;
+								}
+							})
+							.catch((err) => {
+								that.submitAttempt = false;
+							});
+					})
+					.catch((e) => {});
+			};
+		}
+
 		arg.el.querySelector('.click-event-btn').onclick = function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			that.eventClick(arg);
 		};
-		
 	}
 	dateClick(dateClickInfo) {
 		this.massShiftAssignment({
@@ -382,19 +486,25 @@ export class SchedulerPage extends PageBase {
 		});
 	}
 	eventClick(arg) {
-		this.massShiftAssignment({
-			FromDate: arg.event.startStr.substr(0, 10),
-			ToDate: arg.event.startStr.substr(0, 10),
-			DaysOfWeek: [arg.event.start.getDay()],
-			IDShift: arg.event.extendedProps.IDShift,
-			TimeOffType: arg.event.extendedProps.TimeOffType,
-			Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
-			IsAllStaff: false,
-			IsOpenShift: false,
-			IsBookLunchCatering: arg.event.extendedProps.IsBookLunchCatering,
-			IsBookBreakfastCatering: arg.event.extendedProps.IsBookBreakfastCatering,
-			IsBookDinnerCatering: arg.event.extendedProps.IsBookDinnerCatering,
-		});
+		if( arg.event.extendedProps.ShiftType == 'OT' ) {
+			this.massOTAssignment(arg?.event?.extendedProps);
+		}
+		else{
+			this.massShiftAssignment({
+				FromDate: arg.event.startStr.substr(0, 10),
+				ToDate: arg.event.startStr.substr(0, 10),
+				DaysOfWeek: [arg.event.start.getDay()],
+				IDShift: arg.event.extendedProps.IDShift,
+				TimeOffType: arg.event.extendedProps.TimeOffType,
+				Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
+				IsAllStaff: false,
+				IsOpenShift: false,
+				IsBookLunchCatering: arg.event.extendedProps.IsBookLunchCatering,
+				IsBookBreakfastCatering: arg.event.extendedProps.IsBookBreakfastCatering,
+				IsBookDinnerCatering: arg.event.extendedProps.IsBookDinnerCatering,
+			});
+		}
+		
 	}
 	eventDrop(info) {
 		const event = info.event; // The event after being dropped
@@ -406,12 +516,10 @@ export class SchedulerPage extends PageBase {
 		// Check if there's already an event in the target cell
 		const overlappingEvent = this.fc.getEvents().find((e) => {
 			return (
-				e._def.resourceIds[0] === targetResourceId &&
-				e.start?.toISOString() === newStart?.toISOString() &&
-				e.id !== event.id // Ensure it's not the same event
+				e._def.resourceIds[0] === targetResourceId && e.start?.toISOString() === newStart?.toISOString() && e.id !== event.id // Ensure it's not the same event
 			);
 		});
-	
+
 		if (overlappingEvent) {
 			// Swap the data between the two events
 			const updatedEvent1 = {
@@ -420,18 +528,15 @@ export class SchedulerPage extends PageBase {
 				WorkingDate: overlappingEvent.start?.toISOString(),
 				EndDate: overlappingEvent.end ? overlappingEvent.end.toISOString() : null,
 			};
-	
+
 			const updatedEvent2 = {
 				Id: overlappingEvent.id,
 				IDStaff: oldResourceId, // Use the old resource ID
 				WorkingDate: oldEvent.start?.toISOString(),
 				EndDate: oldEvent.end ? oldEvent.end.toISOString() : null,
 			};
-	
-			Promise.all([
-				this.pageProvider.save(updatedEvent1),
-				this.pageProvider.save(updatedEvent2),
-			])
+
+			Promise.all([this.pageProvider.save(updatedEvent1), this.pageProvider.save(updatedEvent2)])
 				.then(() => {
 					this.env.showMessage('Events swapped successfully', 'success');
 					this.loadData(); // Reload data to reflect changes
@@ -449,17 +554,19 @@ export class SchedulerPage extends PageBase {
 				WorkingDate: newStart?.toISOString(),
 				EndDate: newEnd ? newEnd.toISOString() : null,
 			};
-	
-			this.pageProvider.save(updatedEvent).then(() => {
-				this.env.showMessage('Event updated successfully', 'success');
-			}).catch((err) => {
-				this.env.showMessage('Error updating event', 'danger');
-				console.error(err);
-				info.revert();
-			});
+
+			this.pageProvider
+				.save(updatedEvent)
+				.then(() => {
+					this.env.showMessage('Event updated successfully', 'success');
+				})
+				.catch((err) => {
+					this.env.showMessage('Error updating event', 'danger');
+					console.error(err);
+					info.revert();
+				});
 		}
 	}
-	
 
 	select(selectionInfo) {
 		selectionInfo.end.setDate(selectionInfo.end.getDate() - 1);
@@ -511,7 +618,6 @@ export class SchedulerPage extends PageBase {
 
 	getCalendar() {
 		this.fc = this.calendarComponent?.getApi();
-
 	}
 
 	showFilter() {
@@ -576,7 +682,7 @@ export class SchedulerPage extends PageBase {
 		cData.staffList = this.calendarOptions.resources;
 		cData.shiftList = this.shiftList;
 		cData.timeoffTypeList = this.timeoffTypeList;
-
+		cData.currentDate = this.items[0]?._CurrentDate;
 		const modal = await this.modalController.create({
 			component: SchedulerGeneratorPage,
 			componentProps: cData,
@@ -593,5 +699,123 @@ export class SchedulerPage extends PageBase {
 				this.loadData(null);
 			});
 		}
+	}
+
+	async massOTAssignment(cData = null) {
+		if (cData) {
+			cData = {
+				id : cData.IDOTRequest,
+			};
+		}
+		else{
+			cData = {
+				id: 0,
+				item : {
+					Config: JSON.stringify({ TimeFrames: [], Staffs: [] }),
+					IDTimesheet: parseInt(this.id) ,
+					Id:0
+				
+				}
+			}
+		}
+	
+		const modal = await this.modalController.create({
+			component: OvertimeRequestDetailPage,
+			componentProps: cData,
+			cssClass: 'modal90',
+		});
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+		if (data) this.refresh();
+		// if (data) {
+		// 	data.IDTimesheet = this.id;
+		// 	console.log(data);
+		// 	this.pageProvider.save(data).then((resp) => {
+		// 		this.loadData(null);
+		// 	});
+		// }
+	}
+	getColor(code) {
+		switch (code) {
+			case 'warning':
+				return lib.getCssVariableValue('--ion-color-warning');
+			case 'danger':
+				return lib.getCssVariableValue('--ion-color-danger');
+			case 'dark':
+				return lib.getCssVariableValue('--ion-color-dark');
+		}
+		return;
+	}
+
+	@ViewChild('importfile') importfile: any;
+	onClickImport() {
+		this.importfile.nativeElement.value = '';
+		this.importfile.nativeElement.click();
+	}
+
+	importOvertimeRecords(event) {
+		if (event.target.files.length == 0) return;
+		this.env
+			.showLoading('Please wait for a few moments', this.staffRecordOvertimeProvider.import(event.target.files[0]))
+			.then((resp : any) => {
+				this.refresh();
+				if (resp.ErrorList && resp.ErrorList.length) {
+					let message = '';
+					for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
+						if (i == 5) message += '<br> Còn nữa...';
+						else {
+							const e = resp.ErrorList[i];
+							message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
+						}
+					this.env
+						.showPrompt(
+							{
+								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								value: { value: resp.ErrorList.length, value1: message },
+							},
+							'Bạn có muốn xem lại các mục bị lỗi?',
+							'Có lỗi import dữ liệu'
+						)
+						.then((_) => {
+							this.downloadURLContent(resp.FileUrl);
+						})
+						.catch((e) => {});
+				} else {
+					this.env.showMessage('Import completed!', 'success');
+				}
+			})
+			.catch((err) => {
+				if (err.statusText == 'Conflict') {
+					// var contentDispositionHeader = err.headers.get('Content-Disposition');
+					// var result = contentDispositionHeader.split(';')[1].trim().split('=')[1];
+					// this.downloadContent(result.replace(/"/g, ''),err._body);
+					this.downloadURLContent(err._body);
+				}
+			});
+
+	}
+
+	exportOvertimeRecords() {
+		if (this.submitAttempt) return;
+		let queryRecord = {
+			IDStaff : JSON.stringify(this.staffList),
+		}
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', this.staffRecordOvertimeProvider.export(queryRecord))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+
+	}
+
+	@ViewChild('Popover') Popover!: HTMLIonPopoverElement;
+	presentPopover(e) {
+		this.Popover.event = e;
+		this.isOpenPopover = !this.isOpenPopover;
 	}
 }

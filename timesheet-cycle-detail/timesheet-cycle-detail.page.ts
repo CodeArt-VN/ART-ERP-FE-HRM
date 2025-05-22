@@ -16,6 +16,7 @@ import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typ
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { lib } from 'src/app/services/static/global-functions';
 import { PointModalPage } from '../point-modal/point-modal.page';
+import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 
 @Component({
 	selector: 'app-timesheet-cycle-detail',
@@ -200,6 +201,18 @@ export class TimesheetCycleDetailPage extends PageBase {
 				e.WorkingDate = lib.dateFormat(e.WorkingDate, 'dd/mm/yyyy');
 				e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
 				e.color = lib.getCssVariableValue('--ion-color-' + e.Color) + '22';
+			} else if (e.TimeOffType) {
+				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+				if (toType) {
+					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+					e.resourceId = e.IDStaff;
+					e.Title = e.TimeOffType;
+					e.start = e.WorkingDate;
+					e.Badge = '';
+					e.html = `<span class="v-align-middle">${e.Title}</span>`;
+				} else {
+					console.log(e);
+				}
 			}
 		});
 
@@ -282,6 +295,11 @@ export class TimesheetCycleDetailPage extends PageBase {
 				headerContent: 'Họ và tên',
 				width: 200,
 			},
+			{
+				field: 'LeaveDaysRemaining',
+				headerContent: 'Ngày phép',
+				width: 80,
+			},
 			// {
 			//     //group: true,
 			//     field: 'JobTitle',
@@ -307,6 +325,9 @@ export class TimesheetCycleDetailPage extends PageBase {
 	};
 
 	eventClick(arg) {
+		if (arg.event.extendedProps.TimeOffType) {
+			return; 
+		}
 		this.showPointModal(arg);
 	}
 
@@ -375,4 +396,17 @@ export class TimesheetCycleDetailPage extends PageBase {
 		});
 		await modal.present();
 	}
+
+	async openModalPayroll(){
+		const modal = await this.modalController.create({
+			component: StaffPayrollModalPage,
+			componentProps: {
+				IDTimesheet: parseInt(this.IDTimesheet),
+				IDTimesheetCycle: parseInt(this.id),
+			},
+			cssClass: 'modal30',
+		});
+		await modal.present();
+	}
+
 }

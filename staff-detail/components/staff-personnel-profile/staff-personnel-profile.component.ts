@@ -128,10 +128,13 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			DateOfIssueID: new FormControl(),
 			IssuedBy: new FormControl(),
 			BackgroundColor: new FormControl(),
-			Religion : new FormControl(),
-			Ethnic : new FormControl(),
-			MaritalStatus : new FormControl(),
-			POD : new FormControl()
+			Religion: new FormControl(),
+			Ethnic: new FormControl(),
+			MaritalStatus: new FormControl(),
+			POD: new FormControl(),
+			LeaveDaysAllocated: [],
+			LeaveDaysUsed: [],
+			LeaveDaysRemaining: [],
 		});
 
 		this.changePasswordForm = formBuilder.group({
@@ -158,6 +161,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			.catch((err) => {
 				super.preLoadData(event);
 			});
+
 		this.departmentList = [...this.env.branchList];
 		this.jobTitleList = [...this.env.jobTitleList];
 	}

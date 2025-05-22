@@ -1,0 +1,79 @@
+<ion-header>
+	<app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<app-page-title [pageConfig]="pageConfig"
+	></app-page-title>
+<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+	<div class="row-full shadow full-screen ion-padding">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'General information' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id: 'Name', label:'Name', type: 'text', form: formGroup }" (change)="saveChange()">
+							<small label *ngIf="item.Id">Id: {{item.Id}}</small>
+						</app-form-control>
+						<app-form-control [field]="{id: 'IDWorkRule', label:'Work rule', type: 'ng-select', dataSource: workRuleList, bindLabel:'Name',bindValue:'Id', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'IDStaff', label: 'Staff', type: 'ng-select-staff',dataSource: _staffDataSource, bindLabel:'Name',bindValue:'Id', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						
+						<app-form-control [field]="{id: 'Amount', label:'Amount', type: 'number', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+					
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id: 'ViolationDate', label:'Violation date', type: 'datetime-local', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'PenaltyDate', label:'Penalty date', type: 'datetime-local', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'AttachmentURL', label:'Attachment URL', type: 'text', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+					 </ion-col>
+				</ion-row>
+
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Description' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="8">
+						<ion-toolbar>
+							<ion-buttons slot="end">
+								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent" (click)="edit()">
+									<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
+								</ion-button>
+								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent" (click)="preView()">
+									<ion-icon size="medium" name="eye-outline"></ion-icon>
+								</ion-button>
+							</ion-buttons>
+						</ion-toolbar>
+						<div *ngIf="!showEditorContent && item?.Remark" [innerHtml]=" item?.Remark | safeHtml" class="ql-editor"></div>
+					
+						<form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
+							<!-- Create the editor container -->
+							<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="item.Remark ?? '' | safeHtml"></div>
+							<div class="c-control ion-text-right">
+								<label class="c-label" for=""></label>
+								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
+							</div>
+						</form>
+					</ion-col>
+
+				</ion-row>
+				
+			</form>
+		</ion-grid>
+
+	</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>

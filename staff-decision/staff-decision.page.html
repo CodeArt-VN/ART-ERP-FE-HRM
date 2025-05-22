@@ -1,0 +1,81 @@
+<ion-header>
+	<app-toolbar [page]="this">
+		<ion-button class="clickable" title="{{'Add new' | translate}}" (click)="presentCopyPopover($event)">
+			<ion-icon name="add-circle-outline" color="success" slot="icon-only"></ion-icon>
+		</ion-button>
+		<ion-popover #addNewPopover [isOpen]="isOpenAddNewPopover" (didDismiss)="isOpenAddNewPopover = false">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<ion-item lines="full" class="clickable" *ngFor="let g of HRPolicyTypeList" (click)="isOpenAddNewPopover=false; HRPolicyTypeClick(g)">
+							<ion-icon aria-hidden="true" [name]="g.Icon || 'layers'" slot="start"></ion-icon>
+							<ion-label [title]="g.Id">{{g.Name | translate}}</ion-label>
+							<!-- <ion-reorder slot="end"></ion-reorder> -->
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+		</ion-popover>
+	</app-toolbar>
+</ion-header>
+<ion-content appScrollbarTheme forceOverscroll="false">
+	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
+
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-staff" name="Requester" property="Id">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-avatar *ngIf="i._Requester" class="avatar" slot="start" [title]="i._Requester.FullName">
+						<ion-img #img [src]="imgPath + i._Requester.Code + '.jpg'" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+					</ion-avatar>
+					<span *ngIf="i._Requester">&nbsp;{{i._Requester.FullName}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-date" format="yyyy-MM-dd" name="Effective date" property="DecisionEffectiveDate" filterControlType="date"></datatable-column>
+			<datatable-column class="col-date" format="yyyy-MM-dd" name="Sign date" property="DecisionSignDate" filterControlType="date"></datatable-column>
+			<datatable-column class="col-name" name="Name" property="Name"></datatable-column>
+			<datatable-column class="col-name" name="Employee policy" property="Id">
+				<ng-template let-i="row" datatable-cell-template>
+					<span *ngIf="i._PolEmployee">{{i._PolEmployee.Name}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column
+				class="col-status"
+				name="Status"
+				property="Status"
+				filterControlType="ng-select"
+				[filterDataSource]="statusList"
+				filterBindValue="Code"
+				filterBindLabel="Name"
+			>
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-badge [color]="i.StatusColor" [title]="i.StatusText"> {{i.StatusText | translate}} </ion-badge>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
+	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

@@ -22,6 +22,8 @@
 							<small label *ngIf="item?.Id">ID: {{ item?.Id }}</small>
 						</app-form-control>
 						<app-form-control [field]="{ id: 'Code', label: 'Reference code', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
+						<app-form-control [field]="{ id: 'LeaveDaysAllocated', label: 'Leave days allocated', type: 'span-number', form: formGroup }"> </app-form-control>
+						<app-form-control [field]="{ id: 'LeaveDaysUsed', label: 'Leave days used', type: 'span-number', form: formGroup }"> </app-form-control>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control
@@ -69,8 +71,40 @@
 							(change)="saveChange()"
 						>
 						</app-form-control>
+						<app-form-control [field]="{ id: 'LeaveDaysRemaining', label: 'Leave days remaining', type: 'span-number', form: formGroup }"> </app-form-control>
 					</ion-col>
 				</ion-row>
+				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+						<ion-list lines="none">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary"> {{ 'Other information' | translate }} </ion-label>
+							</ion-list-header>
+						</ion-list>
+					</ion-col>
+					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+						<ion-row>
+							<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12" class="ion-no-padding">
+								<!-- Component pass ID staff , personal-profile-udf -->
+								<app-staff-personnel-udf [IDStaff]="item.Id"></app-staff-personnel-udf>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6">
+								<app-form-control [field]="{ id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{ id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{ id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{ id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+							</ion-col>
+							<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6">
+								<app-form-control [field]="{ id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{ id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{ id: 'Remark', label: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"> </app-form-control>
+							</ion-col>
+						</ion-row>
+					</ion-col>
+				</ion-row>
+
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 						<ion-list lines="none">
@@ -139,10 +173,8 @@
 						</ion-list>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
-						<app-staff-personnel-family [idStaff]="item?.Id">
-						</app-staff-personnel-family>
+						<app-staff-personnel-family [idStaff]="item?.Id"> </app-staff-personnel-family>
 					</ion-col>
-
 				</ion-row>
 
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
@@ -154,10 +186,8 @@
 						</ion-list>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
-						<app-staff-personnel-identity-card-and-PIT [idStaff]="item?.Id">
-						</app-staff-personnel-identity-card-and-PIT>
+						<app-staff-personnel-identity-card-and-PIT [idStaff]="item?.Id"> </app-staff-personnel-identity-card-and-PIT>
 					</ion-col>
-
 				</ion-row>
 
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
@@ -169,12 +199,9 @@
 						</ion-list>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8" class="ion-no-padding">
-						<app-staff-personnel-bank [idStaff]="item?.Id">
-						</app-staff-personnel-bank>
+						<app-staff-personnel-bank [idStaff]="item?.Id"> </app-staff-personnel-bank>
 					</ion-col>
-
 				</ion-row>
-
 
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
@@ -204,7 +231,6 @@
 					</ion-col>
 				</ion-row>
 
-
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 						<ion-list lines="none">
@@ -232,7 +258,6 @@
 					</ion-col>
 				</ion-row>
 
-
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 						<ion-list lines="none">
@@ -246,7 +271,6 @@
 						<app-staff-another-skill [IDStaff]="item.Id"></app-staff-another-skill>
 					</ion-col>
 				</ion-row>
-
 
 				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
@@ -306,26 +330,7 @@
 						</ion-button>
 					</ion-col>
 				</ion-row>
-				<ion-row class="hr-group" [class]="hideBorder ? '' : 'border'" [ngStyle]="{ 'border-style': hideBorder ? 'none' : '' }">
-					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
-						<ion-list lines="none">
-							<ion-list-header class="ion-no-padding">
-								<ion-label color="primary"> {{ 'Other information' | translate }} </ion-label>
-							</ion-list-header>
-						</ion-list>
-					</ion-col>
-					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-						<app-form-control [field]="{ id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
-						<app-form-control [field]="{ id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
-						<app-form-control [field]="{ id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
-						<app-form-control [field]="{ id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
-					</ion-col>
-					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
-						<app-form-control [field]="{ id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
-						<app-form-control [field]="{ id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
-						<app-form-control [field]="{ id: 'Remark', label: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"> </app-form-control>
-					</ion-col>
-				</ion-row>
+
 				<ion-row style="border: none" class="hr-group">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
 						<ion-list-header class="ion-no-padding">

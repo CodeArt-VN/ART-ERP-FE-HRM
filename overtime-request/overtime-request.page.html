@@ -1,0 +1,55 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding"  class="header-table" fullscreen>
+	<div id="detail-page" style="position: absolute"></div>
+	<div class="safe-max-width">
+		<app-data-table
+		class="box-shadow responsive"
+		[rows]="items"
+		[trackBy]="'Id'"
+		[(selectedRows)]="selectedItems"
+		[showSpinner]="pageConfig.showSpinner"
+		[showFilter]="pageConfig.isShowSearch"
+		[(query)]="query"
+		(dataInfinite)="loadData($event)"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+		(selectedRowsChange)="showCommandBySelectedRows($event)"
+	>
+		<datatable-column [checkbox]="true" name=""></datatable-column>
+	
+		<datatable-column class="col-id" name="Id" property="Id">
+			<ng-template let-i="row" datatable-cell-template>
+				<span (click)="showModal(i)">{{i?.Id}}</span>
+			</ng-template>
+		</datatable-column>
+	
+		<datatable-column class="col-id" name="Timesheet" property="IDTimesheet" >
+			<ng-template let-i="row" datatable-cell-template>
+				<div [routerLink]="['/timesheet/'+i.IDTimesheet]">
+					{{i.IDTimesheet}}
+				</div>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-name" name="Requester" property="IDRequester">
+			<ng-template let-i="row" datatable-cell-template>
+				<ion-avatar class="avatar" slot="start" *ngIf="i._Requester">
+					<ion-img #img [src]="imgPath + i._Requester?.Code + '.jpg'" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+				</ion-avatar>
+				{{i._Requester?.FullName}}
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-date" format="yyyy-MM-dd hh:mm" name="Start date" property="StartDate"></datatable-column>
+		<datatable-column class="col-date" format="yyyy-MM-dd hh:mm" name="End date" property="EndDate"></datatable-column>
+		<datatable-column class="col-status" name="Status" property="Status" filterControlType="ng-select-status" [filterDataSource]="statusList">
+			<ng-template let-i="row" datatable-cell-template>
+				<ion-badge [color]="i.StatusColor" [title]="i.StatusText"> {{i.StatusText | translate}} </ion-badge>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-remark" name="Remark" property="Remark"></datatable-column>
+	</app-data-table>
+	</div>
+
+</ion-content>

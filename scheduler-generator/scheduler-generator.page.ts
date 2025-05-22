@@ -92,6 +92,14 @@ export class SchedulerGeneratorPage extends PageBase {
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		super.loadedData();
+		if (!this.pageConfig.canEditPassDay) {
+			let d1 = lib.dateFormat(this.navParams.data.FromDate);
+			let d2 = lib.dateFormat(this.navParams.data.currentDate);
+			if (d1 <= d2) {
+				this.formGroup.disable();
+				this.pageConfig.canEdit = false;
+			}
+		}
 		setTimeout(() => {}, 0);
 	}
 

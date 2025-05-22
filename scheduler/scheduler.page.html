@@ -52,12 +52,40 @@
 			<ion-button *ngIf="id" (click)="massShiftAssignment()" title="{{'Mass shift allocation' | translate}}">
 				<ion-icon slot="icon-only" name="trail-sign-outline"></ion-icon>
 			</ion-button>
+			<ion-button *ngIf="id" (click)="massOTAssignment()" title="{{'Register overtime' | translate}}">
+				<ion-icon slot="icon-only" name="flash-outline"></ion-icon>
+			</ion-button>
 			<ion-button *ngIf="id" (click)="showStaffPickerModal()" title="{{'Add staff into working schedule' | translate}}">
 				<ion-icon slot="icon-only" name="person-add-outline"></ion-icon>
 			</ion-button>
 			<ion-button (click)="showFilter()" title="{{'show-filter' | translate}}">
 				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
 			</ion-button>
+
+			<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Over time' | translate}}" (click)="presentPopover($event)">
+				<ion-icon slot="icon-only" name="document-attach-outline"></ion-icon>
+			</ion-button>
+
+			<ion-popover #Popover [isOpen]="isOpenPopover" (didDismiss)="isOpenPopover = false">
+				<ng-template>
+					<ion-content scroll-y="false">
+						<ion-list lines="none">
+							<ion-item (click)="onClickImport()" [button]="true" [detail]="false" title="{{'Import' | translate}}">
+								<ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+								<ion-label> {{'Import' | translate}}</ion-label>
+								<input class="hide-all" #importfile type="file" accept=".xlsx" (change)="importOvertimeRecords($event)" />
+							</ion-item>
+							<ion-item (click)="exportOvertimeRecords()" [button]="true" [detail]="false" title="{{'Export' | translate}}">
+								<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+								<ion-label> {{'Export' | translate}}</ion-label>
+							</ion-item>
+						</ion-list>
+					</ion-content>
+				</ng-template>
+				<!-- <ion-button *ngIf="!pageConfig.showSpinner" title="{{'Export' | translate}}" (click)="exportPayrollRecords()">
+					<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
+				</ion-button> -->
+			</ion-popover>
 		</ng-container>
 	</app-list-toolbar>
 </ion-header>

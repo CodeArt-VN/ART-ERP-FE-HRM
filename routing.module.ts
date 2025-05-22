@@ -48,10 +48,61 @@ export const HRMRoutes: Routes = [
     { path: 'shift/:id', loadChildren: () => import('./shift-detail/shift-detail.module').then(m => m.ShiftDetailPageModule), canActivate: [AuthGuard] },
 
 
-    { path: 'compulsory-insurance-policy', loadChildren: () => import('./compulsory-insurance-policy/compulsory-insurance-policy.module').then(m => m.CompulsoryInsurancePolicyPageModule), canActivate: [AuthGuard] },
-    { path: 'compulsory-insurance-policy/:id', loadChildren: () => import('./compulsory-insurance-policy-detail/compulsory-insurance-policy-detail.module').then(m => m.CompulsoryInsurancePolicyDetailPageModule), canActivate: [AuthGuard] },
+    { path: 'insurance-policy', loadChildren: () => import('./insurance-policy/insurance-policy.module').then(m => m.InsurancePolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'insurance-policy/:id', loadChildren: () => import('./insurance-policy-detail/insurance-policy-detail.module').then(m => m.InsurancePolicyDetailPageModule), canActivate: [AuthGuard] },
    
-    { path: 'welfare-policy', loadChildren: () => import('./welfare-policy/welfare-policy.module').then(m => m.WelfarePolicyPageModule), canActivate: [AuthGuard] },
-    { path: 'welfare-policy/:id', loadChildren: () => import('./welfare-policy-detail/welfare-policy-detail.module').then(m => m.WelfarePolicyDetailPageModule), canActivate: [AuthGuard] },
+    { path: 'benefit-policy', loadChildren: () => import('./benefit-policy/benefit-policy.module').then(m => m.BenefitPolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'benefit-policy/:id', loadChildren: () => import('./benefit-policy-detail/benefit-policy-detail.module').then(m => m.BenefitPolicyDetailPageModule), canActivate: [AuthGuard] },
+
+
+    { path: 'tax-policy', loadChildren: () => import('./tax-policy/tax-policy.module').then(m => m.TaxPolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'tax-policy/:id', loadChildren: () => import('./tax-policy-detail/tax-policy-detail.module').then(m => m.TaxPolicyDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'salary-policy', loadChildren: () => import('./salary-policy/salary-policy.module').then(m => m.SalaryPolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'salary-policy/:id', loadChildren: () => import('./salary-policy-detail/salary-policy-detail.module').then(m => m.SalaryPolicyDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'employee-policy', loadChildren: () => import('./employee-policy/employee-policy.module').then(m => m.EmployeePolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'employee-policy/:id', loadChildren: () => import('./employee-policy-detail/employee-policy-detail.module').then(m => m.EmployeePolicyDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'staff-decision', loadChildren: () => import('./staff-decision/staff-decision.module').then(m => m.StaffDecisionPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-decision/:id', loadChildren: () => import('./staff-decision-detail/staff-decision-detail.module').then(m => m.StaffDecisionDetailPageModule), canActivate: [AuthGuard] },
+
+
+    { path: 'udf', loadChildren: () => import('./udf/udf.module').then(m => m.UDFPageModule), canActivate: [AuthGuard] },
+    { path: 'udf/:id', loadChildren: () => import('./udf-detail/udf-detail.module').then(m => m.UDFDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'payroll-template', loadChildren: () => import('./payroll-template/payroll-template.module').then(m => m.PayrollTemplatePageModule), canActivate: [AuthGuard] },
+    { path: 'payroll-template/:id', loadChildren: () => import('./payroll-template-detail/payroll-template-detail.module').then(m => m.PayrollTemplateDetailPageModule), canActivate: [AuthGuard] },
+   
+    { path: 'contract-template', loadChildren: () => import('./contract-template/contract-template.module').then(m => m.ContractTemplatePageModule), canActivate: [AuthGuard] },
+    { path: 'contract-template/:id', loadChildren: () => import('./contract-template-detail/contract-template-detail.module').then(m => m.ContractTemplateDetailPageModule), canActivate: [AuthGuard] },
+   
+    { path: 'staff-contract', loadChildren: () => import('./staff-contract/staff-contract.module').then(m => m.StaffContractPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-contract/:id', loadChildren: () => import('./staff-contract-detail/staff-contract-detail.module').then(m => m.StaffContractDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'insurance-enrollment', loadChildren: () => import('./insurance-enrollment/insurance-enrollment.module').then(m => m.InsuranceEnrollmentPageModule), canActivate: [AuthGuard] },
+    { path: 'insurance-enrollment/:id', loadChildren: () => import('./insurance-enrollment-detail/insurance-enrollment-detail.module').then(m => m.InsuranceEnrollmentDetailPageModule), canActivate: [AuthGuard] },
+   
+
+    { path: 'staff-benefit-enrollment', loadChildren: () => import('./staff-benefit-enrollment/staff-benefit-enrollment.module').then(m => m.StaffBenefitEnrollmentPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-benefit-enrollment/:id', loadChildren: () => import('./staff-benefit-enrollment-detail/staff-benefit-enrollment-detail.module').then(m => m.StaffBenefitEnrollmentDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'staff-payroll', loadChildren: () => import('./staff-payroll/staff-payroll.module').then(m => m.StaffPayrollPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-payroll/config/:id', loadChildren: () => import('./staff-payroll-config/staff-payroll-config.module').then(m => m.StaffPayrollConfigPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-payroll/:id', loadChildren: () => import('./staff-payroll-detail/staff-payroll-detail.module').then(m => m.StaffPayrollDetailPageModule), canActivate: [AuthGuard] },
+   
+    { path: 'overtime-request', loadChildren: () => import('./overtime-request/overtime-request.module').then(m => m.OvertimeRequestPageModule), canActivate: [AuthGuard] },
+    { path: 'overtime-request/:id', loadChildren: () => import('./overtime-request-detail/overtime-request-detail.module').then(m => m.OvertimeRequestDetailPageModule), canActivate: [AuthGuard] },
+   
+    { path: 'work-rule-group', loadChildren: () => import('./work-rule-group/work-rule-group.module').then(m => m.WorkRuleGroupPageModule), canActivate: [AuthGuard] },
+    { path: 'work-rule-group/:id', loadChildren: () => import('./work-rule-group-detail/work-rule-group-detail.module').then(m => m.WorkRuleGroupDetailPageModule), canActivate: [AuthGuard] },
+
+
+    { path: 'work-rule', loadChildren: () => import('./work-rule/work-rule.module').then(m => m.WorkRulePageModule), canActivate: [AuthGuard] },
+    { path: 'work-rule/:id', loadChildren: () => import('./work-rule-detail/work-rule-detail.module').then(m => m.WorkRuleDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'work-rule-violation', loadChildren: () => import('./work-rule-violation/work-rule-violation.module').then(m => m.WorkRuleViolationPageModule), canActivate: [AuthGuard] },
+    { path: 'work-rule-violation/:id', loadChildren: () => import('./work-rule-violation-detail/work-rule-violation-detail.module').then(m => m.WorkRuleViolationDetailPageModule), canActivate: [AuthGuard] },
 
 ];
+

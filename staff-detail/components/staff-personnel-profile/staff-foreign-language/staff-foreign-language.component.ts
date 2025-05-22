@@ -62,8 +62,6 @@ export class StaffForeignLanguageComponent extends PageBase {
 
 	preLoadData(event = null) {
 		this.query.IDStaff = this.IDStaff;
-		console.log('aaaa');
-		console.log(this.pageConfig);
 		
 		Promise.all([this.env.getType('ForeignLanguage'), this.env.getType('CertificateType')])
 			.then((values) => {

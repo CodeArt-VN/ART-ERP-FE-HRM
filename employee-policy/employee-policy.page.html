@@ -1,0 +1,69 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
+
+	<ion-fab *ngIf="pageConfig.isShowFeature" [ngClass]="{'ion-hide-md-down' : pageConfig.isSubActive}" class="feature no-print" vertical="bottom" horizontal="start" slot="fixed">
+		<ion-list>
+			<ion-list-header lines="full">
+				<ion-label color="dark">{{'Policy type' | translate}}</ion-label>
+			</ion-list-header>
+			<ion-item [color]="!groupControl.selectedGroup? 'primary': '' " lines="full" button (click)="onGroupChange(null)">
+				<ion-icon aria-hidden="true" name="layers" slot="start"></ion-icon>
+				<ion-label>{{'All' | translate}}</ion-label>
+				<!-- <ion-note slot="end">{{items.length}}</ion-note> -->
+			</ion-item>
+			<ion-reorder-group [disabled]="!groupControl.showReorder" (ionItemReorder)="handleReorder($any($event))">
+				<ion-item [color]="g.Id == groupControl.selectedGroup?.Id? 'primary': '' " lines="full" button *ngFor="let g of groupControl.groupList" (click)="onGroupChange(g)">
+					<ion-icon aria-hidden="true" [name]="g.Icon || 'layers'" slot="start"></ion-icon>
+					<ion-label [title]="g.Id">{{g.Name | translate}}</ion-label>
+					<ion-reorder slot="end"></ion-reorder>
+				</ion-item>
+			</ion-reorder-group>
+		</ion-list>
+	</ion-fab>
+
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id"></datatable-column>
+			<datatable-column class="col-icon large" name="" property="Icon">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-icon [name]="i.Icon || 'layers'" [color]="i.Color || 'primary'" [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]"></ion-icon>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-name" name="Name" property="Name">
+				<ng-template let-i="row" datatable-cell-template>
+					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+						<a class="bold">
+							<ion-text color="dark">{{i.Name}}</ion-text>
+						</a>
+					</div>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
+	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

@@ -3,21 +3,21 @@
 		<ion-buttons slot="start" class="ion-hide-sm-down_">
 			<ion-button color="dark" class="ion-hide-sm-down"> {{'Select staff' | translate}} </ion-button>
 		</ion-buttons>
-
+		<section class="table" style="min-width: 970px">
+		
+			<div class="col-code cell" style="
+			max-width: 350px;
+			min-width: 350px;
+			float: right;
+			margin-right: 16px;">
+				{{'Quick select: ' | translate}}
+				<app-input-control
+					(change)="quickSelectChange($event)"
+					[field]="{branchConfig:{showingType:'[Department,TitlePosition]', selectedBranch:this.formGroup.get('IDJobTitle').value?this.formGroup.get('IDJobTitle').value: this.formGroup.get('IDDepartment').value?this.formGroup.get('IDDepartment').value: null }, id:'IDQuickSelectBranch', label:'Quick select...', type:'ng-select-branch', dataSource: this.formGroup.get('_selectedBranchList').value, bindLabel:'Name', bindValue:'Id', form: formGroup,clearable:true,placeholder:'Quick select by department or job title'}"
+				></app-input-control>
+			</div>
+		</section>
 		<ion-buttons slot="primary">
-			<div class="c-control" style="margin: 0">
-				<select class="c-input c-dropdown no-check-dirty" (change)="quickSelectChange('IDDepartment')" [(ngModel)]="quickSelect.IDDepartment">
-					<option value="-1">{{'Select by department' | translate}}</option>
-					<option [value]="i.Id" *ngFor="let i of departmentList">{{i.NamePadding}} {{i.Count?'('+i.Count+')' : ''}}</option>
-				</select>
-			</div>
-			&nbsp;
-			<div class="c-control" style="margin: 0">
-				<select class="c-input c-dropdown no-check-dirty" (change)="quickSelectChange('IDJobTitle')" [(ngModel)]="quickSelect.IDJobTitle">
-					<option value="-1">{{'Select by titile' | translate}}</option>
-					<option [disabled]="!t.Flag" *ngFor="let t of branchList" [value]="t.Id">{{t.NamePadding}} {{t.Count?'('+t.Count+')' : ''}}</option>
-				</select>
-			</div>
 			<span class="split ion-hide-sm-down">|</span>
 
 			<ion-button [disabled]="selectedItems.length==0" fill="solid" size="small" color="primary" (click)="SaveSelectedStaff()">
@@ -60,8 +60,8 @@
 				<ion-icon class="min-btn" *ngIf="sort.Email" [name]="sort.Email == 'Email'?'arrow-down': 'arrow-up'"></ion-icon>
 				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Email" name="search" color="primary"></ion-icon>
 			</div>
-			<div class="col-code cell">{{'Unit' | translate}}</div>
-			<div class="col-code cell">{{'Title' | translate}}</div>
+			<div class="col-name cell">{{'Unit' | translate}}</div>
+			<div class="col-name cell">{{'Title' | translate}}</div>
 
 			<div class="col-code cell" (click)="sortToggle('Code')">
 				{{'Code' | translate}}
@@ -86,8 +86,12 @@
 					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Email" class="c-input" [ngClass]="{active: query.Email}" type="text" />
 					<ion-icon class="min-btn" (click)="query.Email=''; refresh()" *ngIf="query.Email" name="close-circle-outline"></ion-icon>
 				</div>
-				<div class="col-code cell">
-					<select
+				<div class="col-name cell">
+					<app-input-control
+						(change)="changeDepartmentQuery()"
+						[field]="{branchConfig:{showingType:'Department'}, id:'IDDepartment', label:'Department', type:'ng-select-branch', dataSource:formGroup.get('_departmentList').value, bindLabel:'Name', bindValue:'Id', form: formGroup,clearable:true}"
+					></app-input-control>
+					<!-- <select
 						(change)="refresh()"
 						[ngModelOptions]="{standalone: true}"
 						[(ngModel)]="query.IDDepartment"
@@ -95,11 +99,15 @@
 						[ngClass]="{active: query.IDDepartment}"
 					>
 						<option [disabled]="t.Flag" *ngFor="let t of departmentList" [value]="t.Query">{{t.NamePadding}}</option>
-					</select>
-					<ion-icon class="min-btn" (click)="query.IDDepartment=''; refresh()" *ngIf="query.IDDepartment" name="close-circle-outline"></ion-icon>
+					</select> -->
 				</div>
-				<div class="col-code cell">
-					<select
+				<div class="col-name cell">
+					<app-input-control
+						(change)="changeJobTitleQuery()"
+						[field]="{branchConfig:{showingType:'TitlePosition', selectedBranch:this.formGroup.get('IDDepartment').value || null }, id:'IDJobTitle', label:'Job title', type:'ng-select-branch', dataSource:formGroup.get('_jobTitleList').value, bindLabel:'Name', bindValue:'Id', form: formGroup,clearable:true}"
+					></app-input-control>
+
+					<!-- <select
 						(change)="refresh()"
 						[ngModelOptions]="{standalone: true}"
 						[(ngModel)]="query.IDJobTitle"
@@ -107,8 +115,7 @@
 						[ngClass]="{active: query.IDJobTitle}"
 					>
 						<option [disabled]="!t.Flag" *ngFor="let t of branchList" [value]="t.Id">{{t.NamePadding}}</option>
-					</select>
-					<ion-icon class="min-btn" (click)="query.IDJobTitle=''; refresh()" *ngIf="query.IDJobTitle" name="close-circle-outline"></ion-icon>
+					</select> -->
 				</div>
 
 				<div class="col-code cell">
@@ -129,8 +136,8 @@
 			</div>
 			<div (click)="changeSelection(i, $event)" class="col-name cell">{{i.FullName}}</div>
 			<div class="col-code cell">{{i.Email}}</div>
-			<div class="col-code cell">{{i.Department}}</div>
-			<div class="col-code cell">{{i.JobTitle}}</div>
+			<div class="col-name cell">{{i.Department}}</div>
+			<div class="col-name cell">{{i.JobTitle}}</div>
 			<div class="col-code cell">{{i.Code}}</div>
 		</div>
 	</section>

@@ -203,7 +203,7 @@
 						</div>
 					</div>
 
-					<div class="c-control">
+					<div class="c-control" *ngIf="pageConfig.canEdit">
 						<label class="c-label">{{'Leaves classification' | translate}}</label>
 						<ion-button
 							size="small"
@@ -219,7 +219,7 @@
 					</div>
 				</ion-col>
 			</ion-row>
-			<ion-row>
+			<ion-row *ngIf="pageConfig.canEdit">
 				<ion-col>
 					<div class="c-control ion-text-right">
 						<label class="c-label" for=""></label>

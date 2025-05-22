@@ -1,0 +1,181 @@
+<ion-header>
+	<ion-toolbar>
+		<ion-title>{{'Overtime request' | translate}}</ion-title>
+
+		<ion-buttons slot="primary">
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+<ion-content appScrollbarTheme class="ion-padding">
+	<!-- <app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title> -->
+	<div id="detail-page" style="position: absolute"></div>
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<div class="row-full shadow full-screen">
+			<div class="ion-padding">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<ion-row class="hr-group">
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Overtime' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="8">
+								<ion-row>
+									<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+										<app-form-control
+											[field]="{id: 'IDBranch', label: 'Branch', type: 'ng-select-branch', dataSource: branchList, bindLabel: 'Name', bindValue: 'Id', form: formGroup, appendTo: '#detail-page'}"
+										>
+										</app-form-control>
+										<app-form-control
+											(change)="changeTimesheet();"
+											[field]="{id:'IDTimesheet', label:'Timesheet', type:'ng-select',dataSource:timesheetList,bindLabel:'Name',bindValue:'Id', form: formGroup}"
+										></app-form-control>
+									</ion-col>
+									<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+										<app-form-control [field]="{id:'Status', label:'Status', type:'span-text', form: formGroup}"></app-form-control>
+										<app-form-control [field]="{id:'IsTransferToDayOff', label:'Transfer to day off', type:'checkbox', form: formGroup}"></app-form-control>
+										<app-form-control
+											[field]="{id:'CanTransferToDayOff', label:'Staff can transfer to day off', type:'checkbox', form: formGroup}"
+										></app-form-control>
+									</ion-col>
+								</ion-row>
+
+								<!-- <app-form-control (change)="saveChange();" [field]="{id:'End', label:'Finishing time', type:'time', form:formGroup}"></app-form-control> -->
+							</ion-col>
+						</ion-row>
+
+						<ion-row class="hr-group">
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Staff list' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="8">
+								<ion-row class="hr-group">
+									<ion-col size="12" size-md="12" size-lg="12" size-xl="12">
+										<div class="safe-max-width">
+											<app-data-table
+												class="box-shadow responsive"
+												[rows]="staffList"
+												[trackBy]="'Id'"
+												[(selectedRows)]="selectedRows"
+												[showSpinner]="pageConfig.showSpinner"
+												[showFilter]="pageConfig.isShowSearch"
+												[(query)]="query"
+												(filter)="onDatatableFilter($event)"
+												(activate)="changeSelection($event,null,false)"
+												(sort)="onSort($event)"
+											>
+												<datatable-column [checkbox]="true" name="">
+													<ng-template datatable-header-template *ngIf="pageConfig.canEdit">
+														<input class="c-checkbox" type="checkbox" (change)="checkAllSelectedItems($event)" />
+													</ng-template>
+												</datatable-column>
+												<datatable-column class="col-id" name="#" property="Id" [navLink]="'staff'"></datatable-column>
+												<datatable-column class="col-name" name="FullName" property="FullName">
+													<ng-template let-i="row" datatable-cell-template>
+														<ion-avatar class="avatar" slot="start">
+															<ion-img
+																#img
+																[src]="i.Code? (imgPath + i.Code + '.jpg') : 'assets/avartar-empty.jpg'"
+																(ionError)="img.src = 'assets/avartar-empty.jpg'"
+															></ion-img>
+														</ion-avatar>
+														<div>
+															<span class="bold"> &nbsp;{{i.FullName}}</span>
+															<small *ngIf="i.Code" class="no-warp"> {{i.Code}}</small>
+														</div>
+													</ng-template>
+												</datatable-column>
+												<!-- <datatable-column class="col-name"  name="Full name" property="FullName">
+
+												</datatable-column> -->
+												<datatable-column class="col-code" name="Job title" property="JobTitle"></datatable-column>
+												<datatable-column class="col-code" name="Department" property="Department"></datatable-column>
+												<!-- <datatable-column class="col-name flex-break" name="Title" property="Name"></datatable-column> -->
+											</app-data-table>
+										</div>
+										<!-- 									
+										<ng-container  *ngFor="let g of formGroup.controls.StaffDataSource.value">
+											<ion-chip >
+												<ion-avatar><ion-img #img [src]="g.Code? (imgPath + g.Code + '.jpg') : 'assets/avartar-empty.jpg'" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img></ion-avatar>
+												<ion-label *ngIf="g.FullName">{{ g.FullName }}</ion-label>
+												
+												<ion-icon *ngIf="this.pageConfig.canEdit"(click)="$event.stopPropagation();removeStaff(g)" name="close-circle"></ion-icon>
+											</ion-chip>
+										</ng-container> -->
+									</ion-col>
+								</ion-row>
+								<!-- <ion-row  *ngIf="this.pageConfig.canEdit">
+									<ion-col size="12" size-xl="4" *ngIf="pageConfig.canEdit && !isFromModal">
+										<ion-button (click)="showStaffPickerModal()"> {{ 'Add staff' | translate }} </ion-button>
+									</ion-col>
+								</ion-row> -->
+							</ion-col>
+						</ion-row>
+
+						<ion-row class="hr-group">
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Time frame' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="8">
+								<ion-row class="hr-group" *ngFor="let g of formGroup.controls.TimeFrames.controls;let j = index">
+									<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+										<app-form-control [field]="{id:'Start', label:'Start date', type:'datetime-local', form: g}"></app-form-control>
+									</ion-col>
+									<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
+										<app-form-control [field]="{id:'End', label:'End date', type:'datetime-local', form: g}"></app-form-control>
+									</ion-col>
+									<ion-col size="12" size-md="12" size-lg="12" size-xl="12" *ngIf="this.pageConfig.canEdit">
+										<ion-button (click)="$event.stopPropagation();removeTimeFrame(j)" size="small" fill="outline">
+											<ion-icon slot="start" name="trash"></ion-icon>
+											{{ 'Delete this time frame' | translate }}
+										</ion-button>
+									</ion-col>
+								</ion-row>
+
+								<ion-row class="hr-group" *ngIf="this.pageConfig.canEdit">
+									<ion-col size="12" size-xl="4" *ngIf="pageConfig.canEdit">
+										<ion-button (click)="addTimeFrame({})"> {{ 'Add time frame' | translate }} </ion-button>
+									</ion-col>
+								</ion-row>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size="12" size-md="12" size-lg="12" size-xl="8">
+								<app-form-control [field]="{id:'Remark', label:'Remark', type : 'textarea', form : formGroup }"></app-form-control>
+							</ion-col>
+						</ion-row>
+						<ion-row *ngIf="pageConfig.canEdit">
+							<ion-col>
+								<div class="c-control ion-text-right" *ngIf="!item?.Id && (pageConfig.canEdit || pageConfig.canAdd)">
+									<label class="c-label" for=""></label>
+									<ion-button (click)="saveConfig()">{{'Add' | translate}}</ion-button>
+								</div>
+								<div class="c-control ion-text-right" *ngIf="item?.Id">
+									<ion-button  (click)="saveConfig()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
+									<ion-button (click)="refresh()" color="warning">{{'Change cancel' | translate}}</ion-button>
+									<ion-button *ngIf="item?.Id && pageConfig.canDelete" (click)="delete()" color="danger">{{'Delete' | translate}}</ion-button>
+								</div>
+							</ion-col>
+						</ion-row>
+					</form>
+				</ion-grid>
+			</div>
+		</div>
+	</div>
+	<!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
+</ion-content>

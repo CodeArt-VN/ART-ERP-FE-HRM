@@ -1,0 +1,51 @@
+<ion-header *ngIf="item">
+	<ion-toolbar class="no-padding" [color]="item.Color">
+		<ion-buttons slot="start">
+			<ion-button>
+				<ion-icon slot="start" [name]="item.Icon"></ion-icon>
+				{{item.FullName}}
+			</ion-button>
+		</ion-buttons>
+		<ion-buttons slot="end">
+			<ion-button title="{{'Close' | translate}}" (click)="closeModal()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<ion-grid fixed>
+		<form [formGroup]="formGroup">
+			<ion-row class="hr-group">
+				<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+					<ion-list-header class="ion-no-padding">
+						<ion-label color="primary">{{'General information' | translate}}</ion-label>
+					</ion-list-header>
+				</ion-col>
+				<ion-col size="12" size-sm size-xl="4">
+					<app-form-control
+						[field]="{id: 'IDTimesheetCycle', label: 'Timesheet cycle', type: 'ng-select',dataSource:timesheetCycleList, bindLabel:'Name', bindValue:'Id', form: formGroup, appendTo: '#ng-select-header'}"
+					>
+					</app-form-control>
+					<app-form-control
+						[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel:'Name' , bindValue:'Code', form: formGroup , appendTo: '#ng-select-header'}"
+					></app-form-control>
+				</ion-col>
+				<ion-col size="12" size-sm size-xl="4">
+					<!-- <app-form-control [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup}"> </app-form-control> -->
+					<app-form-control
+						[field]="{id: 'IDPayrollTemplate', label: 'Payroll template', type: 'ng-select',dataSource:payrollTemplateList, bindLabel:'Name', bindValue:'Id', form: formGroup, appendTo: '#ng-select-header'}"
+					>
+					</app-form-control>
+				</ion-col>
+			</ion-row>
+		</form>
+	</ion-grid>
+</ion-content>
+<ion-footer>
+	<ion-toolbar>
+		<ion-button size="large" slot="end" (click)="saveChange()">{{'Save' | translate}}</ion-button>
+	</ion-toolbar>
+</ion-footer>

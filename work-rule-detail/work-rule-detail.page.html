@@ -1,0 +1,119 @@
+<ion-header>
+	<app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<app-page-title [pageConfig]="pageConfig"
+	></app-page-title>
+<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+	<div class="row-full shadow full-screen ion-padding">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'General information' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id: 'Name', label:'Name', type: 'text', form: formGroup }" (change)="saveChange()">
+							<small label *ngIf="item.Id">Id: {{item.Id}}</small>
+						</app-form-control>
+						<app-form-control [field]="{id: 'IDWorkRuleGroup', label:'Group', type: 'ng-select', dataSource: workRuleGroupList, bindLabel:'Name',bindValue:'Id', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'Supervisor', label: 'Supervisor', type: 'ng-select-staff',dataSource: _staffDataSource, bindLabel:'Name',bindValue:'Id', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'EffectiveDate', label:'Effective date', type: 'datetime-local', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'PenaltyMin', label:'Penalty min', type: 'number', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'PenaltyMax', label:'Penalty max', type: 'number', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'Bonus', label:'Bonus', type: 'number', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control [field]="{id: 'Version', label:'Version', type: 'text', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'TemplateFileUrl', label:'Template URL', type: 'text', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'IsActivedVersion', label:'Actived', type: 'checkbox', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'IsPublished', label:'Published', type: 'checkbox', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'IsViolationTracked', label:'Violation tracked', type: 'checkbox', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+						<app-form-control [field]="{id: 'Overview', label:'Overview', type: 'textarea', form: formGroup }" (change)="saveChange()">
+						</app-form-control>
+					 </ion-col>
+				</ion-row>
+
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Compliance rules' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="8">
+						<ion-toolbar>
+							<ion-buttons slot="end">
+								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent.ComplianceRules" (click)="edit(editorComplianceRules,'ComplianceRules')">
+									<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
+								</ion-button>
+								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent.ComplianceRules" (click)="preView(editorComplianceRules,'ComplianceRules')">
+									<ion-icon size="medium" name="eye-outline"></ion-icon>
+								</ion-button>
+							</ion-buttons>
+						</ion-toolbar>
+						<div *ngIf="!showEditorContent.ComplianceRules && item?.ComplianceRules" [innerHtml]=" item?.ComplianceRules | safeHtml" class="ql-editor"></div>
+					
+						<form *ngIf="showEditorContent.ComplianceRules" [formGroup]="formGroup" id="screenEditor">
+							<!-- Create the editor container -->
+							<div #quillEditorComplianceRules style="min-height: calc(100vh - 400px)" id="quillEditorComplianceRules" [innerHTML]="item.ComplianceRules ?? '' | safeHtml"></div>
+							<div class="c-control ion-text-right">
+								<label class="c-label" for=""></label>
+								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
+							</div>
+						</form>
+					</ion-col>
+
+				</ion-row>
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Disciplinary actions' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="8">
+						<ion-toolbar>
+							<ion-buttons slot="end">
+								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent.DisciplinaryActions" (click)="edit(editorDisciplinaryActions,'DisciplinaryActions')">
+									<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
+								</ion-button>
+								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent.DisciplinaryActions" (click)="preView(editorDisciplinaryActions,'DisciplinaryActions')">
+									<ion-icon size="medium" name="eye-outline"></ion-icon>
+								</ion-button>
+							</ion-buttons>
+						</ion-toolbar>
+						<div *ngIf="!showEditorContent.DisciplinaryActions && item?.DisciplinaryActions" [innerHtml]=" item?.DisciplinaryActions | safeHtml" class="ql-editor"></div>
+						
+						<form *ngIf="showEditorContent.DisciplinaryActions" [formGroup]="formGroup" id="screenEditor">
+							<!-- Create the editor container -->
+							<div #quillEditorDisciplinaryActions style="min-height: calc(100vh - 400px)" id="quillEditorDisciplinaryActions" [innerHTML]="item.DisciplinaryActions ?? '' | safeHtml"></div>
+							<div class="c-control ion-text-right">
+								<label class="c-label" for=""></label>
+								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
+							</div>
+						</form>
+					</ion-col>
+
+				</ion-row>
+				
+			</form>
+		</ion-grid>
+
+	</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>
