@@ -103,7 +103,7 @@ export class BenefitPolicyDetailPage extends PageBase {
 		return super.saveChange2();
 	}
 	savedChange(savedItem?: any, form?: FormGroup<any>): void {
-		super.savedChange();
+		super.savedChange(savedItem);
 		this.item = savedItem;
 	}
 
