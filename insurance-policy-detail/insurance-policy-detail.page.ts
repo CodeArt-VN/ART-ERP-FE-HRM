@@ -69,7 +69,7 @@ export class InsurancePolicyDetailPage extends PageBase {
 		this.setLines();
 	}
 	savedChange(savedItem?: any, form?: FormGroup<any>): void {
-		super.savedChange();
+		super.savedChange(savedItem);
 		this.item = savedItem;
 	}
 	saveChange() {
