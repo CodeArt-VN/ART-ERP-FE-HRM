@@ -39,7 +39,7 @@ export class InsurancePolicyDetailPage extends PageBase {
 	buildFormGroup() {
 		this.formGroup = this.formBuilder.group({
 			Id: new FormControl({ value: '', disabled: true }),
-			Name: [''],
+			Name: ['',Validators.required],
 			Code: ['', Validators.pattern('^[a-zA-Z0-9.\\-]+$')],
 			Remark: [''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
@@ -140,7 +140,11 @@ export class InsurancePolicyDetailPage extends PageBase {
 			} else {
 				this.addLine(data);
 			}
-			this.saveChange();
+			this.saveChange().then(() => {
+				if(!data.Id){
+					this.loadedData();
+				}
+			});
 		}
 	}
 }
