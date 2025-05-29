@@ -45,7 +45,7 @@ export class PayrollTemplateDetailPage extends PageBase {
 			IDPolSalary: ['', Validators.required],
 			SalaryCalculationMethod: [''],
 			Code: [''],
-			Name: [''],
+			Name: ['',Validators.required],
 			Remark: [''],
 			Status: ['Draft'],
 			PayrollTemplateDetails: this.formBuilder.array([]),
