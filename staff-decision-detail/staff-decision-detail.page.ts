@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, QueryList, ElementRef, ViewChildren } from '@angular/core';
 import { NavController, LoadingController, AlertController, ModalController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,6 +15,9 @@ import { FormBuilder, Validators, FormControl, FormGroup, FormArray } from '@ang
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
 import { StaffDecisionDetailModal } from './staff-decision-detail-modal/staff-decision-detail-modal';
+import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
+declare var Quill: any;
 
 @Component({
 	selector: 'app-staff-decision-detail',
@@ -32,6 +35,10 @@ export class StaffDecisionDetailPage extends PageBase {
 	loadingUDFList = false;
 	trackingPolEmplyee;
 	HRMEffectiveTimeTypeList = [];
+	showEditorContent = false;
+	editor: any;
+	remarkBeforeChange = '';
+	@ViewChildren('quillEditor') quillElement: QueryList<ElementRef>;
 	constructor(
 		public pageProvider: HRM_StaffPolEmployeeDecisionProvider,
 		public polEmployeeProvider: HRM_PolEmployeeProvider,
@@ -48,7 +55,8 @@ export class StaffDecisionDetailPage extends PageBase {
 		public cdr: ChangeDetectorRef,
 		public loadingController: LoadingController,
 		public commonService: CommonService,
-		public router: Router
+		public router: Router,
+		private dynamicScriptLoaderService: DynamicScriptLoaderService
 	) {
 		super();
 		this.pageConfig.isDetailPage = true;
@@ -150,6 +158,155 @@ export class StaffDecisionDetailPage extends PageBase {
 		}
 		if (['Approved', 'Submitted'].includes(this.item.Status)) {
 			this.pageConfig.canEdit = false;
+		}
+		this.initQuill();
+	}
+
+	ngAfterViewInit() {
+		this.quillElement.changes.subscribe((elements) => {
+			if (typeof elements.first !== 'undefined') {
+				this.loadQuillEditor();
+			}
+		});
+	}
+
+	loadQuillEditor() {
+		if (typeof Quill !== 'undefined') {
+			this.initQuill();
+		} else {
+			this.dynamicScriptLoaderService
+				.loadResources(thirdPartyLibs.quill.source)
+				.then(() => {
+					this.initQuill();
+				})
+				.catch((error) => console.error('Error loading script', error));
+		}
+	}
+	imageHandler() {
+		const imageUrl = prompt('Please enter the image URL:');
+		if (imageUrl) {
+			const range = this.editor.getSelection();
+			this.editor.insertEmbed(range.index, 'image', imageUrl);
+		}
+	}
+
+	showHtml() {
+		const editorContent = this.editor.root;
+		const isHtmlMode = /&lt;|&gt;|&amp;|&quot;|&#39;/.test(editorContent.innerHTML);
+		if (isHtmlMode) {
+			const htmlContent = editorContent.textContent || '';
+			this.editor.root.innerHTML = htmlContent;
+		} else {
+			const richTextContent = this.editor.root.innerHTML;
+			this.editor.root.textContent = richTextContent;
+		}
+
+		this.formGroup.controls.Content.setValue(this.editor.root.innerHTML);
+		if (this.editor.root.innerHTML == '<p><br></p>') {
+			this.formGroup.controls.Content.setValue(null);
+		}
+		this.formGroup.controls.Content.markAsDirty();
+		this.saveChange();
+	}
+	edit() {
+		this.showEditorContent = true;
+		this.item.Remark = this.item.Remark ?? this.editor?.root?.innerHTML ?? '';
+		this.remarkBeforeChange = this.item.Remark;
+	}
+	preView() {
+		this.showEditorContent = false;
+		this.remarkBeforeChange = this.item.Remark;
+		this.item.Remark = this.editor?.root?.innerHTML ?? '';
+	}
+	initQuill() {
+		if (typeof Quill !== 'undefined') {
+			const existingToolbar = document.querySelector('.ql-toolbar');
+			if (existingToolbar) {
+				existingToolbar.parentNode.removeChild(existingToolbar);
+			}
+			this.editor = new Quill('#editor', {
+				modules: {
+					toolbar: {
+						container: [
+							['bold', 'italic', 'underline', 'strike'], // toggled buttons
+							['blockquote', 'code-block'],
+
+							[{ header: 1 }, { header: 2 }], // custom button values
+							[{ list: 'ordered' }, { list: 'bullet' }],
+							[{ script: 'sub' }, { script: 'super' }], // superscript/subscript
+							[{ indent: '-1' }, { indent: '+1' }], // outdent/indent
+							[{ direction: 'rtl' }], // text direction
+
+							[{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
+							[{ header: [1, 2, 3, 4, 5, 6, false] }],
+
+							[{ color: [] }, { background: [] }], // dropdown with defaults from theme
+							[{ font: [] }],
+							[{ align: [] }],
+							['image', 'code-block'],
+
+							['clean'], // remove formatting button
+							['fullscreen'],
+							['showhtml'],
+						],
+						handlers: {
+							image: this.imageHandler.bind(this),
+							// fullscreen: () => this.toggleFullscreen(),
+							showhtml: () => this.showHtml(),
+						},
+					},
+				},
+				theme: 'snow',
+				placeholder: 'Typing ...',
+			});
+			//choose image
+			//this.editor.getModule("toolbar").addHandler("image", this.imageHandler.bind(this));
+			const editorContainer = document.querySelector('#editor .ql-editor') as HTMLElement;
+			if (editorContainer) {
+				editorContainer.style.backgroundColor = '#ffffff';
+				editorContainer.style.height = '100%';
+				editorContainer.style.width = '100%';
+				editorContainer.style.minHeight = 'calc(-400px + 100vh)';
+			}
+			const editorParent = document.querySelector('#editor') as HTMLElement;
+			if (editorParent) {
+				editorParent.style.height = '100%';
+				editorParent.style.width = '100%';
+			}
+			this.editor.on('text-change', (delta, oldDelta, source) => {
+				if (typeof this.editor.root.innerHTML !== 'undefined' && this.item.Remark !== this.editor.root.innerHTML) {
+					this.formGroup.controls.Remark.setValue(this.editor.root.innerHTML);
+					this.formGroup.controls.Remark.markAsDirty();
+				}
+				if (this.editor.root.innerHTML == '<p><br></p>') {
+					this.formGroup.controls.Remark.setValue(null);
+				}
+			});
+
+			// icon fullscreen
+			const toolbarCustom = this.editor.getModule('toolbar');
+			const fullscreenButton = toolbarCustom.container.querySelector('button.ql-fullscreen');
+			if (fullscreenButton) {
+				const fullscreenIcon = document.createElement('ion-icon');
+				fullscreenIcon.setAttribute('name', 'resize');
+				fullscreenIcon.setAttribute('color', 'dark');
+				fullscreenButton.innerHTML = '';
+				fullscreenButton.appendChild(fullscreenIcon);
+			}
+
+			// icon show HTML
+			const showHtmlButton = toolbarCustom.container.querySelector('button.ql-showhtml');
+			if (showHtmlButton) {
+				const showHtmlIcon = document.createElement('ion-icon');
+				showHtmlIcon.setAttribute('name', 'logo-html5');
+				showHtmlIcon.setAttribute('color', 'dark');
+				showHtmlButton.innerHTML = '';
+				showHtmlButton.appendChild(showHtmlIcon);
+			}
+			const toolbar = document.querySelector('.ql-toolbar');
+			toolbar.addEventListener('mousedown', (event) => {
+				event.preventDefault();
+			});
 		}
 	}
 
