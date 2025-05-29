@@ -16,6 +16,18 @@ export class HRM_StaffRecordPayrollService extends HRM_StaffRecordPayrollProvide
 		return this.commonService.import(apiPath, fileToUpload);
 	}
 
+	importStaffRecordInput(fileToUpload: File,id) {
+		let apiPath = {
+			postImport: {
+				method: 'UPLOAD',
+				url: function () {
+					return 'HRM/StaffRecordPayroll/ImportRecordInput/'+id;
+				},
+			},
+		};
+		return this.commonService.import(apiPath, fileToUpload);
+	}
+
 	exportStaffRecordPayroll(query) {
 		let apiPath = {
 			getExport: {
@@ -27,4 +39,5 @@ export class HRM_StaffRecordPayrollService extends HRM_StaffRecordPayrollProvide
 		};
 		return this.commonService.export(apiPath, query);
 	}
+
 }
