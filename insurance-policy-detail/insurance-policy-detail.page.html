@@ -56,9 +56,9 @@
 				>
 					<datatable-column class="col-id" name="#" property="Id"></datatable-column>
 					<datatable-column class="col-name" name="Type" property="Type"></datatable-column>
-					<datatable-column class="col-remark" name="Calculation method type" property="CalculationMethodType"></datatable-column>
-					<datatable-column class="col-remark" name="Rate co" property="RateCo"></datatable-column>
-					<datatable-column class="col-remark" name="Rate em" property="RateEm"></datatable-column>
+					<datatable-column class="col-name" name="Calculation method type" property="CalculationMethodType"></datatable-column>
+					<datatable-column class="col-number"  format="1.0-0" name="Rate co" property="RateCo"></datatable-column>
+					<datatable-column class="col-number" format="1.0-0"  name="Rate em" property="RateEm"></datatable-column>
 					<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
 						<!-- <ng-template datatable-header-template >
 							<ion-icon *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal()"></ion-icon>

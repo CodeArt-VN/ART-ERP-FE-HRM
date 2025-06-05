@@ -1,22 +1,6 @@
 <ion-header>
-	<app-list-toolbar
-		[ShowFeature]="false"
-		[ShowArchive]="false"
-		[ShowSearch]="false"
-		[pageConfig]="pageConfig"
-		[selectedItems]="selectedItems"
-		[query]="query"
-		(add)="add()"
-		(refresh)="refresh()"
-		(export)="export()"
-		(import)="import($event)"
-		(help)="help()"
-		(unselect)="unselect()"
-		(archiveItems)="archiveItems()"
-		(deleteItems)="delete()"
-		(changeBranch)="changeBranch($event)"
-	>
-		<ng-container title>
+	<app-toolbar [page]="this" >
+		<ng-container startTitle>
 			<div class="ion-hide-sm-down" style="margin: 0">
 				<ng-select
 					class="c-input no-check-dirty"
@@ -87,7 +71,7 @@
 				</ion-button> -->
 			</ion-popover>
 		</ng-container>
-	</app-list-toolbar>
+	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">

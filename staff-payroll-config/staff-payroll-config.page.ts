@@ -5,6 +5,7 @@ import { PageBase } from 'src/app/page-base';
 import {
 	HRM_PayrollTemplateProvider,
 	HRM_StaffPayrollConfigProvider,
+	HRM_StaffPayrollProvider,
 	HRM_TimesheetCycleProvider,
 	HRM_TimesheetProvider,
 	HRM_UDFProvider,
@@ -32,7 +33,7 @@ export class StaffPayrollConfigPage extends PageBase {
 	trackingIDPolSalary;
 	alwaysReturnProps = ['Id', 'IDBranch','IDTimesheetCycle','IDTimesheet'];
 	constructor(
-		public pageProvider: HRM_StaffPayrollConfigProvider,
+		public pageProvider: HRM_StaffPayrollProvider,
 		public payrollTemplateProvider: HRM_PayrollTemplateProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
@@ -69,7 +70,7 @@ export class StaffPayrollConfigPage extends PageBase {
 			CreatedDate: [''],
 			ModifiedBy: [''],
 			ModifiedDate: [''],
-			DeletedPayrollTemplateDetails: [[]],
+			DeletedPayrollConfigs: [[]],
 		});
 	}
 
@@ -195,14 +196,14 @@ export class StaffPayrollConfigPage extends PageBase {
 		groups.push(group);
 	}
 	changePolSalary(e) {
-		let groups = this.formGroup.get('PayrollTemplateDetails') as FormArray;
+		let groups = this.formGroup.get('StaffPayrollConfig') as FormArray;
 		if (groups.controls.length > 0) {
 			this.env
 				.showPrompt('Change policy salary will remove all items in this template. Do you want to continue?', 'Warning', 'Remove all items!', 'No')
 				.then((res: any) => {
 					let ids = groups.controls.filter((d) => d.value.Id).map((d) => d.value.Id);
-					this.formGroup.get('DeletedPayrollTemplateDetails').setValue(ids);
-					this.formGroup.get('DeletedPayrollTemplateDetails').markAsDirty();
+					this.formGroup.get('DeletedPayrollConfigs').setValue(ids);
+					this.formGroup.get('DeletedPayrollConfigs').markAsDirty();
 					groups.clear();
 					this.getUDFList(e.Id).finally(() => this.saveChange2());
 					this.trackingIDPolSalary = e.Id;
@@ -238,20 +239,20 @@ export class StaffPayrollConfigPage extends PageBase {
 	}
 
 	removeField(g, index) {
-		let groups = <FormArray>this.formGroup.controls.PayrollTemplateDetails;
+		let groups = <FormArray>this.formGroup.controls.StaffPayrollConfig;
 		if (g.controls.Id.value) {
 			this.env
 				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
 				.then((_) => {
 					//groups.controls[index].get('IsDeleted').setValue(true);
 					groups.removeAt(index);
-					this.item.PayrollTemplateDetails.splice(index, 1);
-					let DeletedPayrollTemplateDetails = this.formGroup.get('DeletedPayrollTemplateDetails').value;
+					this.item.StaffPayrollConfig.splice(index, 1);
+					let DeletedPayrollConfigs = this.formGroup.get('DeletedPayrollConfigs').value;
 					let deletedId = g.controls.Id.value;
-					DeletedPayrollTemplateDetails.push(deletedId);
+					DeletedPayrollConfigs.push(deletedId);
 
-					this.formGroup.get('DeletedPayrollTemplateDetails').setValue(DeletedPayrollTemplateDetails);
-					this.formGroup.get('DeletedPayrollTemplateDetails').markAsDirty();
+					this.formGroup.get('DeletedPayrollConfigs').setValue(DeletedPayrollConfigs);
+					this.formGroup.get('DeletedPayrollConfigs').markAsDirty();
 					//  groups.controls[index].markAsDirty();
 					// groups.controls[index].get('IsDeleted').markAsDirty()
 					this.saveChange2();
@@ -291,12 +292,12 @@ export class StaffPayrollConfigPage extends PageBase {
 
 	savedChange(savedItem = null, form = this.formGroup) {
 		super.savedChange(savedItem);
-		let groups = this.formGroup.get('PayrollTemplateDetails') as FormArray;
+		let groups = this.formGroup.get('StaffPayrollConfig') as FormArray;
 		let idsBeforeSaving = new Set(groups.controls.map((g) => g.get('Id').value));
 		this.item = savedItem;
 
-		if (this.item.PayrollTemplateDetails?.length > 0) {
-			let newIds = new Set(this.item.PayrollTemplateDetails.map((i) => i.Id));
+		if (this.item.StaffPayrollConfig?.length > 0) {
+			let newIds = new Set(this.item.StaffPayrollConfig.map((i) => i.Id));
 			const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
 			if (diff?.length > 0) {
 				groups.controls

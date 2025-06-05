@@ -23,6 +23,15 @@
 							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
 							<ion-label> {{'Export' | translate}}</ion-label>
 						</ion-item>
+						<ion-item (click)="onClickImportInput()" [button]="true" [detail]="false" title="{{'Import input config' | translate}}">
+							<ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+							<ion-label> {{'Import input config' | translate}}</ion-label>
+							<input class="hide-all" #importInputFile type="file" accept=".xlsx" (change)="importPayrollRecordInput($event)" />
+						</ion-item>
+						<ion-item (click)="exportPayrollRecords('Input')" [button]="true" [detail]="false" title="{{'Export input config' | translate}}">
+							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+							<ion-label> {{'Export input config' | translate}}</ion-label>
+						</ion-item>
 					</ion-list>
 				</ion-content>
 			</ng-template>
@@ -68,11 +77,24 @@
 				</ng-template>
 			</datatable-column>
 
-			<ng-container *ngFor="let c of item.StaffPayrollConfig ; let idx = index">
+			<!-- <ng-container *ngFor="let c of item.StaffRecordPayroll?._ListUDFValue ; let idx = index">
 				<datatable-column class="col-remark" [name]="c.Name" property="Id">
 					<ng-template let-i="row" datatable-cell-template>
-						<ng-container *ngIf="c.DataType == 'int' || c.DataType == 'number' || c.DataType == 'decimal' ; else textTemplate"> {{c.UDFValue | number:'1.0-0'}} </ng-container>
+						<ng-container *ngIf="c.DataType == 'int' || c.DataType == 'number' || c.DataType == 'decimal' ; else textTemplate">
+							{{c.UDFValue | number:'1.0-0'}}
+						</ng-container>
 						<ng-template #textTemplate> {{c.UDFValue}} </ng-template>
+					</ng-template>
+				</datatable-column>
+			</ng-container> -->
+
+			<ng-container *ngFor="let c of item.StaffPayrollConfig ; let idx = index">
+				<datatable-column class="col-remark" [name]="c.Name" property="_ListUDFValue">
+					<ng-template let-i="row" datatable-cell-template>
+						<ng-container *ngIf="c.DataType == 'int' || c.DataType == 'number' || c.DataType == 'decimal' ; else textTemplate">
+							{{i._ListUDFValue[c.Code] || c.UDFValue | number:'1.0-0'}}
+						</ng-container>
+						<ng-template #textTemplate> {{ i._ListUDFValue[c.Code] ||c.UDFValue}} </ng-template>
 					</ng-template>
 				</datatable-column>
 			</ng-container>

@@ -61,15 +61,42 @@
 			<ion-toolbar color="primary">
 				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
 					<ion-segment-button value="s1">
-						<ion-label>{{'General information' | translate}}</ion-label>
+						<ion-label>{{'Condition' | translate}}</ion-label>
 					</ion-segment-button>
 					<ion-segment-button value="s2">
+						<ion-label>{{'General information' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s3">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
 			</ion-toolbar>
 
 			<div class="ion-padding" *ngIf="segmentView == 's1'">
+				<ion-row class="hr-group">
+					<!-- <ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Condition' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col> -->
+
+					<ion-col size="12" size-sm size-xl="12">
+						<!-- <ion-toolbar>
+							<ion-buttons slot="end">
+								<ion-button title="{{'Update' | translate}}" *ngIf="pageConfig.canEdit && !showEditorContent" (click)="edit()">
+									<ion-icon size="medium" color="success" slot="icon-only" name="create-outline"></ion-icon>
+								</ion-button>
+								<ion-button title="{{'Preview' | translate}}" *ngIf="showEditorContent" (click)="preView()">
+									<ion-icon size="medium" name="eye-outline"></ion-icon>
+								</ion-button>
+							</ion-buttons>
+						</ion-toolbar> -->
+						<div *ngIf="!showEditorContent && item?.Condition" [innerHtml]=" item?.Condition | safeHtml" class="ql-editor"></div>
+					</ion-col>
+				</ion-row>
+			</div>
+
+			<div class="ion-padding" *ngIf="segmentView == 's2'">
 				<div class="table-contain" *ngIf="!pageConfig.showSpinner">
 					<app-data-table [rows]="item?.StaffPolEmployeeDecisionDetails || []" [(selectedRows)]="selectedItems" [showSpinner]="pageConfig.showSpinner">
 						<datatable-empty-message subMessage="Please click add new to start..." *ngIf="pageConfig.canEdit">
@@ -159,7 +186,7 @@
 			</div>
 
 			<!-- Order information -->
-			<div *ngIf="segmentView == 's2'">
+			<div *ngIf="segmentView == 's3'">
 				<ion-grid fixed>
 					<form [formGroup]="formGroup">
 						<!-- Other information -->

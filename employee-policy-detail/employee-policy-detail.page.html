@@ -44,9 +44,12 @@
 							</ion-list-header>
 						</ion-col>
 						<ion-col size="12" size-sm size-xl="4">
-							<app-form-control (change)="saveChange2()" [field]="{ branchConfig:{selectedBranch:this.env.selectedBranch},
-							id: 'IDBranch', label: 'Branch', type: 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form: formGroup,appendTo:'#ng-select-header'}">
-						</app-form-control>
+							<app-form-control
+								(change)="saveChange2()"
+								[field]="{ branchConfig:{selectedBranch:this.env.selectedBranch},
+							id: 'IDBranch', label: 'Branch', type: 'ng-select-branch',dataSource:branchList,bindLabel:'Name',bindValue:'Id', form: formGroup,appendTo:'#ng-select-header'}"
+							>
+							</app-form-control>
 							<app-form-control (change)="saveChange()" [field]="{id: 'Code', type: 'text', label: 'Code', form: formGroup }"></app-form-control>
 							<app-form-control (change)="saveChange()" [field]="{id: 'Name', type: 'text', label: 'Name', form: formGroup }"></app-form-control>
 							<app-form-control
@@ -108,7 +111,7 @@
 							<div *ngIf="!showEditorContent && item?.Remark" [innerHtml]=" item?.Remark | safeHtml" class="ql-editor"></div>
 							<form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
 								<!-- Create the editor container -->
-								<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="item.Remark | safeHtml"></div>
+								<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="item.Remark||'' | safeHtml"></div>
 								<div class="c-control ion-text-right">
 									<label class="c-label" for=""></label>
 									<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
@@ -122,17 +125,16 @@
 							<ion-list-header class="ion-no-padding">
 								<ion-label color="primary">{{'Config' | translate}}</ion-label>
 							</ion-list-header>
-						
 						</ion-col>
 
 						<ion-col size="12" size-sm size-xl="8">
 							<ion-list>
 								<ion-list-header lines="full" class="ion-no-padding">
 									<ion-label>{{'User define' | translate }}</ion-label>
-										<ion-button *ngIf="formGroup.get('UDFList').valid" (click)="addUDFList({IDUDF:0},true)">
-											<ion-icon slot="start" name="add"></ion-icon>
-											{{'Add' | translate}}
-										</ion-button>
+									<ion-button *ngIf="formGroup.get('UDFList').valid" (click)="addUDFList({IDUDF:0},true)">
+										<ion-icon slot="start" name="add"></ion-icon>
+										{{'Add' | translate}}
+									</ion-button>
 									<ion-button (click)="toggleReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
 								</ion-list-header>
 								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
@@ -142,7 +144,9 @@
 												<ion-item class="clickable" slot="header" [style.order]="g.get('Sort').value" lines="full">
 													<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
 
-													<ion-label style="margin-right: 0" class="ion-text-wrap clickable"><span *ngIf="g.get('IDUDF').value">{{g.get('IDUDF').value}} -</span> {{g.get('Name').value}} </ion-label>
+													<ion-label style="margin-right: 0" class="ion-text-wrap clickable"
+														><span *ngIf="g.get('IDUDF').value">{{g.get('IDUDF').value}} -</span> {{g.get('Name').value}}
+													</ion-label>
 
 													<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
 														<ion-icon slot="icon-only" name="trash"></ion-icon>
@@ -165,9 +169,12 @@
 																		[field]="{id:'IDUDF', label: 'Field', type : 'ng-select', dataSource: UDFList,bindLabel:'Name',bindValue:'Id',
 																	 form : g ,appendTo: '#ng-select-header'}"
 																	></app-form-control>
-																	<app-form-control (change)="saveConfig()"[field]="{id:'IsRequired', label: 'Require', type : 'checkbox', form : g }" (change)="saveChange2()">
+																	<app-form-control
+																		(change)="saveConfig()"
+																		[field]="{id:'IsRequired', label: 'Require', type : 'checkbox', form : g }"
+																		(change)="saveChange2()"
+																	>
 																	</app-form-control>
-																	
 																</ion-col>
 																<ion-col size="12" size-xl="6">
 																	<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : g }" (change)="saveChange2()">

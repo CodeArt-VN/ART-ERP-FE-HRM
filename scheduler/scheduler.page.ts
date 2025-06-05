@@ -21,6 +21,8 @@ import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
 import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
+import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal/advance-filter-modal.component';
+import { advanceFilterRules } from 'src/app/services/static/advance-filter-rules';
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -44,7 +46,7 @@ export class SchedulerPage extends PageBase {
 		public openScheduleProvider: HRM_OpenScheduleProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public overtimeRequestProvider: HRM_StaffOvertimeRequestProvider,
-		public staffRecordOvertimeProvider : HRM_StaffRecordOvertimeProvider,
+		public staffRecordOvertimeProvider: HRM_StaffRecordOvertimeProvider,
 		public officeProvider: OST_OfficeProvider,
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
@@ -486,10 +488,9 @@ export class SchedulerPage extends PageBase {
 		});
 	}
 	eventClick(arg) {
-		if( arg.event.extendedProps.ShiftType == 'OT' ) {
+		if (arg.event.extendedProps.ShiftType == 'OT') {
 			this.massOTAssignment(arg?.event?.extendedProps);
-		}
-		else{
+		} else {
 			this.massShiftAssignment({
 				FromDate: arg.event.startStr.substr(0, 10),
 				ToDate: arg.event.startStr.substr(0, 10),
@@ -504,7 +505,6 @@ export class SchedulerPage extends PageBase {
 				IsBookDinnerCatering: arg.event.extendedProps.IsBookDinnerCatering,
 			});
 		}
-		
 	}
 	eventDrop(info) {
 		const event = info.event; // The event after being dropped
@@ -704,21 +704,19 @@ export class SchedulerPage extends PageBase {
 	async massOTAssignment(cData = null) {
 		if (cData) {
 			cData = {
-				id : cData.IDOTRequest,
+				id: cData.IDOTRequest,
 			};
-		}
-		else{
+		} else {
 			cData = {
 				id: 0,
-				item : {
+				item: {
 					Config: JSON.stringify({ TimeFrames: [], Staffs: [] }),
-					IDTimesheet: parseInt(this.id) ,
-					Id:0
-				
-				}
-			}
+					IDTimesheet: parseInt(this.id),
+					Id: 0,
+				},
+			};
 		}
-	
+
 		const modal = await this.modalController.create({
 			component: OvertimeRequestDetailPage,
 			componentProps: cData,
@@ -757,7 +755,7 @@ export class SchedulerPage extends PageBase {
 		if (event.target.files.length == 0) return;
 		this.env
 			.showLoading('Please wait for a few moments', this.staffRecordOvertimeProvider.import(event.target.files[0]))
-			.then((resp : any) => {
+			.then((resp: any) => {
 				this.refresh();
 				if (resp.ErrorList && resp.ErrorList.length) {
 					let message = '';
@@ -792,14 +790,13 @@ export class SchedulerPage extends PageBase {
 					this.downloadURLContent(err._body);
 				}
 			});
-
 	}
 
 	exportOvertimeRecords() {
 		if (this.submitAttempt) return;
 		let queryRecord = {
-			IDStaff : JSON.stringify(this.staffList),
-		}
+			IDStaff: JSON.stringify(this.staffList),
+		};
 		this.submitAttempt = true;
 		this.env
 			.showLoading('Please wait for a few moments', this.staffRecordOvertimeProvider.export(queryRecord))
@@ -810,12 +807,52 @@ export class SchedulerPage extends PageBase {
 			.catch((err) => {
 				this.submitAttempt = false;
 			});
-
 	}
 
 	@ViewChild('Popover') Popover!: HTMLIonPopoverElement;
 	presentPopover(e) {
 		this.Popover.event = e;
 		this.isOpenPopover = !this.isOpenPopover;
+	}
+
+	getAdvaneFilterConfig() {
+		if (!this.query._AdvanceConfig) {
+			this.query._AdvanceConfig = advanceFilterRules.HRM_StaffSchedule;
+			let start = new Date(this.fc?.view.activeStart);
+			start.setHours(0, 0, 0, 0);
+			let end = new Date(this.fc?.view.activeEnd);
+			end.setHours(23, 59, 59, 999);
+			this.query._AdvanceConfig.TimeFrame = {
+				Dimension: 'WorkingDate',
+				From: {
+					Type: 'Absolute',
+					IsPastDate: false,
+					Period: 'Day',
+					Amount: 0,
+					Value: start.toISOString(),
+				},
+				To: {
+					Type: 'Absolute',
+					IsPastDate: false,
+					Period: 'Day',
+					Amount: 0,
+					Value: end.toISOString(),
+				},
+			};
+			this.query._AdvanceConfig.Transform = {
+				Filter: {
+					Dimension: 'logical',
+					Operator: 'AND',
+					Value: null,
+					Logicals: [
+						{ Dimension: 'IDTimesheet', Operator: '=', Value: this.id },
+						{ Dimension: 'IsDeleted', Operator: '=', Value: false },
+						{ Dimension: 'IsDisabled', Operator: '=', Value: false },
+					],
+				},
+			};
+		}
+		//this.refresh();
+		// this.pageProvider.read(this.query).then((resp) => {});
 	}
 }
