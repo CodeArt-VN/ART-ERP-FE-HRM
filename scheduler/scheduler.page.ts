@@ -22,7 +22,6 @@ import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
 import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
 import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal/advance-filter-modal.component';
-import { advanceFilterRules } from 'src/app/services/static/advance-filter-rules';
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -61,6 +60,7 @@ export class SchedulerPage extends PageBase {
 	) {
 		super();
 		// this.pageConfig.isShowFeature = true;
+		this.pageConfig.ShowSearch = false;
 	}
 
 	preLoadData(event?: any): void {
@@ -808,7 +808,27 @@ export class SchedulerPage extends PageBase {
 				this.submitAttempt = false;
 			});
 	}
-
+	async export() {
+		this.getAdvaneFilterConfig();
+		const modal = await this.modalController.create({
+			component: AdvanceFilterModalComponent,
+			cssClass: 'modal90',
+			componentProps: {
+				_AdvanceConfig: this.query._AdvanceConfig,
+				schemaType: 'Form',
+				selectedSchema: this.schemaPage,
+				confirmButtonText: 'Export',
+				renderGroup: { Filter: ['TimeFrame', 'Transform'] },
+			},
+		});
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+		if (data) {
+			if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
+			if (data.schema) this.schemaPage = data?.schema;
+			super.export();
+		}
+	}
 	@ViewChild('Popover') Popover!: HTMLIonPopoverElement;
 	presentPopover(e) {
 		this.Popover.event = e;
@@ -816,39 +836,62 @@ export class SchedulerPage extends PageBase {
 	}
 
 	getAdvaneFilterConfig() {
+		let start = new Date(this.fc?.view.activeStart);
+		start.setHours(0, 0, 0, 0);
+		let end = new Date(this.fc?.view.activeEnd);
+		end.setHours(23, 59, 59, 999);
 		if (!this.query._AdvanceConfig) {
-			this.query._AdvanceConfig = advanceFilterRules.HRM_StaffSchedule;
-			let start = new Date(this.fc?.view.activeStart);
-			start.setHours(0, 0, 0, 0);
-			let end = new Date(this.fc?.view.activeEnd);
-			end.setHours(23, 59, 59, 999);
-			this.query._AdvanceConfig.TimeFrame = {
-				Dimension: 'WorkingDate',
-				From: {
-					Type: 'Absolute',
-					IsPastDate: false,
+			this.query._AdvanceConfig = {
+				Schema: {
+					Type: 'Form',
+					Code: 'HRM_StaffSchedule',
+				},
+				TimeFrame: {
+					Dimension: 'WorkingDate',
+					From: {
+						Type: 'Absolute',
+						IsPastDate: false,
+						Period: 'Day',
+						Amount: 0,
+						Value: start.toISOString(),
+					},
+					To: {
+						Type: 'Absolute',
+						IsPastDate: false,
+						Period: 'Day',
+						Amount: 0,
+						Value: end.toISOString(),
+					},
+				},
+				CompareTo: {
+					Type: 'Relative',
+					IsPastDate: true,
 					Period: 'Day',
 					Amount: 0,
-					Value: start.toISOString(),
 				},
-				To: {
-					Type: 'Absolute',
-					IsPastDate: false,
-					Period: 'Day',
-					Amount: 0,
-					Value: end.toISOString(),
-				},
-			};
-			this.query._AdvanceConfig.Transform = {
-				Filter: {
-					Dimension: 'logical',
-					Operator: 'AND',
-					Value: null,
-					Logicals: [
-						{ Dimension: 'IDTimesheet', Operator: '=', Value: this.id },
-						{ Dimension: 'IsDeleted', Operator: '=', Value: false },
-						{ Dimension: 'IsDisabled', Operator: '=', Value: false },
-					],
+				Interval: {},
+				CompareBy: [
+					// {
+					// 	Property: 'IDShift',
+					// 	Title: 'Shift',
+					// },
+					// {
+					// 	Property: 'TimeOffType',
+					// 	Title: 'TimeOff',
+					// },
+				],
+				MeasureBy: [],
+				Transform: {
+					Filter: {
+						Dimension: 'logical',
+						Operator: 'AND',
+						Value: null,
+						Logicals: [
+							{ Dimension: 'IDTimesheet', Operator: '=', Value: this.id },
+							{ Dimension: 'IsDeleted', Operator: '=', Value: false },
+							{ Dimension: 'IsDisabled', Operator: '=', Value: false },
+						],
+					},
 				},
 			};
 		}

@@ -14,6 +14,7 @@ import { lib } from 'src/app/services/static/global-functions';
 	standalone: false,
 })
 export class UDFDetailPage extends PageBase {
+	UDFList: any = [];
 	groupList: any = [];
 	dataTypeList: any = [];
 	controlTypeList: any = [];

@@ -17,6 +17,7 @@ export class StaffPersonnelUDFComponent extends PageBase {
 	@Input() IDStaff;
 	subGroupList: any = [];
 	subGroup: any = [];
+	@Input() group = 'EmployeeInformation';
 	constructor(
 		public pageProvider: HRM_UDFProvider,
 		public staffUDFProvider: HRM_StaffUDFProvider,
@@ -35,9 +36,9 @@ export class StaffPersonnelUDFComponent extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		this.query.Group = 'EmployeeInformation';
+		this.query.Group = this.group;
 		this.query.IsDisabled = false;
-		Promise.all([this.env.getType('EmployeeInformation', true)]).then((values: any) => {
+		Promise.all([this.env.getType(this.group, true)]).then((values: any) => {
 			console.log(values);
 			if (values && values[0]) {
 				this.subGroupList = values[0];
