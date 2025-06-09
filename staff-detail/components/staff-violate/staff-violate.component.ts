@@ -8,7 +8,7 @@ import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
-import { CRM_ContactProvider, CRM_PersonInfoProvider } from 'src/app/services/static/services.service';
+import { CRM_ContactProvider, CRM_PersonInfoProvider, HRM_StaffWorkRuleViolationProvider } from 'src/app/services/static/services.service';
 
 @Component({
 	selector: 'app-staff-violate',
@@ -23,7 +23,7 @@ export class StaffViolateComponent extends PageBase {
 	}
 
 	constructor(
-		//public pageProvider: HRM_StaffViolateProvider,
+		public pageProvider: HRM_StaffWorkRuleViolationProvider,
 		public env: EnvService,
 		public route: ActivatedRoute,
 		public alertCtrl: AlertController,
@@ -33,18 +33,10 @@ export class StaffViolateComponent extends PageBase {
 		public loadingController: LoadingController
 	) {
 		super();
-		this.formGroup = formBuilder.group({
-			Id: new FormControl({ value: '', disabled: true }),
-			Violate: this.formBuilder.array([]),
-		});
-		this.query.IgnoredBranch = true;
-		this.query.IsPersonal = true;
-		this.pageConfig.isForceCreate = true;
+		this.query.Take = 5;
 	}
-	loadData() {
-		this.loadedData();
-	}
-	loadedData() {
-		super.loadedData();
+
+	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		super.loadedData(event, ignoredFromGroup);
 	}
 }

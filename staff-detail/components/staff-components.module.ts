@@ -28,7 +28,7 @@ import { StaffSpecializedFieldComponent } from './staff-personnel-profile/staff-
 import { StaffSpecializedSkillComponent } from './staff-personnel-profile/staff-specialized-skill/staff-specialized-skill.component';
 import { StaffWorkExperienceComponent } from './staff-personnel-profile/staff-work-experience/staff-work-experience.component';
 import { StaffPersonnelUDFComponent } from './staff-personnel-profile/staff-personnel-udf/staff-personnel-udf.page';
-
+import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
 @NgModule({
 	imports: [
 		IonicModule,
@@ -38,6 +38,7 @@ import { StaffPersonnelUDFComponent } from './staff-personnel-profile/staff-pers
 		FormsModule,
 		MapCompsModule,
 		ReactiveFormsModule,
+		FullCalendarModule,
 		//  GoogleMapsModule,
 	],
 	declarations: [
@@ -88,7 +89,6 @@ import { StaffPersonnelUDFComponent } from './staff-personnel-profile/staff-pers
 		StaffSpecializedFieldComponent,
 		StaffSpecializedSkillComponent,
 		StaffWorkExperienceComponent,
-		
 	],
 })
 export class StaffComponentsModule {}
