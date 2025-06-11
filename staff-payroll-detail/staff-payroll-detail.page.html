@@ -41,13 +41,13 @@
 		</ion-popover>
 	</app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme>
+<ion-content appScrollbarTheme class="ion-padding">
 	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
 		<ion-refresher-content></ion-refresher-content>
 	</ion-refresher>
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
-	<div class="safe-max-width">
+	<div class="table-contain">
 		<app-data-table
 			*ngIf="!pageConfig.showSpinner"
 			class="box-shadow responsive"
