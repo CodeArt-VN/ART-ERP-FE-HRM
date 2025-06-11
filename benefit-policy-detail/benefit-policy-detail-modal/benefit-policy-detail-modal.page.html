@@ -29,7 +29,7 @@
 						<app-form-control
 							[field]="{id:'Frequency', type: 'ng-select', label:'Frequency', dataSource:frequencyList, bindValue:'Code',bindLabel:'Name' ,form : formGroup }"
 						></app-form-control>
-						<app-form-control [field]="{id:'Value', label:'Value',type: this.formGroup.controls.ControlType.value?? 'text', form : formGroup }"></app-form-control>
+						<app-form-control [field]="{id:'Value', label:'Value',type: this.formGroup.controls.ControlType.value?? 'text',dataSource: UDFList, form : formGroup }"></app-form-control>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control [field]="{id:'IsIncome', label:'Is income', type: 'checkbox', form : formGroup }"></app-form-control>

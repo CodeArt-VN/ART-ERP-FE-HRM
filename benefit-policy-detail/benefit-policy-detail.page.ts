@@ -96,14 +96,16 @@ export class BenefitPolicyDetailPage extends PageBase {
 
 	loadedData(event?) {
 		super.loadedData(event);
-
+		this.item?.Lines?.forEach((item) => {
+			item.ControlType = this.UDFList.find((x) => x.Id === item.IDUDF)?.ControlType || 'text';
+		});
 		this.setLines();
 	}
 	saveChange() {
 		return super.saveChange2();
 	}
 	savedChange(savedItem?: any, form?: FormGroup<any>): void {
-		super.savedChange();
+		super.savedChange(savedItem);
 		this.item = savedItem;
 	}
 
@@ -158,6 +160,7 @@ export class BenefitPolicyDetailPage extends PageBase {
 	}
 
 	addLine(line, openModal = false) {
+		let udf = this.UDFList.find((x) => x.Id === line?.IDUDF);
 		let groups = <FormArray>this.formGroup.controls.Lines;
 		let group = this.formBuilder.group({
 			IDUDF: [line.IDUDF],
@@ -168,7 +171,8 @@ export class BenefitPolicyDetailPage extends PageBase {
 			IsManagerCanCreateBenefit: [line.IsManagerCanCreateBenefit],
 			Value: [line._Value, Validators.required],
 			Frequency: [line.Frequency, Validators.required],
-			ControlType: [null],
+			ControlType: [udf?.ControlType || 'text'],
+			
 		});
 		groups.push(group);
 		if (openModal) this.showModal(group);
