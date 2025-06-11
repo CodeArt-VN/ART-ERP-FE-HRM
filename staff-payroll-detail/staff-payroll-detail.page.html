@@ -41,7 +41,7 @@
 		</ion-popover>
 	</app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme>
+<ion-content appScrollbarTheme scroll-x="true">
 	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
 		<ion-refresher-content></ion-refresher-content>
 	</ion-refresher>
