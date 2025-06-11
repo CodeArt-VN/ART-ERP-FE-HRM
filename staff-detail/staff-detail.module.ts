@@ -7,7 +7,6 @@ import { ShareModule } from 'src/app/share.module';
 import { StaffDetailPage } from './staff-detail.page';
 import { StaffComponentsModule } from './components/staff-components.module';
 import { MapCompsModule } from 'src/app/components/map-comps/map-comps.module';
-
 const routes: Routes = [
 	{
 		path: '',
@@ -16,7 +15,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-	imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, MapCompsModule, ShareModule, StaffComponentsModule, RouterModule.forChild(routes)],
+	imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, MapCompsModule, ShareModule, StaffComponentsModule ,RouterModule.forChild(routes)],
 	declarations: [StaffDetailPage],
 })
 export class StaffDetailPageModule {}

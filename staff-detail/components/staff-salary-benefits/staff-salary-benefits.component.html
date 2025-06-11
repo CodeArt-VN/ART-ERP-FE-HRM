@@ -1,1 +1,42 @@
 <app-page-title class="ion-padding safe-max-width" icon="cog-outline" color="primary" [title]="'Salary & benefits'" [remark]="'Payroll & benefits'"></app-page-title>
+
+<div class="main-view" *ngIf="pageConfig.showSpinner == false">
+	<div class="row-full shadow full-screen ion-padding">
+		<ion-grid fixed>
+			<ion-row class="hr-group">
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+					<ion-list lines="none">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary"> {{ 'Benefit' | translate }} </ion-label>
+						</ion-list-header>
+					</ion-list>
+				</ion-col>
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+					<ion-row>
+						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12" class="ion-no-padding">
+							<!-- Component pass ID staff , personal-profile-udf -->
+							<app-staff-personnel-udf [group]="'Benefits'" [IDStaff]="id"></app-staff-personnel-udf>
+						</ion-col>
+					</ion-row>
+				</ion-col>
+			</ion-row>
+			<ion-row class="hr-group">
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+					<ion-list lines="none">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary"> {{ 'Income' | translate }} </ion-label>
+						</ion-list-header>
+					</ion-list>
+				</ion-col>
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
+					<ion-row>
+						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12" class="ion-no-padding">
+							<!-- Component pass ID staff , personal-profile-udf -->
+							<app-staff-personnel-udf [group]="'Income'" [IDStaff]="id"></app-staff-personnel-udf>
+						</ion-col>
+					</ion-row>
+				</ion-col>
+			</ion-row>
+		</ion-grid>
+	</div>
+</div>

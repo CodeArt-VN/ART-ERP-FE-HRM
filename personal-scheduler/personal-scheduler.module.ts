@@ -23,5 +23,6 @@ import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/
 		RouterModule.forChild([{ path: '', component: PersonalSchedulerPage }]),
 	],
 	declarations: [PersonalSchedulerPage, PersonalSchedulerGeneratorPage],
+	exports: [PersonalSchedulerPage, PersonalSchedulerGeneratorPage],
 })
 export class PersonalSchedulerPageModule {}

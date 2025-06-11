@@ -120,13 +120,13 @@
 
 		<app-staff-achievements-awards *ngIf="segmentView.Page == 'achievements-awards' && pageConfig.showSpinner == false"></app-staff-achievements-awards>
 
-		<app-staff-violate *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"></app-staff-violate>
+		<app-staff-violate [sfId]="item.Id" *ngIf="segmentView.Page == 'violate' && pageConfig.showSpinner == false"></app-staff-violate>
 
 		<app-staff-reviews-feedback *ngIf="segmentView.Page == 'reviews-feedback' && pageConfig.showSpinner == false"></app-staff-reviews-feedback>
 
-		<app-staff-contracts-documents *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"></app-staff-contracts-documents>
+		<app-staff-contracts-documents [sfId]="item.Id" *ngIf="segmentView.Page == 'contracts-documents' && pageConfig.showSpinner == false"></app-staff-contracts-documents>
 
-		<app-staff-work-schedule *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"></app-staff-work-schedule>
+		<app-staff-work-schedule [sfId]="item.Id" *ngIf="segmentView.Page == 'work-schedule' && pageConfig.showSpinner == false"></app-staff-work-schedule>
 
 		<!-- Tài sản công ty -->
 		<app-staff-company-assets *ngIf="segmentView.Page == 'company-assets' && pageConfig.showSpinner == false"></app-staff-company-assets>

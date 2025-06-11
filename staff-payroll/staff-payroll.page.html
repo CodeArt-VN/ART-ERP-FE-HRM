@@ -8,7 +8,7 @@
 	<div class="safe-max-width">
 		<app-data-table
 			class="box-shadow responsive"
-			[rows]="items"
+			[rows]="itemsState"
 			[trackBy]="'Id'"
 			[(selectedRows)]="selectedItems"
 			[showSpinner]="pageConfig.showSpinner"
@@ -19,14 +19,44 @@
 			(sort)="onSort($event)"
 		>
 			<datatable-column [checkbox]="true"></datatable-column>
-			<datatable-column class="col-id" name="Id" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<!-- <datatable-column class="col-id" name="Id" property="Id" [navLink]="pageConfig.pageName"></datatable-column> -->
 
-			<datatable-column class="col-name" name="Time sheet" property="_Timesheet">
-				<ng-template let-i="row" datatable-cell-template> {{i._Timesheet.TimesheetName | translate}} </ng-template>
+			<datatable-column class="col-name" name="Time sheet" property="Id">
+				<ng-template let-i="row" datatable-cell-template>
+					<ng-container *ngFor="let w of i.levels; let k = index;"><span class="spacing" *ngIf="k>0"></span></ng-container>
+					<ion-icon
+						(click)="toggleRow(items, i, true);"
+						class="min-btn clickable"
+						[name]="!i.showdetail? 'chevron-forward-outline':'chevron-down-outline'"
+						*ngIf="i.HasChild"
+					></ion-icon>
+					<ion-icon class="min-btn clickable" [name]="''" *ngIf="!i.HasChild"></ion-icon>
+					<ion-text *ngIf="i.HasChild" (click)="toggleRow(items, i, true);" class="clickable" [ngClass]="i.HasChild? ('bold ') : ('')" [color]="i.Color"
+						>{{i.TimesheetCycleName | translate}}</ion-text
+					>
+					<ion-text *ngIf="!i.HasChild" (click)="nav('staff-payroll/' +i.Id)">{{i._Timesheet.TimesheetName | translate}}</ion-text>
+				</ng-template>
+				<!-- <ng-template let-i="row" datatable-cell-template> {{i._Timesheet.TimesheetName | translate}} </ng-template> -->
 			</datatable-column>
 
-			<datatable-column class="col-name" name="Payroll template" property="_PayrollTemplate">
-				<ng-template let-i="row" datatable-cell-template> {{i._PayrollTemplate.PayrollTemplateName | translate}} </ng-template>
+			<datatable-column class="col-name" name="Payroll template" property="Id">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-text *ngIf="!i.HasChild"> {{i._PayrollTemplate.PayrollTemplateName | translate}}</ion-text>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column
+				class="col-status"
+				name="Status"
+				property="Id"
+				filterControlType="ng-select"
+				[filterDataSource]="statusList"
+				filterBindValue="Code"
+				filterBindLabel="Name"
+			>
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-badge *ngIf="!i.HasChild" [color]="i.StatusColor" [title]="i.StatusText"> {{i.StatusText | translate}} </ion-badge>
+				</ng-template>
 			</datatable-column>
 		</app-data-table>
 	</div>

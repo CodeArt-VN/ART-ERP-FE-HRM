@@ -76,7 +76,8 @@ export class UDFPage extends PageBase {
 			component: UDFDetailPage,
 			componentProps: {
 				id: i.Id,
-				item:i
+				item:i,
+				UDFList: this.items,
 			},
 			cssClass: 'my-custom-class',
 		});
