@@ -168,7 +168,7 @@ export class SchedulerPage extends PageBase {
 			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
 			if (shift) {
 				e.color = shift.color;
-
+				
 				if (e.TimeOffType) {
 					let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
 					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
@@ -823,7 +823,7 @@ export class SchedulerPage extends PageBase {
 		});
 		await modal.present();
 		const { data } = await modal.onWillDismiss();
-		if (data) {
+		if (data && data.data) {
 			if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
 			if (data.schema) this.schemaPage = data?.schema;
 			super.export();
