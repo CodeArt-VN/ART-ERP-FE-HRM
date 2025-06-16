@@ -1,6 +1,14 @@
 <ion-col size="12" size-sm size-xl="8">
 	<div class="table-contain">
 		<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive" [rows]="items" [(query)]="query" [showSpinner]="pageConfig.showSpinner">
+			<datatable-empty-message subMessage="Please click add new to start..." [showImg]="false" minHeight="125px">
+				<ng-template datatable-empty-message-template>
+					<ion-button (click)="addRow()" size="small" fill="outline" *ngIf="pageConfig.canEdit">
+						<ion-icon slot="start" name="add-outline"></ion-icon>
+						{{ 'Add foreign language' | translate }}
+					</ion-button>
+				</ng-template>
+			</datatable-empty-message>
 			<datatable-column class="col-date"  format="dd-MM-yyyy" name="Date of issue" property="DateOfIssue"></datatable-column>
 			<datatable-column class="col-code" name="Place of issue" property="PlaceOfIssue"></datatable-column>
 			<datatable-column class="col-date" format="dd-MM-yyyy" name="Date of expiry" property="DateOfExpiry"></datatable-column>
@@ -28,7 +36,7 @@
 	</div>
 </ion-col>
 <ion-col size="0" size-md="0" size-lg="0" size-xl="3"></ion-col>
-<ion-col size="12" size-xl="4" *ngIf="pageConfig.canEdit">
+<ion-col size="12" size-xl="4" *ngIf="items.length && pageConfig.canEdit">
 	<div class="c-control">
 		<ion-button (click)="addRow()" size="small" fill="outline">
 			<ion-icon slot="start" name="add-outline"></ion-icon>
