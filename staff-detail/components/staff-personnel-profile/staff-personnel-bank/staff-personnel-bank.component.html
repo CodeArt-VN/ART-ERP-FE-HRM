@@ -1,6 +1,14 @@
 <ion-col size="12" size-sm size-xl="8">
 	<div class="table-contain">
 		<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive" [rows]="items" [(query)]="query" [showSpinner]="pageConfig.showSpinner">
+			<datatable-empty-message subMessage="Please click add new to start..."  [showImg]="false" minHeight="125px">
+				<ng-template datatable-empty-message-template>
+						<ion-button (click)="addRow()" size="small" fill="outline" *ngIf="pageConfig.canEdit">
+							<ion-icon slot="start" name="add-outline"></ion-icon>
+							{{ 'Add bank information' | translate }}
+						</ion-button>
+				</ng-template>
+			</datatable-empty-message>
 			<datatable-column class="col-name" name="Account number" property="AccountNumber"></datatable-column>
 
 			<datatable-column class="col-name" name="Bank" property="Bank"></datatable-column>
@@ -21,7 +29,7 @@
 		</app-data-table>
 	</div>
 </ion-col>
-<ion-col size="12" size-xl="4">
+<ion-col size="12" size-xl="4"  *ngIf="items.length && pageConfig.canEdit">
 	<ion-button (click)="addRow()" size="small" fill="outline">
 		<ion-icon slot="start" name="add-outline"></ion-icon>
 		{{ 'Add bank information' | translate }}

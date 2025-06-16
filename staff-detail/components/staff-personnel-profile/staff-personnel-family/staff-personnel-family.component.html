@@ -34,7 +34,7 @@
 		</app-data-table>
 	</div>
 </ion-col>
-<ion-col size="12" size-xl="4" *ngIf="items.length">
+<ion-col size="12" size-xl="4" *ngIf="items.length && pageConfig.canEdit">
 	<ion-button (click)="addRow()" size="small" fill="outline">
 		<ion-icon slot="start" name="add-outline"></ion-icon>
 		{{ 'Add family information' | translate }}
