@@ -21,7 +21,7 @@ import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
 import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
-import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal/advance-filter-modal.component';
+// import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal/advance-filter-modal.component';
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -808,27 +808,27 @@ export class SchedulerPage extends PageBase {
 				this.submitAttempt = false;
 			});
 	}
-	async export() {
-		this.getAdvaneFilterConfig();
-		const modal = await this.modalController.create({
-			component: AdvanceFilterModalComponent,
-			cssClass: 'modal90',
-			componentProps: {
-				_AdvanceConfig: this.query._AdvanceConfig,
-				schemaType: 'Form',
-				selectedSchema: this.schemaPage,
-				confirmButtonText: 'Export',
-				renderGroup: { Filter: ['TimeFrame', 'Transform'] },
-			},
-		});
-		await modal.present();
-		const { data } = await modal.onWillDismiss();
-		if (data && data.data) {
-			if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
-			if (data.schema) this.schemaPage = data?.schema;
-			super.export();
-		}
-	}
+	// async export() {
+	// 	this.getAdvaneFilterConfig();
+	// 	const modal = await this.modalController.create({
+	// 		component: AdvanceFilterModalComponent,
+	// 		cssClass: 'modal90',
+	// 		componentProps: {
+	// 			_AdvanceConfig: this.query._AdvanceConfig,
+	// 			schemaType: 'Form',
+	// 			// selectedSchema: this.schemaPage,
+	// 			confirmButtonText: 'Export',
+	// 			renderGroup: { Filter: ['TimeFrame', 'Transform'] },
+	// 		},
+	// 	});
+	// 	await modal.present();
+	// 	const { data } = await modal.onWillDismiss();
+	// 	if (data && data.data) {
+	// 		if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
+	// 		// if (data.schema) this.schemaPage = data?.schema;
+	// 		super.export();
+	// 	}
+	// }
 	@ViewChild('Popover') Popover!: HTMLIonPopoverElement;
 	presentPopover(e) {
 		this.Popover.event = e;

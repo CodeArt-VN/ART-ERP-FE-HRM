@@ -49,7 +49,6 @@ export class BenefitPolicyDetailPage extends PageBase {
 			Name: ['', Validators.required],
 			Code: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9.\\-]+$')]],
 			Remark: [''],
-			Value: [''],
 			Type: [''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
 			IsDeleted: new FormControl({ value: '', disabled: true }),
