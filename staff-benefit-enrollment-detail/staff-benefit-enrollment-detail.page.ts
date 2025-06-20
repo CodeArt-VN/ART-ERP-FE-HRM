@@ -162,13 +162,13 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 				.showPrompt('Are you sure you want to delete this staff benefit?', null, 'Delete staff benefit')
 				.then((_) => {
 					let Ids = [];
-					Ids = this.selectedItems.map((e) => e.Id);
+					Ids = this.selectedItems.map((e) => e.IDStaff);
 					if (Ids && Ids.length > 0) {
 						this.formGroup.get('DeletedLines').setValue(Ids);
 						this.formGroup.get('DeletedLines').markAsDirty();
 						this.saveChange().then((s) => {
 							Ids.forEach((id) => {
-								let index = groups.controls.findIndex((x) => x.get('Id').value == id);
+								let index = groups.controls.findIndex((x) => x.get('IDStaff').value == id);
 								if (index >= 0) groups.removeAt(index);
 							});
 						});
@@ -181,18 +181,18 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 	removeLine(index) {
 		let groups = <FormArray>this.formGroup.controls.StaffPolBenefitEnrollmentDetails;
 
-		if (groups.controls[index].get('Id').value) {
+		if (groups.controls[index].get('IDStaff').value) {
 			this.env
 				.showPrompt('Are you sure you want to delete this staff benefit?', null, 'Delete staff benefit')
 				.then((_) => {
 					let Ids = [];
-					Ids.push(groups.controls[index].get('Id').value);
+					Ids.push(groups.controls[index].get('IDStaff').value);
 					if (Ids && Ids.length > 0) {
 						this.formGroup.get('DeletedLines').setValue(Ids);
 						this.formGroup.get('DeletedLines').markAsDirty();
 						this.saveChange().then((s) => {
 							Ids.forEach((id) => {
-								let index = groups.controls.findIndex((x) => x.get('Id').value == id);
+								let index = groups.controls.findIndex((x) => x.get('IDStaff').value == id);
 								if (index >= 0) groups.removeAt(index);
 							});
 						});
@@ -248,7 +248,7 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 			backdropDismiss: false,
 			cssClass: 'modal90',
 			componentProps: {
-				IDPolBenefit: this.item.IDPolBenefit,
+				IDPolBenefit: this.formGroup.controls.IDPolBenefit.value,
 				UDFList: this.UDFList,
 				UDFUsedList: this.UDFUsedList,
 				Items: line,
@@ -298,17 +298,14 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 		this.segmentView = ev.detail.value;
 	}
 	changeBenefitPolicy() {
-		if (this.item.StaffPolBenefitEnrollmentDetails?.some((d) => d.BenefitEnrollmentValue)) {
+		if (this.item.StaffPolBenefitEnrollmentDetails.length > 0) {
 			this.env
 				.showPrompt(null, 'Changing the policy will delete all assigned benefit data for employees. Are you sure?', 'Benefit policy change')
 				.then((_) => {
 					let groups = this.formGroup.controls.StaffPolBenefitEnrollmentDetails as FormArray;
-					groups.controls
-						.filter((d) => d.value.BenefitEnrollmentValue)
-						.forEach((control) => {
-							control.get('BenefitEnrollmentValue').setValue(null);
-							control.get('BenefitEnrollmentValue').markAsDirty();
-						});
+					let ids = groups.controls.map((d) => d.value.IDStaff);
+					this.formGroup.get('DeletedLines').setValue(ids);
+					this.formGroup.get('DeletedLines').markAsDirty();
 					this.UDFUsedList = [];
 					this.saveChange();
 				})
@@ -316,7 +313,7 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 					this.formGroup.controls.IDPolBenefit.setValue(this.trackingIDPolBenefit);
 				});
 		} else {
-			this.saveChange2().then((savedItem)=>{
+			this.saveChange2().then((savedItem) => {
 				this.item = savedItem;
 				this.loadedData();
 			});

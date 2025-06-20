@@ -228,6 +228,7 @@ export class InsuranceEnrollmentDetailPage extends PageBase {
 							staffControl.get(key).markAsDirty();
 						}
 					});
+					staffControl.get('Id').markAsDirty();
 				}
 			});
 			this.saveChange();
@@ -235,7 +236,10 @@ export class InsuranceEnrollmentDetailPage extends PageBase {
 	}
 
 	savedChange(savedItem?: any, form?: FormGroup<any>): void {
+		console.log('savedChange', savedItem);
 		super.savedChange(savedItem, form);
+		this.loadedData();
+
 	}
 
 	segmentView = 's1';
@@ -243,7 +247,7 @@ export class InsuranceEnrollmentDetailPage extends PageBase {
 		this.segmentView = ev.detail.value;
 	}
 
-	async saveChange() {
+	saveChange() {
 		return super.saveChange2();
 	}
 }

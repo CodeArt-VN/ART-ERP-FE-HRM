@@ -92,7 +92,7 @@
 					</datatable-column>
 					<datatable-column class="col-number" name="Insurance salary" property="InsuranceSalary">
 						<ng-template let-i="row" datatable-cell-template>
-							<span> {{ i.InsuranceSalary | number }} </span>
+							<span> {{ i?.InsuranceSalary | number }} </span>
 						</ng-template>
 					</datatable-column>
 					<datatable-column class="col-icon" name="" property="Id">

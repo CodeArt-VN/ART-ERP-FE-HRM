@@ -165,17 +165,19 @@ export class TimesheetCycleDetailPage extends PageBase {
 					e.Title = `${e.Checkin}→${e.Checkout}`;
 					e.Badge = `${e.MinutesOfWorked}-${point}`;
 
-					if (e.LogCount > 2) {
-						e.Color = 'warning';
-						e.Icon = 'alert-circle-outline';
-						e.Title = `F:<b>${e.Checkin}</b>→L:<b>${e.Checkout}</b>`;
-						e.Badge = `${e.MinutesOfWorked}-${point}`;
-					} else if (e.LogCount == 1) {
-						e.Color = 'danger';
-						e.Icon = 'help-circle-outline';
-						e.Title = `${e.Checkin}`;
-						e.Badge = `?`;
-					} else if (!e.LogCount) {
+					//  else if (e.LogCount == 1) {
+					// 	e.Color = 'danger';
+					// 	e.Icon = 'help-circle-outline';
+					// 	e.Title = `${e.Checkin}`;
+					// 	e.Badge = `?`;
+					// }
+					// if (e.LogCount > 2) {
+					// 	e.Color = 'warning';
+					// 	e.Icon = 'alert-circle-outline';
+					// 	e.Title = `F:<b>${e.Checkin}</b>→L:<b>${e.Checkout}</b>`;
+					// 	e.Badge = `${e.MinutesOfWorked}-${point}`;
+					// } else 
+					if (!e.LogCount) {
 						e.Color = 'danger';
 						e.Icon = 'alert-circle-outline';
 						e.Title = `Q`;
