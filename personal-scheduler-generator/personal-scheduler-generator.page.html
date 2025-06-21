@@ -107,6 +107,7 @@
 					<app-form-control (change)="changeOffice()"[field]="{id:'IDOffice',label:'Location',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:officeList,form:formGroup}"></app-form-control>
 					<app-form-control (change)="changeGate($event)"[field]="{id:'IDGate',label:'Check -in gate',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:gateViewList,form:formGroup}"></app-form-control>
 					<app-form-control [field]="{id:'TimeSpan',label:'Log time',type:'time',form:formGroup}"></app-form-control>
+					<app-form-control [field]="{id:'Remark',label:'Reason',type:'textarea',form:formGroup}"></app-form-control>
 				</ion-col>
 			</ion-row>
 			<ion-row *ngIf="!formGroup.controls.TimeOffType.value && (canBook|| canCreateCheckinLog)">

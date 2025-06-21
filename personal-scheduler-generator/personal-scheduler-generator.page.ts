@@ -67,6 +67,7 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 			TimeSpan: ['',Validators.required],
 			IDOffice: ['',Validators.required],
 			IDGate: ['',Validators.required],
+			Remark: ['',Validators.required],
 			IPAddress: [''],
 		});
 	}
@@ -124,6 +125,7 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 			this.formGroup.controls.TimeSpan.setValidators(null);
 			this.formGroup.controls.IDGate.setValidators(null);
 			this.formGroup.controls.IDOffice.setValidators(null);
+			this.formGroup.controls.Remark.setValidators(null);
 			this.formGroup.updateValueAndValidity();
 		}
 	}

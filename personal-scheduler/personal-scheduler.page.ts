@@ -8,6 +8,7 @@ import {
 	HRM_StaffRecordOvertimeProvider,
 	HRM_StaffScheduleProvider,
 	HRM_StaffTimesheetEnrollmentProvider,
+	HRM_TimesheetCycleProvider,
 	HRM_TimesheetLogProvider,
 	HRM_TimesheetProvider,
 	OST_OfficeGateProvider,
@@ -44,6 +45,7 @@ export class PersonalSchedulerPage extends PageBase {
 		public overtimeRecordProvider: HRM_StaffRecordOvertimeProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
+		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
 		public officeProvider: OST_OfficeProvider,
 		public gateProvider: OST_OfficeGateProvider,
 		public shiftProvider: HRM_ShiftProvider,
@@ -107,28 +109,11 @@ export class PersonalSchedulerPage extends PageBase {
 		if (this.query.IDStaff) {
 			this.query.StartDateFrom = this.query.WorkingDateFrom;
 			this.query.StartDateTo = this.query.WorkingDateTo;
-			this.overtimeRecordProvider.read(this.query).then((values: any) => {
-				console.log('tăng ca:');
-				console.log(values?.data);
-				// {
-				// 	"id": 50979,
-				// 	"title": "A2",
-				// 	"start": "2025-04-01T00:00:00",
-				// 	"resourceId": 2820,
-				// 	"IDStaff": 2820,
-				// 	"ShiftType": "AfternoonShift",
-				// 	"IDTimesheet": 99,
-				// 	"IDShift": 65,
-				// 	"WorkingDate": "2025-04-01T00:00:00",
-				// 	"Remark": null,
-				// 	"IsPublished": false,
-				// 	"TimeOffType": null,
-				// 	"IsBookBreakfastCatering": false,
-				// 	"IsBookLunchCatering": false,
-				// 	"IsBookDinnerCatering": false,
-				// 	"_CurrentDate": "2025-04-25T14:48:31.1819478"
-				//   }
-				values?.data?.forEach((i) => {
+			this.query.LogTimeFrom = this.query.WorkingDateFrom;
+			this.query.LogTimeTo = this.query.WorkingDateTo;
+			Promise.all([this.overtimeRecordProvider.read(this.query), this.timesheetLogProvider.read(this.query)]).then((values: any) => {
+				console.log(values);
+				values[0]?.data?.forEach((i) => {
 					this.items.push({
 						title: 'OT',
 						start: i.StartDate,
@@ -138,24 +123,53 @@ export class PersonalSchedulerPage extends PageBase {
 						ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
 					});
 				});
-				this.items.forEach((e) => {
-					let shift = this.shiftList.find((d) => d.Id == e.IDShift);
-					if (shift) {
-						e.Color = shift.Color;
-						e.ShiftStart = shift.Start;
-						e.ShiftEnd = shift.End;
-					}
-					if (e.TimeOffType) {
-						let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-						e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
-					}
-				});
+				if (values[1]?.data?.length > 0) {
+					values[1]?.data?.forEach((i) => {
+						let logDate = new Date(i.LogTime).toDateString();
+						let item = this.items.find((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
+						if (item) {
+							let log = {
+								title: 'Checkin',
+								start: i.LogTime, //i.StartDate,
+								IDStaff: i.IDStaff,
+								TimeOffType: null,
+								ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
+								Remark: i.Remark,
+
+							};
+							if (item.CheckinLog) item.CheckinLog.push(log);
+							else item.CheckinLog = [log];
+						} else {
+							this.items.push({
+								title: 'Checkin',
+								start: i.LogTime, //i.StartDate,
+								IDStaff: i.IDStaff,
+								TimeOffType: null,
+								Remark: i.Remark,
+								ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
+							});
+						}
+					});
+					this.items.forEach((e) => {
+						let shift = this.shiftList.find((d) => d.Id == e.IDShift);
+						if (shift) {
+							e.Color = shift.Color;
+							e.ShiftStart = shift.Start;
+							e.ShiftEnd = shift.End;
+						}
+						if (e.TimeOffType) {
+							let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+							e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+						}
+					});
+				}
 				this.calendarOptions.events = this.items;
 
 				this.getCalendar();
 				this.fc?.updateSize();
 				super.loadedData(event, ignoredFromGroup);
 			});
+
 			// this.query.EndDate = this.query.WorkingDateFrom;
 		}
 	}
@@ -265,8 +279,22 @@ export class PersonalSchedulerPage extends PageBase {
 		eventContent: function (arg) {
 			arg.backgroundColor = arg.event.extendedProps.Color;
 			arg.borderColor = arg.event.extendedProps.Color;
-
-			let html = `<span class='fc-event-custom-css' style='padding: 5px; display: block'><b>${arg.event.title}</b>&nbsp; <small>${arg.event.extendedProps.ShiftStart} - ${arg.event.extendedProps.ShiftEnd}</small> <br>`;
+			let shiftEnd = arg.event.extendedProps.ShiftEnd;
+			let checkinLog = arg.event.extendedProps.CheckinLog;
+			let htmlCheckin = '';
+			if(checkinLog && checkinLog.length > 0) {
+				checkinLog.forEach((log) => {
+					htmlCheckin += `<br>
+									<span>Checkin</span>&nbsp; 
+									<small>${log.ShiftStart}${log.Remark ? ' - ' + log.Remark : ''}</small>`;
+				});
+			}
+			let html = `<span class='fc-event-custom-css' style='padding: 5px; display: block'>
+						<b>${arg.event.title}</b>&nbsp; 
+						<small>${arg.event.extendedProps.ShiftStart}${shiftEnd ? ' - ' + shiftEnd : ''}</small> 
+						${htmlCheckin}
+						<br>
+						</span>`;
 
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
@@ -421,16 +449,16 @@ export class PersonalSchedulerPage extends PageBase {
 		console.log(cData);
 		if (data) {
 			let submitData: any = { Id: data.Id };
-			if (data.TimeSpan && data.IDGate && data.IDOffice) {
+			if (data.TimeSpan && data.IDGate && data.IDOffice && data.Remark) {
 				submitData = {
-					IsAdditional : true,
+					IsAdditional: true,
 					IDStaff: cData.Staffs[0],
 					IDGate: data.IDGate,
-					LogTime : new Date(`${cData.FromDate}T${data.TimeSpan}`),
+					LogTime:  `${cData.FromDate}T${data.TimeSpan}:00`,
 					TimeSpan: data.TimeSpan,
 					IDOffice: data.IDOffice,
-					IPAddress : data.IPAddress,
-
+					IPAddress: data.IPAddress,
+					Remark: data.Remark,
 				};
 				this.timesheetLogProvider.save(submitData).then((resp) => {
 					this.loadData(null);
