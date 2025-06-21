@@ -393,7 +393,10 @@ export class TimesheetCycleDetailPage extends PageBase {
 	async showPointModal(cData = null) {
 		const modal = await this.modalController.create({
 			component: PointModalPage,
-			componentProps: cData,
+			componentProps: {
+				cData: cData,
+				IDCycle: parseInt(this.id),
+			},
 			cssClass: 'modal-hrm-point',
 		});
 		await modal.present();
