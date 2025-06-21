@@ -17,10 +17,8 @@ import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typecateringg
 import dayGridPlugin from '@fullcalendar/daygrid';
 
-import { formatDate } from '@angular/common';
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
-import { ConsoleLogger } from '@microsoft/signalr/dist/esm/Utils';
 
 @Component({
 	selector: 'app-personal-scheduler',
@@ -31,6 +29,7 @@ import { ConsoleLogger } from '@microsoft/signalr/dist/esm/Utils';
 export class PersonalSchedulerPage extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
 	officeList = [];
+	gateList = [];
 	timesheetList = [];
 	selectedTimesheet = null;
 	shiftList = [];
@@ -44,7 +43,9 @@ export class PersonalSchedulerPage extends PageBase {
 		public openScheduleProvider: HRM_OpenScheduleProvider,
 		public overtimeRecordProvider: HRM_StaffRecordOvertimeProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
+		public timesheetLogProvider: HRM_TimesheetLogProvider,
 		public officeProvider: OST_OfficeProvider,
+		public gateProvider: OST_OfficeGateProvider,
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
 
@@ -61,29 +62,32 @@ export class PersonalSchedulerPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.env.getType('ShiftType'), this.shiftProvider.read(), this.env.getType('TimeOffType')]).then((values) => {
-			//this.officeList = values[0]['data'];
-			this.shifTypeList = values[0];
-			//this.timesheetList = values[2]['data'];
-			this.shiftList = values[1]['data'];
-			this.timeoffTypeList = values[2];
+		Promise.all([this.env.getType('ShiftType'), this.shiftProvider.read(), this.env.getType('TimeOffType'), this.officeProvider.read(), this.gateProvider.read()]).then(
+			(values) => {
+				this.officeList = values[3]['data'];
+				this.gateList = values[4]['data'];
+				this.shifTypeList = values[0];
+				//this.timesheetList = values[2]['data'];
+				this.shiftList = values[1]['data'];
+				this.timeoffTypeList = values[2];
 
-			this.shiftList.forEach((s) => {
-				let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
-				if (shiftType) {
-					s.Color = shiftType.Color;
-					s.Color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
-					s.ShiftType = shiftType.Name;
+				this.shiftList.forEach((s) => {
+					let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
+					if (shiftType) {
+						s.Color = shiftType.Color;
+						s.Color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
+						s.ShiftType = shiftType.Name;
+					}
+
+					s.Start = lib.dateFormat('01-01-01 ' + s.Start, 'hh:MM');
+					s.End = lib.dateFormat('01-01-01 ' + s.End, 'hh:MM');
+				});
+				if (this.id) {
+					this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
 				}
-
-				s.Start = lib.dateFormat('01-01-01 ' + s.Start, 'hh:MM');
-				s.End = lib.dateFormat('01-01-01 ' + s.End, 'hh:MM');
-			});
-			if (this.id) {
-				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+				super.preLoadData(event);
 			}
-			super.preLoadData(event);
-		});
+		);
 	}
 
 	loadData(event?: any): void {
@@ -100,10 +104,10 @@ export class PersonalSchedulerPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		if(this.query.IDStaff){
+		if (this.query.IDStaff) {
 			this.query.StartDateFrom = this.query.WorkingDateFrom;
 			this.query.StartDateTo = this.query.WorkingDateTo;
-			this.overtimeRecordProvider.read(this.query).then((values:any) => {
+			this.overtimeRecordProvider.read(this.query).then((values: any) => {
 				console.log('tăng ca:');
 				console.log(values?.data);
 				// {
@@ -124,14 +128,14 @@ export class PersonalSchedulerPage extends PageBase {
 				// 	"IsBookDinnerCatering": false,
 				// 	"_CurrentDate": "2025-04-25T14:48:31.1819478"
 				//   }
-				  values?.data?.forEach(i => {
+				values?.data?.forEach((i) => {
 					this.items.push({
-						"title": "OT",
-						start:i.StartDate,
-						"IDStaff": i.IDStaff,
+						title: 'OT',
+						start: i.StartDate,
+						IDStaff: i.IDStaff,
 						TimeOffType: null,
-						ShiftStart :lib.dateFormat( i.StartDate,'hh:MM'),
-						ShiftEnd : lib.dateFormat(i.EndDate,'hh:MM')
+						ShiftStart: lib.dateFormat(i.StartDate, 'hh:MM'),
+						ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
 					});
 				});
 				this.items.forEach((e) => {
@@ -147,14 +151,13 @@ export class PersonalSchedulerPage extends PageBase {
 					}
 				});
 				this.calendarOptions.events = this.items;
-		
+
 				this.getCalendar();
 				this.fc?.updateSize();
 				super.loadedData(event, ignoredFromGroup);
-			})
+			});
 			// this.query.EndDate = this.query.WorkingDateFrom;
 		}
-		
 	}
 
 	calendarOptions: any = {
@@ -263,7 +266,7 @@ export class PersonalSchedulerPage extends PageBase {
 			arg.backgroundColor = arg.event.extendedProps.Color;
 			arg.borderColor = arg.event.extendedProps.Color;
 
-			let html = `<span class='fc-event-custom-css' style='padding: 5px; display: block'><b>${arg.event.title}</b><br> <small>${arg.event.extendedProps.ShiftStart}<br>${arg.event.extendedProps.ShiftEnd}</small>`;
+			let html = `<span class='fc-event-custom-css' style='padding: 5px; display: block'><b>${arg.event.title}</b>&nbsp; <small>${arg.event.extendedProps.ShiftStart} - ${arg.event.extendedProps.ShiftEnd}</small> <br>`;
 
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
@@ -405,7 +408,8 @@ export class PersonalSchedulerPage extends PageBase {
 		cData.staffList = this.calendarOptions.resources;
 		cData.shiftList = this.shiftList;
 		cData.timeoffTypeList = this.timeoffTypeList;
-
+		cData.officeList = this.officeList;
+		cData.gateList = this.gateList;
 		const modal = await this.modalController.create({
 			component: PersonalSchedulerGeneratorPage,
 			componentProps: cData,
@@ -416,9 +420,36 @@ export class PersonalSchedulerPage extends PageBase {
 		const { data } = await modal.onWillDismiss();
 		console.log(cData);
 		if (data) {
-			this.pageProvider.save(data).then((resp) => {
-				this.loadData(null);
-			});
+			let submitData: any = { Id: data.Id };
+			if (data.TimeSpan && data.IDGate && data.IDOffice) {
+				submitData = {
+					IsAdditional : true,
+					IDStaff: cData.Staffs[0],
+					IDGate: data.IDGate,
+					LogTime : new Date(`${cData.FromDate}T${data.TimeSpan}`),
+					TimeSpan: data.TimeSpan,
+					IDOffice: data.IDOffice,
+					IPAddress : data.IPAddress,
+
+				};
+				this.timesheetLogProvider.save(submitData).then((resp) => {
+					this.loadData(null);
+				});
+			} else {
+				let dirtyFields = ['IsBookLunchCatering', 'IsBookBreakfastCatering', 'IsBookDinnerCatering'];
+				let isSave = false;
+				dirtyFields.forEach((f) => {
+					if (data[f] != cData[f]) {
+						submitData[f] = data[f];
+						isSave = true;
+					}
+				});
+				if (isSave) {
+					this.pageProvider.save(submitData).then((resp) => {
+						this.loadData(null);
+					});
+				}
+			}
 		}
 	}
 }

@@ -24,18 +24,7 @@
 		<ion-grid fixed>
 			<ion-row>
 				<ion-col size="12" size-sm="12" size-md="6">
-					<div class="c-control">
-						<label class="c-label" for="FromDate"
-							>{{'Working day' | translate}}
-							<span
-								*ngIf="!formGroup.controls.FromDate.valid && !formGroup.controls.FromDate.pending && (formGroup.controls.FromDate.dirty || submitAttempt)"
-								ion-text
-								color="danger"
-								>(*)</span
-							>
-						</label>
-						<input class="c-input" [disabled]="true" id="FromDate" formControlName="FromDate" type="date" />
-					</div>
+					<app-form-control [field]="{id:'FromDate',label:'Working day',type:'date',form:formGroup}"> </app-form-control>
 				</ion-col>
 				<ion-col size="12" size-sm="12" size-md="6">
 					<div class="c-control">
@@ -74,7 +63,9 @@
 							</ng-template>
 						</ng-select>
 					</div>
+					<!-- <app-form-control [field]="{id:'IDShift',label:'Shift',type:'ng-select', dataSource: shiftList, bindLabel:'Name',bindValue:'Id',form:formGroup}"> -->
 
+					<!-- </app-form-control> -->
 					<div class="c-control">
 						<label class="c-label">{{'Leave type' | translate}}</label>
 
@@ -102,50 +93,27 @@
                         </ng-select>
                     </div> -->
 					<div class="c-control" *ngIf="!formGroup.controls.TimeOffType.value">
-						<input class="c-checkbox" id="IsBookBreakfastCatering" formControlName="IsBookBreakfastCatering" type="checkbox" />
-						<label class="c-label checkbox" for="IsBookBreakfastCatering"
-							>{{'Register for breakfast (B-Breakfast)' | translate}}
-							<span
-								*ngIf="!formGroup.controls.IsBookBreakfastCatering.valid && !formGroup.controls.IsBookBreakfastCatering.pending && (formGroup.controls.IsBookBreakfastCatering.dirty || submitAttempt)"
-								ion-text
-								color="danger"
-								>(*)</span
-							>
-						</label>
-						<br />
-						<input class="c-checkbox" id="IsBookLunchCatering" formControlName="IsBookLunchCatering" type="checkbox" />
-						<label class="c-label checkbox" for="IsBookLunchCatering"
-							>{{'Register for lunch (L-Lunch)' | translate}}
-							<span
-								*ngIf="!formGroup.controls.IsBookLunchCatering.valid && !formGroup.controls.IsBookLunchCatering.pending && (formGroup.controls.IsBookLunchCatering.dirty || submitAttempt)"
-								ion-text
-								color="danger"
-								>(*)</span
-							>
-						</label>
-						<br />
-						<input class="c-checkbox" id="IsBookDinnerCatering" formControlName="IsBookDinnerCatering" type="checkbox" />
-						<label class="c-label checkbox" for="IsBookDinnerCatering"
-							>{{'Register for dinner (D-Dinner)' | translate}}
-							<span
-								*ngIf="!formGroup.controls.IsBookDinnerCatering.valid && !formGroup.controls.IsBookDinnerCatering.pending && (formGroup.controls.IsBookDinnerCatering.dirty || submitAttempt)"
-								ion-text
-								color="danger"
-								>(*)</span
-							>
-						</label>
+						<app-form-control [field]="{id:'IsBookLunchCatering',label:'Register for lunch (L-Lunch)',type:'checkbox',form:formGroup}"></app-form-control>
+						<app-form-control [field]="{id:'IsBookBreakfastCatering',label:'Register for breakfast (B-Breakfast)',type:'checkbox',form:formGroup}"></app-form-control>
+						<app-form-control [field]="{id:'IsBookDinnerCatering',label:'Register for dinner (D-Dinner)',type:'checkbox',form:formGroup}"></app-form-control>
 					</div>
 
 					<div class="c-control" *ngIf="!canBook">
 						<label class="c-label checkbox">{{'Note: only able to register at least 01 day in advance' | translate}}</label>
 					</div>
 				</ion-col>
+
+				<ion-col size="12" size-sm="12" size-md="12" *ngIf="canCreateCheckinLog">
+					<app-form-control (change)="changeOffice()"[field]="{id:'IDOffice',label:'Location',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:officeList,form:formGroup}"></app-form-control>
+					<app-form-control (change)="changeGate($event)"[field]="{id:'IDGate',label:'Check -in gate',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:gateViewList,form:formGroup}"></app-form-control>
+					<app-form-control [field]="{id:'TimeSpan',label:'Log time',type:'time',form:formGroup}"></app-form-control>
+				</ion-col>
 			</ion-row>
-			<ion-row *ngIf="!formGroup.controls.TimeOffType.value && canBook">
+			<ion-row *ngIf="!formGroup.controls.TimeOffType.value && (canBook|| canCreateCheckinLog)">
 				<ion-col>
 					<div class="c-control ion-text-right">
 						<label class="c-label" for=""></label>
-						<ion-button [disabled]="!formGroup.dirty" (click)="massShiftAssignment()">{{'Save options' | translate}}</ion-button>
+						<ion-button [disabled]="!formGroup.dirty && !formGroup.valid" (click)="massShiftAssignment()">{{'Save options' | translate}}</ion-button>
 					</div>
 				</ion-col>
 			</ion-row>
