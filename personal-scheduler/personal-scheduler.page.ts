@@ -286,11 +286,11 @@ export class PersonalSchedulerPage extends PageBase {
 
 		views: {
 			dayGridMonth: {
-				buttonText: 'month',
+				buttonText: 'Month',
 				titleFormat: { year: 'numeric', month: 'long' }, // Ví dụ: June 2025
 			},
 			timeGridWeek: {
-				buttonText: 'week',
+				buttonText: 'Week',
 				titleFormat: { year: 'numeric', month: 'short', day: 'numeric' }, // Ví dụ: Jun 23 – 29, 2025
 
 				slotMinTime: '06:00:00', // Bắt đầu từ 6h sáng
@@ -298,7 +298,7 @@ export class PersonalSchedulerPage extends PageBase {
 				columnHeaderFormat: { weekday: 'short', day: '2-digit', month: '2-digit' },
 			},
 			timeGridDay: {
-				buttonText: 'day',
+				buttonText: 'Day',
 				titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
 				slotMinTime: '06:00:00',
 				slotMaxTime: '24:00:00',
