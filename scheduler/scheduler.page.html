@@ -1,5 +1,5 @@
 <ion-header>
-	<app-toolbar [page]="this" >
+	<app-toolbar [page]="this">
 		<ng-container startTitle>
 			<div class="ion-hide-sm-down" style="margin: 0">
 				<ng-select
@@ -24,7 +24,20 @@
 				</ng-select>
 			</div>
 		</ng-container>
-		<ng-container>
+
+		<ion-segment centerTitle scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+			<ion-segment-button value="s1">
+				<ion-label>{{'Scheduler' | translate}}</ion-label>
+			</ion-segment-button>
+			<ion-segment-button value="s2">
+				<ion-label>{{'Checkin log' | translate}}</ion-label>
+			</ion-segment-button>
+			<ion-segment-button value="s3">
+				<ion-label>{{'Timesheet cycle' | translate}}</ion-label>
+			</ion-segment-button>
+		</ion-segment>
+
+		<ng-container *ngIf="segmentView == 's1'">
 			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
@@ -70,6 +83,48 @@
 					<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
 				</ion-button> -->
 			</ion-popover>
+		</ng-container>
+
+		<ng-container *ngIf="segmentView == 's2'">
+			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
+			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
+				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+			</ion-button>
+			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
+				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+			</ion-button>
+			<span class="split ion-hide-sm-down">|</span>
+			<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
+				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
+			</ion-button>
+		</ng-container>
+
+		<ng-container *ngIf="segmentView == 's3'">
+			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
+			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
+				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+			</ion-button>
+			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
+				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+			</ion-button>
+			<span class="split ion-hide-sm-down">|</span>
+
+			<ion-button (click)="openModalPayroll()" title="{{'Staff payroll' | translate}}">
+				<ion-icon name="calculator-outline" slot="icon-only"></ion-icon>
+			</ion-button>
+
+			<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
+				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
+			</ion-button>
+			<ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
+				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+			</ion-button>
+
+			<span class="split ion-hide-sm-down" *ngIf=" pageConfig.canExport && pageConfig.canImport">|</span>
+
+			<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
+				<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+			</ion-button>
 		</ng-container>
 	</app-toolbar>
 </ion-header>
@@ -192,5 +247,9 @@
 			</ng-select>
 		</div>
 	</app-page-message>
-	<full-calendar #calendar [options]="calendarOptions"></full-calendar>
+	<full-calendar *ngIf="segmentView == 's1'" #calendar [options]="calendarOptions"></full-calendar>
+
+	<app-checkin-log-component  #checkinLog  [idTimesheet]="id" *ngIf="segmentView == 's2'"></app-checkin-log-component>
+
+	<app-timesheet-cycle-detail-component #timesheetCycle [IDTimesheet]="id" [idCycle]="idCycle" *ngIf="segmentView == 's3'"></app-timesheet-cycle-detail-component>
 </ion-content>

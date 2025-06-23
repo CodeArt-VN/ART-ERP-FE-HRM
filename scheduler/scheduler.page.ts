@@ -11,6 +11,7 @@ import {
 	OST_OfficeProvider,
 	HRM_StaffOvertimeRequestProvider,
 	HRM_StaffRecordOvertimeProvider,
+	HRM_TimesheetCycleDetailProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
@@ -20,8 +21,13 @@ import { lib } from 'src/app/services/static/global-functions';
 import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
+
 import { OvertimeRequestDetailPage } from '../overtime-request-detail/overtime-request-detail.page';
 import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal/advance-filter-modal.component';
+import { CheckinLogComponent } from './checkin-log/checkin-log.page';
+import { TimesheetCycleDetailComponent } from './timesheet-cycle/timesheet-cycle-detail.page';
+import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-modal/timesheet-cycle-select-modal.page';
+
 @Component({
 	selector: 'app-scheduler',
 	templateUrl: 'scheduler.page.html',
@@ -30,6 +36,9 @@ import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal
 })
 export class SchedulerPage extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
+	@ViewChild('checkinLog') checkinLog: CheckinLogComponent;
+	@ViewChild('timesheetCycle') timesheetCycle: TimesheetCycleDetailComponent;
+	idCycle: any;
 	officeList = [];
 	timesheetList = [];
 	selectedTimesheet = null;
@@ -40,6 +49,7 @@ export class SchedulerPage extends PageBase {
 	fc: any = null;
 	isOpenPopover = false;
 	staffList = [];
+
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
@@ -49,7 +59,7 @@ export class SchedulerPage extends PageBase {
 		public officeProvider: OST_OfficeProvider,
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
-
+		public timesheetCycleDetailProvider: HRM_TimesheetCycleDetailProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
@@ -61,6 +71,35 @@ export class SchedulerPage extends PageBase {
 		super();
 		// this.pageConfig.isShowFeature = true;
 		this.pageConfig.ShowSearch = false;
+	}
+
+	segmentView = 's1';
+	segmentChanged(ev: any) {
+		if (ev.detail.value == 's3') {
+			this.timesheetCycleDetailProvider.read({ IDTimesheet: this.id }).then(async (resp) => {
+				if (resp['data'] && resp['data'].length > 1) {
+					let popover = await this.popoverCtrl.create({
+						component: TimesheetCycleSelectModalComponent,
+						componentProps: { _timesheetCycleList: resp['data'].map((d) => d._TimesheetCycle) },
+						event: ev,
+						cssClass: 'w300',
+						translucent: true,
+					});
+					popover.onDidDismiss().then((result: any) => {
+						if (result.data && result.data.IDCycle) {
+							this.idCycle = result.data.IDCycle;
+							this.segmentView = ev.detail.value;
+						}
+					});
+					await popover.present();
+				} else if (resp['data'] && resp['data'].length == 1) {
+					this.idCycle = resp['data'][0]?.IDTimesheetCycle;
+					this.segmentView = ev.detail.value;
+				}
+			});
+		} else {
+			this.segmentView = ev.detail.value;
+		}
 	}
 
 	preLoadData(event?: any): void {
@@ -168,7 +207,7 @@ export class SchedulerPage extends PageBase {
 			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
 			if (shift) {
 				e.color = shift.color;
-				
+
 				if (e.TimeOffType) {
 					let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
 					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
@@ -632,19 +671,47 @@ export class SchedulerPage extends PageBase {
 		this.fc?.updateSize();
 	}
 	fcToday() {
-		this.getCalendar();
-		this.fc?.today();
-		this.loadData();
+		if (this.segmentView == 's2') {
+			this.checkinLog.fcToday();
+		} else if (this.segmentView == 's3') {
+			this.timesheetCycle.fcToday();
+		} else {
+			this.getCalendar();
+			this.fc?.today();
+			this.loadData();
+		}
 	}
 	fcNext() {
-		this.getCalendar();
-		this.fc?.next();
-		this.loadData();
+		if (this.segmentView == 's2') {
+			this.checkinLog.fcNext();
+		} else if (this.segmentView == 's3') {
+			this.timesheetCycle.fcNext();
+		} else {
+			this.getCalendar();
+			this.fc?.next();
+			this.loadData();
+		}
 	}
 	fcPrev() {
-		this.getCalendar();
-		this.fc?.prev();
-		this.loadData();
+		if (this.segmentView == 's2') {
+			this.checkinLog.fcPrev();
+		} else if (this.segmentView == 's3') {
+			this.timesheetCycle.fcPrev();
+		} else {
+			this.getCalendar();
+			this.fc?.prev();
+			this.loadData();
+		}
+	}
+
+	import(event: any): Promise<void> {
+		if (this.segmentView == 's2') {
+			this.checkinLog.import(event);
+		} else if (this.segmentView == 's3') {
+			this.timesheetCycle.import(event);
+		} else {
+			return super.import(event);
+		}
 	}
 
 	async showStaffPickerModal() {
@@ -809,24 +876,30 @@ export class SchedulerPage extends PageBase {
 			});
 	}
 	async export() {
-		this.getAdvaneFilterConfig();
-		const modal = await this.modalController.create({
-			component: AdvanceFilterModalComponent,
-			cssClass: 'modal90',
-			componentProps: {
-				_AdvanceConfig: this.query._AdvanceConfig,
-				schemaType: 'Form',
-				selectedSchema: this.schemaPage,
-				confirmButtonText: 'Export',
-				renderGroup: { Filter: ['TimeFrame', 'Transform'] },
-			},
-		});
-		await modal.present();
-		const { data } = await modal.onWillDismiss();
-		if (data && data.data) {
-			if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
-			if (data.schema) this.schemaPage = data?.schema;
-			super.export();
+		if (this.segmentView == 's2') {
+			return this.checkinLog.export();
+		} else if (this.segmentView == 's3') {
+			return this.timesheetCycle.export();
+		} else {
+			this.getAdvaneFilterConfig();
+			const modal = await this.modalController.create({
+				component: AdvanceFilterModalComponent,
+				cssClass: 'modal90',
+				componentProps: {
+					_AdvanceConfig: this.query._AdvanceConfig,
+					schemaType: 'Form',
+					selectedSchema: this.schemaPage,
+					confirmButtonText: 'Export',
+					renderGroup: { Filter: ['TimeFrame', 'Transform'] },
+				},
+			});
+			await modal.present();
+			const { data } = await modal.onWillDismiss();
+			if (data && data.data) {
+				if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
+				if (data.schema) this.schemaPage = data?.schema;
+				super.export();
+			}
 		}
 	}
 	@ViewChild('Popover') Popover!: HTMLIonPopoverElement;

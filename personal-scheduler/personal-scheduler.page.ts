@@ -16,11 +16,11 @@ import {
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typecateringg
-import dayGridPlugin from '@fullcalendar/daygrid';
 
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
-
+import dayGridPlugin from '@fullcalendar/daygrid'
+import listPlugin from '@fullcalendar/list';
 @Component({
 	selector: 'app-personal-scheduler',
 	templateUrl: 'personal-scheduler.page.html',
@@ -173,6 +173,9 @@ export class PersonalSchedulerPage extends PageBase {
 			// this.query.EndDate = this.query.WorkingDateFrom;
 		}
 	}
+
+		// plugins: [dayGridPlugin],//[resourceTimelinePlugin],
+	// initialView:'dayGridMonth', //'resourceTimelineWeek',
 
 	calendarOptions: any = {
 		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
