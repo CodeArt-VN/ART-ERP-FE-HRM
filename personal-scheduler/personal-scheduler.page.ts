@@ -474,20 +474,10 @@ export class PersonalSchedulerPage extends PageBase {
 	}
 
 	pickedDate;
-	pickDate(e) {
-		this.fc?.goToDate(this.pickedDate);
-		// this.fc.view.activeStart = this.dateStart;
-		// this.fc.view.activeEnd = this.dateEnd;
-		this.loadData();
-	}
 	dismissDatePicker(isApply) {
 		if (isApply) {
 			this.fc?.gotoDate(this.pickedDate);
 			this.isOpenPickDatePopover = false;
-			this.fc?.refetchEvents();
-
-			// this.fc.view.activeStart = this.dateStart;
-			// this.fc.view.activeEnd = this.dateEnd;
 			this.loadData();
 		}
 	}

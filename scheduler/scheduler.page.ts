@@ -908,6 +908,23 @@ export class SchedulerPage extends PageBase {
 		this.isOpenPopover = !this.isOpenPopover;
 	}
 
+	pickedDate;
+	isOpenPickDatePopover = false;
+	@ViewChild('pickDatePopover') pickDatePopover!: HTMLIonPopoverElement;
+	presentPickDatePopover(e) {
+		this.pickDatePopover.event = e;
+		this.isOpenPickDatePopover = !this.isOpenPickDatePopover;
+	}
+
+	dismissDatePicker(isApply) {
+		if (isApply) {
+			this.fc?.gotoDate(this.pickedDate);
+			this.isOpenPickDatePopover = false;
+			// this.fc.view.activeStart = this.dateStart;
+			// this.fc.view.activeEnd = this.dateEnd;
+			this.loadData();
+		}
+	}
 	getAdvaneFilterConfig() {
 		let start = new Date(this.fc?.view.activeStart);
 		start.setHours(0, 0, 0, 0);
