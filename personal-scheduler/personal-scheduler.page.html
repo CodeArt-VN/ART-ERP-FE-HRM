@@ -7,6 +7,8 @@
 
 		<ion-buttons slot="primary" *ngIf="fc">
 			<ion-button (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
+			<!-- <ion-button (click)="pickDate()" title="{{'...' | translate}}"> {{'Pick date' | translate}} </ion-button> -->
+			<ion-button tollbarSelected title="{{'Copy' | translate}}" (click)="presentPickDatePopover($event)">... </ion-button>
 			<ion-button (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
@@ -14,6 +16,39 @@
 				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
 			</ion-button>
 		</ion-buttons>
+
+		<ion-popover #pickDatePopover [isOpen]="isOpenPickDatePopover" (didDismiss)="isOpenPickDatePopover = false">
+			<ng-template>
+				<ion-content class="ion-padding" scroll-y="false">
+					<ion-list>
+							<div>
+							<ion-item>
+								<div class="c-control">
+									<label class="c-label">
+										{{ 'Start date' | translate }}
+										<input class="c-input" [(ngModel)]="this.pickedDate" type="date" class="ion-padding" />
+									</label>
+								</div>
+								</ion-item>
+								<ion-item>
+							</ion-item>
+						</div>
+						<ion-button class="ion-margin" size="small" expand="block" (click)="dismissDatePicker(true)">Apply</ion-button>
+						</ion-list>
+
+					<!-- <ion-item
+							title="{{'Copy to price list' | translate}}"
+							*ngIf="pageConfig.canCopyToPriceListVersion && pageConfig.ShowCopyToPriceListVersion"
+							[button]="true"
+							[detail]="false"
+							(click)="updatePriceList()"
+						>
+							<ion-icon slot="start" name="pricetags-outline"></ion-icon>
+							<ion-label> {{'Copy to price list' | translate}}</ion-label>
+						</ion-item> -->
+				</ion-content>
+			</ng-template>
+		</ion-popover>
 	</ion-toolbar>
 </ion-header>
 <ion-content slot="fixed" fullscreen="true" scrollY="false" appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">

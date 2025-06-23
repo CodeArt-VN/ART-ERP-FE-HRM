@@ -11,16 +11,18 @@ import {
 	HRM_TimesheetCycleProvider,
 	HRM_TimesheetLogProvider,
 	HRM_TimesheetProvider,
+	HRM_TimesheetRecordProvider,
 	OST_OfficeGateProvider,
 	OST_OfficeProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typecateringg
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
-import dayGridPlugin from '@fullcalendar/daygrid'
-import listPlugin from '@fullcalendar/list';
+
 @Component({
 	selector: 'app-personal-scheduler',
 	templateUrl: 'personal-scheduler.page.html',
@@ -45,6 +47,7 @@ export class PersonalSchedulerPage extends PageBase {
 		public overtimeRecordProvider: HRM_StaffRecordOvertimeProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
+		public timesheetRecordProvider: HRM_TimesheetRecordProvider,
 		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
 		public officeProvider: OST_OfficeProvider,
 		public gateProvider: OST_OfficeGateProvider,
@@ -64,32 +67,37 @@ export class PersonalSchedulerPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.env.getType('ShiftType'), this.shiftProvider.read(), this.env.getType('TimeOffType'), this.officeProvider.read(), this.gateProvider.read()]).then(
-			(values) => {
-				this.officeList = values[3]['data'];
-				this.gateList = values[4]['data'];
-				this.shifTypeList = values[0];
-				//this.timesheetList = values[2]['data'];
-				this.shiftList = values[1]['data'];
-				this.timeoffTypeList = values[2];
+		Promise.all([
+			this.env.getType('ShiftType'),
+			this.shiftProvider.read(),
+			this.env.getType('TimeOffType'),
+			this.officeProvider.read(),
+			this.gateProvider.read(),
+			this.timesheetProvider.read(),
+		]).then((values) => {
+			this.officeList = values[3]['data'];
+			this.gateList = values[4]['data'];
+			this.shifTypeList = values[0];
+			this.shiftList = values[1]['data'];
+			this.timeoffTypeList = values[2];
+			this.timesheetList = values[5]['data'];
 
-				this.shiftList.forEach((s) => {
-					let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
-					if (shiftType) {
-						s.Color = shiftType.Color;
-						s.Color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
-						s.ShiftType = shiftType.Name;
-					}
-
-					s.Start = lib.dateFormat('01-01-01 ' + s.Start, 'hh:MM');
-					s.End = lib.dateFormat('01-01-01 ' + s.End, 'hh:MM');
-				});
-				if (this.id) {
-					this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+			this.shiftList.forEach((s) => {
+				let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
+				if (shiftType) {
+					s.Color = shiftType.Color;
+					s.Color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
+					s.ShiftType = shiftType.Name;
 				}
-				super.preLoadData(event);
-			}
-		);
+
+				s.Start = lib.dateFormat('01-01-01 ' + s.Start, 'hh:MM');
+				s.End = lib.dateFormat('01-01-01 ' + s.End, 'hh:MM');
+			});
+			// if (this.id) {
+			// 	this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+			// }
+			super.preLoadData(event);
+		});
 	}
 
 	loadData(event?: any): void {
@@ -98,6 +106,7 @@ export class PersonalSchedulerPage extends PageBase {
 
 		this.query.WorkingDateFrom = lib.dateFormat(this.fc.view.activeStart);
 		this.query.WorkingDateTo = lib.dateFormat(this.fc.view.activeEnd);
+		if (!this.pickedDate) this.pickedDate = this.query.WorkingDateFrom;
 
 		this.query.IDStaff = this.env.user.StaffID;
 		this.query.Take = 50000;
@@ -111,99 +120,149 @@ export class PersonalSchedulerPage extends PageBase {
 			this.query.StartDateTo = this.query.WorkingDateTo;
 			this.query.LogTimeFrom = this.query.WorkingDateFrom;
 			this.query.LogTimeTo = this.query.WorkingDateTo;
-			Promise.all([this.overtimeRecordProvider.read(this.query), this.timesheetLogProvider.read(this.query)]).then((values: any) => {
-				console.log(values);
-				values[0]?.data?.forEach((i) => {
-					this.items.push({
-						title: 'OT',
-						start: i.StartDate,
-						IDStaff: i.IDStaff,
-						TimeOffType: null,
-						ShiftStart: lib.dateFormat(i.StartDate, 'hh:MM'),
-						ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
+			Promise.all([this.overtimeRecordProvider.read(this.query), this.timesheetLogProvider.read(this.query), this.timesheetRecordProvider.read(this.query)]).then(
+				(values: any) => {
+					console.log(values);
+					values[0]?.data?.forEach((i) => {
+						this.items.push({
+							ShiftName: 'OT',
+							start: i.StartDate,
+							IDStaff: i.IDStaff,
+							TimeOffType: null,
+							ShiftStart: lib.dateFormat(i.StartDate, 'hh:MM'),
+							ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
+						});
 					});
-				});
-				if (values[1]?.data?.length > 0) {
-					values[1]?.data?.forEach((i) => {
-						let logDate = new Date(i.LogTime).toDateString();
-						let item = this.items.find((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
-						if (item) {
-							let log = {
-								title: 'Checkin',
-								start: i.LogTime, //i.StartDate,
-								IDStaff: i.IDStaff,
-								TimeOffType: null,
-								ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
-								Remark: i.Remark,
-
-							};
-							if (item.CheckinLog) item.CheckinLog.push(log);
-							else item.CheckinLog = [log];
-						} else {
-							this.items.push({
-								title: 'Checkin',
-								start: i.LogTime, //i.StartDate,
-								IDStaff: i.IDStaff,
-								TimeOffType: null,
-								Remark: i.Remark,
-								ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
-							});
-						}
-					});
+					if (values[1]?.data?.length > 0) {
+						values[1]?.data?.forEach((i) => {
+							let logDate = new Date(i.LogTime).toDateString();
+							let item = this.items.find((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
+							if (item) {
+								let log = {
+									ShiftName: 'Checkin',
+									start: i.LogTime, //i.StartDate,
+									IDStaff: i.IDStaff,
+									TimeOffType: null,
+									ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
+									Remark: i.Remark,
+								};
+								if (item.CheckinLog) item.CheckinLog.push(log);
+								else item.CheckinLog = [log];
+							}
+						});
+					}
 					this.items.forEach((e) => {
 						let shift = this.shiftList.find((d) => d.Id == e.IDShift);
-						if (shift) {
-							e.Color = shift.Color;
-							e.ShiftStart = shift.Start;
-							e.ShiftEnd = shift.End;
-						}
+						let timesheet = this.timesheetList.find((d) => d.Id == e.IDTimesheet);
 						if (e.TimeOffType) {
 							let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-							e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+							if (toType) {
+								e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+								e.color = e.Color;
+								e.resourceId = e.IDStaff;
+								e.ShiftName = e.TimeOffType;
+								e.Badge = '';
+								e.html = `<span class="v-align-middle">${e.Title}</span>`;
+							} else {
+								console.log(e);
+							}
+						} else if (shift && timesheet) {
+							e.Color = shift.Color;
+							e.color = e.Color;
+							e.resourceId = e.IDStaff;
+							e.ShiftName = shift.Name;
+							e.ShiftStart = shift.Start;
+							e.ShiftEnd = shift.End;
+							e.start = e.WorkingDate.substring(0, 10) + 'T' + e.ShiftStart + ':00';
+							e.end = new Date(e.WorkingDate);
+							if (e.ShiftEnd < e.ShiftStart) {
+								// qua ngày hôm sau nếu giờ kết thúc < giờ bắt đầu
+								e.end.setDate(e.end.getDate() + 1);
+							}
+							e.end = e.end.toISOString().substring(0, 10) + 'T' + e.ShiftEnd + ':00';
+							e.Shift = shift;
+							e.Timesheet = timesheet;
+							e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
+							if (values[2]?.data?.length > 0) {
+								let i = values[2].data.find((d) => d.IDStaff == e.IDStaff && d.WorkingDate == e.WorkingDate);
+								if (i) {
+									if (shift && timesheet) {
+										e.Color = shift.Color;
+										e.resourceId = e.IDStaff;
+										e.Shift = shift;
+										e.Timesheet = timesheet;
+
+										e.Checkin = lib.dateFormat(i.Checkin, 'hh:MM');
+										e.Checkout = lib.dateFormat(i.Checkout, 'hh:MM');
+
+										if (new Date(i.WorkingDate) < new Date()) {
+											let point = 0;
+											if (e.Point) point = Math.round(e.Point * 100) / 100;
+
+											e.Color = 'success';
+											e.Icon = 'checkmark-circle-outline';
+											e.CheckData = ` ${e.Checkin}→${e.Checkout}`;
+											e.Badge = `${i.MinutesOfWorked}-${point}`;
+
+											if (!i.LogCount) {
+												e.Color = 'danger';
+												e.Icon = 'alert-circle-outline';
+												e.Title = `Q`;
+												e.Badge = `0`;
+											}
+
+											if (e.TimeOffType) {
+												let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+												e.Color = toType.Color;
+												e.Icon = 'alert-circle-outline';
+												e.Title = `${e.TimeOffType}`;
+												e.Badge = `${point}`;
+											}
+										} else {
+											e.Color = 'medium';
+											e.Icon = 'timer-outline';
+											e.Title = `${shift.Name}`;
+											e.Badge = `${shift.Start}→${shift.End}`;
+										}
+										e.PointObject = {
+											Point: i.Point,
+											MinutesOfWorked: i.MinutesOfWorked,
+											LogCount: i.LogCount,
+											StdTimeIn: i.StdTimeIn,
+											StdTimeOut: i.StdTimeOut,
+											Breaks: i.Breaks,
+										};
+										e.color = lib.getCssVariableValue('--ion-color-' + e.Color) + '22';
+									}
+								}
+							}
 						}
 					});
-				}
-				this.calendarOptions.events = this.items;
+					this.calendarOptions.events = this.items;
 
-				this.getCalendar();
-				this.fc?.updateSize();
-				super.loadedData(event, ignoredFromGroup);
-			});
+					this.getCalendar();
+					this.fc?.updateSize();
+					super.loadedData(event, ignoredFromGroup);
+				}
+			);
 
 			// this.query.EndDate = this.query.WorkingDateFrom;
 		}
 	}
 
-		// plugins: [dayGridPlugin],//[resourceTimelinePlugin],
-	// initialView:'dayGridMonth', //'resourceTimelineWeek',
-
 	calendarOptions: any = {
-		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-		plugins: [dayGridPlugin],
+		plugins: [dayGridPlugin, timeGridPlugin],
 		initialView: 'dayGridMonth',
 		height: '100%',
 		timeZone: 'Asia/Ho_Chi_Minh',
 		aspectRatio: 1.5,
-		headerToolbar: false,
-		// headerToolbar: {
-		//     start: 'title',
-		//     center: '',
-		//     end: 'today prev,next',
-
-		//     // left: 'resourceTimelineWeek,dayGridMonth',
-		//     // center: 'title',
-		//     // right: 'today,prev,next'
-		// },
+		
 		buttonIcons: {
 			prev: 'chevron-left',
 			next: 'chevron-right',
 		},
 		titleFormat: { year: 'numeric', month: 'numeric', omitCommas: true },
-		// buttonText: {
-		//     today: 'Hôm nay',
-		//     month: 'Tháng',
-		//     week: 'Tuần',
-		// },
+	
 
 		firstDay: 1,
 		weekends: true,
@@ -219,7 +278,33 @@ export class PersonalSchedulerPage extends PageBase {
 		//     { title: 'event 1', date: '2019-04-01' },
 		//     { title: 'event 2', date: '2019-04-02' }
 		// ],
+		headerToolbar: {
+			left: '',
+			center: 'title',
+			right: 'dayGridMonth timeGridWeek timeGridDay', // thứ tự hiển thị nút
+		},
+
 		views: {
+			dayGridMonth: {
+				buttonText: 'month',
+				titleFormat: { year: 'numeric', month: 'long' }, // Ví dụ: June 2025
+			},
+			timeGridWeek: {
+				buttonText: 'week',
+				titleFormat: { year: 'numeric', month: 'short', day: 'numeric' }, // Ví dụ: Jun 23 – 29, 2025
+
+				slotMinTime: '06:00:00', // Bắt đầu từ 6h sáng
+				slotMaxTime: '24:00:00', // Kết thúc lúc nửa đêm
+				columnHeaderFormat: { weekday: 'short', day: '2-digit', month: '2-digit' },
+			},
+			timeGridDay: {
+				buttonText: 'day',
+				titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
+				slotMinTime: '06:00:00',
+				slotMaxTime: '24:00:00',
+				columnHeaderFormat: { weekday: 'short' },
+			},
+
 			resourceTimelineDay: {
 				slotDuration: '03:00',
 			},
@@ -234,70 +319,42 @@ export class PersonalSchedulerPage extends PageBase {
 				},
 			},
 		},
-
-		slotLabelFormat: [
-			//{ week: "short" }, // top level of text
-			{
-				weekday: 'short',
-				day: '2-digit',
-				month: '2-digit',
-				omitCommas: true,
-			}, // lower level of text
-		],
-		// resourceGroupField: 'JobTitle',
-		//resourceAreaWidth: '0',
-		// resourceAreaHeaderContent: {
-		//     html:
-		//         '<div class="d-flex flex-column align-items-start">' + 'a</div>'
-		// },
-		// resourceAreaColumns: [
-
-		//     {
-		//         field: 'Code',
-		//         headerContent: 'Mã NV',
-		//         width: 100
-		//     },
-		//     {
-		//         field: 'FullName',
-		//         headerContent: 'Họ và tên',
-		//         width: 200
-		//     },
-		//     {
-		//         //group: true,
-		//         field: 'JobTitle',
-		//         headerContent: false,
-		//         width: 150
-		//     },
+		slotLabelFormat: {
+			hour: 'numeric',
+			minute: '2-digit',
+			hour12: false, // nếu muốn hiển thị 24h
+		},
+		// slotLabelFormat: [
+		// 	//{ week: "short" }, // top level of text
+		// 	{
+		// 		weekday: 'short',
+		// 		day: '2-digit',
+		// 		month: '2-digit',
+		// 		omitCommas: true,
+		// 	}, // lower level of text
 		// ],
-
-		// eventColor: lib.getCssVariableValue('--ion-color-primary'),
-		// eventBackgroundColor: lib.getCssVariableValue('--ion-color-primary'),
+		eventColor: lib.getCssVariableValue('--ion-color-primary') + '22',
+		eventTextColor: lib.getCssVariableValue('--ion-color-dark'),
 		eventDisplay: 'block',
 		displayEventTime: false,
 		editable: false,
 		selectable: false,
 		eventDurationEditable: false,
-		//eventOverlap: false,
 
+		//eventOverlap: false,
 		eventContent: function (arg) {
-			arg.backgroundColor = arg.event.extendedProps.Color;
-			arg.borderColor = arg.event.extendedProps.Color;
+			// arg.backgroundColor = arg.event.extendedProps.Color;
+			// arg.borderColor = arg.event.extendedProps.Color;
 			let shiftEnd = arg.event.extendedProps.ShiftEnd;
-			let checkinLog = arg.event.extendedProps.CheckinLog;
-			let htmlCheckin = '';
-			if(checkinLog && checkinLog.length > 0) {
-				checkinLog.forEach((log) => {
-					htmlCheckin += `<br>
-									<span>Checkin</span>&nbsp; 
-									<small>${log.ShiftStart}${log.Remark ? ' - ' + log.Remark : ''}</small>`;
-				});
+			let shiftStart = arg.event.extendedProps.ShiftStart;
+			// <b>${arg.event.title}</b>&nbsp;
+			let html = `<span class="v-align-middle">${arg.event.extendedProps.ShiftName}</span><small> &nbsp;${shiftStart ? shiftStart : ''}${shiftEnd ? ' - ' + shiftEnd : ''}</small>`;
+			if (arg.event.extendedProps.CheckData) {
+				let icon = `${arg.event.extendedProps.Icon ? '<ion-icon color="' + arg.event.extendedProps.Color + '" name="' + arg.event.extendedProps.Icon + '"></ion-icon>' : ''}`;
+				let checkData = `${arg.event.extendedProps.CheckData ? '<span class="v-align-middle">' + arg.event.extendedProps.CheckData + '</span>' : ''}`;
+				let badge = `${arg.event.extendedProps.Badge ? '<ion-badge color="' + arg.event.extendedProps.Color + '" class="float-right">' + arg.event.extendedProps.Badge + '</ion-badge>' : ''}`;
+				html += `<br>${icon}${checkData}${badge}`;
 			}
-			let html = `<span class='fc-event-custom-css' style='padding: 5px; display: block'>
-						<b>${arg.event.title}</b>&nbsp; 
-						<small>${arg.event.extendedProps.ShiftStart}${shiftEnd ? ' - ' + shiftEnd : ''}</small> 
-						${htmlCheckin}
-						<br>
-						</span>`;
 
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
@@ -306,10 +363,6 @@ export class PersonalSchedulerPage extends PageBase {
 				html += `<br><ion-icon class="lunch-booked" name="restaurant-outline"></ion-icon>(${booked})`;
 			}
 
-			html += `</span>`;
-			if (arg.event.extendedProps.TimeOffType) {
-				html = `<span class='fc-event-custom-css' style='padding: 5px; display: block'><b>${arg.event.extendedProps.TimeOffType}</b> </span>`;
-			}
 			return {
 				html: html,
 			};
@@ -326,24 +379,7 @@ export class PersonalSchedulerPage extends PageBase {
 		eventClick: this.eventClick.bind(this),
 	};
 
-	eventDidMount(arg) {
-		// let that = this;
-		// arg.el.querySelector('.del-event-btn').onclick = function (e) {
-		//     e.preventDefault();
-		//     e.stopPropagation()
-		//     that.env.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
-		//         .then(_ => {
-		//             that.submitAttempt = true;
-		//             that.pageProvider.delete([{ Id: parseInt(arg.event.id) }])
-		//                 .then((savedItem: any) => {
-		//                     arg.event.remove();
-		//                     that.submitAttempt = false;
-		//                 }).catch(err => {
-		//                     that.submitAttempt = false;
-		//                 });
-		//         }).catch(e => { });
-		// }
-	}
+	eventDidMount(arg) {}
 	dateClick(dateClickInfo) {
 		this.massShiftAssignment({
 			FromDate: dateClickInfo.dateStr.substr(0, 10),
@@ -373,13 +409,26 @@ export class PersonalSchedulerPage extends PageBase {
 			IsBookDinnerCatering: arg.event.extendedProps.IsBookDinnerCatering,
 			ShiftStart: arg.event.extendedProps.ShiftStart,
 			ShiftEnd: arg.event.extendedProps.ShiftEnd,
+			CheckingLog: arg.event.extendedProps.CheckinLog,
+			PointObject: arg.event.extendedProps.PointObject,
 		});
 	}
 
 	toggleWeekends() {
 		this.calendarOptions.weekends = !this.calendarOptions.weekends; // toggle the boolean!
 	}
+	// Lưu lại ngày đầu/tháng khi chuyển view để load đúng range dữ liệu
+	handleDatesSet(arg) {
+		// Cập nhật lại range ngày khi chuyển view hoặc gotoDate
+		this.query.WorkingDateFrom = lib.dateFormat(arg.start);
+		this.query.WorkingDateTo = lib.dateFormat(arg.end);
+		this.loadData();
+	}
 
+	ngAfterViewInit() {
+		// Gắn sự kiện khi chuyển view hoặc gotoDate
+		this.calendarOptions.datesSet = this.handleDatesSet.bind(this);
+	}
 	changeTimesheet() {
 		let newURL = '#/personal-scheduler/';
 		if (this.selectedTimesheet) {
@@ -416,6 +465,31 @@ export class PersonalSchedulerPage extends PageBase {
 		this.getCalendar();
 		this.fc?.today();
 		this.loadData();
+	}
+	isOpenPickDatePopover = false;
+	@ViewChild('pickDatePopover') pickDatePopover!: HTMLIonPopoverElement;
+	presentPickDatePopover(e) {
+		this.pickDatePopover.event = e;
+		this.isOpenPickDatePopover = !this.isOpenPickDatePopover;
+	}
+
+	pickedDate;
+	pickDate(e) {
+		this.fc?.goToDate(this.pickedDate);
+		// this.fc.view.activeStart = this.dateStart;
+		// this.fc.view.activeEnd = this.dateEnd;
+		this.loadData();
+	}
+	dismissDatePicker(isApply) {
+		if (isApply) {
+			this.fc?.gotoDate(this.pickedDate);
+			this.isOpenPickDatePopover = false;
+			this.fc?.refetchEvents();
+
+			// this.fc.view.activeStart = this.dateStart;
+			// this.fc.view.activeEnd = this.dateEnd;
+			this.loadData();
+		}
 	}
 	fcNext() {
 		this.getCalendar();
@@ -457,7 +531,7 @@ export class PersonalSchedulerPage extends PageBase {
 					IsAdditional: true,
 					IDStaff: cData.Staffs[0],
 					IDGate: data.IDGate,
-					LogTime:  `${cData.FromDate}T${data.TimeSpan}:00`,
+					LogTime: `${cData.FromDate}T${data.TimeSpan}:00`,
 					TimeSpan: data.TimeSpan,
 					IDOffice: data.IDOffice,
 					IPAddress: data.IPAddress,

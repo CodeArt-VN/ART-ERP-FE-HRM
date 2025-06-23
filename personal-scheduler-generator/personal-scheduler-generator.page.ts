@@ -24,12 +24,13 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 		{ Group: 1, Day: 'Fri', Value: 5 },
 		{ Group: 1, Day: 'Sat', Value: 6 },
 	];
-
+	isShowAddNewCheckingLog = false;
 	staffList = [];
 	shiftList = [];
 	timeoffTypeList = [];
 	officeList = [];
-
+	checkingLogList = [];
+	pointObject;
 	ShiftStart = '';
 	ShiftEnd = '';
 	gateViewList = [];
@@ -80,6 +81,7 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 		// this.timeoffTypeList = this.navParams.data.timeoffTypeList;
 		this.gateList = this.navParams.data.gateList;
 		this.officeList = this.navParams.data.officeList;
+		this.checkingLogList = this.navParams.data.CheckingLog || [];
 
 		this.formGroup.controls.Id.setValue(this.navParams.data.Id);
 		this.formGroup.controls.FromDate.setValue(this.navParams.data.FromDate);
@@ -98,8 +100,11 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 		this.formGroup.controls.IsBookDinnerCatering.setValue(this.navParams.data.IsBookDinnerCatering);
 
 		this.formGroup.controls.TimeOffType.setValue(this.navParams.data.TimeOffType);
+		if(this.navParams.data.PointObject){
+			this.pointObject = this.navParams.data.PointObject;
+		}
 		//this.formGroup.controls.Id.setValue(this.navParams.data.Id);
-		//this.formGroup.controls.IDStaff.disable();
+		//this.formGroup.controls.IDStaff.disable();`
 		//this.formGroup.controls.IDShift.disable();
 		if (this.formGroup.controls.IDOffice.value) {
 			this.changeOffice();

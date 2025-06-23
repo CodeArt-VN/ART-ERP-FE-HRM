@@ -102,10 +102,84 @@
 						<label class="c-label checkbox">{{'Note: only able to register at least 01 day in advance' | translate}}</label>
 					</div>
 				</ion-col>
+				<ion-row *ngIf="pointObject">
+					<ion-col size="12" size-sm="12" size-md="12">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Timesheet calculation' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm="12" size-md="6">
+						<div class="c-control">
+							<label class="c-label">{{'Working hours counting start' | translate}}</label>
+							<span class="c-input">{{pointObject.StdTimeIn | date:'dd/MM/yyyy HH:mm'}}</span>
+						</div>
+						<div class="c-control">
+							<label class="c-label">{{'Working hours counting end' | translate}}</label>
+							<span class="c-input">{{pointObject.StdTimeOut | date:'dd/MM/yyyy HH:mm'}}</span>
+						</div>
+					</ion-col>
+					<ion-col size="12" size-sm="12" size-md="6">
+						<div class="c-control">
+							<label class="c-label">{{'Break-time' | translate}}</label>
+							<span class="c-input">{{pointObject.Breaks}} <small *ngIf="pointObject.Breaks">{{'minutes' | translate}}</small></span>
+						</div>
 
-				<ion-col size="12" size-sm="12" size-md="12" *ngIf="canCreateCheckinLog">
-					<app-form-control (change)="changeOffice()"[field]="{id:'IDOffice',label:'Location',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:officeList,form:formGroup}"></app-form-control>
-					<app-form-control (change)="changeGate($event)"[field]="{id:'IDGate',label:'Check -in gate',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:gateViewList,form:formGroup}"></app-form-control>
+						<div class="c-control">
+							<label class="c-label">{{'Working time' | translate}}</label>
+							<span class="c-input">{{pointObject.MinutesOfWorked}} <small *ngIf="pointObject.MinutesOfWorked">{{'minutes' | translate}}</small></span>
+						</div>
+					</ion-col>
+					<ion-col size="12" size-sm="12" size-md="12">
+					<div class="c-control">
+						<label class="c-label">{{'Timesheet calculation' | translate}}</label>
+						<b class="c-input">{{pointObject.Point}} <small *ngIf="pointObject.Point">{{'Work day' | translate}}</small></b>
+					</div>
+				</ion-col>
+				</ion-row>
+				
+				<ng-container *ngIf="!pageConfig.showSpinner">
+					<ion-col size="12" size-sm="12" size-md="12">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Record working hours' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm="12" size-md="12">
+						<app-data-table class="box-shadow responsive" [rows]="checkingLogList" [trackBy]="'Id'" [showSpinner]="pageConfig.showSpinner">
+							<datatable-empty-message [showImg]="false" minHeight="125px">
+								<datatable-empty-message subMessage="Please click add new to start...">
+									<ng-template datatable-empty-message-template>
+										<div *ngIf="!isShowAddNewCheckingLog && canCreateCheckinLog">
+											<ion-button size="small" (click)="isShowAddNewCheckingLog = true" class="ion-no-margin">
+												<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+												{{ 'Add checkin log' | translate }}
+											</ion-button>
+										</div>
+									</ng-template>
+								</datatable-empty-message>
+							</datatable-empty-message>
+							<datatable-column class="col-date" format="yyyy-MM-dd HH:mm" filterControlType="date" name="Log" property="start"> </datatable-column>
+						</app-data-table>
+					</ion-col>
+				</ng-container>
+				<div>
+					<div class="row" *ngIf="canCreateCheckinLog && !isShowAddNewCheckingLog && checkingLogList.length > 0">
+						<div class="cell">
+							<ion-button fill="clear" size="small" (click)="isShowAddNewCheckingLog = true">
+								<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+								{{'Add checkin log' | translate}}
+							</ion-button>
+						</div>
+					</div>
+				</div>
+				<ion-col size="12" size-sm="12" size-md="12" *ngIf="canCreateCheckinLog && isShowAddNewCheckingLog">
+					<app-form-control
+						(change)="changeOffice()"
+						[field]="{id:'IDOffice',label:'Location',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:officeList,form:formGroup}"
+					></app-form-control>
+					<app-form-control
+						(change)="changeGate($event)"
+						[field]="{id:'IDGate',label:'Check -in gate',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:gateViewList,form:formGroup}"
+					></app-form-control>
 					<app-form-control [field]="{id:'TimeSpan',label:'Log time',type:'time',form:formGroup}"></app-form-control>
 					<app-form-control [field]="{id:'Remark',label:'Reason',type:'textarea',form:formGroup}"></app-form-control>
 				</ion-col>
