@@ -45,27 +45,11 @@
 				</div>
 			</ion-col>
 
-			<ion-col size="12" size-sm="12" size-md="12">
+			<!-- <ion-col size="12" size-sm="12" size-md="12">
 				<ion-button fill="clear" size="medium" (click)="isShowCreateCheckin = !isShowCreateCheckin;">
 					<ion-icon slot="start" name="add-circle-outline"></ion-icon>
 				</ion-button>
-			</ion-col>
-			<ion-col size="12" size-sm="12" size-md="12" *ngIf="canCreateCheckinLog && isShowCreateCheckin">
-				<app-form-control
-					(change)="changeOffice()"
-					[field]="{id:'IDOffice',label:'Location',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:officeList,form:formGroup}"
-				></app-form-control>
-				<app-form-control
-					(change)="changeGate($event)"
-					[field]="{id:'IDGate',label:'Check -in gate',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:gateViewList,form:formGroup}"
-				></app-form-control>
-				<app-form-control [field]="{id:'TimeSpan',label:'Log time',type:'time',form:formGroup}"></app-form-control>
-				<ion-toolbar class="no-padding" translucent="true">
-					<ion-buttons slot="end" color="clear">
-						<ion-button (click)="submitCheckin()"> {{"Add" | translate}} </ion-button>
-					</ion-buttons>
-				</ion-toolbar>
-			</ion-col>
+			</ion-col> -->
 
 			<!-- Ghi nhận giờ làm việc -->
 			<ng-container *ngIf="!pageConfig.showSpinner">
@@ -76,12 +60,48 @@
 				</ion-col>
 				<ion-col size="12" size-sm="12" size-md="12">
 					<app-data-table class="box-shadow responsive" [rows]="TimesheetLogList" [trackBy]="'Id'" [showSpinner]="pageConfig.showSpinner">
-						<datatable-empty-message [showImg]="false" minHeight="125px">
-							<ng-template datatable-empty-message-template> </ng-template>
+						<datatable-empty-message subMessage="Please click add new to start..." [showImg]="false" minHeight="125px">
+							<ng-template datatable-empty-message-template>
+								<div *ngIf="!isShowCreateCheckin && canCreateCheckinLog">
+									<ion-button size="small" (click)="isShowCreateCheckin = true" class="ion-no-margin">
+										<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+										{{ 'Add checkin log' | translate }}
+									</ion-button>
+								</div>
+							</ng-template>
 						</datatable-empty-message>
 
 						<datatable-column class="col-name" name="Log" format="dd/MM/yyyy HH:mm" property="LogTime"></datatable-column>
 					</app-data-table>
+					<div>
+						<div class="row" *ngIf="canCreateCheckinLog && !isShowCreateCheckin && TimesheetLogList.length > 0">
+							<div class="cell">
+								<ion-button fill="clear" size="small" (click)="isShowCreateCheckin = true">
+									<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+									{{'Add checkin log' | translate}}
+								</ion-button>
+							</div>
+						</div>
+					</div>
+				</ion-col>
+				<ion-col size="12" size-sm="12" size-md="12" *ngIf="canCreateCheckinLog && isShowCreateCheckin">
+					<app-form-control
+						(change)="changeOffice()"
+						[field]="{id:'IDOffice',label:'Location',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:officeList,form:formGroup}"
+					></app-form-control>
+					<app-form-control
+						(change)="changeGate($event)"
+						[field]="{id:'IDGate',label:'Check -in gate',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:gateViewList,form:formGroup}"
+					></app-form-control>
+					<app-form-control [field]="{id:'TimeSpan',label:'Log time',type:'time',form:formGroup}"></app-form-control>
+					<ion-row *ngIf="canCreateCheckinLog && isShowCreateCheckin">
+						<ion-col>
+							<div class="c-control ion-text-right">
+								<label class="c-label" for=""></label>
+								<ion-button [disabled]="!formGroup.dirty && !formGroup.valid" (click)="submitCheckin()">{{'Save options' | translate}}</ion-button>
+							</div>
+						</ion-col>
+					</ion-row>
 				</ion-col>
 			</ng-container>
 			<!-- 			

@@ -117,6 +117,14 @@ export class CheckinLogComponent extends PageBase {
 		super.export();
 	}
 
+
+	dismissDatePicker(isApply,pickedDate) {
+		if (isApply) {
+			this.fc?.gotoDate(pickedDate);
+			this.loadData();
+		}
+	}
+
 	calendarOptions: any = {
 		plugins: [resourceTimelinePlugin, interactionPlugin],
 

@@ -130,13 +130,13 @@
 						</div>
 					</ion-col>
 					<ion-col size="12" size-sm="12" size-md="12">
-					<div class="c-control">
-						<label class="c-label">{{'Timesheet calculation' | translate}}</label>
-						<b class="c-input">{{pointObject.Point}} <small *ngIf="pointObject.Point">{{'Work day' | translate}}</small></b>
-					</div>
-				</ion-col>
+						<div class="c-control">
+							<label class="c-label">{{'Timesheet calculation' | translate}}</label>
+							<b class="c-input">{{pointObject.Point}} <small *ngIf="pointObject.Point">{{'Work day' | translate}}</small></b>
+						</div>
+					</ion-col>
 				</ion-row>
-				
+
 				<ng-container *ngIf="!pageConfig.showSpinner">
 					<ion-col size="12" size-sm="12" size-md="12">
 						<ion-list-header class="ion-no-padding">
@@ -145,17 +145,15 @@
 					</ion-col>
 					<ion-col size="12" size-sm="12" size-md="12">
 						<app-data-table class="box-shadow responsive" [rows]="checkingLogList" [trackBy]="'Id'" [showSpinner]="pageConfig.showSpinner">
-							<datatable-empty-message [showImg]="false" minHeight="125px">
-								<datatable-empty-message subMessage="Please click add new to start...">
-									<ng-template datatable-empty-message-template>
-										<div *ngIf="!isShowAddNewCheckingLog && canCreateCheckinLog">
-											<ion-button size="small" (click)="isShowAddNewCheckingLog = true" class="ion-no-margin">
-												<ion-icon slot="start" name="add-circle-outline"></ion-icon>
-												{{ 'Add checkin log' | translate }}
-											</ion-button>
-										</div>
-									</ng-template>
-								</datatable-empty-message>
+							<datatable-empty-message subMessage="Please click add new to start..." [showImg]="false" minHeight="125px">
+								<ng-template datatable-empty-message-template>
+									<div *ngIf="!isShowAddNewCheckingLog && canCreateCheckinLog">
+										<ion-button size="small" (click)="isShowAddNewCheckingLog = true" class="ion-no-margin">
+											<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+											{{ 'Add checkin log' | translate }}
+										</ion-button>
+									</div>
+								</ng-template>
 							</datatable-empty-message>
 							<datatable-column class="col-date" format="yyyy-MM-dd HH:mm" filterControlType="date" name="Log" property="start"> </datatable-column>
 						</app-data-table>

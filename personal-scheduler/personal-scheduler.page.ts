@@ -19,9 +19,9 @@ import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typecateringg
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
+
 
 @Component({
 	selector: 'app-personal-scheduler',

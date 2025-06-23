@@ -228,8 +228,15 @@ export class TimesheetCycleDetailComponent extends PageBase {
 	// plugins: [dayGridPlugin],//[resourceTimelinePlugin],
 	// initialView:'dayGridMonth', //'resourceTimelineWeek',
 
-	async export(){
+	async export() {
 		super.export();
+	}
+
+	dismissDatePicker(isApply, pickedDate) {
+		if (isApply) {
+			this.fc?.gotoDate(pickedDate);
+			this.loadData();
+		}
 	}
 
 	calendarOptions: any = {

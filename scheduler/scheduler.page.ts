@@ -526,6 +526,7 @@ export class SchedulerPage extends PageBase {
 			IsBookDinnerCatering: false,
 		});
 	}
+
 	eventClick(arg) {
 		if (arg.event.extendedProps.ShiftType == 'OT') {
 			this.massOTAssignment(arg?.event?.extendedProps);
@@ -917,12 +918,20 @@ export class SchedulerPage extends PageBase {
 	}
 
 	dismissDatePicker(isApply) {
-		if (isApply) {
-			this.fc?.gotoDate(this.pickedDate);
+		if (this.segmentView == 's2') {
+			this.checkinLog.dismissDatePicker(isApply, this.pickedDate);
 			this.isOpenPickDatePopover = false;
-			// this.fc.view.activeStart = this.dateStart;
-			// this.fc.view.activeEnd = this.dateEnd;
-			this.loadData();
+		} else if (this.segmentView == 's3') {
+			this.timesheetCycle.dismissDatePicker(isApply, this.pickedDate);
+			this.isOpenPickDatePopover = false;
+		} else {
+			if (isApply) {
+				this.fc?.gotoDate(this.pickedDate);
+				this.isOpenPickDatePopover = false;
+				// this.fc.view.activeStart = this.dateStart;
+				// this.fc.view.activeEnd = this.dateEnd;
+				this.loadData();
+			}
 		}
 	}
 	getAdvaneFilterConfig() {
