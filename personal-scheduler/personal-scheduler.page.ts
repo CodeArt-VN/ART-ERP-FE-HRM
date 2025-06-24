@@ -22,7 +22,6 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
 
-
 @Component({
 	selector: 'app-personal-scheduler',
 	templateUrl: 'personal-scheduler.page.html',
@@ -124,14 +123,16 @@ export class PersonalSchedulerPage extends PageBase {
 				(values: any) => {
 					console.log(values);
 					values[0]?.data?.forEach((i) => {
-						this.items.push({
+						let item: any = {
 							ShiftName: 'OT',
-							start: i.StartDate,
 							IDStaff: i.IDStaff,
 							TimeOffType: null,
 							ShiftStart: lib.dateFormat(i.StartDate, 'hh:MM'),
 							ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
-						});
+							start: i.StartDate,
+							end: i.EndDate,
+						};
+						this.items.push(item);
 					});
 					if (values[1]?.data?.length > 0) {
 						values[1]?.data?.forEach((i) => {
@@ -173,13 +174,7 @@ export class PersonalSchedulerPage extends PageBase {
 							e.ShiftName = shift.Name;
 							e.ShiftStart = shift.Start;
 							e.ShiftEnd = shift.End;
-							e.start = e.WorkingDate.substring(0, 10) + 'T' + e.ShiftStart + ':00';
-							e.end = new Date(e.WorkingDate);
-							if (e.ShiftEnd < e.ShiftStart) {
-								// qua ngày hôm sau nếu giờ kết thúc < giờ bắt đầu
-								e.end.setDate(e.end.getDate() + 1);
-							}
-							e.end = e.end.toISOString().substring(0, 10) + 'T' + e.ShiftEnd + ':00';
+
 							e.Shift = shift;
 							e.Timesheet = timesheet;
 							e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
@@ -243,6 +238,7 @@ export class PersonalSchedulerPage extends PageBase {
 					this.getCalendar();
 					this.fc?.updateSize();
 					super.loadedData(event, ignoredFromGroup);
+					console.log(this.items);
 				}
 			);
 
@@ -256,13 +252,12 @@ export class PersonalSchedulerPage extends PageBase {
 		height: '100%',
 		timeZone: 'Asia/Ho_Chi_Minh',
 		aspectRatio: 1.5,
-		
+
 		buttonIcons: {
 			prev: 'chevron-left',
 			next: 'chevron-right',
 		},
 		titleFormat: { year: 'numeric', month: 'numeric', omitCommas: true },
-	
 
 		firstDay: 1,
 		weekends: true,
@@ -293,14 +288,14 @@ export class PersonalSchedulerPage extends PageBase {
 				buttonText: 'Week',
 				titleFormat: { year: 'numeric', month: 'short', day: 'numeric' }, // Ví dụ: Jun 23 – 29, 2025
 
-				slotMinTime: '06:00:00', // Bắt đầu từ 6h sáng
+				slotMinTime: '00:00:00', // Bắt đầu từ 6h sáng
 				slotMaxTime: '24:00:00', // Kết thúc lúc nửa đêm
 				columnHeaderFormat: { weekday: 'short', day: '2-digit', month: '2-digit' },
 			},
 			timeGridDay: {
 				buttonText: 'Day',
 				titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-				slotMinTime: '06:00:00',
+				slotMinTime: '00:00:00',
 				slotMaxTime: '24:00:00',
 				columnHeaderFormat: { weekday: 'short' },
 			},
@@ -347,8 +342,13 @@ export class PersonalSchedulerPage extends PageBase {
 			// arg.borderColor = arg.event.extendedProps.Color;
 			let shiftEnd = arg.event.extendedProps.ShiftEnd;
 			let shiftStart = arg.event.extendedProps.ShiftStart;
+			let isOvernight = arg.event.extendedProps.Shift?.IsOvernightShift;
+
 			// <b>${arg.event.title}</b>&nbsp;
 			let html = `<span class="v-align-middle">${arg.event.extendedProps.ShiftName}</span><small> &nbsp;${shiftStart ? shiftStart : ''}${shiftEnd ? ' - ' + shiftEnd : ''}</small>`;
+			if (isOvernight) {
+				html += `<br><small style="color: orange;">(Ca qua đêm)</small>`;
+			}
 			if (arg.event.extendedProps.CheckData) {
 				let icon = `${arg.event.extendedProps.Icon ? '<ion-icon color="' + arg.event.extendedProps.Color + '" name="' + arg.event.extendedProps.Icon + '"></ion-icon>' : ''}`;
 				let checkData = `${arg.event.extendedProps.CheckData ? '<span class="v-align-middle">' + arg.event.extendedProps.CheckData + '</span>' : ''}`;
