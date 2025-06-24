@@ -41,7 +41,7 @@ export class TimesheetCyclePage extends PageBase {
 		this.items.forEach((i) => {
 			i.Start = lib.dateFormat(i.Start);
 			i.End = lib.dateFormat(i.End);
-
+			
 			i.TimesheetList = [];
 			for (let j = 0; j < i.Timesheets.length; j++) {
 				const t = this.timesheetList.find((d) => d.Id == i.Timesheets[j]);

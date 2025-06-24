@@ -24,14 +24,17 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 		{ Group: 1, Day: 'Fri', Value: 5 },
 		{ Group: 1, Day: 'Sat', Value: 6 },
 	];
-
+	isShowAddNewCheckingLog = false;
 	staffList = [];
 	shiftList = [];
 	timeoffTypeList = [];
-
+	officeList = [];
+	checkingLogList = [];
+	pointObject;
 	ShiftStart = '';
 	ShiftEnd = '';
-
+	gateViewList = [];
+	gateList = [];
 	constructor(
 		public pageProvider: HRM_ShiftProvider,
 		public shiftProvider: HRM_ShiftProvider,
@@ -47,29 +50,38 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 	) {
 		super();
 		this.pageConfig.isDetailPage = true;
-
+		this.pageConfig.canEdit = true;
 		this.formGroup = formBuilder.group({
 			Id: [''],
-			FromDate: ['', Validators.required],
-			ToDate: ['', Validators.required],
-			ShiftStart: [''],
-			ShiftEnd: [''],
-			IDShift: ['', Validators.required],
+			FromDate: new FormControl({ value: '', disabled: true }),
+			ToDate: new FormControl({ value: '', disabled: true }),
+			ShiftStart: new FormControl({ value: '', disabled: true }),
+			ShiftEnd: new FormControl({ value: '', disabled: true }),
+			IDShift: new FormControl({ value: '', disabled: true }),
 			IsOpenShift: [false],
 			Staffs: [''],
 			TimeOffType: [''],
 			IsBookLunchCatering: [false],
 			IsBookBreakfastCatering: [false],
 			IsBookDinnerCatering: [false],
+			// bổ sung checkin
+			TimeSpan: ['',Validators.required],
+			IDOffice: ['',Validators.required],
+			IDGate: ['',Validators.required],
+			Remark: ['',Validators.required],
+			IPAddress: [''],
 		});
 	}
 
 	canBook = false;
-
+	canCreateCheckinLog = false;
 	preLoadData(event?: any): void {
 		// this.staffList = JSON.parse(JSON.stringify(this.navParams.data.staffList));
 		// this.shiftList = this.navParams.data.shiftList;
 		// this.timeoffTypeList = this.navParams.data.timeoffTypeList;
+		this.gateList = this.navParams.data.gateList;
+		this.officeList = this.navParams.data.officeList;
+		this.checkingLogList = this.navParams.data.CheckingLog || [];
 
 		this.formGroup.controls.Id.setValue(this.navParams.data.Id);
 		this.formGroup.controls.FromDate.setValue(this.navParams.data.FromDate);
@@ -88,10 +100,15 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 		this.formGroup.controls.IsBookDinnerCatering.setValue(this.navParams.data.IsBookDinnerCatering);
 
 		this.formGroup.controls.TimeOffType.setValue(this.navParams.data.TimeOffType);
+		if(this.navParams.data.PointObject){
+			this.pointObject = this.navParams.data.PointObject;
+		}
 		//this.formGroup.controls.Id.setValue(this.navParams.data.Id);
-		//this.formGroup.controls.IDStaff.disable();
+		//this.formGroup.controls.IDStaff.disable();`
 		//this.formGroup.controls.IDShift.disable();
-
+		if (this.formGroup.controls.IDOffice.value) {
+			this.changeOffice();
+		}
 		super.loadedData();
 
 		let d1 = lib.dateFormat(this.navParams.data.FromDate);
@@ -101,13 +118,29 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 			this.formGroup.controls.IsBookBreakfastCatering.disable();
 			this.formGroup.controls.IsBookDinnerCatering.disable();
 			this.canBook = false;
+			this.canCreateCheckinLog = true;
+
 		} else {
 			this.formGroup.controls.Id.enable();
 			this.formGroup.controls.IsBookLunchCatering.enable();
 			this.formGroup.controls.IsBookBreakfastCatering.enable();
 			this.formGroup.controls.IsBookDinnerCatering.enable();
 			this.canBook = true;
+			this.canCreateCheckinLog = false;
+			this.formGroup.controls.TimeSpan.setValidators(null);
+			this.formGroup.controls.IDGate.setValidators(null);
+			this.formGroup.controls.IDOffice.setValidators(null);
+			this.formGroup.controls.Remark.setValidators(null);
+			this.formGroup.updateValueAndValidity();
 		}
+	}
+	changeOffice() {
+		this.gateViewList = this.gateList.filter((d) => d.IDOffice == this.formGroup.controls.IDOffice.value);
+		this.gateViewList = [...this.gateViewList];
+		console.log(this.gateViewList);
+	}
+	changeGate(e) {
+		this.formGroup.controls.IPAddress.setValue(e?.IPAddress);
 	}
 
 	massShiftAssignment() {

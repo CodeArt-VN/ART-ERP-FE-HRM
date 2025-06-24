@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
@@ -15,18 +15,20 @@ import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { lib } from 'src/app/services/static/global-functions';
-import { PointModalPage } from '../point-modal/point-modal.page';
-import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
+import { PointModalPage } from '../../point-modal/point-modal.page';
+import { StaffPayrollModalPage } from '../../staff-payroll-modal/staff-payroll-modal.page';
 import dayGridPlugin from '@fullcalendar/daygrid';
 @Component({
-	selector: 'app-timesheet-cycle-detail',
+	selector: 'app-timesheet-cycle-detail-component',
 	templateUrl: './timesheet-cycle-detail.page.html',
 	styleUrls: ['./timesheet-cycle-detail.page.scss'],
 	standalone: false,
 })
-export class TimesheetCycleDetailPage extends PageBase {
+export class TimesheetCycleDetailComponent extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
 
+	@Input() IDTimesheet;
+	@Input() idCycle;
 	officeList = [];
 	gateList = [];
 	timesheetList = [];
@@ -35,7 +37,6 @@ export class TimesheetCycleDetailPage extends PageBase {
 	shifTypeList = [];
 	timeoffTypeList = [];
 	fc = null;
-	IDTimesheet: any = 0;
 
 	constructor(
 		public pageProvider: HRM_TimesheetCycleProvider,
@@ -55,10 +56,11 @@ export class TimesheetCycleDetailPage extends PageBase {
 		public navCtrl: NavController
 	) {
 		super();
-		this.IDTimesheet = this.route.snapshot?.paramMap?.get('idtimesheet');
+		// this.IDTimesheet = this.route.snapshot?.paramMap?.get('idtimesheet');
 	}
 
 	preLoadData(event?: any): void {
+		this.id = this.idCycle;
 		Promise.all([
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
@@ -225,6 +227,17 @@ export class TimesheetCycleDetailPage extends PageBase {
 	}
 	// plugins: [dayGridPlugin],//[resourceTimelinePlugin],
 	// initialView:'dayGridMonth', //'resourceTimelineWeek',
+
+	async export() {
+		super.export();
+	}
+
+	dismissDatePicker(isApply, pickedDate) {
+		if (isApply) {
+			this.fc?.gotoDate(pickedDate);
+			this.loadData();
+		}
+	}
 
 	calendarOptions: any = {
 		plugins: [resourceTimelinePlugin], //[resourceTimelinePlugin],

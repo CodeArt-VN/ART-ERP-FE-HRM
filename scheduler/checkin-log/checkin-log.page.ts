@@ -16,19 +16,18 @@ import interactionPlugin from '@fullcalendar/interaction';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 
 import { lib } from 'src/app/services/static/global-functions';
-import { LogGeneratorPage } from '../log-generator/log-generator.page';
+import { LogGeneratorPage } from '../../log-generator/log-generator.page';
 
 @Component({
-	selector: 'app-checkin-log',
+	selector: 'app-checkin-log-component',
 	templateUrl: 'checkin-log.page.html',
 	styleUrls: ['checkin-log.page.scss'],
 	standalone: false,
 })
-export class CheckinLogPage extends PageBase {
+export class CheckinLogComponent extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
-	@Input() idTimesheet (value){
-		this.id = value;
-	}
+	@Input() idTimesheet;
+
 	officeList = [];
 	gateList = [];
 	timesheetList = [];
@@ -56,6 +55,8 @@ export class CheckinLogPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
+		this.id = this.idTimesheet;
+
 		Promise.all([this.officeProvider.read(), this.timesheetProvider.read(), this.gateProvider.read()]).then((values) => {
 			this.officeList = values[0]['data'];
 			this.timesheetList = values[1]['data'];
@@ -110,6 +111,18 @@ export class CheckinLogPage extends PageBase {
 		this.getCalendar();
 		this.fc?.updateSize();
 		super.loadedData(event, ignoredFromGroup);
+	}
+
+	async export() {
+		super.export();
+	}
+
+
+	dismissDatePicker(isApply,pickedDate) {
+		if (isApply) {
+			this.fc?.gotoDate(pickedDate);
+			this.loadData();
+		}
 	}
 
 	calendarOptions: any = {
@@ -336,6 +349,7 @@ export class CheckinLogPage extends PageBase {
 		this.fc?.updateSize();
 	}
 	fcToday() {
+		console.log('fcToday CheckinLog');
 		this.getCalendar();
 		this.fc?.today();
 		this.loadData();

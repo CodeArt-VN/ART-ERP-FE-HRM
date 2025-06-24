@@ -202,7 +202,8 @@ export class BenefitPolicyDetailPage extends PageBase {
 			cssClass: 'modal90',
 			componentProps: {
 				line: i,
-				UDFList: this.UDFModal,
+				UDFList: this.UDFList,
+				UDFModal: this.UDFModal,
 			},
 		});
 		await modal.present();

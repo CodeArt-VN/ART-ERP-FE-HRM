@@ -10,6 +10,11 @@ import { PriceReportComponentsModule } from '../../BI/price-report/components/pr
 import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
+import { CheckinLogPageModule } from '../checkin-log/checkin-log.module';
+import { LogGeneratorPage } from '../log-generator/log-generator.page';
+import { CheckinLogComponent } from './checkin-log/checkin-log.page';
+import { TimesheetCycleDetailComponent } from './timesheet-cycle/timesheet-cycle-detail.page';
+import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-modal/timesheet-cycle-select-modal.page';
 
 @NgModule({
 	imports: [
@@ -20,8 +25,9 @@ import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generat
 		PriceReportComponentsModule,
 		ShareModule,
 		FullCalendarModule,
+		// CheckinLogPageModule,
 		RouterModule.forChild([{ path: '', component: SchedulerPage }]),
 	],
-	declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage],
+	declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage,CheckinLogComponent,TimesheetCycleDetailComponent,TimesheetCycleSelectModalComponent],
 })
 export class SchedulerPageModule {}

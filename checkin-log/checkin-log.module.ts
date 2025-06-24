@@ -19,9 +19,9 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 		FullCalendarModule,
 		PriceReportComponentsModule,
 		ShareModule,
-
 		RouterModule.forChild([{ path: '', component: CheckinLogPage }]),
 	],
 	declarations: [CheckinLogPage, LogGeneratorPage],
+	exports: [CheckinLogPage],
 })
 export class CheckinLogPageModule {}

@@ -18,6 +18,7 @@ export class BenefitPolicyDetailModalPage extends PageBase {
 	calculationMethodTypeList = [];
 	typeList = [];
 	UDFList = [];
+	UDFModal = [];
 	frequencyList = [];
 	constructor(
 		public pageProvider: HRM_PolBenefitProvider,

@@ -1,0 +1,11 @@
+<ion-content [scrollY]="false">
+	<div class="c-control">
+		<label class="c-label">{{"Timesheet cycle" | translate}}</label>
+		<select class="c-input c-dropdown" [(ngModel)]="idCycle" [ngModelOptions]="{standalone: true}">
+			<option *ngFor="let t of timesheetCycleList" [value]="t.Id">{{t.Name}}</option>
+		</select>
+	</div>
+	<div class="c-control">
+		<ion-button color="primary" expand="block" (click)="command()"> {{"Submit" | translate}} </ion-button>
+	</div>
+</ion-content>

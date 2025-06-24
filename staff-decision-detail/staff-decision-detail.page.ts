@@ -90,6 +90,8 @@ export class StaffDecisionDetailPage extends PageBase {
 		});
 	}
 
+	initStaffPolEmployeeDecisionDetails = [];
+	initIDPolEmployee;
 	preLoadData(event?: any): void {
 		Promise.all([
 			this.env.getStatus('StandardApprovalStatus'),
@@ -108,14 +110,15 @@ export class StaffDecisionDetailPage extends PageBase {
 		this.route.queryParams.subscribe(() => {
 			const navigation = this.router.getCurrentNavigation();
 			if (navigation?.extras?.state?.StaffList) {
-				// this.initStaffPolBenefitEnrollmentDetails = navigation.extras.state.StaffList;
-				// this.initPolBenefit = navigation.extras.state.IDPol;
+				this.initStaffPolEmployeeDecisionDetails = navigation.extras.state.StaffList;
+				this.initIDPolEmployee = navigation.extras.state.IDPol;
 			}
 		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		this.selectedItems = [];
+		if (this.item.Id == 0) if (this.initStaffPolEmployeeDecisionDetails) this.item.StaffPolEmployeeDecisionDetails = this.initStaffPolEmployeeDecisionDetails;
 		this.patchStaffPolEmployeeDecisionDetails();
 
 		if (this.item.IDPolEmployee) {
@@ -151,6 +154,23 @@ export class StaffDecisionDetailPage extends PageBase {
 					super.loadedData(event, ignoredFromGroup);
 				});
 		} else super.loadedData(event, ignoredFromGroup);
+
+		if (this.item.Id == 0) {
+			this.formGroup.controls.Status.markAsDirty();
+			if (this.initIDPolEmployee) {
+				this.formGroup.controls.IDPolEmployee.setValue(parseInt(this.initIDPolEmployee));
+				this.formGroup.controls.IDPolEmployee.markAsDirty();
+			}
+			if (this.item.StaffPolEmployeeDecisionDetails) {
+				let groups = this.formGroup.controls.StaffPolEmployeeDecisionDetails as FormArray;
+				groups.controls.forEach((control: any) => {
+					Object.keys(control.controls).forEach((key) => {
+						control.get(key).markAsDirty();
+					});
+				});
+			}
+		}
+
 		if (!this.item.Id) {
 			this.formGroup.controls.IDRequester.setValue(this.env.user.StaffID);
 			this.formGroup.controls.IDRequester.markAsDirty();
