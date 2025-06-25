@@ -57,6 +57,9 @@ export class StaffPayrollDetailPage extends PageBase {
 			i._Staff.Avatar = i._Staff.Code ? environment.staffAvatarsServer + i._Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
 			i._Staff.JobTitle = lib.getAttrib(i._Staff.IDJobTitle, this.jobTitleList);
 		});
+		if(['Submitted', 'Approved','Cancelled'].includes(this.item.Status)) {
+			this.pageConfig.canEdit= false;
+		}
 	}
 
 	exportPayrollRecords(type = null): Promise<void> {

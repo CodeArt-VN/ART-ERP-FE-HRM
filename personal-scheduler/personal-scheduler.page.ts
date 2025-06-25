@@ -21,6 +21,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
+import { PopoverPage } from '../../SYS/popover/popover.page';
 
 @Component({
 	selector: 'app-personal-scheduler',
@@ -105,7 +106,7 @@ export class PersonalSchedulerPage extends PageBase {
 
 		this.query.WorkingDateFrom = lib.dateFormat(this.fc.view.activeStart);
 		this.query.WorkingDateTo = lib.dateFormat(this.fc.view.activeEnd);
-		if (!this.pickedDate) this.pickedDate = this.query.WorkingDateFrom;
+		//if (!this.pickedDate) this.pickedDate = this.query.WorkingDateFrom;
 
 		this.query.IDStaff = this.env.user.StaffID;
 		this.query.Take = 50000;
@@ -467,20 +468,43 @@ export class PersonalSchedulerPage extends PageBase {
 		this.loadData();
 	}
 	isOpenPickDatePopover = false;
+	pickedDate;
 	@ViewChild('pickDatePopover') pickDatePopover!: HTMLIonPopoverElement;
-	presentPickDatePopover(e) {
-		this.pickDatePopover.event = e;
-		this.isOpenPickDatePopover = !this.isOpenPickDatePopover;
+	// presentPickDatePopover(e) {
+	// 	this.pickDatePopover.event = e;
+	// 	this.isOpenPickDatePopover = !this.isOpenPickDatePopover;
+	// }
+	async presentPickDatePopover(ev: any) {
+		let popover = await this.popoverCtrl.create({
+			component: PopoverPage,
+			componentProps: {
+				popConfig: {
+					type: 'PopSingleDate',
+					isShowSingleDate: true,
+					singleDateLabel: 'Ngày',
+				},
+				popData: {
+					singleDate: this.pickedDate,
+				},
+			},
+			event: ev,
+			cssClass: 'delivery-review-filter',
+			translucent: true,
+		});
+		popover.onDidDismiss().then((result: any) => {
+			console.log(result);
+			if (result.data) {
+				this.pickedDate = result.data.singleDate;
+				this.fc?.gotoDate(this.pickedDate);
+				this.isOpenPickDatePopover = false;
+				this.loadData();
+			}
+		});
+		this.pickDatePopover = popover;
+		return await popover.present();
 	}
 
-	pickedDate;
-	dismissDatePicker(isApply) {
-		if (isApply) {
-			this.fc?.gotoDate(this.pickedDate);
-			this.isOpenPickDatePopover = false;
-			this.loadData();
-		}
-	}
+
 	fcNext() {
 		this.getCalendar();
 		this.fc?.next();
