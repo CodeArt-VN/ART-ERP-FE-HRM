@@ -28,10 +28,10 @@ export class StaffPayrollConfigPage extends PageBase {
 	timesheetList: any = [];
 	UDFList: any = [];
 	UDFGroups: any = [];
-	arrayUDFGroup :any = [];
+	arrayUDFGroup: any = [];
 	statusList: any = [];
 	trackingIDPolSalary;
-	alwaysReturnProps = ['Id', 'IDBranch','IDTimesheetCycle','IDTimesheet'];
+	alwaysReturnProps = ['Id', 'IDBranch', 'IDTimesheetCycle', 'IDTimesheet'];
 	constructor(
 		public pageProvider: HRM_StaffPayrollProvider,
 		public payrollTemplateProvider: HRM_PayrollTemplateProvider,
@@ -83,7 +83,7 @@ export class StaffPayrollConfigPage extends PageBase {
 			this.timesheetCycleProvider.read(),
 			this.timesheetProvider.read(),
 			this.env.getType('UDFGroupsType', true),
-			this.udfProvider.read()
+			this.udfProvider.read(),
 		]).then((values: any) => {
 			this.payrollTemplateType = values[0];
 			this.statusList = values[1];
@@ -93,11 +93,12 @@ export class StaffPayrollConfigPage extends PageBase {
 			this.UDFGroups = values[5];
 			this.UDFList = values[6].data;
 			super.preLoadData(event);
-
 		});
 	}
 	loadedData(event) {
-		
+		if (['Submitted', 'Approved', 'Cancelled'].includes(this.item.Status)) {
+			this.pageConfig.canEdit = false;
+		}
 		this.patchUDF();
 		super.loadedData(event);
 		// this.polSalaryProvider.read({}).then((res: any) => {
@@ -113,7 +114,7 @@ export class StaffPayrollConfigPage extends PageBase {
 	openedFieldValues = [];
 	patchUDF() {
 		let groups = this.formGroup.get('StaffPayrollConfig') as FormArray;
-		this.arrayUDFGroup = []
+		this.arrayUDFGroup = [];
 		groups.clear();
 		if (this.item?.StaffPayrollConfig?.length > 0) {
 			this.item.StaffPayrollConfig.forEach((item) => {
@@ -129,7 +130,7 @@ export class StaffPayrollConfigPage extends PageBase {
 					groupItem = { Code: code, SubGroups: [], Name: groupName };
 					acc.push(groupItem);
 				}
-	
+
 				// Find or create the subGroup inside the group
 				let subGroupItem = groupItem.SubGroups.find((sg) => sg.Code === subGroup);
 				let subName = this.UDFGroups.find((d) => d.Code == subGroup)?.Name || subGroup;
@@ -143,7 +144,6 @@ export class StaffPayrollConfigPage extends PageBase {
 				return acc;
 			}, []);
 		}
-	
 	}
 	addPayrollTemplateDetail(field, openField = false) {
 		let groups = <FormArray>this.formGroup.controls.StaffPayrollConfig;
