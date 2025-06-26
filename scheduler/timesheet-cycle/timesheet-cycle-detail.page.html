@@ -88,14 +88,13 @@
 	</ion-fab>
 
 	<app-page-message
-		message="{{'Not yet selected working schedule' | translate}}"
-		subMessage="{{'Please select working schedule to start' | translate}}"
-		*ngIf="!id"
-		[itemsLength]="id"
+		message="{{'No payroll cycle found for this period' | translate}}"
+		*ngIf="!_idCycle"
+		[itemsLength]="_idCycle"
 		[showSpinner]="pageConfig.showSpinner"
 	>
 		<hr />
-		<div class="c-control">
+		<!-- <div class="c-control">
 			<ng-select
 				class="c-input no-check-dirty"
 				appendTo="#ng-select-main-page"
@@ -115,7 +114,7 @@
 					</div>
 				</ng-template>
 			</ng-select>
-		</div>
+		</div> -->
 	</app-page-message>
 	<full-calendar #calendar [options]="calendarOptions"></full-calendar>
 </ion-content>

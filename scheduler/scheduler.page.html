@@ -27,7 +27,10 @@
 
 		<ng-container *ngIf="segmentView == 's1'">
 			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
-			<ion-button tollbarSelected title="{{'Pick date' | translate}}" (click)="presentPickDatePopover($event)">... </ion-button>
+			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
+				<ion-icon name="calendar-outline"></ion-icon>
+				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
+			</ion-chip>
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
@@ -76,7 +79,10 @@
 
 		<ng-container *ngIf="segmentView == 's2'">
 			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
-			<ion-button tollbarSelected title="{{'Pick date' | translate}}" (click)="presentPickDatePopover($event)">... </ion-button>
+			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
+				<ion-icon name="calendar-outline"></ion-icon>
+				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
+			</ion-chip>
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
@@ -91,7 +97,10 @@
 
 		<ng-container *ngIf="segmentView == 's3'">
 			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
-			<ion-button tollbarSelected title="{{'Pick date' | translate}}" (click)="presentPickDatePopover($event)">... </ion-button>
+			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
+				<ion-icon name="calendar-outline"></ion-icon>
+				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
+			</ion-chip>
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
@@ -111,32 +120,16 @@
 				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
 			</ion-button>
 
+			<ion-button (click)="openCycleModal()" title="{{'Open cycle modal' | translate}}">
+				<ion-icon slot="icon-only" name="ellipse-outline"></ion-icon>
+			</ion-button>
+
 			<span class="split ion-hide-sm-down" *ngIf=" pageConfig.canExport && pageConfig.canImport">|</span>
 
 			<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
 				<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
 			</ion-button>
-		
 		</ng-container>
-			<ion-popover #pickDatePopover [isOpen]="isOpenPickDatePopover" (didDismiss)="isOpenPickDatePopover = false">
-				<ng-template>
-					<ion-content class="ion-padding" scroll-y="false">
-						<ion-list>
-							<div>
-								<ion-item>
-									<div class="c-control">
-										<label class="c-label">
-											{{ 'Start date' | translate }}
-											<input class="c-input" [(ngModel)]="this.pickedDate" type="date" class="ion-padding" />
-										</label>
-									</div>
-								</ion-item>
-							</div>
-							<ion-button class="ion-margin" size="small" expand="block" (click)="dismissDatePicker(true)">Apply</ion-button>
-						</ion-list>
-					</ion-content>
-				</ng-template>
-			</ion-popover>
 	</app-toolbar>
 	<ion-toolbar style="--padding-start: 4px">
 		<ion-segment (ionChange)="segmentChanged($event)" [value]="segmentView">
@@ -273,7 +266,13 @@
 	</app-page-message>
 	<full-calendar *ngIf="segmentView == 's1'" #calendar [options]="calendarOptions"></full-calendar>
 
-	<app-checkin-log-component #checkinLog [idTimesheet]="id" *ngIf="segmentView == 's2'"></app-checkin-log-component>
+	<app-checkin-log-component #checkinLog [idTimesheet]="id" [pickedDate]="pickedDate" *ngIf="segmentView == 's2'"></app-checkin-log-component>
 
-	<app-timesheet-cycle-detail-component #timesheetCycle [IDTimesheet]="id" [idCycle]="idCycle" *ngIf="segmentView == 's3'"></app-timesheet-cycle-detail-component>
+	<app-timesheet-cycle-detail-component
+		#timesheetCycle
+		[IDTimesheet]="id"
+		[pickedDate]="pickedDate"
+		[idCycle]="idCycle"
+		*ngIf="segmentView == 's3'"
+	></app-timesheet-cycle-detail-component>
 </ion-content>

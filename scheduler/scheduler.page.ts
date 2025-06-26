@@ -27,6 +27,7 @@ import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal
 import { CheckinLogComponent } from './checkin-log/checkin-log.page';
 import { TimesheetCycleDetailComponent } from './timesheet-cycle/timesheet-cycle-detail.page';
 import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-modal/timesheet-cycle-select-modal.page';
+import { PopoverPage } from '../../SYS/popover/popover.page';
 
 @Component({
 	selector: 'app-scheduler',
@@ -73,30 +74,69 @@ export class SchedulerPage extends PageBase {
 		this.pageConfig.ShowSearch = false;
 	}
 
+	async openCycleModal() {
+		this.getTimesheetCycle();
+		// let popover = await this.popoverCtrl.create({
+		// 	component: TimesheetCycleSelectModalComponent,
+		// 	componentProps: { _timesheetCycleList: this._timesheetCycleList },
+		// 	cssClass: 'w300',
+		// 	translucent: true,
+		// });
+		// popover.onDidDismiss().then((result: any) => {
+		// 	if (result.data && result.data.IDCycle) {
+		// 		this.idCycle = result.data.IDCycle;
+		// 	}
+		// });
+		// await popover.present();
+	}
+
+	getTimesheetCycle() {
+		this.timesheetCycleDetailProvider.read({ IDTimesheet: this.id, Date: this.pickedDate ? new Date(this.pickedDate) : new Date() }).then(async (resp) => {
+			if (resp['data'] && resp['data'].length > 1) {
+				this._timesheetCycleList = resp['data'].map((d) => d._TimesheetCycle);
+				let popover = await this.popoverCtrl.create({
+					component: TimesheetCycleSelectModalComponent,
+					componentProps: { _timesheetCycleList: resp['data'].map((d) => d._TimesheetCycle) },
+					cssClass: 'w300',
+					translucent: true,
+				});
+				popover.onDidDismiss().then((result: any) => {
+					if (result.data && result.data.IDCycle) {
+						this.idCycle = result.data.IDCycle;
+						this.segmentView = 's3';
+					}
+				});
+				await popover.present();
+			} else if (resp['data'] && resp['data'].length == 1) {
+				this.idCycle = resp['data'][0]?.IDTimesheetCycle;
+				this.segmentView = 's3';
+			} else {
+				// this.idCycle = 0;
+				this.segmentView = 's3';
+				this.env.showMessage('No timesheet cycle found for this date', 'warning');
+			}
+		});
+	}
+
 	segmentView = 's1';
+	_timesheetCycleList: any[] = [];
 	segmentChanged(ev: any) {
 		if (ev.detail.value == 's3') {
-			this.timesheetCycleDetailProvider.read({ IDTimesheet: this.id }).then(async (resp) => {
-				if (resp['data'] && resp['data'].length > 1) {
-					let popover = await this.popoverCtrl.create({
-						component: TimesheetCycleSelectModalComponent,
-						componentProps: { _timesheetCycleList: resp['data'].map((d) => d._TimesheetCycle) },
-						event: ev,
-						cssClass: 'w300',
-						translucent: true,
-					});
-					popover.onDidDismiss().then((result: any) => {
-						if (result.data && result.data.IDCycle) {
-							this.idCycle = result.data.IDCycle;
-							this.segmentView = ev.detail.value;
-						}
-					});
-					await popover.present();
-				} else if (resp['data'] && resp['data'].length == 1) {
-					this.idCycle = resp['data'][0]?.IDTimesheetCycle;
-					this.segmentView = ev.detail.value;
-				}
-			});
+			// let date = this.pickedDate ? new Date(this.pickedDate) : new Date();
+			// const matchedCycle = this._timesheetCycleList.some((item) => {
+			// 	const start = new Date(item.Start);
+			// 	const end = new Date(item.End);
+			// 	return date >= start && date <= end;
+			// });
+			if (!this.idCycle) {
+				this.getTimesheetCycle();
+			} else {
+				this.segmentView = ev.detail.value;
+			}
+		} else if (ev.detail.value == 's1') {
+			this.segmentView = ev.detail.value;
+			this.fc?.gotoDate(this.pickedDate);
+			this.loadData();
 		} else {
 			this.segmentView = ev.detail.value;
 		}
@@ -192,6 +232,7 @@ export class SchedulerPage extends PageBase {
 				this.calendarOptions.events = this.items;
 				this.getCalendar();
 				this.fc?.updateSize();
+				if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 				super.loadedData(event, ignoredFromGroup);
 			})
 			.catch((err) => {
@@ -671,36 +712,46 @@ export class SchedulerPage extends PageBase {
 		this.getCalendar();
 		this.fc?.updateSize();
 	}
+
 	fcToday() {
 		if (this.segmentView == 's2') {
 			this.checkinLog.fcToday();
+			this.pickedDate = this.checkinLog.fc?.view?.activeStart ? new Date(this.checkinLog.fc.view.activeStart) : null;
 		} else if (this.segmentView == 's3') {
 			this.timesheetCycle.fcToday();
+			this.pickedDate = this.timesheetCycle.fc?.view?.activeStart ? new Date(this.timesheetCycle.fc.view.activeStart) : null;
 		} else {
 			this.getCalendar();
 			this.fc?.today();
+			this.pickedDate = this.fc?.view?.activeStart ? new Date(this.fc.view.activeStart) : null;
 			this.loadData();
 		}
 	}
 	fcNext() {
 		if (this.segmentView == 's2') {
 			this.checkinLog.fcNext();
+			this.pickedDate = this.checkinLog.fc?.view?.activeStart ? new Date(this.checkinLog.fc.view.activeStart) : null;
 		} else if (this.segmentView == 's3') {
 			this.timesheetCycle.fcNext();
+			this.pickedDate = this.timesheetCycle.fc?.view?.activeStart ? new Date(this.timesheetCycle.fc.view.activeStart) : null;
 		} else {
 			this.getCalendar();
 			this.fc?.next();
+			this.pickedDate = this.fc?.view?.activeStart ? new Date(this.fc.view.activeStart) : null;
 			this.loadData();
 		}
 	}
 	fcPrev() {
 		if (this.segmentView == 's2') {
 			this.checkinLog.fcPrev();
+			this.pickedDate = this.checkinLog.fc?.view?.activeStart ? new Date(this.checkinLog.fc.view.activeStart) : null;
 		} else if (this.segmentView == 's3') {
 			this.timesheetCycle.fcPrev();
+			this.pickedDate = this.timesheetCycle.fc?.view?.activeStart ? new Date(this.timesheetCycle.fc.view.activeStart) : null;
 		} else {
 			this.getCalendar();
 			this.fc?.prev();
+			this.pickedDate = this.fc?.view?.activeStart ? new Date(this.fc.view.activeStart) : null;
 			this.loadData();
 		}
 	}
@@ -912,28 +963,47 @@ export class SchedulerPage extends PageBase {
 	pickedDate;
 	isOpenPickDatePopover = false;
 	@ViewChild('pickDatePopover') pickDatePopover!: HTMLIonPopoverElement;
-	presentPickDatePopover(e) {
-		this.pickDatePopover.event = e;
-		this.isOpenPickDatePopover = !this.isOpenPickDatePopover;
+
+	async presentPickDatePopover(ev: any) {
+		let popover = await this.popoverCtrl.create({
+			component: PopoverPage,
+			componentProps: {
+				popConfig: {
+					type: 'PopSingleDate',
+					isShowSingleDate: true,
+					singleDateLabel: 'Ngày',
+				},
+				popData: {
+					singleDate: this.pickedDate,
+				},
+			},
+			event: ev,
+			cssClass: 'delivery-review-filter',
+			translucent: true,
+		});
+		popover.onDidDismiss().then((result: any) => {
+			console.log(result);
+			if (result.data) {
+				this.pickedDate = result.data.singleDate;
+				if (this.segmentView == 's2') {
+					this.checkinLog.dismissDatePicker(this.pickedDate);
+					this.isOpenPickDatePopover = false;
+				} else if (this.segmentView == 's3') {
+					this.timesheetCycle.dismissDatePicker(this.pickedDate);
+					this.isOpenPickDatePopover = false;
+				} else {
+					this.fc?.gotoDate(this.pickedDate);
+					this.isOpenPickDatePopover = false;
+					// this.fc.view.activeEnd = this.dateEnd;
+					this.loadData();
+				}
+			}
+		});
+		this.pickDatePopover = popover;
+		return await popover.present();
 	}
 
-	dismissDatePicker(isApply) {
-		if (this.segmentView == 's2') {
-			this.checkinLog.dismissDatePicker(isApply, this.pickedDate);
-			this.isOpenPickDatePopover = false;
-		} else if (this.segmentView == 's3') {
-			this.timesheetCycle.dismissDatePicker(isApply, this.pickedDate);
-			this.isOpenPickDatePopover = false;
-		} else {
-			if (isApply) {
-				this.fc?.gotoDate(this.pickedDate);
-				this.isOpenPickDatePopover = false;
-				// this.fc.view.activeStart = this.dateStart;
-				// this.fc.view.activeEnd = this.dateEnd;
-				this.loadData();
-			}
-		}
-	}
+	dismissDatePicker(isApply) {}
 	getAdvaneFilterConfig() {
 		let start = new Date(this.fc?.view.activeStart);
 		start.setHours(0, 0, 0, 0);

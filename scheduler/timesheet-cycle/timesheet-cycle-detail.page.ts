@@ -26,9 +26,13 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 })
 export class TimesheetCycleDetailComponent extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
-
 	@Input() IDTimesheet;
-	@Input() idCycle;
+	_idCycle = 0;
+	@Input() set idCycle(value) {
+		this._idCycle = value;
+		this.preLoadData();
+	}
+	@Input() pickedDate;
 	officeList = [];
 	gateList = [];
 	timesheetList = [];
@@ -59,15 +63,26 @@ export class TimesheetCycleDetailComponent extends PageBase {
 		// this.IDTimesheet = this.route.snapshot?.paramMap?.get('idtimesheet');
 	}
 
+	async showLoading() {
+		const loading = await this.loadingController.create({
+			message: 'Loading...',
+		});
+
+		loading.present();
+	}
+
 	preLoadData(event?: any): void {
-		this.id = this.idCycle;
+		this.showLoading();
+		if (this._idCycle == 0) {
+			this.loadData(event);
+		}
 		Promise.all([
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
 			this.timesheetProvider.read(),
 			this.shiftProvider.read(),
 			this.env.getType('TimeOffType'),
-			this.cycleProvider.getAnItem(this.id),
+			this.cycleProvider.getAnItem(this._idCycle),
 			//this.gateProvider.read(),
 		]).then((values) => {
 			this.officeList = values[0]['data'];
@@ -115,16 +130,19 @@ export class TimesheetCycleDetailComponent extends PageBase {
 	loadData(event?: any): void {
 		this.getCalendar();
 
-		this.query.WorkingDateFrom = lib.dateFormat(this.fc.view.activeStart);
-		this.query.WorkingDateEnd = lib.dateFormat(this.fc.view.activeEnd);
+		this.query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
+		this.query.WorkingDateEnd = lib.dateFormat(this.fc?.view.activeEnd);
 		this.query.IDTimesheet = this.IDTimesheet;
-		this.query.IDCycle = this.id;
+		this.query.IDCycle = this._idCycle;
 		this.query.IDShift = JSON.stringify(this.shiftList.filter((d) => d.isChecked).map((m) => m.Id));
 		this.query.ShiftType = JSON.stringify(this.shifTypeList.filter((d) => d.isChecked).map((m) => m.Code));
 		this.query.IDOffice = JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id));
 		this.query.Take = 50000;
 
 		this.clearData();
+		if (this._idCycle == 0) {
+			this.loadedData(event);
+		}
 		if (this.IDTimesheet) {
 			this.query.CC = true;
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.IDTimesheet }).then((resp) => {
@@ -132,9 +150,11 @@ export class TimesheetCycleDetailComponent extends PageBase {
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
 				this.calendarOptions.resources = resources;
 				this.getCalendar();
-				this.fc?.gotoDate(this.item.Start);
+				if (!this.pickedDate) this.fc?.gotoDate(this.item.Start);
+				else this.fc?.gotoDate(this.pickedDate);
 			});
 			super.loadData(event);
+			this.loadingController.dismiss();
 		} else {
 			this.loadedData(event);
 		}
@@ -224,6 +244,7 @@ export class TimesheetCycleDetailComponent extends PageBase {
 		this.getCalendar();
 		this.fc?.updateSize();
 		super.loadedData(event, ignoredFromGroup);
+		this.loadingController.dismiss();
 	}
 	// plugins: [dayGridPlugin],//[resourceTimelinePlugin],
 	// initialView:'dayGridMonth', //'resourceTimelineWeek',
@@ -232,11 +253,10 @@ export class TimesheetCycleDetailComponent extends PageBase {
 		super.export();
 	}
 
-	dismissDatePicker(isApply, pickedDate) {
-		if (isApply) {
-			this.fc?.gotoDate(pickedDate);
-			this.loadData();
-		}
+	dismissDatePicker(pickedDate) {
+		this.pickedDate = pickedDate;
+		this.fc?.gotoDate(pickedDate);
+		this.loadData();
 	}
 
 	calendarOptions: any = {
@@ -410,7 +430,7 @@ export class TimesheetCycleDetailComponent extends PageBase {
 			component: PointModalPage,
 			componentProps: {
 				cData: cData,
-				IDCycle: parseInt(this.id),
+				IDCycle: this._idCycle,
 			},
 			cssClass: 'modal-hrm-point',
 		});
@@ -422,7 +442,7 @@ export class TimesheetCycleDetailComponent extends PageBase {
 			component: StaffPayrollModalPage,
 			componentProps: {
 				IDTimesheet: parseInt(this.IDTimesheet),
-				IDTimesheetCycle: parseInt(this.id),
+				IDTimesheetCycle: this._idCycle,
 			},
 			cssClass: 'modal30',
 		});
