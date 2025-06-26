@@ -11,7 +11,7 @@
 			<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
 		</ion-button>
 		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canSendPayslip && pageConfig.ShowSendPayslip" title="{{'Send payslip' | translate}}" (click)="sendPayslip()">
-			<ion-icon  slot="icon-only" name="cash-outline"></ion-icon>
+			<ion-icon slot="icon-only" name="mail-outline"></ion-icon>
 		</ion-button>
 		<ion-popover #Popover [isOpen]="isOpenPopover" (didDismiss)="isOpenPopover = false">
 			<ng-template>

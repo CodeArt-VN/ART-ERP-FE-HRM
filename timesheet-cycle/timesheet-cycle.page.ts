@@ -88,24 +88,32 @@ export class TimesheetCyclePage extends PageBase {
 	}
 
 	async showModal(i) {
-		const modal = await this.modalController.create({
-			component: TimesheetCycleModalPage,
-			componentProps: {
-				timesheetList: this.timesheetList,
-				item: i,
-				id: i.Id,
-			},
-			cssClass: 'my-custom-class',
-		});
-		await modal.present();
-		const { data } = await modal.onWillDismiss();
+	const itemClone = {
+		...i,
+		Timesheets: (i.Timesheets || []).map(x => x.IDTimesheet)
+	};
 
-		if (data) {
-			this.pageProvider.save(data).then((resp) => {
-				this.refresh();
-			});
-		}
+	const modal = await this.modalController.create({
+		component: TimesheetCycleModalPage,
+		componentProps: {
+			timesheetList: this.timesheetList,
+			item: itemClone,
+			id: i.Id,
+		},
+		cssClass: 'my-custom-class',
+	});
+
+	await modal.present();
+
+	const { data } = await modal.onWillDismiss();
+
+	if (data) {
+		this.pageProvider.save(data).then((resp) => {
+			this.refresh();
+		});
 	}
+}
+
 
 	add() {
 		let newItem = {
