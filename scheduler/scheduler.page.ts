@@ -13,7 +13,7 @@ import {
 	HRM_StaffRecordOvertimeProvider,
 	HRM_TimesheetCycleDetailProvider,
 } from 'src/app/services/static/services.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
@@ -50,7 +50,7 @@ export class SchedulerPage extends PageBase {
 	fc: any = null;
 	isOpenPopover = false;
 	staffList = [];
-
+	navigateObj: any = {};
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
@@ -67,6 +67,7 @@ export class SchedulerPage extends PageBase {
 		public loadingController: LoadingController,
 		public env: EnvService,
 		public route: ActivatedRoute,
+		public router: Router,
 		public navCtrl: NavController
 	) {
 		super();
@@ -143,6 +144,13 @@ export class SchedulerPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
+		this.route.queryParams.subscribe((params) => {
+			this.navigateObj = this.router.getCurrentNavigation().extras.state;
+			if (this.navigateObj) {
+				this.id = this.navigateObj?.id;
+				this.idCycle = this.navigateObj?.IDCycle;
+			}
+		});
 		Promise.all([
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
@@ -191,13 +199,26 @@ export class SchedulerPage extends PageBase {
 		this.query.ParseOvertimeConfig = true;
 		this.clearData();
 		if (this.id) {
-			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp) => {
-				let resources = resp['data'];
-				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-				this.staffList = resources.map((m) => m.IDStaff);
-				this.calendarOptions.resources = resources;
-			});
-			super.loadData(event);
+			this.staffTimesheetEnrollmentProvider
+				.read({ IDTimesheet: this.id })
+				.then((resp) => {
+					let resources = resp['data'];
+					//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+					this.staffList = resources.map((m) => m.IDStaff);
+					this.calendarOptions.resources = resources;
+				})
+				.catch((err) => {
+					console.log(err);
+					this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
+				});
+			if (this.segmentView == 's1' && !this.navigateObj) {
+				super.loadData(event);
+			}
+			if (this.navigateObj && this.navigateObj?.id && this.navigateObj?.segmentView) {
+				this.segmentChanged({ detail: { value: this.navigateObj.segmentView } });
+				this.navigateObj = null; // Reset navigateObj after using it
+				this.loadedData(event);
+			}
 		} else {
 			this.loadedData(event);
 		}
@@ -241,6 +262,11 @@ export class SchedulerPage extends PageBase {
 				this.getCalendar();
 				this.fc?.updateSize();
 				super.loadedData(event, ignoredFromGroup);
+			})
+			.finally(() => {
+				if (this.navigateObj && this.navigateObj?.id) {
+					this.segmentChanged({ detail: { value: 's3' } });
+				}
 			});
 	}
 	patchItems() {

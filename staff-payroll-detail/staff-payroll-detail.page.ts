@@ -1,3 +1,4 @@
+//TODO: payslip
 import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
@@ -53,12 +54,15 @@ export class StaffPayrollDetailPage extends PageBase {
 		this.pageConfig.showSpinner = false;
 		event?.target?.complete();
 		console.log(this.item);
+		if (this.item.IsDisabled) this.pageConfig.canEdit = false;
+
+		this.showCommandBySelectedRows([this.item]);
 		this.item.StaffRecordPayroll.forEach((i) => {
 			i._Staff.Avatar = i._Staff.Code ? environment.staffAvatarsServer + i._Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
 			i._Staff.JobTitle = lib.getAttrib(i._Staff.IDJobTitle, this.jobTitleList);
 		});
-		if(['Submitted', 'Approved','Cancelled'].includes(this.item.Status)) {
-			this.pageConfig.canEdit= false;
+		if (['Submitted', 'Approved', 'Cancelled'].includes(this.item.Status)) {
+			this.pageConfig.canEdit = false;
 		}
 	}
 
