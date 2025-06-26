@@ -27,7 +27,7 @@ import { LogGeneratorPage } from '../../log-generator/log-generator.page';
 export class CheckinLogComponent extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
 	@Input() idTimesheet;
-
+	@Input() pickedDate;
 	officeList = [];
 	gateList = [];
 	timesheetList = [];
@@ -53,8 +53,16 @@ export class CheckinLogComponent extends PageBase {
 		super();
 		// this.pageConfig.isShowFeature = true;
 	}
+	async showLoading() {
+		const loading = await this.loadingController.create({
+			message: 'Loading...',
+		});
+
+		loading.present();
+	}
 
 	preLoadData(event?: any): void {
+		this.showLoading();
 		this.id = this.idTimesheet;
 
 		Promise.all([this.officeProvider.read(), this.timesheetProvider.read(), this.gateProvider.read()]).then((values) => {
@@ -70,6 +78,7 @@ export class CheckinLogComponent extends PageBase {
 
 	loadData(event?: any): void {
 		this.getCalendar();
+		if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 		this.query.LogTimeFrom = lib.dateFormat(this.fc.view.activeStart);
 		this.query.LogTimeTo = lib.dateFormat(this.fc.view.activeEnd);
 		this.query.IDTimesheet = this.id;
@@ -83,8 +92,10 @@ export class CheckinLogComponent extends PageBase {
 				let resources = resp['data'];
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
 				this.calendarOptions.resources = resources;
+				this.query.IDStaff = JSON.stringify(this.calendarOptions.resources.map((m) => m.IDStaff));
+				super.loadData(event);
+				this.loadingController.dismiss();
 			});
-			super.loadData(event);
 		} else {
 			this.loadedData(event);
 		}
@@ -110,19 +121,19 @@ export class CheckinLogComponent extends PageBase {
 		this.calendarOptions.events = this.items;
 		this.getCalendar();
 		this.fc?.updateSize();
+		if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 		super.loadedData(event, ignoredFromGroup);
+		this.loadingController.dismiss();
 	}
 
 	async export() {
 		super.export();
 	}
 
-
-	dismissDatePicker(isApply,pickedDate) {
-		if (isApply) {
-			this.fc?.gotoDate(pickedDate);
-			this.loadData();
-		}
+	dismissDatePicker(pickedDate) {
+		this.pickedDate = pickedDate;
+		this.fc?.gotoDate(pickedDate);
+		this.preLoadData();
 	}
 
 	calendarOptions: any = {
