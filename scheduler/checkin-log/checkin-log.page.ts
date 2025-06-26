@@ -32,6 +32,7 @@ export class CheckinLogComponent extends PageBase {
 	gateList = [];
 	timesheetList = [];
 	selectedTimesheet = null;
+	allResources = [];
 
 	fc = null;
 
@@ -78,7 +79,6 @@ export class CheckinLogComponent extends PageBase {
 
 	loadData(event?: any): void {
 		this.getCalendar();
-		if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 		this.query.LogTimeFrom = lib.dateFormat(this.fc.view.activeStart);
 		this.query.LogTimeTo = lib.dateFormat(this.fc.view.activeEnd);
 		this.query.IDTimesheet = this.id;
@@ -91,17 +91,19 @@ export class CheckinLogComponent extends PageBase {
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp) => {
 				let resources = resp['data'];
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-				this.calendarOptions.resources = resources;
-				this.query.IDStaff = JSON.stringify(this.calendarOptions.resources.map((m) => m.IDStaff));
+				// this.calendarOptions.resources = resources;
+				this.allResources = resources;
+				this.query.IDStaff = JSON.stringify(this.allResources.map((m) => m.IDStaff));
 				super.loadData(event);
+
 				this.loadingController.dismiss();
 			});
 		} else {
 			this.loadedData(event);
 		}
 	}
-
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		const currentViewDate = this.pickedDate ? new Date(this.pickedDate) : new Date(this.fc?.view?.activeStart);
 		this.items.forEach((e) => {
 			e.start = e.LogTime;
 			e.allDay = true;
@@ -119,6 +121,16 @@ export class CheckinLogComponent extends PageBase {
 			// }
 		});
 		this.calendarOptions.events = this.items;
+		this.calendarOptions.resources = this.allResources.filter((resource) => {
+			if (resource.EndDate == null) return true;
+			const endDate = new Date(resource.EndDate);
+			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
+			if (!hasData && currentViewDate > endDate) {
+				return hasData; // Chỉ giữ nếu còn dữ liệu2
+			}
+
+			return true; // Chưa xóa => giữ
+		});
 		this.getCalendar();
 		this.fc?.updateSize();
 		if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
