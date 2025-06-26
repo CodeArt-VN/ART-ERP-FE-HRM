@@ -6,6 +6,7 @@ import { HRM_TimesheetCycleProvider, HRM_TimesheetProvider } from 'src/app/servi
 import { Location } from '@angular/common';
 import { TimesheetCycleModalPage } from '../timesheet-cycle-modal/timesheet-cycle-modal.page';
 import { lib } from 'src/app/services/static/global-functions';
+import { NavigationExtras } from '@angular/router';
 
 @Component({
 	selector: 'app-timesheet-cycle',
@@ -14,7 +15,10 @@ import { lib } from 'src/app/services/static/global-functions';
 	standalone: false,
 })
 export class TimesheetCyclePage extends PageBase {
+	statusList = [];
 	timesheetList = [];
+	itemsState: any = [];
+	isAllRowOpened = false;
 	constructor(
 		public pageProvider: HRM_TimesheetCycleProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
@@ -31,26 +35,56 @@ export class TimesheetCyclePage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		this.timesheetProvider.read().then((resp) => {
-			this.timesheetList = resp['data'];
+		Promise.all([	this.timesheetProvider.read(),this.env.getStatus('StandardApprovalStatus')]).then((resp:any) => {
+
+			this.timesheetList = resp[0]['data'];
+			this.statusList = resp[1];
 			super.preLoadData(event);
 		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		let additionItems = [];
 		this.items.forEach((i) => {
-			i.Start = lib.dateFormat(i.Start);
-			i.End = lib.dateFormat(i.End);
-			
-			i.TimesheetList = [];
-			for (let j = 0; j < i.Timesheets.length; j++) {
-				const t = this.timesheetList.find((d) => d.Id == i.Timesheets[j]);
-				if (t) {
-					i.TimesheetList.push(t);
-				}
+			if (i.Timesheets?.length > 0) {
+				i.Timesheets.forEach((t) => {
+					t.Id = lib.generateUID();
+					t.IDParent = i.Id;
+					t.StatusText = lib.getAttrib(t.Status, this.statusList, 'Name', '--', 'Code');
+					t.StatusColor = lib.getAttrib(t.Status, this.statusList, 'Color', 'dark', 'Code');
+					additionItems.push(t);
+				});
 			}
 		});
-		super.loadedData(event, ignoredFromGroup);
+		this.items = [...this.items, ...additionItems];
+		this.buildFlatTree(this.items, this.itemsState, this.isAllRowOpened).then((res) => {
+			this.itemsState = res;
+			super.loadedData(event, ignoredFromGroup);
+		});
+
+		// this.items.forEach((i) => {
+		// 	i.Start = lib.dateFormat(i.Start);
+		// 	i.End = lib.dateFormat(i.End);
+
+		// 	i.TimesheetList = i.Timesheets;
+		// 	// for (let j = 0; j < i.Timesheets.length; j++) {
+		// 	// 	const t = this.timesheetList.find((d) => d.Id == i.Timesheets[j]);
+		// 	// 	if (t) {
+		// 	// 		i.TimesheetList.push(t);
+		// 	// 	}
+		// 	// }
+		// });
+	}
+	navTo(i) {
+		let navigationExtras: NavigationExtras = {
+			state: {
+				item: i,
+				id: i.IDTimesheet,
+				segmentView: 's3',
+				IDCycle : i.IDParent
+			},
+		};
+		this.nav('/scheduler', 'forward', navigationExtras);
 	}
 
 	async showModal(i) {
@@ -78,5 +112,93 @@ export class TimesheetCyclePage extends PageBase {
 			Id: 0,
 		};
 		this.showModal(newItem);
+	}
+
+	
+	submitForApproval() {
+		let ids = this.selectedItems.map(i => i.IDDetail);
+		if (!this.pageConfig.canSubmit || !this.pageConfig.ShowSubmit || this.submitAttempt) return;
+
+		this.env
+			.actionConfirm('submit', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Submit',{Ids:ids}).toPromise()
+			)
+			.then((_) => {
+				this.env.publishEvent({
+					Code: this.pageConfig.pageName,
+				});
+				this.env.showMessage('Submit successfully!', 'success');
+				this.submitAttempt = false;
+				this.refresh();
+			})
+			.catch((err: any) => {
+				if (err != 'User abort action') this.env.showMessage('Cannot submit, please try again', 'danger');
+				console.log(err);
+			});
+	}
+
+	approve() {
+		let ids = this.selectedItems.map(i => i.IDDetail);
+		if (!this.pageConfig.canApprove || !this.pageConfig.ShowApprove || this.submitAttempt) return;
+		this.env
+			.actionConfirm('approve', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Approve',{Ids:ids}).toPromise()
+
+			)
+			.then((_) => {
+				this.env.publishEvent({
+					Code: this.pageConfig.pageName,
+				});
+				this.env.showMessage('Approved successfully!', 'success');
+				this.submitAttempt = false;
+				this.refresh();
+			})
+			.catch((err: any) => {
+				if (err != 'User abort action') this.env.showMessage('Cannot approve, please try again', 'danger');
+				console.log(err);
+			});
+	}
+
+	disapprove() {
+		let ids = this.selectedItems.map(i => i.IDDetail);
+		if (!this.pageConfig.canApprove || !this.pageConfig.ShowDisapprove || this.submitAttempt) return;
+		this.env
+			.actionConfirm('disapprove', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Disapprove',{Ids:ids}).toPromise()
+
+			)
+			.then((_) => {
+				this.env.publishEvent({
+					Code: this.pageConfig.pageName,
+				});
+				this.env.showMessage('Disapprove successfully!', 'success');
+				this.submitAttempt = false;
+				this.refresh();
+			})
+			.catch((err: any) => {
+				if (err != 'User abort action') this.env.showMessage('Cannot disapprove, please try again', 'danger');
+				console.log(err);
+			});
+	}
+	cancel() {
+		let ids = this.selectedItems.map(i => i.IDDetail);
+		if (!this.pageConfig.canApprove || !this.pageConfig.ShowDisapprove || this.submitAttempt) return;
+		this.env
+			.actionConfirm('disapprove', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Cancel',{Ids:ids}).toPromise()
+
+			)
+			.then((_) => {
+				this.env.publishEvent({
+					Code: this.pageConfig.pageName,
+				});
+				this.env.showMessage('Disapprove successfully!', 'success');
+				this.submitAttempt = false;
+				this.refresh();
+			})
+			.catch((err: any) => {
+				if (err != 'User abort action') this.env.showMessage('Cannot disapprove, please try again', 'danger');
+				console.log(err);
+			});
 	}
 }

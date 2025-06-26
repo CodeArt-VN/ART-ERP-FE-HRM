@@ -36,6 +36,7 @@ export class TimesheetCycleModalPage extends PageBase {
 			Name: ['', Validators.required],
 			Start: ['', Validators.required],
 			End: ['', Validators.required],
+			Status: ['Draft'],
 			Timesheets: [[], Validators.required],
 		});
 	}
@@ -52,6 +53,9 @@ export class TimesheetCycleModalPage extends PageBase {
 		//     i.IssueDate = i.IssueDate? lib.dateFormat(i.IssueDate, 'yyyy-mm-dd') : '';
 		// });
 		super.loadedData(event);
+		if(!this.item?.Id){
+			this.formGroup.get('Status').markAsDirty();
+		}
 	}
 
 	submitForm() {
