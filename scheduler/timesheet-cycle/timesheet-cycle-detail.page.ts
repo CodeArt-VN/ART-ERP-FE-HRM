@@ -151,6 +151,9 @@ export class TimesheetCycleDetailComponent extends PageBase {
 				this.getCalendar();
 				if (!this.pickedDate) this.fc?.gotoDate(this.item.Start);
 				else this.fc?.gotoDate(this.pickedDate);
+			}).catch((err)=>{
+				console.log(err);
+				this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
 			});
 			super.loadData(event);
 			this.loadingController.dismiss();

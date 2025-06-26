@@ -1,36 +1,64 @@
 <ion-header>
 	<app-toolbar [page]="this">
-		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Import / Export' | translate}}" (click)="presentPopover($event)">
+		<ion-button *ngIf="!pageConfig.showSpinner && (pageConfig.canExportAllData || pageConfig.canImportAllData || pageConfig.canExportInputData || pageConfig.canImportInputData)" title="{{'Import / Export' | translate}}" (click)="presentPopover($event)">
 			<ion-icon slot="icon-only" name="document-attach-outline"></ion-icon>
 		</ion-button>
 
-		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Calc salary' | translate}}" (click)="calcSalary()">
+		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.ShowCalculate && pageConfig.canCalculate" title="{{'Calc salary' | translate}}" (click)="calcSalary()">
 			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
 		</ion-button>
-		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Open payroll config' | translate}}" (click)="nav('staff-payroll/config/'+item.Id,'forward')">
+		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canConfigPayroll && pageConfig.ShowConfigPayroll" title="{{'Open payroll config' | translate}}" (click)="nav('staff-payroll/config/'+item.Id,'forward')">
 			<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
+		</ion-button>
+		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canSendPayslip && pageConfig.ShowSendPayslip" title="{{'Send payslip' | translate}}" (click)="sendPayslip()">
+			<ion-icon slot="icon-only" name="mail-outline"></ion-icon>
 		</ion-button>
 		<ion-popover #Popover [isOpen]="isOpenPopover" (didDismiss)="isOpenPopover = false">
 			<ng-template>
 				<ion-content scroll-y="false">
 					<ion-list lines="none">
-						<ion-item *ngIf="pageConfig.canEdit" (click)="onClickImport()" [button]="true" [detail]="false" title="{{'Import' | translate}}">
+						<ion-item
+							*ngIf="pageConfig.canExportAllData && pageConfig.ShowExportAllData"
+							(click)="exportPayrollRecords()"
+							[button]="true"
+							[detail]="false"
+							title="{{'Export' | translate}}"
+						>
+							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+							<ion-label> {{'Export all data' | translate}}</ion-label>
+						</ion-item>
+						<ion-item
+							*ngIf="pageConfig.canEdit && pageConfig.canImportAllData && pageConfig.ShowImportAllData"
+							(click)="onClickImport()"
+							[button]="true"
+							[detail]="false"
+							title="{{'Import all data' | translate}}"
+						>
 							<ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
 							<ion-label> {{'Import' | translate}}</ion-label>
 							<input class="hide-all" #importfile type="file" accept=".xlsx" (change)="importPayrollRecords($event)" />
 						</ion-item>
-						<ion-item (click)="exportPayrollRecords()" [button]="true" [detail]="false" title="{{'Export' | translate}}">
+
+						<ion-item
+							*ngIf="(pageConfig.canExportInputData || pageConfig.canExportAllData) && pageConfig.ShowExportInputData"
+							(click)="exportPayrollRecords('Input')"
+							[button]="true"
+							[detail]="false"
+							title="{{'Export input data' | translate}}"
+						>
 							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
-							<ion-label> {{'Export' | translate}}</ion-label>
+							<ion-label> {{'Export input data' | translate}}</ion-label>
 						</ion-item>
-						<ion-item  *ngIf="pageConfig.canEdit" (click)="onClickImportInput()" [button]="true" [detail]="false" title="{{'Import input config' | translate}}">
+						<ion-item
+							*ngIf="pageConfig.canEdit && (pageConfig.canImportInputData || pageConfig.canImportAllData)&& pageConfig.ShowImportInputData"
+							(click)="onClickImportInput()"
+							[button]="true"
+							[detail]="false"
+							title="{{'Import input data' | translate}}"
+						>
 							<ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
-							<ion-label> {{'Import input config' | translate}}</ion-label>
+							<ion-label> {{'Import input data' | translate}}</ion-label>
 							<input class="hide-all" #importInputFile type="file" accept=".xlsx" (change)="importPayrollRecordInput($event)" />
-						</ion-item>
-						<ion-item (click)="exportPayrollRecords('Input')" [button]="true" [detail]="false" title="{{'Export input config' | translate}}">
-							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
-							<ion-label> {{'Export input config' | translate}}</ion-label>
 						</ion-item>
 					</ion-list>
 				</ion-content>
