@@ -17,6 +17,7 @@
 			(dataInfinite)="loadData($event)"
 			(filter)="onDatatableFilter($event)"
 			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
 		>
 			<datatable-column [checkbox]="true"></datatable-column>
 			<!-- <datatable-column class="col-id" name="Id" property="Id" [navLink]="pageConfig.pageName"></datatable-column> -->
