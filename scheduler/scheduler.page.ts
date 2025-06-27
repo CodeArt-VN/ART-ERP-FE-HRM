@@ -138,7 +138,7 @@ export class SchedulerPage extends PageBase {
 			}
 		} else if (ev.detail.value == 's1') {
 			this.segmentView = ev.detail.value;
-			this.fc?.gotoDate(this.pickedDate);
+			if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 			this.loadData();
 		} else {
 			this.segmentView = ev.detail.value;
@@ -187,8 +187,16 @@ export class SchedulerPage extends PageBase {
 			super.preLoadData(event);
 		});
 	}
+	async showLoading() {
+		const loading = await this.loadingController.create({
+			message: 'Loading...',
+		});
+
+		loading.present();
+	}
 
 	loadData(event?: any): void {
+		this.showLoading();
 		this.getCalendar();
 
 		this.query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
@@ -279,6 +287,7 @@ export class SchedulerPage extends PageBase {
 				if (this.navigateObj && this.navigateObj?.id) {
 					this.segmentChanged({ detail: { value: 's3' } });
 				}
+				this.loadingController.dismiss();
 			});
 	}
 	patchItems() {
@@ -718,15 +727,22 @@ export class SchedulerPage extends PageBase {
 	}
 
 	changeTimesheet() {
-		let newURL = '#/scheduler/';
-		if (this.selectedTimesheet) {
-			newURL += this.selectedTimesheet.Id;
-			this.id = this.selectedTimesheet.Id;
-			this.loadData(null);
+		this.id = this.selectedTimesheet.Id;
+
+		if (this.segmentView == 's3') {
+			this.timesheetCycle.changeTimesheet(this.selectedTimesheet);
+		} else if (this.segmentView == 's2') {
+			this.checkinLog.changeTimesheet(this.selectedTimesheet);
 		} else {
-			this.id = 0;
+			let newURL = '#/scheduler/';
+			if (this.selectedTimesheet) {
+				newURL += this.selectedTimesheet.Id;
+				this.loadData(null);
+			} else {
+				this.id = 0;
+			}
+			history.pushState({}, null, newURL);
 		}
-		history.pushState({}, null, newURL);
 	}
 
 	changeFilter() {
