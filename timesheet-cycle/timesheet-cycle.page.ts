@@ -18,7 +18,8 @@ export class TimesheetCyclePage extends PageBase {
 	statusList = [];
 	timesheetList = [];
 	itemsState: any = [];
-	isAllRowOpened = false;
+	itemsView: any = [];
+	isAllRowOpened = true;
 	constructor(
 		public pageProvider: HRM_TimesheetCycleProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
@@ -35,8 +36,9 @@ export class TimesheetCyclePage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([	this.timesheetProvider.read(),this.env.getStatus('StandardApprovalStatus')]).then((resp:any) => {
+		this.query.SortBy = 'Id_desc';
 
+		Promise.all([this.timesheetProvider.read(), this.env.getStatus('StandardApprovalStatus')]).then((resp: any) => {
 			this.timesheetList = resp[0]['data'];
 			this.statusList = resp[1];
 			super.preLoadData(event);
@@ -59,6 +61,7 @@ export class TimesheetCyclePage extends PageBase {
 		this.items = [...this.items, ...additionItems];
 		this.buildFlatTree(this.items, this.itemsState, this.isAllRowOpened).then((res) => {
 			this.itemsState = res;
+			this.itemsView = this.itemsState.filter((d) => d.show);
 			super.loadedData(event, ignoredFromGroup);
 		});
 
@@ -81,39 +84,43 @@ export class TimesheetCyclePage extends PageBase {
 				item: i,
 				id: i.IDTimesheet,
 				segmentView: 's3',
-				IDCycle : i.IDParent
+				IDCycle: i.IDParent,
 			},
 		};
 		this.nav('/scheduler', 'forward', navigationExtras);
 	}
 
 	async showModal(i) {
-	const itemClone = {
-		...i,
-		Timesheets: (i.Timesheets || []).map(x => x.IDTimesheet)
-	};
+		const itemClone = {
+			...i,
+			Timesheets: (i.Timesheets || []).map((x) => x.IDTimesheet),
+			Start: i.Start?.split('T')[0], // giữ lại phần yyyy-MM-dd
+			End: i.End?.split('T')[0], // giữ lại phần yyyy-MM-dd
+		};
 
-	const modal = await this.modalController.create({
-		component: TimesheetCycleModalPage,
-		componentProps: {
-			timesheetList: this.timesheetList,
-			item: itemClone,
-			id: i.Id,
-		},
-		cssClass: 'my-custom-class',
-	});
-
-	await modal.present();
-
-	const { data } = await modal.onWillDismiss();
-
-	if (data) {
-		this.pageProvider.save(data).then((resp) => {
-			this.refresh();
+		const modal = await this.modalController.create({
+			component: TimesheetCycleModalPage,
+			componentProps: {
+				timesheetList: this.timesheetList,
+				item: itemClone,
+				id: i.Id,
+			},
+			cssClass: 'my-custom-class',
 		});
-	}
-}
 
+		await modal.present();
+
+		const { data } = await modal.onWillDismiss();
+
+		if (data) {
+			this.pageProvider.save(data).then((resp) => {
+				this.refresh();
+			}).catch(err=>{
+				this.env.showMessage(err.error?.InnerException?.ExceptionMessage??'Cannot save, please try again', 'danger');
+				console.error(err);
+			});
+		}
+	}
 
 	add() {
 		let newItem = {
@@ -122,14 +129,13 @@ export class TimesheetCyclePage extends PageBase {
 		this.showModal(newItem);
 	}
 
-	
 	submitForApproval() {
-		let ids = this.selectedItems.map(i => i.IDDetail);
+		let ids = this.selectedItems.filter((d) => d.IDDetail).map((i) => i.IDDetail);
 		if (!this.pageConfig.canSubmit || !this.pageConfig.ShowSubmit || this.submitAttempt) return;
 
 		this.env
-			.actionConfirm('submit', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
-				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Submit',{Ids:ids}).toPromise()
+			.actionConfirm('submit', ids.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/Submit', { Ids: ids }).toPromise()
 			)
 			.then((_) => {
 				this.env.publishEvent({
@@ -146,12 +152,11 @@ export class TimesheetCyclePage extends PageBase {
 	}
 
 	approve() {
-		let ids = this.selectedItems.map(i => i.IDDetail);
+		let ids = this.selectedItems.filter((d) => d.IDDetail).map((i) => i.IDDetail);
 		if (!this.pageConfig.canApprove || !this.pageConfig.ShowApprove || this.submitAttempt) return;
 		this.env
-			.actionConfirm('approve', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
-				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Approve',{Ids:ids}).toPromise()
-
+			.actionConfirm('approve', ids.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/Approve', { Ids: ids }).toPromise()
 			)
 			.then((_) => {
 				this.env.publishEvent({
@@ -168,12 +173,11 @@ export class TimesheetCyclePage extends PageBase {
 	}
 
 	disapprove() {
-		let ids = this.selectedItems.map(i => i.IDDetail);
+		let ids = this.selectedItems.filter((d) => d.IDDetail).map((i) => i.IDDetail);
 		if (!this.pageConfig.canApprove || !this.pageConfig.ShowDisapprove || this.submitAttempt) return;
 		this.env
-			.actionConfirm('disapprove', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
-				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Disapprove',{Ids:ids}).toPromise()
-
+			.actionConfirm('disapprove', ids.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/Disapprove', { Ids: ids }).toPromise()
 			)
 			.then((_) => {
 				this.env.publishEvent({
@@ -189,12 +193,11 @@ export class TimesheetCyclePage extends PageBase {
 			});
 	}
 	cancel() {
-		let ids = this.selectedItems.map(i => i.IDDetail);
+		let ids = this.selectedItems.filter((d) => d.IDDetail).map((i) => i.IDDetail);
 		if (!this.pageConfig.canApprove || !this.pageConfig.ShowDisapprove || this.submitAttempt) return;
 		this.env
-			.actionConfirm('disapprove', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () =>
-				this.pageProvider.commonService.connect('POST','HRM/TimesheetCycle/Cancel',{Ids:ids}).toPromise()
-
+			.actionConfirm('disapprove', ids.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/Cancel', { Ids: ids }).toPromise()
 			)
 			.then((_) => {
 				this.env.publishEvent({
@@ -208,5 +211,92 @@ export class TimesheetCyclePage extends PageBase {
 				if (err != 'User abort action') this.env.showMessage('Cannot disapprove, please try again', 'danger');
 				console.log(err);
 			});
+	}
+
+	toggleRowAll() {
+		this.isAllRowOpened = !this.isAllRowOpened;
+		this.itemsState.forEach((i) => {
+			i.showdetail = !this.isAllRowOpened;
+			this.toggleRow(this.itemsState, i, true);
+		});
+		this.itemsView = this.itemsState.filter((d) => d.show);
+	}
+
+	toggleRow(ls, ite, toogle = false) {
+		super.toggleRow(ls, ite, toogle);
+		this.itemsView = this.itemsState.filter((d) => d.show);
+	}
+
+	changeSelection(e, i = null) {
+		if (!i.IDParent) {
+			if (i.checked) {
+				this.selectedItems.push(i);
+			} else {
+				const index = this.selectedItems.indexOf(i, 0);
+				if (index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+			let children = this.itemsState.filter((d) => d.IDParent == i.Id);
+			children.forEach((c) => {
+				const index = this.selectedItems.indexOf(c, 0);
+				if (e.target.checked) {
+					c.checked = true;
+					if (index == -1) {
+						this.selectedItems.push(c);
+					}
+				} else {
+					if (index > -1) {
+						this.selectedItems.splice(index, 1);
+					}
+				}
+			});
+		} else if (e && e.shiftKey) {
+			let from = this.itemsState.indexOf(this.lastchecked);
+			let to = this.itemsState.indexOf(i);
+
+			let start = Math.min(from, to);
+			let end = Math.max(from, to) + 1;
+
+			let itemsToCheck = this.itemsState.slice(start, end);
+			for (let j = 0; j < itemsToCheck.length; j++) {
+				const it = itemsToCheck[j];
+
+				it.checked = this.lastchecked.checked;
+				const index = this.selectedItems.indexOf(it, 0);
+
+				if (this.lastchecked.checked && index == -1) {
+					this.selectedItems.push(it);
+				} else if (!this.lastchecked.checked && index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+		} else if (e) {
+			if (e.target.checked) {
+				this.selectedItems.push(i);
+			} else {
+				const index = this.selectedItems.indexOf(i, 0);
+				if (index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+		} else {
+			if (i.checked) {
+				this.selectedItems.push(i);
+			} else {
+				const index = this.selectedItems.indexOf(i, 0);
+				if (index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+		}
+
+		this.selectedItems = [...this.selectedItems];
+		this.lastchecked = i;
+		console.log('Selected items:', this.selectedItems);
+		//e?.preventDefault();
+		e?.stopPropagation();
+
+		this.showCommandBySelectedRows(this.selectedItems);
 	}
 }

@@ -19,10 +19,18 @@
 			(sort)="onSort($event)"
 			(selectedRowsChange)="showCommandBySelectedRows($event)"
 		>
-			<datatable-column [checkbox]="true"></datatable-column>
+			<datatable-column [checkbox]="true">
+				<ng-template let-i="row" datatable-cell-template>
+					<input class="c-checkbox" type="checkbox" [(ngModel)]="i.checked" (change)="changeSelection($event,i)" />
+				</ng-template>
+			</datatable-column>
 			<!-- <datatable-column class="col-id" name="Id" property="Id" [navLink]="pageConfig.pageName"></datatable-column> -->
 
 			<datatable-column class="col-name" name="Time sheet" property="Id">
+				<ng-template datatable-header-template>
+					<ion-icon class="min-btn" [name]="!isAllRowOpened? 'add-circle-outline':'remove-circle-outline'" (click)="toggleRowAll()"></ion-icon>
+					<span (click)="toggleRowAll()">{{'Name' | translate}}</span>
+				</ng-template>
 				<ng-template let-i="row" datatable-cell-template>
 					<ng-container *ngFor="let w of i.levels; let k = index;"><span class="spacing" *ngIf="k>0"></span></ng-container>
 					<ion-icon

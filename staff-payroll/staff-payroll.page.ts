@@ -33,6 +33,8 @@ export class StaffPayrollPage extends PageBase {
 
 	preLoadData(event?: any): void {
 		let sysConfigQuery = ['StaffPayrollUsedApprovalModule'];
+		this.query.SortBy = 'Id_desc';
+
 		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.sysConfigProvider.read({ Code_in: sysConfigQuery, IDBranch: this.env.selectedBranch })]).then((res:any) => {
 			this.statusList = res[0];
 			res[1]['data'].forEach((e) => {
@@ -71,7 +73,7 @@ export class StaffPayrollPage extends PageBase {
 	}
 	itemsState: any = [];
 	itemsView = [];
-	isAllRowOpened = false;
+	isAllRowOpened = true;
 	toggleRowAll() {
 		this.isAllRowOpened = !this.isAllRowOpened;
 		this.itemsState.forEach((i) => {
@@ -84,5 +86,78 @@ export class StaffPayrollPage extends PageBase {
 	toggleRow(ls, ite, toogle = false) {
 		super.toggleRow(ls, ite, toogle);
 		this.itemsView = this.itemsState.filter((d) => d.show);
+	}
+
+	changeSelection(e, i = null) {
+		if (!i.IDParent) {
+			if (i.checked) {
+				this.selectedItems.push(i);
+			} else {
+				const index = this.selectedItems.indexOf(i, 0);
+				if (index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+			let children = this.itemsState.filter((d) => d.IDParent == i.Id);
+			children.forEach((c) => {
+				const index = this.selectedItems.indexOf(c, 0);
+				if (e.target.checked) {
+					c.checked = true;
+					if (index == -1) {
+						this.selectedItems.push(c);
+					}
+				} else {
+					if (index > -1) {
+						this.selectedItems.splice(index, 1);
+					}
+				}
+			});
+		} else if (e && e.shiftKey) {
+			let from = this.itemsState.indexOf(this.lastchecked);
+			let to = this.itemsState.indexOf(i);
+
+			let start = Math.min(from, to);
+			let end = Math.max(from, to) + 1;
+
+			let itemsToCheck = this.itemsState.slice(start, end);
+			for (let j = 0; j < itemsToCheck.length; j++) {
+				const it = itemsToCheck[j];
+
+				it.checked = this.lastchecked.checked;
+				const index = this.selectedItems.indexOf(it, 0);
+
+				if (this.lastchecked.checked && index == -1) {
+					this.selectedItems.push(it);
+				} else if (!this.lastchecked.checked && index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+		} else if (e) {
+			if (e.target.checked) {
+				this.selectedItems.push(i);
+			} else {
+				const index = this.selectedItems.indexOf(i, 0);
+				if (index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+		} else {
+			if (i.checked) {
+				this.selectedItems.push(i);
+			} else {
+				const index = this.selectedItems.indexOf(i, 0);
+				if (index > -1) {
+					this.selectedItems.splice(index, 1);
+				}
+			}
+		}
+
+		this.selectedItems = [...this.selectedItems];
+		this.lastchecked = i;
+		console.log('Selected items:', this.selectedItems);
+		//e?.preventDefault();
+		e?.stopPropagation();
+
+		this.showCommandBySelectedRows(this.selectedItems);
 	}
 }

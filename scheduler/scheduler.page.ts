@@ -983,7 +983,26 @@ export class SchedulerPage extends PageBase {
 		if (this.segmentView == 's2') {
 			return this.checkinLog.export();
 		} else if (this.segmentView == 's3') {
-			return this.timesheetCycle.export();
+			this.getAdvaneTimesheetFilterConfig();
+				const modal = await this.modalController.create({
+				component: AdvanceFilterModalComponent,
+				cssClass: 'modal90',
+				componentProps: {
+					_AdvanceConfig: this.query._AdvanceConfig,
+					schemaType: 'Form',
+					selectedSchema: this.schemaPage,
+					confirmButtonText: 'Export',
+					renderGroup: { Filter: ['TimeFrame', 'Transform'] },
+				},
+			});
+			await modal.present();
+			const { data } = await modal.onWillDismiss();
+			if (data && data.data) {
+				if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
+				if (data.schema) this.schemaPage = data?.schema;
+				return this.timesheetCycle.export();
+			}
+			// return this.timesheetCycle.export();
 		} else {
 			this.getAdvaneFilterConfig();
 			const modal = await this.modalController.create({
@@ -1056,6 +1075,7 @@ export class SchedulerPage extends PageBase {
 	}
 
 	dismissDatePicker(isApply) {}
+	//scheduler
 	getAdvaneFilterConfig() {
 		let start = new Date(this.fc?.view.activeStart);
 		start.setHours(0, 0, 0, 0);
@@ -1066,6 +1086,71 @@ export class SchedulerPage extends PageBase {
 				Schema: {
 					Type: 'Form',
 					Code: 'HRM_StaffSchedule',
+				},
+				TimeFrame: {
+					Dimension: 'WorkingDate',
+					From: {
+						Type: 'Absolute',
+						IsPastDate: false,
+						Period: 'Day',
+						Amount: 0,
+						Value: start.toISOString(),
+					},
+					To: {
+						Type: 'Absolute',
+						IsPastDate: false,
+						Period: 'Day',
+						Amount: 0,
+						Value: end.toISOString(),
+					},
+				},
+				CompareTo: {
+					Type: 'Relative',
+					IsPastDate: true,
+					Period: 'Day',
+					Amount: 0,
+				},
+				Interval: {},
+				CompareBy: [
+					// {
+					// 	Property: 'IDShift',
+					// 	Title: 'Shift',
+					// },
+					// {
+					// 	Property: 'TimeOffType',
+					// 	Title: 'TimeOff',
+					// },
+				],
+				MeasureBy: [],
+				Transform: {
+					Filter: {
+						Dimension: 'logical',
+						Operator: 'AND',
+						Value: null,
+						Logicals: [
+							{ Dimension: 'IDTimesheet', Operator: '=', Value: this.id },
+							{ Dimension: 'IsDeleted', Operator: '=', Value: false },
+							{ Dimension: 'IsDisabled', Operator: '=', Value: false },
+						],
+					},
+				},
+			};
+		}
+		//this.refresh();
+		// this.pageProvider.read(this.query).then((resp) => {});
+	}
+
+	//timesheet
+	getAdvaneTimesheetFilterConfig() {
+		let start = new Date(this.fc?.view.activeStart);
+		start.setHours(0, 0, 0, 0);
+		let end = new Date(this.fc?.view.activeEnd);
+		end.setHours(23, 59, 59, 999);
+		if (!this.query._AdvanceConfig) {
+			this.query._AdvanceConfig = {
+				Schema: {
+					Type: 'Form',
+					Code: 'HRM_TimesheetCycle',
 				},
 				TimeFrame: {
 					Dimension: 'WorkingDate',
