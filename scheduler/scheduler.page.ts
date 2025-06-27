@@ -983,26 +983,26 @@ export class SchedulerPage extends PageBase {
 		if (this.segmentView == 's2') {
 			return this.checkinLog.export();
 		} else if (this.segmentView == 's3') {
-			this.getAdvaneTimesheetFilterConfig();
-				const modal = await this.modalController.create({
-				component: AdvanceFilterModalComponent,
-				cssClass: 'modal90',
-				componentProps: {
-					_AdvanceConfig: this.query._AdvanceConfig,
-					schemaType: 'Form',
-					selectedSchema: this.schemaPage,
-					confirmButtonText: 'Export',
-					renderGroup: { Filter: ['TimeFrame', 'Transform'] },
-				},
-			});
-			await modal.present();
-			const { data } = await modal.onWillDismiss();
-			if (data && data.data) {
-				if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
-				if (data.schema) this.schemaPage = data?.schema;
-				return this.timesheetCycle.export();
-			}
-			// return this.timesheetCycle.export();
+			// this.getAdvaneTimesheetFilterConfig();
+			// 	const modal = await this.modalController.create({
+			// 	component: AdvanceFilterModalComponent,
+			// 	cssClass: 'modal90',
+			// 	componentProps: {
+			// 		_AdvanceConfig: this.query._AdvanceConfig,
+			// 		schemaType: 'Form',
+			// 		selectedSchema: this.schemaPage,
+			// 		confirmButtonText: 'Export',
+			// 		renderGroup: { Filter: ['TimeFrame', 'Transform'] },
+			// 	},
+			// });
+			// await modal.present();
+			// const { data } = await modal.onWillDismiss();
+			// if (data && data.data) {
+			// 	if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
+			// 	if (data.schema) this.schemaPage = data?.schema;
+			// 	return this.timesheetCycle.export();
+			// }
+			return this.timesheetCycle.export();
 		} else {
 			this.getAdvaneFilterConfig();
 			const modal = await this.modalController.create({
