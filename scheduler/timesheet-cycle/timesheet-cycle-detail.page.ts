@@ -30,7 +30,6 @@ export class TimesheetCycleDetailComponent extends PageBase {
 	_idCycle = 0;
 	@Input() set idCycle(value) {
 		this._idCycle = value;
-		this.preLoadData();
 	}
 	@Input() pickedDate;
 	officeList = [];
@@ -41,7 +40,7 @@ export class TimesheetCycleDetailComponent extends PageBase {
 	shifTypeList = [];
 	timeoffTypeList = [];
 	fc = null;
-
+	allResources = [];
 	constructor(
 		public pageProvider: HRM_TimesheetCycleProvider,
 		public cycleProvider: HRM_TimesheetCycleProvider,
@@ -148,7 +147,7 @@ export class TimesheetCycleDetailComponent extends PageBase {
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.IDTimesheet }).then((resp) => {
 				let resources = resp['data'];
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-				this.calendarOptions.resources = resources;
+				this.allResources = resources;
 				this.getCalendar();
 				if (!this.pickedDate) this.fc?.gotoDate(this.item.Start);
 				else this.fc?.gotoDate(this.pickedDate);
@@ -164,6 +163,8 @@ export class TimesheetCycleDetailComponent extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		const currentViewDate = this.pickedDate ? new Date(this.pickedDate) : new Date(this.fc?.view?.activeStart);
+
 		this.items.forEach((e) => {
 			//id	IDStaff	Code	FullName	IDShift	Name	WorkingDate	WorkingStart	WorkingEnd	LogFrom	LogTo	WorkTime	StandardPoint	Breaks	EarliestCheckin	LatestCheckin	EarliestCheckout	LatestCheckout
 			///CTESID	LogCount	Checkin	Checkout	ChecinLate	CheckoutEarly	StdTimeIn	StdTimeOut
@@ -244,6 +245,16 @@ export class TimesheetCycleDetailComponent extends PageBase {
 		});
 
 		this.calendarOptions.events = this.items;
+		this.calendarOptions.resources = this.allResources.filter((resource) => {
+			if (resource.EndDate == null) return true;
+			const endDate = new Date(resource.EndDate);
+			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
+			if (!hasData && currentViewDate > endDate) {
+				return hasData; // Chỉ giữ nếu còn dữ liệu2
+			}
+
+			return true; // Chưa xóa => giữ
+		});
 		this.getCalendar();
 		this.fc?.updateSize();
 		super.loadedData(event, ignoredFromGroup);

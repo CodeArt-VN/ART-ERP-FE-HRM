@@ -39,7 +39,7 @@ export class SchedulerPage extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
 	@ViewChild('checkinLog') checkinLog: CheckinLogComponent;
 	@ViewChild('timesheetCycle') timesheetCycle: TimesheetCycleDetailComponent;
-	idCycle: any;
+	idCycle: any = 0;
 	officeList = [];
 	timesheetList = [];
 	selectedTimesheet = null;
@@ -51,6 +51,8 @@ export class SchedulerPage extends PageBase {
 	isOpenPopover = false;
 	staffList = [];
 	navigateObj: any = {};
+	allResources = [];
+
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
@@ -202,10 +204,9 @@ export class SchedulerPage extends PageBase {
 			this.staffTimesheetEnrollmentProvider
 				.read({ IDTimesheet: this.id })
 				.then((resp) => {
-					let resources = resp['data'];
+					this.allResources = resp['data'];
 					//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-					this.staffList = resources.map((m) => m.IDStaff);
-					this.calendarOptions.resources = resources;
+					this.staffList = this.allResources.map((m) => m.IDStaff);
 				})
 				.catch((err) => {
 					console.log(err);
@@ -225,6 +226,8 @@ export class SchedulerPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		const currentViewDate = this.pickedDate ? new Date(this.pickedDate) : new Date(this.fc?.view?.activeStart);
+
 		this.overtimeRequestProvider
 			.read(this.query)
 			.then((values: any) => {
@@ -249,8 +252,17 @@ export class SchedulerPage extends PageBase {
 					});
 				});
 				this.patchItems();
-
 				this.calendarOptions.events = this.items;
+				this.calendarOptions.resources = this.allResources.filter((resource) => {
+					if (resource.EndDate == null) return true;
+					const endDate = new Date(resource.EndDate);
+					const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
+					if (!hasData && currentViewDate > endDate) {
+						return hasData; // Chỉ giữ nếu còn dữ liệu2
+					}
+
+					return true; // Chưa xóa => giữ
+				});
 				this.getCalendar();
 				this.fc?.updateSize();
 				if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
@@ -522,11 +534,9 @@ export class SchedulerPage extends PageBase {
 					console.log(arg);
 
 					that.staffTimesheetEnrollmentProvider
-						.delete([
-							{
-								Id: parseInt(arg.resource._resource.extendedProps.Id),
-							},
-						])
+						.save({
+							DeletedID: parseInt(arg.resource._resource.extendedProps.Id),
+						})
 						.then((savedItem: any) => {
 							arg.resource.remove();
 							that.submitAttempt = false;
