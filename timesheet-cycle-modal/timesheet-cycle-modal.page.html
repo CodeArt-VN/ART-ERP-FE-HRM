@@ -38,18 +38,8 @@
 					</div>
 				</ion-col>
 				<ion-col size="12" size-sm="12" size-md="6">
-					<div class="c-control">
-						<label class="c-label" for="Start"
-							>{{'From date' | translate}}
-							<span
-								*ngIf="!formGroup.controls.Start.valid && !formGroup.controls.Start.pending && (formGroup.controls.Start.dirty || submitAttempt)"
-								ion-text
-								color="danger"
-								>(*)</span
-							>
-						</label>
-						<input class="c-input" id="Start" formControlName="Start" type="date" />
-					</div>
+					<app-form-control [field]="{id:'Start', label :'From date', type : 'date', form:formGroup}"></app-form-control>
+					
 				</ion-col>
 				<ion-col size="12" size-sm="12" size-md="6">
 					<div class="c-control">

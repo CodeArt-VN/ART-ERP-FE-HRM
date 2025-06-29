@@ -79,6 +79,7 @@ export class CheckinLogComponent extends PageBase {
 
 	loadData(event?: any): void {
 		this.getCalendar();
+		if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 		this.query.LogTimeFrom = lib.dateFormat(this.fc.view.activeStart);
 		this.query.LogTimeTo = lib.dateFormat(this.fc.view.activeEnd);
 		this.query.IDTimesheet = this.id;
@@ -96,7 +97,6 @@ export class CheckinLogComponent extends PageBase {
 				this.query.IDStaff = JSON.stringify(this.allResources.map((m) => m.IDStaff));
 				super.loadData(event);
 
-				this.loadingController.dismiss();
 			});
 		} else {
 			this.loadedData(event);
@@ -133,7 +133,7 @@ export class CheckinLogComponent extends PageBase {
 		});
 		this.getCalendar();
 		this.fc?.updateSize();
-		if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
+		// if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 		super.loadedData(event, ignoredFromGroup);
 		this.loadingController.dismiss();
 	}
@@ -340,16 +340,16 @@ export class CheckinLogComponent extends PageBase {
 		this.calendarOptions.weekends = !this.calendarOptions.weekends; // toggle the boolean!
 	}
 
-	changeTimesheet() {
+	changeTimesheet(selectedTimesheet) {
 		let newURL = '#/checkin-log/';
-		if (this.selectedTimesheet) {
-			newURL += this.selectedTimesheet.Id;
-			this.id = this.selectedTimesheet.Id;
+		if (selectedTimesheet) {
+			// newURL += selectedTimesheet.Id;
+			this.id = selectedTimesheet.Id;
 			this.loadData(null);
 		} else {
 			this.id = 0;
 		}
-		history.pushState({}, null, newURL);
+		// history.pushState({}, null, newURL);
 	}
 
 	changeFilter() {
@@ -375,16 +375,19 @@ export class CheckinLogComponent extends PageBase {
 		console.log('fcToday CheckinLog');
 		this.getCalendar();
 		this.fc?.today();
+		this.pickedDate = this.fc?.view?.activeStart;
 		this.loadData();
 	}
 	fcNext() {
 		this.getCalendar();
 		this.fc?.next();
+		this.pickedDate = this.fc?.view?.activeStart;
 		this.loadData();
 	}
 	fcPrev() {
 		this.getCalendar();
 		this.fc?.prev();
+		this.pickedDate = this.fc?.view?.activeStart;
 		this.loadData();
 	}
 

@@ -138,7 +138,7 @@ export class SchedulerPage extends PageBase {
 			}
 		} else if (ev.detail.value == 's1') {
 			this.segmentView = ev.detail.value;
-			this.fc?.gotoDate(this.pickedDate);
+			if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 			this.loadData();
 		} else {
 			this.segmentView = ev.detail.value;
@@ -187,8 +187,16 @@ export class SchedulerPage extends PageBase {
 			super.preLoadData(event);
 		});
 	}
+	async showLoading() {
+		const loading = await this.loadingController.create({
+			message: 'Loading...',
+		});
+
+		loading.present();
+	}
 
 	loadData(event?: any): void {
+		this.showLoading();
 		this.getCalendar();
 
 		this.query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
@@ -279,6 +287,7 @@ export class SchedulerPage extends PageBase {
 				if (this.navigateObj && this.navigateObj?.id) {
 					this.segmentChanged({ detail: { value: 's3' } });
 				}
+				this.loadingController.dismiss();
 			});
 	}
 	patchItems() {
@@ -718,15 +727,22 @@ export class SchedulerPage extends PageBase {
 	}
 
 	changeTimesheet() {
-		let newURL = '#/scheduler/';
-		if (this.selectedTimesheet) {
-			newURL += this.selectedTimesheet.Id;
-			this.id = this.selectedTimesheet.Id;
-			this.loadData(null);
+		this.id = this.selectedTimesheet.Id;
+
+		if (this.segmentView == 's3') {
+			this.timesheetCycle.changeTimesheet(this.selectedTimesheet);
+		} else if (this.segmentView == 's2') {
+			this.checkinLog.changeTimesheet(this.selectedTimesheet);
 		} else {
-			this.id = 0;
+			let newURL = '#/scheduler/';
+			if (this.selectedTimesheet) {
+				newURL += this.selectedTimesheet.Id;
+				this.loadData(null);
+			} else {
+				this.id = 0;
+			}
+			history.pushState({}, null, newURL);
 		}
-		history.pushState({}, null, newURL);
 	}
 
 	changeFilter() {
@@ -967,6 +983,25 @@ export class SchedulerPage extends PageBase {
 		if (this.segmentView == 's2') {
 			return this.checkinLog.export();
 		} else if (this.segmentView == 's3') {
+			// this.getAdvaneTimesheetFilterConfig();
+			// 	const modal = await this.modalController.create({
+			// 	component: AdvanceFilterModalComponent,
+			// 	cssClass: 'modal90',
+			// 	componentProps: {
+			// 		_AdvanceConfig: this.query._AdvanceConfig,
+			// 		schemaType: 'Form',
+			// 		selectedSchema: this.schemaPage,
+			// 		confirmButtonText: 'Export',
+			// 		renderGroup: { Filter: ['TimeFrame', 'Transform'] },
+			// 	},
+			// });
+			// await modal.present();
+			// const { data } = await modal.onWillDismiss();
+			// if (data && data.data) {
+			// 	if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
+			// 	if (data.schema) this.schemaPage = data?.schema;
+			// 	return this.timesheetCycle.export();
+			// }
 			return this.timesheetCycle.export();
 		} else {
 			this.getAdvaneFilterConfig();
@@ -1040,6 +1075,7 @@ export class SchedulerPage extends PageBase {
 	}
 
 	dismissDatePicker(isApply) {}
+	//scheduler
 	getAdvaneFilterConfig() {
 		let start = new Date(this.fc?.view.activeStart);
 		start.setHours(0, 0, 0, 0);
@@ -1050,6 +1086,71 @@ export class SchedulerPage extends PageBase {
 				Schema: {
 					Type: 'Form',
 					Code: 'HRM_StaffSchedule',
+				},
+				TimeFrame: {
+					Dimension: 'WorkingDate',
+					From: {
+						Type: 'Absolute',
+						IsPastDate: false,
+						Period: 'Day',
+						Amount: 0,
+						Value: start.toISOString(),
+					},
+					To: {
+						Type: 'Absolute',
+						IsPastDate: false,
+						Period: 'Day',
+						Amount: 0,
+						Value: end.toISOString(),
+					},
+				},
+				CompareTo: {
+					Type: 'Relative',
+					IsPastDate: true,
+					Period: 'Day',
+					Amount: 0,
+				},
+				Interval: {},
+				CompareBy: [
+					// {
+					// 	Property: 'IDShift',
+					// 	Title: 'Shift',
+					// },
+					// {
+					// 	Property: 'TimeOffType',
+					// 	Title: 'TimeOff',
+					// },
+				],
+				MeasureBy: [],
+				Transform: {
+					Filter: {
+						Dimension: 'logical',
+						Operator: 'AND',
+						Value: null,
+						Logicals: [
+							{ Dimension: 'IDTimesheet', Operator: '=', Value: this.id },
+							{ Dimension: 'IsDeleted', Operator: '=', Value: false },
+							{ Dimension: 'IsDisabled', Operator: '=', Value: false },
+						],
+					},
+				},
+			};
+		}
+		//this.refresh();
+		// this.pageProvider.read(this.query).then((resp) => {});
+	}
+
+	//timesheet
+	getAdvaneTimesheetFilterConfig() {
+		let start = new Date(this.fc?.view.activeStart);
+		start.setHours(0, 0, 0, 0);
+		let end = new Date(this.fc?.view.activeEnd);
+		end.setHours(23, 59, 59, 999);
+		if (!this.query._AdvanceConfig) {
+			this.query._AdvanceConfig = {
+				Schema: {
+					Type: 'Form',
+					Code: 'HRM_TimesheetCycle',
 				},
 				TimeFrame: {
 					Dimension: 'WorkingDate',

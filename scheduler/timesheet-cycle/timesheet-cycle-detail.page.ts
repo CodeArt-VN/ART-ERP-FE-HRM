@@ -113,15 +113,15 @@ export class TimesheetCycleDetailComponent extends PageBase {
 			if (this.IDTimesheet) {
 				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.IDTimesheet);
 				if (!this.selectedTimesheet) {
-					this.IDTimesheet = 0;
+					// this.IDTimesheet = 0;
 					let resources = [];
 					this.calendarOptions.resources = resources;
 				}
 			}
-			if (!this.IDTimesheet && this.timesheetList.length) {
-				this.selectedTimesheet = this.timesheetList[0];
-				this.IDTimesheet = this.selectedTimesheet.Id;
-			}
+			// if (!this.IDTimesheet && this.timesheetList.length) {
+			// 	this.selectedTimesheet = this.timesheetList[0];
+			// 	this.IDTimesheet = this.selectedTimesheet.Id;
+			// }
 			super.preLoadData(event);
 		});
 	}
@@ -156,7 +156,6 @@ export class TimesheetCycleDetailComponent extends PageBase {
 				this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
 			});
 			super.loadData(event);
-			this.loadingController.dismiss();
 		} else {
 			this.loadedData(event);
 		}
@@ -386,9 +385,9 @@ export class TimesheetCycleDetailComponent extends PageBase {
 		this.calendarOptions.weekends = !this.calendarOptions.weekends; // toggle the boolean!
 	}
 
-	changeTimesheet() {
-		if (this.selectedTimesheet) {
-			this.IDTimesheet = this.selectedTimesheet.Id;
+	changeTimesheet(selectedTimesheet) {
+		if (selectedTimesheet) {
+			this.IDTimesheet = selectedTimesheet.Id;
 		} else {
 			this.IDTimesheet = 0;
 		}
