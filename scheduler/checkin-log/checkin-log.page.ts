@@ -63,7 +63,6 @@ export class CheckinLogComponent extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		this.showLoading();
 		this.id = this.idTimesheet;
 
 		Promise.all([this.officeProvider.read(), this.timesheetProvider.read(), this.gateProvider.read()]).then((values) => {
@@ -89,7 +88,7 @@ export class CheckinLogComponent extends PageBase {
 
 		this.clearData();
 		if (this.id) {
-			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp) => {
+			this.env.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id })).then((resp) => {
 				let resources = resp['data'];
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
 				// this.calendarOptions.resources = resources;
@@ -135,7 +134,6 @@ export class CheckinLogComponent extends PageBase {
 		this.fc?.updateSize();
 		// if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 		super.loadedData(event, ignoredFromGroup);
-		this.loadingController.dismiss();
 	}
 
 	async export() {

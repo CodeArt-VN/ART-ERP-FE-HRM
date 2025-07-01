@@ -146,6 +146,7 @@ export class SchedulerPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
+		this.pageConfig.pageTitle = '';
 		this.route.queryParams.subscribe((params) => {
 			this.navigateObj = this.router.getCurrentNavigation().extras.state;
 			if (this.navigateObj) {
@@ -195,8 +196,7 @@ export class SchedulerPage extends PageBase {
 		loading.present();
 	}
 
-	loadData(event?: any): void {
-		this.showLoading();
+	loadData(event?: any) {
 		this.getCalendar();
 
 		this.query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
@@ -208,9 +208,23 @@ export class SchedulerPage extends PageBase {
 		this.query.Take = 50000;
 		this.query.ParseOvertimeConfig = true;
 		this.clearData();
+
 		if (this.id) {
-			this.staffTimesheetEnrollmentProvider
-				.read({ IDTimesheet: this.id })
+			if (this.navigateObj && this.navigateObj?.id && this.navigateObj?.segmentView) {
+				this.pageConfig.showSpinner = false;
+				this.segmentChanged({ detail: { value: this.navigateObj.segmentView } });
+				this.navigateObj = null; // Reset navigateObj after using it
+				// this.loadedData(event);
+			}
+			else if(this.segmentView != 's1') {
+				this.pageConfig.showSpinner = false;
+				this.segmentChanged({ detail: { value: this.segmentView } });
+				
+				return;
+			}
+			else {
+				this.env.showLoading('Loading...',this.staffTimesheetEnrollmentProvider
+				.read({ IDTimesheet: this.id }))
 				.then((resp) => {
 					this.allResources = resp['data'];
 					//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
@@ -219,14 +233,12 @@ export class SchedulerPage extends PageBase {
 				.catch((err) => {
 					console.log(err);
 					this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
+				})
+				.finally(() => {
+					if (this.segmentView == 's1' && !this.navigateObj) {
+						super.loadData(event);
+					}
 				});
-			if (this.segmentView == 's1' && !this.navigateObj) {
-				super.loadData(event);
-			}
-			if (this.navigateObj && this.navigateObj?.id && this.navigateObj?.segmentView) {
-				this.segmentChanged({ detail: { value: this.navigateObj.segmentView } });
-				this.navigateObj = null; // Reset navigateObj after using it
-				this.loadedData(event);
 			}
 		} else {
 			this.loadedData(event);
@@ -903,6 +915,16 @@ export class SchedulerPage extends PageBase {
 		// 		this.loadData(null);
 		// 	});
 		// }
+	}
+
+	refresh(event?: any): void {
+		if (this.segmentView == 's2') {
+			this.checkinLog.refresh(event);
+		} else if (this.segmentView == 's3') {
+			this.timesheetCycle.refresh(event);
+		} else {
+			super.refresh(event);
+		}
 	}
 	getColor(code) {
 		switch (code) {

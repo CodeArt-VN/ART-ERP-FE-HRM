@@ -104,5 +104,8 @@ export const HRMRoutes: Routes = [
     { path: 'work-rule-violation', loadChildren: () => import('./work-rule-violation/work-rule-violation.module').then(m => m.WorkRuleViolationPageModule), canActivate: [AuthGuard] },
     { path: 'work-rule-violation/:id', loadChildren: () => import('./work-rule-violation-detail/work-rule-violation-detail.module').then(m => m.WorkRuleViolationDetailPageModule), canActivate: [AuthGuard] },
 
+    { path: 'staff-payslip', loadChildren: () => import('./staff-payslip/staff-payslip.module').then(m => m.StaffPayslipPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-payslip/:id', loadChildren: () => import('./staff-payslip-detail/staff-payslip-detail.module').then(m => m.StaffPayslipDetailPageModule), canActivate: [AuthGuard] },
+
 ];
 

@@ -131,8 +131,10 @@ export class TimesheetCycleDetailPage extends PageBase {
 				this.calendarOptions.resources = resources;
 				this.getCalendar();
 				this.fc?.gotoDate(this.item.Start);
+			}).finally(()=>{
+				super.loadData(event);
+
 			});
-			super.loadData(event);
 		} else {
 			this.loadedData(event);
 		}

@@ -51,7 +51,7 @@
 				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
 			</ion-button>
 
-			<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Over time' | translate}}" (click)="presentPopover($event)">
+			<ion-button *ngIf="id" title="{{'Over time' | translate}}" (click)="presentPopover($event)">
 				<ion-icon slot="icon-only" name="document-attach-outline"></ion-icon>
 			</ion-button>
 
