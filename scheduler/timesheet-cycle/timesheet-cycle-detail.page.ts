@@ -17,7 +17,6 @@ import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { lib } from 'src/app/services/static/global-functions';
 import { PointModalPage } from '../../point-modal/point-modal.page';
 import { StaffPayrollModalPage } from '../../staff-payroll-modal/staff-payroll-modal.page';
-import dayGridPlugin from '@fullcalendar/daygrid';
 @Component({
 	selector: 'app-timesheet-cycle-detail-component',
 	templateUrl: './timesheet-cycle-detail.page.html',
@@ -71,7 +70,6 @@ export class TimesheetCycleDetailComponent extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		this.showLoading();
 		if (this._idCycle == 0) {
 			this.loadData(event);
 		}
@@ -144,7 +142,8 @@ export class TimesheetCycleDetailComponent extends PageBase {
 		}
 		if (this.IDTimesheet) {
 			this.query.CC = true;
-			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.IDTimesheet }).then((resp) => {
+			this.env.showLoading('Loading staff timesheet enrollment data...',this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.IDTimesheet }))
+			.then((resp) => {
 				let resources = resp['data'];
 				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
 				this.allResources = resources;
@@ -154,8 +153,9 @@ export class TimesheetCycleDetailComponent extends PageBase {
 			}).catch((err)=>{
 				console.log(err);
 				this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
+			}).finally(()=>{
+				super.loadData(event);
 			});
-			super.loadData(event);
 		} else {
 			this.loadedData(event);
 		}

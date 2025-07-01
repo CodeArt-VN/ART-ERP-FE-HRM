@@ -44,6 +44,7 @@ export class UDFDetailPage extends PageBase {
 			ControlType: ['', Validators.required],
 			DataType: ['', Validators.required],
 			IsActive: [true],
+			IsSystem: new FormControl({ value: false, disabled: true }),
 			Remark: [''],
 			Sort: [''],
 		});
@@ -82,9 +83,8 @@ export class UDFDetailPage extends PageBase {
 			let group = this.groupList.find((i) => i.Code == this.item.Group);
 			if(group) this.subGroupList = this.UDFGroupsType.filter((item) => item.IDParent == group.Id);
 		}
-		this.UDFGroupsType.find(d=> d.Code == 'Object').disabled = true;
 		super.loadedData(event);
-		if(this.item.Group == 'Object') this.formGroup.disable();
+		if(this.formGroup.controls.IsSystem.value) this.formGroup.disable();
 	}
 	changeGroup(ev) {
 		if (this.formGroup.controls.SubGroup.value) {
