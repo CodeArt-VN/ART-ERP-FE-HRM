@@ -8,8 +8,10 @@
 	<div class="safe-max-width">
 		<app-data-table
 			class="box-shadow responsive"
-			[rows]="itemsView"
+			[rows]="items"
 			[trackBy]="'Id'"
+			[isTreeList]="true"
+			[isQueryLocalOnly]="true"
 			[(selectedRows)]="selectedItems"
 			[showSpinner]="pageConfig.showSpinner"
 			[showFilter]="pageConfig.isShowSearch"
@@ -19,8 +21,7 @@
 			(sort)="onSort($event)"
 			(selectedRowsChange)="showCommandBySelectedRows($event)"
 		>
-			<datatable-column [checkbox]="true">
-				
+			<datatable-column [checkbox]="true" property="Id">
 				<ng-template let-i="row" datatable-cell-template>
 					<input class="c-checkbox" type="checkbox" [(ngModel)]="i.checked" (change)="changeSelection($event,i)" />
 				</ng-template>
