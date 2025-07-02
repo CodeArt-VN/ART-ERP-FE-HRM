@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import { HRM_TimesheetCycleProvider, HRM_TimesheetProvider } from 'src/app/services/static/services.service';
+import { HRM_TimesheetCycleDetailProvider, HRM_TimesheetCycleProvider, HRM_TimesheetProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { TimesheetCycleModalPage } from '../timesheet-cycle-modal/timesheet-cycle-modal.page';
 import { lib } from 'src/app/services/static/global-functions';
@@ -22,6 +22,7 @@ export class TimesheetCyclePage extends PageBase {
 	isAllRowOpened = true;
 	constructor(
 		public pageProvider: HRM_TimesheetCycleProvider,
+		public pageDetailProvider: HRM_TimesheetCycleDetailProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 
 		public modalController: ModalController,
@@ -59,23 +60,11 @@ export class TimesheetCyclePage extends PageBase {
 			}
 		});
 		this.items = [...this.items, ...additionItems];
-		this.buildFlatTree(this.items, this.itemsState, this.isAllRowOpened).then((res) => {
-			this.itemsState = res;
-			this.itemsView = this.itemsState.filter((d) => d.show);
-			super.loadedData(event, ignoredFromGroup);
-		});
-
-		// this.items.forEach((i) => {
-		// 	i.Start = lib.dateFormat(i.Start);
-		// 	i.End = lib.dateFormat(i.End);
-
-		// 	i.TimesheetList = i.Timesheets;
-		// 	// for (let j = 0; j < i.Timesheets.length; j++) {
-		// 	// 	const t = this.timesheetList.find((d) => d.Id == i.Timesheets[j]);
-		// 	// 	if (t) {
-		// 	// 		i.TimesheetList.push(t);
-		// 	// 	}
-		// 	// }
+		super.loadedData(event, ignoredFromGroup);
+		// this.buildFlatTree(this.items, this.itemsState, this.isAllRowOpened).then((res) => {
+		// 	this.itemsState = res;
+		// 	this.itemsView = this.itemsState.filter((d) => d.show);
+		// 	super.loadedData(event, ignoredFromGroup);
 		// });
 	}
 	navTo(i) {
@@ -113,12 +102,15 @@ export class TimesheetCyclePage extends PageBase {
 		const { data } = await modal.onWillDismiss();
 
 		if (data) {
-			this.pageProvider.save(data).then((resp) => {
-				this.refresh();
-			}).catch(err=>{
-				this.env.showMessage(err.error?.InnerException?.ExceptionMessage??'Cannot save, please try again', 'danger');
-				console.error(err);
-			});
+			this.pageProvider
+				.save(data)
+				.then((resp) => {
+					this.refresh();
+				})
+				.catch((err) => {
+					this.env.showMessage(err.error?.InnerException?.ExceptionMessage ?? 'Cannot save, please try again', 'danger');
+					console.error(err);
+				});
 		}
 	}
 
@@ -213,19 +205,19 @@ export class TimesheetCyclePage extends PageBase {
 			});
 	}
 
-	toggleRowAll() {
-		this.isAllRowOpened = !this.isAllRowOpened;
-		this.itemsState.forEach((i) => {
-			i.showdetail = !this.isAllRowOpened;
-			this.toggleRow(this.itemsState, i, true);
-		});
-		this.itemsView = this.itemsState.filter((d) => d.show);
-	}
+	// toggleRowAll() {
+	// 	this.isAllRowOpened = !this.isAllRowOpened;
+	// 	this.items.forEach((i) => {
+	// 		i.showdetail = !this.isAllRowOpened;
+	// 		this.toggleRow(this.items, i, true);
+	// 	});
+	// 	this.items = this.items.filter((d) => d.show);
+	// }
 
-	toggleRow(ls, ite, toogle = false) {
-		super.toggleRow(ls, ite, toogle);
-		this.itemsView = this.itemsState.filter((d) => d.show);
-	}
+	// toggleRow(ls, ite, toogle = false) {
+	// 	super.toggleRow(ls, ite, toogle);
+	// 	this.itemsView = this.itemsState.filter((d) => d.show);
+	// }
 
 	changeSelection(e, i = null) {
 		if (!i.IDParent) {
@@ -237,7 +229,7 @@ export class TimesheetCyclePage extends PageBase {
 					this.selectedItems.splice(index, 1);
 				}
 			}
-			let children = this.itemsState.filter((d) => d.IDParent == i.Id);
+			let children = this.items.filter((d) => d.IDParent == i.Id);
 			children.forEach((c) => {
 				const index = this.selectedItems.indexOf(c, 0);
 				if (e.target.checked) {
@@ -252,13 +244,13 @@ export class TimesheetCyclePage extends PageBase {
 				}
 			});
 		} else if (e && e.shiftKey) {
-			let from = this.itemsState.indexOf(this.lastchecked);
-			let to = this.itemsState.indexOf(i);
+			let from = this.items.indexOf(this.lastchecked);
+			let to = this.items.indexOf(i);
 
 			let start = Math.min(from, to);
 			let end = Math.max(from, to) + 1;
 
-			let itemsToCheck = this.itemsState.slice(start, end);
+			let itemsToCheck = this.items.slice(start, end);
 			for (let j = 0; j < itemsToCheck.length; j++) {
 				const it = itemsToCheck[j];
 
@@ -298,5 +290,41 @@ export class TimesheetCyclePage extends PageBase {
 		e?.stopPropagation();
 
 		this.showCommandBySelectedRows(this.selectedItems);
+	}
+
+	delete(publishEventCode = this.pageConfig.pageName) {
+		//override pagebase để ko goback và check delete detail hay delete parent
+		let parents = this.selectedItems.filter((d) => !d.IDParent);
+		let children = this.selectedItems.filter((d) => d.IDParent && parents.map((i) => i.Id).includes(d.IDParent));
+		let notParent = [...this.selectedItems.filter((d) => d.IDParent && !children.map((d) => d.Id).includes(d.Id))];
+		notParent.forEach((d=> d.Id = d.IDDetail));
+		let provider = parents.length > 0 && notParent.length == 0 ? this.pageProvider : parents.length == 0 && notParent.length > 0 ? this.pageDetailProvider : null;
+		let itemsDelete = [...parents, ...notParent];
+		if (this.pageConfig.ShowDelete) {
+			if (provider) {
+				this.env
+					.actionConfirm('delete', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () => provider.delete(itemsDelete))
+					.then((_) => {
+						this.env.showMessage('DELETE_RESULT_SUCCESS', 'success');
+						this.env.publishEvent({ Code: publishEventCode });
+					})
+					.catch((err: any) => {
+						if (err != 'User abort action') this.env.showMessage('DELETE_RESULT_FAIL', 'danger');
+						console.log(err);
+					});
+			} else {
+				this.env
+					.actionConfirm('delete', this.selectedItems.length, this.item?.Name, this.pageConfig.pageTitle, () => this.pageProvider.delete(parents))
+					.then((_) => {
+						this.pageDetailProvider.delete(notParent).then(() => {
+							this.env.showMessage('DELETE_RESULT_SUCCESS', 'success');
+							this.env.publishEvent({ Code: publishEventCode });
+						});
+					}).catch((err: any) => {
+						if (err != 'User abort action') this.env.showMessage('DELETE_RESULT_FAIL', 'danger');
+						console.log(err);
+					});
+			}
+		}
 	}
 }

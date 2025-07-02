@@ -39,7 +39,6 @@
 				</ion-col>
 				<ion-col size="12" size-sm="12" size-md="6">
 					<app-form-control [field]="{id:'Start', label :'From date', type : 'date', form:formGroup}"></app-form-control>
-					
 				</ion-col>
 				<ion-col size="12" size-sm="12" size-md="6">
 					<div class="c-control">
@@ -55,7 +54,12 @@
 						<input class="c-input" id="End" formControlName="End" type="date" />
 					</div>
 				</ion-col>
-				<ion-col size="12" size-sm="12" size-md="12">
+				<ion-col size="12" size-sm="12" size-md="6">
+					<app-form-control (change)="onCheckAllTimesheetChange($event)"
+						[field]="{id:'IsCheckAllTimesheet', label :'All timesheet', type : 'checkbox', form:formGroup}"
+					></app-form-control>
+				</ion-col>
+				<ion-col size="12" size-sm="12" size-md="12" *ngIf="!formGroup.get('IsCheckAllTimesheet').value">
 					<div class="c-control">
 						<label class="c-label" for="Timesheets"
 							>{{'Working schedule' | translate}}
@@ -90,7 +94,7 @@
 			<ion-row>
 				<ion-col>
 					<div class="c-control ion-text-right">
-						<label class="c-label" for=""></label>
+						<ion-button color='danger'(click)="delete()">{{'Delete' | translate}}</ion-button>
 						<ion-button (click)="submitForm()">{{'Save' | translate}}</ion-button>
 					</div>
 				</ion-col>
