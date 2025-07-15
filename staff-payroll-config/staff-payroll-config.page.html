@@ -49,10 +49,10 @@
 					<ion-segment-button value="s1">
 						<ion-label>{{'UDF list' | translate}}</ion-label>
 					</ion-segment-button>
-					<ion-segment-button value="s2">
+					<!-- <ion-segment-button value="s2">
 						<ion-label>{{'Define value' | translate}}</ion-label>
-					</ion-segment-button>
-					<ion-segment-button value="s3">
+					</ion-segment-button> -->
+					<ion-segment-button value="s2">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
@@ -113,6 +113,10 @@
 																	<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }" (change)="saveChange2()">
 																	</app-form-control>
 
+																	
+																	<app-form-control [field]="{id:'UDFValue', label: 'Value',  type : g.get('ControlType').value,form : g }">
+																	</app-form-control>
+
 																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange()">
 																	</app-form-control>
 																	<app-form-control
@@ -130,6 +134,7 @@
 																	</app-form-control>
 																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
 																	</app-form-control>
+
 
 																	<app-form-control
 																		[field]="{id:'Remark', type : 'textarea', label: 'Remark', form : g }"
@@ -149,7 +154,7 @@
 					</ion-row>
 				</ion-grid>
 			</div>
-			<div *ngIf="segmentView == 's2'">
+			<!-- <div *ngIf="segmentView == 's2'">
 				<ion-grid fixed *ngIf="arrayUDFGroup.length > 0">
 					<ion-row *ngFor="let gr of arrayUDFGroup" class="hr-group">
 						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
@@ -166,8 +171,6 @@
 											<ion-grid fixed style="padding: 0px">
 												<ion-row>
 													<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of sub.Items">
-														<!-- {{parseItem(i)}} -->
-														
 														<app-form-control
 															(change)="saveChange2()"
 															[field]="{ id: 'UDFValue', type: i.get('ControlType').value, label:i.get('Name').value,dataSource:item.StaffPayrollConfig, form: i,appendTo:'#detail-page' }"
@@ -182,8 +185,8 @@
 						</ion-col>
 					</ion-row>	
 				</ion-grid>
-			</div>
-			<div *ngIf="segmentView == 's3'">
+			</div> -->
+			<div *ngIf="segmentView == 's2'">
 				<div class="ion-padding">
 					<ion-grid fixed>
 						<ion-row class="hr-group" *ngIf="item?.Id">
