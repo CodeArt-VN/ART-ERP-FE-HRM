@@ -1,0 +1,190 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="header-table">
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+	<div id="detail-page" style="position: absolute"></div>
+	<div class="main-view safe-max-width" *ngIf="item && pageConfig.showSpinner==false">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Template' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control (change)="saveChange2()" [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup}">
+							<small label *ngIf="item?.Id">Id: {{item.Id}}</small>
+						</app-form-control>
+						<app-form-control (change)="saveChange2()" [field]="{id: 'Code', label: 'Code', type: 'text', form: formGroup}"> </app-form-control>
+						<app-form-control (change)="saveChange2()" [field]="{id: 'CheckInPolicy', label: 'Check in policy', type: 'text', form: formGroup}"> </app-form-control>
+						<app-form-control
+							(change)="saveChange2()"
+							[field]="{id: 'Type', label: 'Type',dataSource:timesheetTemplateType,bindLable:'Name',bindValue:'Code', form: formGroup}"
+						>
+						</app-form-control>
+						<app-form-control (change)="saveChange2()" [field]="{id: 'NumberOfShiftPerDay', label: 'Number of shift per day', type: 'number', form: formGroup}">
+						</app-form-control>
+						<app-form-control (change)="saveChange2()" [field]="{id: 'WorkingHoursPerDay', label: 'Working hours per day', type: 'number', form: formGroup}">
+						</app-form-control>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control (change)="saveChange2()" [field]="{id: 'Manager', label: 'Manager', type: 'number', form: formGroup}"> </app-form-control>
+						<app-form-control (change)="saveChange2()" [field]="{id: 'IsCheckOutRequired', label: 'Is check out required', type: 'checkbox', form: formGroup}">
+						</app-form-control>
+						<app-form-control
+							(change)="saveChange2()"
+							[field]="{id: 'IsRequiredApproveToEnroll', label: 'Is required approve to enroll', type: 'checkbox', form: formGroup}"
+						>
+						</app-form-control>
+						<app-form-control
+							(change)="saveChange2()"
+							[field]="{id: 'IsRequiredApproveToTransfer', label: 'Is required approve to transfer', type: 'checkbox', form: formGroup}"
+						>
+						</app-form-control>
+						<app-form-control
+							(change)="saveChange2()"
+							[field]="{id: 'IsRequiredApproveToSwitch', label: 'Is required approve to switch', type: 'checkbox', form: formGroup}"
+						>
+						</app-form-control>
+						<app-form-control (change)="saveChange2()" [field]="{id: 'Remark', label: 'Remark', type: 'textarea', form: formGroup}"> </app-form-control>
+					</ion-col>
+				</ion-row>
+			</form>
+		</ion-grid>
+
+		<div class="row-full shadow full-screen">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'Timesheet' | translate}}</ion-label>
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				</ion-segment>
+				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
+					<ion-button (click)="addTimesheetTemplateDetail({Id:0},true)">
+						<ion-icon slot="start" name="add"></ion-icon>
+						{{'Add' | translate}}
+					</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+			<div *ngIf="segmentView == 's1'">
+				<div id="ng-select" style="position: absolute; z-index: 30005"></div>
+				<ion-grid fixed>
+					<ion-row>
+						<ion-col size="12">
+							<ion-list>
+								<ion-list-header lines="full" class="ion-no-padding">
+									<ion-label>{{'Data field' | translate }}</ion-label>
+									<ion-button (click)="toggleReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
+								</ion-list-header>
+								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
+									<ion-reorder-group [disabled]="isDisabled" (ionItemReorder)="doReorder($event, formGroup.get('Lines')['controls'])">
+										<ng-container *ngFor="let g of formGroup.get('Lines')['controls']; let idx = index;">
+											<ion-accordion [value]="g.get('Id').value">
+												<ion-item class="clickable" slot="header" [style.order]="g.get('Sort').value" lines="full">
+													<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
+
+													<ion-label style="margin-right: 0" class="ion-text-wrap clickable"
+														><span *ngIf="g.get('Id').value">{{g.get('IDUDF').value}} -</span> {{g.get('Name').value}}
+													</ion-label>
+
+													<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
+														<ion-icon slot="icon-only" name="trash"></ion-icon>
+													</ion-button>
+
+													<ion-reorder slot="end"></ion-reorder>
+												</ion-item>
+
+												<div
+													class="ion-padding"
+													slot="content"
+													[ngStyle]="{ 'background': !isAccordionExpanded(g.get('Id').value) ? 'none' : 'var(--table-header-background)' }"
+												>
+													<ion-grid fixed>
+														<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
+															<ion-row>
+																<ion-col size="12" size-xl="6">
+																	<app-form-control
+																		(change)="changeUDF($event,g)"
+																		[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFList,bindLabel:'Name',bindValue:'Id',
+																	 form : g,appendTo:'#ng-select' }"
+																	></app-form-control>
+																	<app-form-control
+																		(change)="saveChange2()"
+																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:timesheetTemplateType,bindLable:'Name',bindValue:'Code',form : g ,appendTo:'#ng-select'}"
+																	>
+																	</app-form-control>
+
+																	<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }" (change)="saveChange2()">
+																	</app-form-control>
+																	<app-form-control
+																		[field]="{id:'UDFValue', label: 'Value',  type : g.get('ControlType').value,form : g } "
+																		(change)="saveChange2()"
+																	>
+																	</app-form-control>
+																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange()">
+																	</app-form-control>
+																	<app-form-control
+																		[field]="{id:'IsHidden', label: 'Hidden', type : 'checkbox', form : g }"
+																		(change)="saveChange2()"
+																	>
+																	</app-form-control>
+																</ion-col>
+																<ion-col size="12" size-xl="6">
+																	<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : g }" (change)="saveChange2()">
+																	</app-form-control>
+																	<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : g }" (change)="saveChange2()">
+																	</app-form-control>
+																	<app-form-control [field]="{id:'ControlType', label: 'Control type', type : 'span-text',form : g }">
+																	</app-form-control>
+																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
+																	</app-form-control>
+
+																	<app-form-control
+																		[field]="{id:'Remark', type : 'textarea', label: 'Remark', form : g }"
+																		(change)="saveChange2()"
+																	></app-form-control>
+																</ion-col>
+															</ion-row>
+														</form>
+													</ion-grid>
+												</div>
+											</ion-accordion>
+										</ng-container>
+									</ion-reorder-group>
+								</ion-accordion-group>
+							</ion-list>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+			<div *ngIf="segmentView == 's2'">
+				<div class="ion-padding">
+					<ion-grid fixed>
+						<ion-row class="hr-group" *ngIf="item?.Id">
+							<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size="12" size-sm size-xl="4">
+								<app-form-control [field]="{id: 'CreatedBy', type: 'span-text', label: 'Created by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedBy', type: 'span-text', label: 'Last modified by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+							</ion-col>
+							<ion-col size="12" size-sm size-xl="4">
+								<app-form-control [field]="{id: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange2()"></app-form-control>
+							</ion-col>
+						</ion-row>
+					</ion-grid>
+				</div>
+			</div>
+		</div>
+	</div>
+</ion-content>
