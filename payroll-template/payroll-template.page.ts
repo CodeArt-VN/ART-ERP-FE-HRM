@@ -27,4 +27,17 @@ export class PayrollTemplatePage extends PageBase {
 	) {
 		super();
 	}
+
+
+	
+	async copy() {
+		let ids = this.selectedItems.map((i) => i.Id);
+		this.pageProvider.commonService
+			.connect('POST', 'HRM/PayrollTemplate/CopyPayrollTemplate', ids)
+			.toPromise()
+			.then((res) => {
+				this.env.showMessage('Copy succesfully', 'success');
+				super.refresh();
+			});
+	}
 }
