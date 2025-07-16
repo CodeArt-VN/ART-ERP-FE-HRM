@@ -550,6 +550,7 @@ export class PersonalSchedulerPage extends PageBase {
 					IDOffice: data.IDOffice,
 					IPAddress: data.IPAddress,
 					Remark: data.Remark,
+					SeftClaim : true
 				};
 				this.timesheetLogProvider.save(submitData).then((resp) => {
 					this.loadData(null);

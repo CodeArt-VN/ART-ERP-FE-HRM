@@ -1,0 +1,58 @@
+<ion-header>
+	<app-toolbar [page]="this">
+		<ion-buttons slot="end">
+			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
+
+	<app-data-table
+		class="box-shadow responsive"
+		[rows]="items"
+		[trackBy]="'Id'"
+		[(selectedRows)]="selectedItems"
+		[showSpinner]="pageConfig.showSpinner"
+		[showFilter]="pageConfig.isShowSearch"
+		[(query)]="query"
+		(dataInfinite)="loadData($event)"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+		(selectedRowsChange)="showCommandBySelectedRows($event)"
+	>
+		<datatable-column [checkbox]="true" name=""></datatable-column>
+
+		<datatable-column class="col-name flex-break" name="Full name" property="Staff">
+			<ng-template let-i="row" datatable-cell-template>
+				<ion-avatar class="avatar" slot="start">
+					<ion-img #img [src]="i.Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+				</ion-avatar>
+				<div>
+					<span class="bold">{{i.Staff.FullName}}</span>
+					<small *ngIf="i.Staff.Code" class="no-warp"> {{i.Code}}</small>
+					<br />
+					{{i.Staff.Email}}
+				</div>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-code" format="yyyy-MM-dd hh:mm:ss" name="Log time" property="LogTime" filterControlType="date"> </datatable-column>
+		<datatable-column class="col-remark" name="Remark" property="Remark"> </datatable-column>
+		<datatable-column class="col-status" name="Status" property="IsValidLog">
+			<ng-template let-i="row" datatable-cell-template>
+				<ion-text *ngIf="i.IsValidLog" color="success">{{'Valid'|translate}}</ion-text>
+				<ion-text *ngIf="!i.IsValidLog" color="danger">{{'InValid'|translate}}</ion-text>
+			</ng-template>
+		</datatable-column>
+	</app-data-table>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

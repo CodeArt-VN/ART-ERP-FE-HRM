@@ -89,6 +89,11 @@
 			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
 			</ion-button>
+
+			<ion-button *ngIf="id" (click)="checkinLog.openCheckinLogListModal()" title="{{'Open timesheet log' | translate}}">
+				{{'Open timesheet log' |translate}}
+			</ion-button>
+
 			<span class="split ion-hide-sm-down">|</span>
 			<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
 				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>

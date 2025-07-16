@@ -107,5 +107,11 @@ export const HRMRoutes: Routes = [
     { path: 'staff-payslip', loadChildren: () => import('./staff-payslip/staff-payslip.module').then(m => m.StaffPayslipPageModule), canActivate: [AuthGuard] },
     { path: 'staff-payslip/:id', loadChildren: () => import('./staff-payslip-detail/staff-payslip-detail.module').then(m => m.StaffPayslipDetailPageModule), canActivate: [AuthGuard] },
 
+
+     { path: 'timesheet-template', loadChildren: () => import('./timesheet-template/timesheet-template.module').then(m => m.TimesheetTemplatePageModule), canActivate: [AuthGuard] },
+    { path: 'timesheet-template/:id', loadChildren: () => import('./timesheet-template-detail/timesheet-template-detail.module').then(m => m.TimesheetTemplateDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'timesheet-log', loadChildren: () => import('./scheduler/timesheet-log/timesheet-log.module').then(m => m.TimesheetLogPageModule), canActivate: [AuthGuard] },
+
 ];
 

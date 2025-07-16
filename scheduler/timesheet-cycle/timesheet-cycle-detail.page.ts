@@ -263,6 +263,17 @@ export class TimesheetCycleDetailComponent extends PageBase {
 	// initialView:'dayGridMonth', //'resourceTimelineWeek',
 
 	async export() {
+		// if (this.submitAttempt) return;
+		// this.submitAttempt = true;
+		// this.env
+		// 	.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET','HRM/TimesheetTemplate/ExportTimesheetLog',this.query).toPromise())
+		// 	.then((response: any) => {
+		// 		this.downloadURLContent(response);
+		// 		this.submitAttempt = false;
+		// 	})
+		// 	.catch((err) => {
+		// 		this.submitAttempt = false;
+		// 	});
 		super.export();
 	}
 
