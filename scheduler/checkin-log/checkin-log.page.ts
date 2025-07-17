@@ -17,6 +17,7 @@ import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 
 import { lib } from 'src/app/services/static/global-functions';
 import { LogGeneratorPage } from '../../log-generator/log-generator.page';
+import { TimesheetLogPage } from '../timesheet-log/timesheet-log.page';
 
 @Component({
 	selector: 'app-checkin-log-component',
@@ -95,7 +96,6 @@ export class CheckinLogComponent extends PageBase {
 				this.allResources = resources;
 				this.query.IDStaff = JSON.stringify(this.allResources.map((m) => m.IDStaff));
 				super.loadData(event);
-
 			});
 		} else {
 			this.loadedData(event);
@@ -411,5 +411,18 @@ export class CheckinLogComponent extends PageBase {
 				this.loadData(null);
 			});
 		}
+	}
+
+	async openCheckinLogListModal() {
+		const modal = await this.modalController.create({
+			component: TimesheetLogPage,
+			componentProps: {
+				idStaffList: this.allResources.map((m) => m.IDStaff),
+			},
+			cssClass: 'modal90',
+		});
+
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
 	}
 }
