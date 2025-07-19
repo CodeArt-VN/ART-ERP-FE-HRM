@@ -49,8 +49,8 @@ export class StaffPage extends PageBase {
 		},
 		Fields: [
 			{ Code: 'Id', Name: 'Id', Icon: '', Color: '', Sort: 1 },
-			{ Code: 'FullName', Name: 'FullName', Icon: '', Color: '', Sort: 2 },
-			{ Code: 'IDJobTitle', Name: 'IDJobTitle', Icon: '', Color: '', Sort: 3 },
+			{ Code: 'FullName', Name: 'Full name', Icon: '', Color: '', Sort: 2 },
+			{ Code: 'IDJobTitle', Name: 'Unit', Icon: '', Color: '', Sort: 3 },
 		],
 		GroupBy: {
 			Group1: { Code: '', Sort: '' },
@@ -114,9 +114,10 @@ export class StaffPage extends PageBase {
 					i.Query = JSON.stringify(i.IDs);
 				});
 			});
+			const valuesHidden = values[1]?.['Fields'] || this.viewConfigDefault.Fields;
 			this.fieldsOriginal = [
 				{ Name: 'Shown', Fields: [] },
-				{ Name: 'Hidden', Fields: [...values[1]['Fields']] },
+				{ Name: 'Hidden', Fields: [...valuesHidden] },
 			];
 			// set viewData from local storage
 			this.viewData = values[2] || { Views: [] };
@@ -148,8 +149,8 @@ export class StaffPage extends PageBase {
 			// groupView list Shown/Hidden view active
 			const shownFields = this.viewStaffConfig.Fields ? this.viewStaffConfig.Fields.map((f) => ({ ...f })) : [];
 			const hiddenSchema = this.fieldsOriginal.find((g) => g.Name === 'Hidden').Fields;
-			const shownNames = shownFields.map((f) => f.Name);
-			const hiddenFields = hiddenSchema.filter((f) => !shownNames.includes(f.Name));
+			const shownCodes = shownFields.map((f) => f.Code);
+			const hiddenFields = hiddenSchema.filter((f) => !shownCodes.includes(f.Code));
 			this.groupView = [
 				{ Name: 'Shown', Fields: shownFields },
 				{ Name: 'Hidden', Fields: hiddenFields },
@@ -233,8 +234,8 @@ export class StaffPage extends PageBase {
 			}
 			const shownFields = editingView.Fields ? editingView.Fields.map((f) => ({ ...f })) : [];
 			const hiddenSchema = this.fieldsOriginal.find((g) => g.Name === 'Hidden').Fields;
-			const shownNames = shownFields.map((f) => f.Name);
-			const hiddenFields = hiddenSchema.filter((f) => !shownNames.includes(f.Name));
+			const shownCodes = shownFields.map((f) => f.Code);
+			const hiddenFields = hiddenSchema.filter((f) => !shownCodes.includes(f.Code));
 			this.groupView = [
 				{ Name: 'Shown', Fields: shownFields },
 				{ Name: 'Hidden', Fields: hiddenFields },
@@ -286,7 +287,7 @@ export class StaffPage extends PageBase {
 				Fields: this.groupView
 					.find((g) => g.Name === 'Shown')
 					.Fields.map((f: any, idx) => ({
-						Code: f.Code || f.Name,
+						Code: f.Code,
 						Name: f.Name,
 						Icon: f.Icon || '',
 						Color: f.Color || '',
@@ -332,8 +333,8 @@ export class StaffPage extends PageBase {
 			// groupView list Shown/Hidden view active
 			const shownFields = this.viewStaffConfig.Fields ? this.viewStaffConfig.Fields.map((f) => ({ ...f })) : [];
 			const hiddenSchema = this.fieldsOriginal.find((g) => g.Name === 'Hidden').Fields;
-			const shownNames = shownFields.map((f) => f.Name);
-			const hiddenFields = hiddenSchema.filter((f) => !shownNames.includes(f.Name));
+			const shownCodes = shownFields.map((f) => f.Code);
+			const hiddenFields = hiddenSchema.filter((f) => !shownCodes.includes(f.Code));
 			this.groupView = [
 				{ Name: 'Shown', Fields: shownFields },
 				{ Name: 'Hidden', Fields: hiddenFields },
@@ -344,7 +345,7 @@ export class StaffPage extends PageBase {
 
 	addFieldToShown(field) {
 		// Delete Hidden
-		this.groupView[1].Fields = this.groupView[1].Fields.filter((f) => f.Name !== field.Name);
+		this.groupView[1].Fields = this.groupView[1].Fields.filter((f) => f.Code !== field.Code);
 		// Add vào Shown
 		this.groupView[0].Fields.push(field);
 		this.saveView();
@@ -359,7 +360,7 @@ export class StaffPage extends PageBase {
 		fieldsToRemove.forEach((field) => {
 			// logic
 			// find index in original Hidden
-			const targetIndex = hiddenSchema.findIndex((f) => f.Name === field.Name);
+			const targetIndex = hiddenSchema.findIndex((f) => f.Code === field.Code);
 			// not found in Hidden
 			if (targetIndex === -1) {
 				this.groupView[1].Fields.push(field);
@@ -374,7 +375,7 @@ export class StaffPage extends PageBase {
 				// C index = 2 = targetIndex
 				// D index = 3 = idx (for theo groupViewHidden A và D)
 				// if lần đầu idx A = 0 ko thỏa lần tiếp idx D = 3 thỏa thì chèn 2 trước 3 là C trước D (A C D)
-				const idx = hiddenSchema.findIndex((f) => f.Name === this.groupView[1].Fields[i].Name);
+				const idx = hiddenSchema.findIndex((f) => f.Code === this.groupView[1].Fields[i].Code);
 				if (idx > targetIndex) {
 					insertAt = i;
 					break;
@@ -386,10 +387,10 @@ export class StaffPage extends PageBase {
 	}
 	removeFieldFromShown(field) {
 		// Remove field in groupView (Shown)
-		this.groupView[0].Fields = this.groupView[0].Fields.filter((f) => f.Name !== field.Name);
+		this.groupView[0].Fields = this.groupView[0].Fields.filter((f) => f.Code !== field.Code);
 		const hiddenSchema = this.fieldsOriginal.find((g) => g.Name === 'Hidden').Fields;
 
-		const targetIndex = hiddenSchema.findIndex((f) => f.Name === field.Name);
+		const targetIndex = hiddenSchema.findIndex((f) => f.Code === field.Code);
 		if (targetIndex === -1) {
 			this.groupView[1].Fields.push(field);
 			return;
@@ -397,7 +398,7 @@ export class StaffPage extends PageBase {
 		// Find where to insert in current Hidden (keep schema order)
 		let insertAt = this.groupView[1].Fields.length;
 		for (let i = 0; i < this.groupView[1].Fields.length; i++) {
-			const idx = hiddenSchema.findIndex((f) => f.Name === this.groupView[1].Fields[i].Name);
+			const idx = hiddenSchema.findIndex((f) => f.Code === this.groupView[1].Fields[i].Code);
 			if (idx > targetIndex) {
 				insertAt = i;
 				break;
@@ -439,8 +440,8 @@ export class StaffPage extends PageBase {
 				// groupView
 				const shownFields = this.viewStaffConfig.Fields ? this.viewStaffConfig.Fields.map((f) => ({ ...f })) : [];
 				const hiddenSchema = this.fieldsOriginal.find((g) => g.Name === 'Hidden').Fields;
-				const shownNames = shownFields.map((f) => f.Name);
-				const hiddenFields = hiddenSchema.filter((f) => !shownNames.includes(f.Name));
+				const shownCodes = shownFields.map((f) => f.Code);
+				const hiddenFields = hiddenSchema.filter((f) => !shownCodes.includes(f.Code));
 				this.groupView = [
 					{ Name: 'Shown', Fields: shownFields },
 					{ Name: 'Hidden', Fields: hiddenFields },
