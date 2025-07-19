@@ -10,6 +10,7 @@ import { PriceReportComponentsModule } from '../../BI/price-report/components/pr
 import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
 
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
+import { ScanCheckinModalPage } from '../scan-checkin-modal/scan-checkin-modal.page';
 
 @NgModule({
 	imports: [
@@ -22,7 +23,7 @@ import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/
 		FullCalendarModule,
 		RouterModule.forChild([{ path: '', component: PersonalSchedulerPage }]),
 	],
-	declarations: [PersonalSchedulerPage, PersonalSchedulerGeneratorPage],
+	declarations: [PersonalSchedulerPage, PersonalSchedulerGeneratorPage, ScanCheckinModalPage],
 	exports: [PersonalSchedulerPage, PersonalSchedulerGeneratorPage],
 })
 export class PersonalSchedulerPageModule {}

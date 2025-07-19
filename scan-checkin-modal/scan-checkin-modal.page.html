@@ -1,0 +1,36 @@
+<ion-header>
+	<ion-toolbar class="no-padding">
+		<ion-title>{{'Scan checkin'}}</ion-title>
+		<ion-buttons slot="end">
+			<ion-button title="{{'Close' | translate}}" (click)="modalController.dismiss()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<ion-grid fixed>
+		<ion-list>
+			<ion-list-header lines="full">
+				<ion-label color="dark">{{'Checkin gate' | translate}}</ion-label>
+			</ion-list-header>
+			<ion-item lines="full" button class="clickable" (click)="changeGate(i)" [color]="i.Id == activeGate.Id ? 'primary': '' " *ngFor="let i of items">
+				<ion-label class="ion-text-wrap">
+					<ion-text [color]="i.Color">
+						<h3>{{i.Name}}</h3>
+					</ion-text>
+					<p *ngIf="i.Remark">
+						<small>{{i.GateType}}</small>
+					</p>
+				</ion-label>
+			</ion-item>
+		</ion-list>
+	</ion-grid>
+</ion-content>
+<ion-footer>
+	<ion-toolbar>
+		<ion-button size="large" slot="end" (click)="checkin()">{{'Check in' | translate}}</ion-button>
+	</ion-toolbar>
+</ion-footer>

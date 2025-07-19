@@ -1,10 +1,8 @@
 <ion-header>
 	<app-toolbar [page]="this">
-		<ion-buttons slot="end">
-			<ion-button title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
-				<ion-icon slot="icon-only" name="close"></ion-icon>
-			</ion-button>
-		</ion-buttons>
+		<ion-button endSlot title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
+			<ion-icon slot="icon-only" name="close"></ion-icon>
+		</ion-button>
 	</app-toolbar>
 </ion-header>
 

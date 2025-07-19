@@ -12,6 +12,10 @@ import {
 	HRM_StaffOvertimeRequestProvider,
 	HRM_StaffRecordOvertimeProvider,
 	HRM_TimesheetCycleDetailProvider,
+	OST_OfficeGateProvider,
+	HRM_TimesheetLogProvider,
+	HRM_TimesheetCycleProvider,
+	HRM_TimesheetRecordProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
@@ -28,6 +32,11 @@ import { CheckinLogComponent } from './checkin-log/checkin-log.page';
 import { TimesheetCycleDetailComponent } from './timesheet-cycle/timesheet-cycle-detail.page';
 import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-modal/timesheet-cycle-select-modal.page';
 import { PopoverPage } from '../../SYS/popover/popover.page';
+import { LogGeneratorPage } from '../log-generator/log-generator.page';
+import { PointModalPage } from '../point-modal/point-modal.page';
+import { TimesheetLogPage } from './timesheet-log/timesheet-log.page';
+import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
+import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
 
 @Component({
 	selector: 'app-scheduler',
@@ -37,8 +46,6 @@ import { PopoverPage } from '../../SYS/popover/popover.page';
 })
 export class SchedulerPage extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
-	@ViewChild('checkinLog') checkinLog: CheckinLogComponent;
-	@ViewChild('timesheetCycle') timesheetCycle: TimesheetCycleDetailComponent;
 	idCycle: any = 0;
 	officeList = [];
 	timesheetList = [];
@@ -52,9 +59,13 @@ export class SchedulerPage extends PageBase {
 	staffList = [];
 	navigateObj: any = {};
 	allResources = [];
-
+	gateList = [];
+	cycle: any;
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
+		public timesheetLogProvider: HRM_TimesheetLogProvider,
+		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
+		public timesheetRecordProvider: HRM_TimesheetRecordProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public overtimeRequestProvider: HRM_StaffOvertimeRequestProvider,
@@ -63,6 +74,7 @@ export class SchedulerPage extends PageBase {
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
 		public timesheetCycleDetailProvider: HRM_TimesheetCycleDetailProvider,
+		public gateProvider: OST_OfficeGateProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
@@ -78,70 +90,54 @@ export class SchedulerPage extends PageBase {
 	}
 
 	async openCycleModal() {
-		this.getTimesheetCycle();
-		// let popover = await this.popoverCtrl.create({
-		// 	component: TimesheetCycleSelectModalComponent,
-		// 	componentProps: { _timesheetCycleList: this._timesheetCycleList },
-		// 	cssClass: 'w300',
-		// 	translucent: true,
-		// });
-		// popover.onDidDismiss().then((result: any) => {
-		// 	if (result.data && result.data.IDCycle) {
-		// 		this.idCycle = result.data.IDCycle;
-		// 	}
-		// });
-		// await popover.present();
+		await this.getTimesheetCycle();
+		this.loadData();
 	}
-
-	getTimesheetCycle() {
-		this.timesheetCycleDetailProvider.read({ IDTimesheet: this.id, Date: this.pickedDate ? new Date(this.pickedDate) : new Date() }).then(async (resp) => {
-			if (resp['data'] && resp['data'].length > 1) {
-				this._timesheetCycleList = resp['data'].map((d) => d._TimesheetCycle);
-				let popover = await this.popoverCtrl.create({
-					component: TimesheetCycleSelectModalComponent,
-					componentProps: { _timesheetCycleList: resp['data'].map((d) => d._TimesheetCycle) },
-					cssClass: 'w300',
-					translucent: true,
-				});
-				popover.onDidDismiss().then((result: any) => {
-					if (result.data && result.data.IDCycle) {
-						this.idCycle = result.data.IDCycle;
-						this.segmentView = 's3';
-					}
-				});
-				await popover.present();
-			} else if (resp['data'] && resp['data'].length == 1) {
-				this.idCycle = resp['data'][0]?.IDTimesheetCycle;
-				this.segmentView = 's3';
-			} else {
-				// this.idCycle = 0;
-				this.segmentView = 's3';
-				this.env.showMessage('No timesheet cycle found for this date', 'warning');
-			}
+	async getTimesheetCycle(): Promise<void> {
+		this._timesheetCycleList = [];
+		const resp = await this.timesheetCycleDetailProvider.read({
+			IDTimesheet: this.id,
+			Date: new Date(this.fc?.view.activeStart),
 		});
+
+		if (resp['data'] && resp['data'].length > 1) {
+			this._timesheetCycleList = resp['data'].map((d) => d._TimesheetCycle);
+
+			const popover = await this.popoverCtrl.create({
+				component: TimesheetCycleSelectModalComponent,
+				componentProps: { _timesheetCycleList: this._timesheetCycleList },
+				cssClass: 'w300',
+				translucent: true,
+			});
+			await popover.present();
+
+			const result = await popover.onDidDismiss();
+			if (result.data && result.data.IDCycle) {
+				this.idCycle = result.data.IDCycle;
+				this.segmentView = 's3';
+			}
+		} else if (resp['data'] && resp['data'].length == 1) {
+			this.idCycle = resp['data'][0]?.IDTimesheetCycle;
+			this.segmentView = 's3';
+		} else {
+			this.segmentView = 's3';
+			this.env.showMessage('No timesheet cycle found for this date', 'warning');
+		}
 	}
 
 	segmentView = 's1';
 	_timesheetCycleList: any[] = [];
-	segmentChanged(ev: any) {
+	async segmentChanged(ev: any) {
+		this.segmentView = ev.detail.value;
 		if (ev.detail.value == 's3') {
-			// let date = this.pickedDate ? new Date(this.pickedDate) : new Date();
-			// const matchedCycle = this._timesheetCycleList.some((item) => {
-			// 	const start = new Date(item.Start);
-			// 	const end = new Date(item.End);
-			// 	return date >= start && date <= end;
-			// });
 			if (!this.idCycle) {
-				this.getTimesheetCycle();
+				// await this.getTimesheetCycle(); // đợi xong mới gọi loadData
+				this.loadData();
 			} else {
-				this.segmentView = ev.detail.value;
+				this.loadData();
 			}
-		} else if (ev.detail.value == 's1') {
-			this.segmentView = ev.detail.value;
-			if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
-			this.loadData();
 		} else {
-			this.segmentView = ev.detail.value;
+			this.loadData();
 		}
 	}
 
@@ -152,8 +148,28 @@ export class SchedulerPage extends PageBase {
 			if (this.navigateObj) {
 				this.id = this.navigateObj?.id;
 				this.idCycle = this.navigateObj?.IDCycle;
+				this.segmentView = 's3';
+				this.timesheetCycleProvider.getAnItem(this.idCycle).then((result) => {
+					this.cycle = result;
+				});
 			}
 		});
+		this.env
+			.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
+			.then((resp) => {
+				this.allResources = resp['data'];
+				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+				this.staffList = this.allResources.map((m) => m.IDStaff);
+			})
+			.catch((err) => {
+				console.log(err);
+				this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
+			})
+			.finally(() => {
+				if (this.segmentView == 's1' && !this.navigateObj) {
+					super.loadData(event);
+				}
+			});
 		Promise.all([
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
@@ -161,6 +177,7 @@ export class SchedulerPage extends PageBase {
 			this.shiftProvider.read(),
 			this.env.getType('TimeOffType'),
 			this.env.getStatus('StandardApprovalStatus'),
+			this.gateProvider.read(),
 		]).then((values) => {
 			this.officeList = values[0]['data'];
 			this.shifTypeList = values[1];
@@ -173,12 +190,14 @@ export class SchedulerPage extends PageBase {
 					s.Color = shiftType.Color;
 					s.color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
 					s.ShiftType = shiftType.Name;
+					s.TextColor = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase() + '-contrast');
 				}
 
 				s.Start = lib.dateFormat('2000-01-01 ' + s.Start, 'hh:MM');
 				s.End = lib.dateFormat('2000-01-01 ' + s.End, 'hh:MM');
 			});
 			this.OTStatusList = values[5];
+			this.gateList = values[6]['data'];
 			if (this.id) {
 				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
 			} else if (this.timesheetList.length) {
@@ -197,6 +216,42 @@ export class SchedulerPage extends PageBase {
 	}
 
 	loadData(event?: any) {
+		this.showLoading();
+		if (this.segmentView == 's1') this.loadSchedulerData(event);
+		else if (this.segmentView == 's2') this.loadCheckinLogData(event);
+		else this.loadTimesheetCycle(event);
+	}
+
+	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		if (this.segmentView == 's1') this.loadedSchedulerData(event, ignoredFromGroup);
+		else if (this.segmentView == 's2') this.loadedCheckinLogData(event, ignoredFromGroup);
+		else this.loadedTimesheetCycle(event, ignoredFromGroup);
+		this.calendarOptions.resources = this.allResources.filter((resource) => {
+			if (resource.EndDate == null) return true;
+			const endDate = new Date(resource.EndDate);
+			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
+			if (!hasData && new Date(this.fc?.view?.activeStart) > endDate) {
+				return hasData; // Chỉ giữ nếu còn dữ liệu2
+			}
+
+			return true; // Chưa xóa => giữ
+		});
+		this.calendarOptions.resourceLabelContent = (arg) => {
+			let imgpath = environment.staffAvatarsServer + arg.resource.extendedProps.Code + '.jpg';
+			let html = `
+            <div class="staff-resource">
+                <span class="name">
+                    <span class="code">${arg.resource.extendedProps.Code} </span>
+                </span>
+                <ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>
+            </div>`;
+			return { html: html };
+		};
+		this.loadingController.dismiss();
+	}
+
+	//load data scheduler
+	loadSchedulerData(event) {
 		this.getCalendar();
 
 		this.query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
@@ -210,44 +265,48 @@ export class SchedulerPage extends PageBase {
 		this.clearData();
 
 		if (this.id) {
-			if (this.navigateObj && this.navigateObj?.id && this.navigateObj?.segmentView) {
-				this.pageConfig.showSpinner = false;
-				this.segmentChanged({ detail: { value: this.navigateObj.segmentView } });
-				this.navigateObj = null; // Reset navigateObj after using it
-				// this.loadedData(event);
-			}
-			else if(this.segmentView != 's1') {
-				this.pageConfig.showSpinner = false;
-				this.segmentChanged({ detail: { value: this.segmentView } });
-				
-				return;
-			}
-			else {
-				this.env.showLoading('Loading...',this.staffTimesheetEnrollmentProvider
-				.read({ IDTimesheet: this.id }))
-				.then((resp) => {
-					this.allResources = resp['data'];
-					//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-					this.staffList = this.allResources.map((m) => m.IDStaff);
-				})
-				.catch((err) => {
-					console.log(err);
-					this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
-				})
-				.finally(() => {
-					if (this.segmentView == 's1' && !this.navigateObj) {
-						super.loadData(event);
-					}
-				});
-			}
+			super.loadData();
 		} else {
 			this.loadedData(event);
 		}
 	}
 
-	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		const currentViewDate = this.pickedDate ? new Date(this.pickedDate) : new Date(this.fc?.view?.activeStart);
+	loadedSchedulerData(event?: any, ignoredFromGroup?: boolean) {
+		this.calendarOptions.eventContent = (arg) => {
+			let htmlRemoveButton = ``;
+			if (this.pageConfig.canEdit) {
+				htmlRemoveButton = `<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>`;
+			}
+			if (!this.pageConfig.canEditPassDay) {
+				let d1 = lib.dateFormat(arg.event.extendedProps.WorkingDate);
+				let d2 = lib.dateFormat(arg.event.extendedProps._CurrentDate);
+				if (d1 <= d2) {
+					htmlRemoveButton = '';
+				}
+			}
+			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small> ${htmlRemoveButton} </ion-text>`;
+			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
+				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
+				booked += arg.event.extendedProps.IsBookLunchCatering ? 'L' : '';
+				booked += arg.event.extendedProps.IsBookDinnerCatering ? 'D' : '';
+				html = `<ion-icon class="lunch-booked" name="restaurant-outline"></ion-icon>(${booked}) - ` + html;
+			}
+			if (arg.event.extendedProps.TimeOffType) {
+				if (!this.pageConfig.canEditLeaveDay) htmlRemoveButton = '';
+				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text>  ${htmlRemoveButton}`;
+			}
 
+			return {
+				html: html,
+			};
+		};
+		this.calendarOptions.eventDidMount = this.eventDidMount.bind(this);
+		this.calendarOptions.select = this.select.bind(this);
+		this.calendarOptions.dateClick = this.dateClick.bind(this); // bind is important!
+		this.calendarOptions.eventClick = null; //this.eventClick.bind(this),
+		this.calendarOptions.eventChange = this.eventChange.bind(this);
+		this.calendarOptions.eventDrop = this.eventDrop.bind(this);
+		this.calendarOptions.eventResize = this.eventResize.bind(this);
 		this.overtimeRequestProvider
 			.read(this.query)
 			.then((values: any) => {
@@ -271,21 +330,12 @@ export class SchedulerPage extends PageBase {
 						});
 					});
 				});
-				this.patchItems();
-				this.calendarOptions.events = this.items;
-				this.calendarOptions.resources = this.allResources.filter((resource) => {
-					if (resource.EndDate == null) return true;
-					const endDate = new Date(resource.EndDate);
-					const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
-					if (!hasData && currentViewDate > endDate) {
-						return hasData; // Chỉ giữ nếu còn dữ liệu2
-					}
-
-					return true; // Chưa xóa => giữ
-				});
 				this.getCalendar();
+				this.patchItems();
+				this.fc?.removeAllEvents();
+				this.fc?.addEventSource(this.items);
+
 				this.fc?.updateSize();
-				if (this.pickedDate) this.fc?.gotoDate(this.pickedDate);
 				super.loadedData(event, ignoredFromGroup);
 			})
 			.catch((err) => {
@@ -296,21 +346,274 @@ export class SchedulerPage extends PageBase {
 				super.loadedData(event, ignoredFromGroup);
 			})
 			.finally(() => {
-				if (this.navigateObj && this.navigateObj?.id) {
-					this.segmentChanged({ detail: { value: 's3' } });
-				}
 				this.loadingController.dismiss();
 			});
 	}
+
+	loadCheckinLogData(event) {
+		this.getCalendar();
+
+		this.query.LogTimeFrom = lib.dateFormat(this.fc.view.activeStart);
+		this.query.LogTimeTo = lib.dateFormat(this.fc.view.activeEnd);
+		this.query.IDTimesheet = this.id;
+
+		this.query.IDOffice = JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id));
+		this.query.Take = 50000;
+
+		this.clearData();
+		if (this.id) {
+			this.query.IDStaff = JSON.stringify(this.allResources.map((m) => m.IDStaff));
+			this.timesheetLogProvider.read(this.query).then((result: any) => {
+				this.items = result.data;
+				this.loadedData(event);
+			});
+			// this.env.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id })).then((resp) => {
+			// 	let resources = resp['data'];
+			// 	//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+			// 	// this.calendarOptions.resources = resources;
+			// 	this.allResources = resources;
+			// 	this.query.IDStaff = JSON.stringify(this.allResources.map((m) => m.IDStaff));
+			// 	super.loadData(event);
+			// });
+		}
+	}
+
+	loadedCheckinLogData(event?: any, ignoredFromGroup?: boolean) {
+		this.calendarOptions.slotLabelContent = (arg) => {
+			let texts = arg.text.split(' ');
+			let html = `<b>${texts[0].toUpperCase()}</b><br><small>${texts[1]}</small>`;
+			return { html: html };
+		};
+		this.calendarOptions.eventContent = (arg) => {
+			let html = '';
+			let ltime = lib.dateFormat(arg.event.extendedProps.LogTime, 'hh:MM');
+			let gate = this.gateList.find((d) => d.Id == arg.event.extendedProps.IDGate);
+			if (this.pageConfig.canEdit) {
+				html = `<b>${ltime}</b> <small>${gate?.Name}</small><ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
+			} else {
+				html = `<b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small>`;
+			}
+			return { html: html };
+		};
+		this.calendarOptions.eventDidMount = (arg) => {
+			let that = this;
+			arg.el.querySelector('ion-icon').onclick = function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				that.env
+					.showPrompt('Bạn có chắc muốn xóa không?', null, 'Checkin logs')
+					.then((_) => {
+						that.submitAttempt = true;
+						that.pageProvider
+							.delete([{ Id: parseInt(arg.event.id) }])
+							.then((savedItem: any) => {
+								arg.event.remove();
+								that.submitAttempt = false;
+							})
+							.catch((err) => {
+								that.submitAttempt = false;
+							});
+					})
+					.catch((e) => {});
+			};
+		};
+		this.calendarOptions.select = (arg) => {
+			arg.end.setDate(arg.end.getDate() - 1);
+
+			this.massShiftAssignmentCheckinLog({
+				FromDate: arg.startStr.substr(0, 10),
+				ToDate: arg.end.toISOString().substr(0, 10),
+				Staffs: [parseInt(arg.resource.id)],
+			});
+		};
+		this.calendarOptions.eventClick = (arg) => {
+			this.massShiftAssignmentCheckinLog({
+				FromDate: arg.event.startStr,
+				ToDate: arg.event.startStr,
+				TimeSpan: arg.event.extendedProps.LogTime.substr(11, 5),
+
+				IDStaff: arg.event.extendedProps.IDStaff,
+				Id: arg.event.extendedProps.Id,
+				IDOffice: arg.event.extendedProps.IDOffice,
+				IDGate: arg.event.extendedProps.IDGate,
+
+				Image: arg.event.extendedProps.Image,
+				IPAddress: arg.event.extendedProps.IPAddress,
+				UUID: arg.event.extendedProps.UUID,
+				IsValidLog: arg.event.extendedProps.IsValidLog,
+				IsOpenLog: arg.event.extendedProps.IsOpenLog,
+				IsMockLocation: arg.event.extendedProps.IsOpenLog,
+			});
+		};
+
+		this.items.forEach((e) => {
+			e.start = e.LogTime;
+			e.color = lib.getCssVariableValue('--ion-color-success');
+			e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
+			if (!e.IsValidLog && !e.SeftClaim) {
+				e.color = lib.getCssVariableValue('--ion-color-danger');
+				e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
+			}
+			if (!e.IsValidLog && e.SeftClaim) {
+				e.color = lib.getCssVariableValue('--ion-color-warning');
+				e.textColor = lib.getCssVariableValue('--ion-color-warning-contrast');
+			}
+
+			e.allDay = true;
+		});
+		this.getCalendar();
+		this.fc?.removeAllEvents();
+		this.fc?.addEventSource(this.items);
+		this.fc?.updateSize();
+		super.loadedData(event, ignoredFromGroup);
+	}
+
+	loadTimesheetCycle(event) {
+		this.getCalendar();
+
+		// this.query.IDTimesheet = this.id;
+		// this.query.IDCycle = this.idCycle;
+		// this.query.IDShift = JSON.stringify(this.shiftList.filter((d) => d.isChecked).map((m) => m.Id));
+		// this.query.ShiftType = JSON.stringify(this.shifTypeList.filter((d) => d.isChecked).map((m) => m.Code));
+		// this.query.IDOffice = JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id));
+		// this.query.Take = 50000;
+		let query: any = {};
+		query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
+		query.WorkingDateTo = lib.dateFormat(this.fc?.view.activeEnd);
+		query.IDTimesheet = this.id;
+		query.Take = 50000;
+
+		if (this.cycle) {
+			query.WorkingDateFrom = lib.dateFormat(this.cycle.Start);
+			query.WorkingDateTo = lib.dateFormat(this.cycle.End);
+		}
+
+		this.clearData();
+		// if (this.idCycle == 0) {
+		// 	this.loadedData(event);
+		// }
+		if (this.id) {
+			// this.query.CC = true;
+			// this.timesheetCycleProvider.read(this.query).then((result: any) => {
+			// 	this.items = result.data;
+			// 	this.loadedData(event);
+			// });
+			this.timesheetRecordProvider.read(query).then((result: any) => {
+				this.items = result.data;
+				this.loadedData(event);
+			});
+		} else {
+			this.loadedData(event);
+		}
+	}
+
+	loadedTimesheetCycle(event?: any, ignoredFromGroup?: boolean) {
+		this.calendarOptions.eventContent = (arg) => {
+			return {
+				html: arg.event.extendedProps.html,
+			};
+		};
+		this.calendarOptions.eventClick = (arg) => {
+			if (arg.event.extendedProps.TimeOffType) {
+				return;
+			}
+			this.showPointModal(arg);
+		};
+		// this.calendarOptions.eventTextColor = lib.getCssVariableValue('--ion-color-dark');
+		this.calendarOptions.select = null;
+		this.calendarOptions.dateClick = null; // bind is important!
+		this.calendarOptions.eventChange = null;
+		this.calendarOptions.eventDrop = null;
+		this.calendarOptions.eventResize = null;
+		this.calendarOptions.eventDidMount = null;
+		this.items.forEach((e) => {
+			let timesheet = this.timesheetList.find((d) => d.Id == e.IDTimesheet);
+			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
+			if (shift && timesheet) {
+				e.color = shift.color;
+				e.resourceId = e.IDStaff;
+				e.start = e.WorkingDate;
+				e.Shift = shift;
+				e.Timesheet = timesheet;
+				e.textColor = shift.TextColor;
+				e.Checkin = lib.dateFormat(e.Checkin, 'hh:MM');
+				e.Checkout = lib.dateFormat(e.Checkout, 'hh:MM');
+
+				if (new Date(e.WorkingDate) < new Date()) {
+					let point = 0;
+					if (e.Point) point = Math.round(e.Point * 100) / 100;
+
+					e.Color = 'success';
+					e.Icon = 'checkmark-circle-outline';
+					e.Title = `${e.Checkin}→${e.Checkout}`;
+					e.Badge = `${e.MinutesOfWorked}-${point}`;
+					e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
+					if (!e.LogCount) {
+						e.Color = 'danger';
+						e.Icon = 'alert-circle-outline';
+						e.Title = `Q`;
+						e.Badge = `0`;
+						e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
+					}
+
+					if (e.TimeOffType) {
+						let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+						e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+						e.Icon = 'alert-circle-outline';
+						e.Title = `${e.TimeOffType}`;
+						e.Badge = `${point}`;
+						e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+					}
+				} else {
+					e.Color = 'medium';
+					e.Icon = 'timer-outline';
+					e.Title = `${shift.Name}`;
+					e.Badge = `${shift.Start}→${shift.End}`;
+					e.textColor = lib.getCssVariableValue('--ion-color-medium-contrast');
+				}
+
+				e.StdTimeIn = lib.dateFormat(e.StdTimeIn, 'hh:MM dd/mm/yyyy');
+				e.StdTimeOut = lib.dateFormat(e.StdTimeOut, 'hh:MM dd/mm/yyyy');
+				e.WorkingDate = lib.dateFormat(e.WorkingDate, 'dd/mm/yyyy');
+				e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
+				e.color = lib.getCssVariableValue('--ion-color-' + e.Color) + '22';
+			} else if (e.TimeOffType) {
+				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+				if (toType) {
+					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+					e.resourceId = e.IDStaff;
+					e.Title = e.TimeOffType;
+					e.start = e.WorkingDate;
+					e.Badge = '';
+					e.html = `<span class="v-align-middle">${e.Title}</span>`;
+					e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+				} else {
+					console.log(e);
+				}
+			}
+		});
+
+		this.getCalendar();
+		this.fc?.removeAllEvents();
+		this.fc?.addEventSource(this.items);
+		if (this.cycle) {
+			this.fc?.gotoDate(this.cycle.Start);
+			this.cycle = null;
+		}
+		this.fc?.updateSize();
+		super.loadedData(event, ignoredFromGroup);
+	}
+
 	patchItems() {
 		this.items.forEach((e) => {
 			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
 			if (shift) {
 				e.color = shift.color;
-
+				e.textColor = shift.TextColor;
 				if (e.TimeOffType) {
 					let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
 					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+					e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
 				}
 
 				e.ShiftStart = shift.Start;
@@ -320,6 +623,7 @@ export class SchedulerPage extends PageBase {
 				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
 				if (toType) {
 					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+					e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
 				} else {
 					console.log(e);
 				}
@@ -420,35 +724,8 @@ export class SchedulerPage extends PageBase {
 			},
 		],
 
-		//resourceAreaHeaderContent: 'Nhân sự',
-		resourceLabelContent: function (arg) {
-			//console.log(arg.resource.extendedProps);
-			let imgpath = environment.staffAvatarsServer + arg.resource.extendedProps.Code + '.jpg';
-			let html = `
-            <div class="staff-resource">
-                <span class="name">
-                    <span class="code">${arg.resource.extendedProps.Code} </span>
-                </span>
-                <ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>
-            </div>`;
-			return { html: html };
-		},
-		// resourceLabelContent: function (arg) {
-		//     console.log(arg.resource.extendedProps);
-		//     let imgpath = environment.staffAvatarsServer + arg.resource.extendedProps.Code + '.jpg';
-		//     let html = `
-		//     <div class="staff-resource">
-		//         <ion-avatar class="avatar" slot="start"><img #img src="${imgpath}"  onerror="this.src = 'assets/avartar-empty.jpg';" ></ion-avatar>
-		//         <span class="name">
-		//             <span class="full-name">${arg.resource.extendedProps.FullName}</span>
-		//             <span class="code">${arg.resource.extendedProps.Code} </span>
-		//         </span>
-		//         <ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>
-		//     </div>`;
-		//     return { html: html };
-		// },
 		resourceLabelDidMount: this.resourceLabelDidMount.bind(this),
-		eventMinWidth: 200,
+		// eventMinWidth: 200,
 		eventColor: lib.getCssVariableValue('--ion-color-primary'),
 		displayEventTime: false,
 		editable: true,
@@ -456,48 +733,6 @@ export class SchedulerPage extends PageBase {
 		eventDurationEditable: true, // Cho phép kéo dài sự kiện
 		eventOverlap: true,
 		droppable: true,
-
-		eventContent: (arg) => {
-			let htmlRemoveButton = ``;
-			if (this.pageConfig.canEdit) {
-				htmlRemoveButton = `<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>`;
-			}
-			if (!this.pageConfig.canEditPassDay) {
-				let d1 = lib.dateFormat(arg.event.extendedProps.WorkingDate);
-				let d2 = lib.dateFormat(arg.event.extendedProps._CurrentDate);
-				if (d1 <= d2) {
-					htmlRemoveButton = '';
-				}
-			}
-			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small> ${htmlRemoveButton} </ion-text>`;
-			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
-				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
-				booked += arg.event.extendedProps.IsBookLunchCatering ? 'L' : '';
-				booked += arg.event.extendedProps.IsBookDinnerCatering ? 'D' : '';
-				html = `<ion-icon class="lunch-booked" name="restaurant-outline"></ion-icon>(${booked}) - ` + html;
-			}
-			if (arg.event.extendedProps.TimeOffType) {
-				if (!this.pageConfig.canEditLeaveDay) htmlRemoveButton = '';
-				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text>  ${htmlRemoveButton}`;
-			}
-
-			return {
-				html: html,
-			};
-		},
-		// eventAllow: function (dropInfo, draggedEvent) {
-		//     console.log(dropInfo, draggedEvent);
-
-		//     return true;
-		// },
-
-		eventDidMount: this.eventDidMount.bind(this),
-		select: this.select.bind(this),
-		dateClick: this.dateClick.bind(this), // bind is important!
-		eventClick: null, //this.eventClick.bind(this),
-		eventChange: this.eventChange.bind(this),
-		eventDrop: this.eventDrop.bind(this),
-		eventResize: this.eventResize.bind(this),
 	};
 
 	eventResize(info) {
@@ -722,6 +957,7 @@ export class SchedulerPage extends PageBase {
 			});
 		}
 	}
+
 	eventChange(changeInfo) {
 		let ev = {
 			Id: changeInfo.event.id,
@@ -740,21 +976,30 @@ export class SchedulerPage extends PageBase {
 
 	changeTimesheet() {
 		this.id = this.selectedTimesheet.Id;
-
-		if (this.segmentView == 's3') {
-			this.timesheetCycle.changeTimesheet(this.selectedTimesheet);
-		} else if (this.segmentView == 's2') {
-			this.checkinLog.changeTimesheet(this.selectedTimesheet);
+		let newURL = '#/scheduler/';
+		if (this.selectedTimesheet) {
+			newURL += this.selectedTimesheet.Id;
+			this.env
+				.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
+				.then((resp) => {
+					this.allResources = resp['data'];
+					//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+					this.staffList = this.allResources.map((m) => m.IDStaff);
+				})
+				.catch((err) => {
+					console.log(err);
+					this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
+				})
+				.finally(() => {
+					// if (this.segmentView == 's1' && !this.navigateObj) {
+					// 	super.loadData(event);
+					// }
+					this.loadData(null);
+				});
 		} else {
-			let newURL = '#/scheduler/';
-			if (this.selectedTimesheet) {
-				newURL += this.selectedTimesheet.Id;
-				this.loadData(null);
-			} else {
-				this.id = 0;
-			}
-			history.pushState({}, null, newURL);
+			this.id = 0;
 		}
+		history.pushState({}, null, newURL);
 	}
 
 	changeFilter() {
@@ -778,53 +1023,66 @@ export class SchedulerPage extends PageBase {
 	}
 
 	fcToday() {
-		if (this.segmentView == 's2') {
-			this.checkinLog.fcToday();
-			this.pickedDate = this.checkinLog.fc?.view?.activeStart ? new Date(this.checkinLog.fc.view.activeStart) : null;
-		} else if (this.segmentView == 's3') {
-			this.timesheetCycle.fcToday();
-			this.pickedDate = this.timesheetCycle.fc?.view?.activeStart ? new Date(this.timesheetCycle.fc.view.activeStart) : null;
-		} else {
-			this.getCalendar();
-			this.fc?.today();
-			this.pickedDate = this.fc?.view?.activeStart ? new Date(this.fc.view.activeStart) : null;
-			this.loadData();
-		}
+		this.getCalendar();
+		this.fc?.today();
+		this.loadData();
 	}
 	fcNext() {
-		if (this.segmentView == 's2') {
-			this.checkinLog.fcNext();
-			this.pickedDate = this.checkinLog.fc?.view?.activeStart ? new Date(this.checkinLog.fc.view.activeStart) : null;
-		} else if (this.segmentView == 's3') {
-			this.timesheetCycle.fcNext();
-			this.pickedDate = this.timesheetCycle.fc?.view?.activeStart ? new Date(this.timesheetCycle.fc.view.activeStart) : null;
-		} else {
-			this.getCalendar();
-			this.fc?.next();
-			this.pickedDate = this.fc?.view?.activeStart ? new Date(this.fc.view.activeStart) : null;
-			this.loadData();
-		}
+		this.getCalendar();
+		this.fc?.next();
+		this.loadData();
 	}
 	fcPrev() {
-		if (this.segmentView == 's2') {
-			this.checkinLog.fcPrev();
-			this.pickedDate = this.checkinLog.fc?.view?.activeStart ? new Date(this.checkinLog.fc.view.activeStart) : null;
-		} else if (this.segmentView == 's3') {
-			this.timesheetCycle.fcPrev();
-			this.pickedDate = this.timesheetCycle.fc?.view?.activeStart ? new Date(this.timesheetCycle.fc.view.activeStart) : null;
-		} else {
-			this.getCalendar();
-			this.fc?.prev();
-			this.pickedDate = this.fc?.view?.activeStart ? new Date(this.fc.view.activeStart) : null;
-			this.loadData();
-		}
+		this.getCalendar();
+		this.fc?.prev();
+		this.loadData();
+	}
+	async importCustom(event, provider) {
+		if (event.target.files.length == 0) return;
+		this.env
+			.showLoading('Please wait for a few moments', this.pageProvider.import(event.target.files[0]))
+			.then((resp: any) => {
+				this.refresh();
+				if (resp.ErrorList && resp.ErrorList.length) {
+					let message = '';
+					for (let i = 0; i < resp.ErrorList.length && i <= 5; i++)
+						if (i == 5) message += '<br> Còn nữa...';
+						else {
+							const e = resp.ErrorList[i];
+							message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
+						}
+					this.env
+						.showPrompt(
+							{
+								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								value: { value: resp.ErrorList.length, value1: message },
+							},
+							'Bạn có muốn xem lại các mục bị lỗi?',
+							'Có lỗi import dữ liệu'
+						)
+						.then((_) => {
+							this.downloadURLContent(resp.FileUrl);
+						})
+						.catch((e) => {});
+				} else {
+					this.env.showMessage('Import completed!', 'success');
+				}
+			})
+			.catch((err) => {
+				if (err.statusText == 'Conflict') {
+					// var contentDispositionHeader = err.headers.get('Content-Disposition');
+					// var result = contentDispositionHeader.split(';')[1].trim().split('=')[1];
+					// this.downloadContent(result.replace(/"/g, ''),err._body);
+					this.downloadURLContent(err._body);
+				}
+			});
 	}
 
 	import(event: any): Promise<void> {
 		if (this.segmentView == 's2') {
-			this.checkinLog.import(event);
+			return this.importCustom(event, this.timesheetLogProvider);
 		} else if (this.segmentView == 's3') {
-			this.timesheetCycle.import(event);
+			return this.importCustom(event, this.timesheetCycleProvider);
 		} else {
 			return super.import(event);
 		}
@@ -884,6 +1142,30 @@ export class SchedulerPage extends PageBase {
 		}
 	}
 
+	async massShiftAssignmentCheckinLog(cData) {
+		cData.staffList = this.calendarOptions.resources;
+		cData.officeList = this.officeList;
+		cData.gateList = this.gateList;
+
+		const modal = await this.modalController.create({
+			component: LogGeneratorPage,
+			componentProps: cData,
+			cssClass: 'my-custom-class',
+		});
+
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+
+		if (data) {
+			data.IDTimesheet = this.id;
+			if (data.Id) data.LogTime = data.FromDate + ' ' + data.TimeSpan + ':00.0000000';
+
+			this.timesheetLogProvider.save(data).then((resp) => {
+				this.loadData(null);
+			});
+		}
+	}
+
 	async massOTAssignment(cData = null) {
 		if (cData) {
 			cData = {
@@ -917,14 +1199,20 @@ export class SchedulerPage extends PageBase {
 		// }
 	}
 
+	async showPointModal(cData = null) {
+		const modal = await this.modalController.create({
+			component: PointModalPage,
+			componentProps: {
+				cData: cData,
+				IDCycle: this.idCycle,
+			},
+			cssClass: 'modal-hrm-point',
+		});
+		await modal.present();
+	}
+
 	refresh(event?: any): void {
-		if (this.segmentView == 's2') {
-			this.checkinLog.refresh(event);
-		} else if (this.segmentView == 's3') {
-			this.timesheetCycle.refresh(event);
-		} else {
-			super.refresh(event);
-		}
+		super.refresh(event);
 	}
 	getColor(code) {
 		switch (code) {
@@ -1001,30 +1289,26 @@ export class SchedulerPage extends PageBase {
 				this.submitAttempt = false;
 			});
 	}
+
+	exportCustom(provider: any) {
+		if (this.submitAttempt) return;
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', provider.export(this.query))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+	}
+
 	async export() {
 		if (this.segmentView == 's2') {
-			return this.checkinLog.export();
+			return this.exportCustom(this.timesheetLogProvider);
 		} else if (this.segmentView == 's3') {
-			// this.getAdvaneTimesheetFilterConfig();
-			// 	const modal = await this.modalController.create({
-			// 	component: AdvanceFilterModalComponent,
-			// 	cssClass: 'modal90',
-			// 	componentProps: {
-			// 		_AdvanceConfig: this.query._AdvanceConfig,
-			// 		schemaType: 'Form',
-			// 		selectedSchema: this.schemaPage,
-			// 		confirmButtonText: 'Export',
-			// 		renderGroup: { Filter: ['TimeFrame', 'Transform'] },
-			// 	},
-			// });
-			// await modal.present();
-			// const { data } = await modal.onWillDismiss();
-			// if (data && data.data) {
-			// 	if (data.isApplyFilter) this.query._AdvanceConfig = data?.data;
-			// 	if (data.schema) this.schemaPage = data?.schema;
-			// 	return this.timesheetCycle.export();
-			// }
-			return this.timesheetCycle.export();
+			return this.exportCustom(this.timesheetCycleProvider);
 		} else {
 			this.getAdvaneFilterConfig();
 			const modal = await this.modalController.create({
@@ -1078,18 +1362,10 @@ export class SchedulerPage extends PageBase {
 			console.log(result);
 			if (result.data) {
 				this.pickedDate = result.data.singleDate;
-				if (this.segmentView == 's2') {
-					this.checkinLog.dismissDatePicker(this.pickedDate);
-					this.isOpenPickDatePopover = false;
-				} else if (this.segmentView == 's3') {
-					this.timesheetCycle.dismissDatePicker(this.pickedDate);
-					this.isOpenPickDatePopover = false;
-				} else {
-					this.fc?.gotoDate(this.pickedDate);
-					this.isOpenPickDatePopover = false;
-					// this.fc.view.activeEnd = this.dateEnd;
-					this.loadData();
-				}
+				this.fc?.gotoDate(this.pickedDate);
+				this.isOpenPickDatePopover = false;
+				// this.fc.view.activeEnd = this.dateEnd;
+				this.loadData();
 			}
 		});
 		this.pickDatePopover = popover;
@@ -1225,5 +1501,58 @@ export class SchedulerPage extends PageBase {
 		}
 		//this.refresh();
 		// this.pageProvider.read(this.query).then((resp) => {});
+	}
+
+	async openCheckinLogListModal() {
+		const modal = await this.modalController.create({
+			component: TimesheetLogPage,
+			componentProps: {
+				idStaffList: this.allResources.map((m) => m.IDStaff),
+			},
+			cssClass: 'modal90',
+		});
+
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+	}
+
+	async openModalPayroll() {
+		const modal = await this.modalController.create({
+			component: StaffPayrollModalPage,
+			componentProps: {
+				IDTimesheet: parseInt(this.id),
+				IDTimesheetCycle: this.idCycle,
+			},
+			cssClass: 'modal30',
+		});
+		await modal.present();
+	}
+
+	async calculateTimesheet() {
+		console.log('To Date', this.fc?.view.activeEnd);
+		const modal = await this.popoverCtrl.create({
+			component: StaffTimesheetCalculationModalPage,
+			componentProps: {
+				formDate: lib.dateFormat(this.fc?.view.activeStart, 'yyyy-mm-ddThh:MM:ss'),
+				toDate: lib.dateFormat(this.fc?.view.activeEnd, 'yyyy-mm-ddThh:MM:ss'),
+			},
+			cssClass: 'w300',
+			translucent: true,
+		});
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+		if (data) {
+			this.env.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise()).then((resp) => {
+				this.env.publishEvent({
+					Code: 'app:ShowAppMessage',
+					IsShow: true,
+					Id: 'CalculationTimesheet',
+					Icon: 'flash',
+					IsBlink: true,
+					Color: 'danger',
+					Message: 'Đang tính công',
+				});
+			});
+		}
 	}
 }
