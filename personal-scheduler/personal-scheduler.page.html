@@ -6,9 +6,13 @@
 		</ion-buttons>
 
 		<ion-buttons slot="primary" *ngIf="fc">
+			<ion-button (click)="scanQRCodeBS()">
+				<ion-icon name="qr-code-outline"></ion-icon>
+			</ion-button>
+
 			<ion-button (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
 			<!-- <ion-button (click)="pickDate()" title="{{'...' | translate}}"> {{'Pick date' | translate}} </ion-button> -->
-			
+
 			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
 				<ion-icon name="calendar-outline"></ion-icon>
 				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
@@ -20,12 +24,16 @@
 				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
 			</ion-button>
 		</ion-buttons>
-
-		
 	</ion-toolbar>
 </ion-header>
 <ion-content slot="fixed" fullscreen="true" scrollY="false" appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
 	<div class="calendar-holder">
 		<full-calendar #calendar [options]="calendarOptions"></full-calendar>
 	</div>
+
+	<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+		<ion-fab-button color="primary" (click)="scanQRCode()">
+			<ion-icon name="qr-code-outline"></ion-icon>
+		</ion-fab-button>
+	</ion-fab>
 </ion-content>

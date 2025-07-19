@@ -1,0 +1,45 @@
+<ion-header>
+	<ion-toolbar class="no-padding">
+		<ion-title>{{'Calculation'}}</ion-title>
+		<ion-buttons slot="end">
+			<ion-button title="{{'Close' | translate}}" (click)="popoverCtrl.dismiss()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<ion-grid fixed>
+		<form [formGroup]="formGroup">
+			<ion-row class="hr-group">
+				<ion-col size="12" size-sm size-xl="6">
+					<app-form-control
+						[field]="{
+							id: 'FromDate',
+							type: 'datetime-local',
+							label: 'From date',
+							form: formGroup,
+						}"
+					></app-form-control>
+				</ion-col>
+				<ion-col size="12" size-sm size-xl="6">
+					<app-form-control
+						[field]="{
+							id: 'ToDate',
+							type: 'datetime-local',
+							label: 'To date',
+							form: formGroup,
+						}"
+					></app-form-control>
+				</ion-col>
+			</ion-row>
+		</form>
+	</ion-grid>
+</ion-content>
+<ion-footer>
+	<ion-toolbar>
+		<ion-button size="large" slot="end" (click)="calculation()">{{'Calculation' | translate}}</ion-button>
+	</ion-toolbar>
+</ion-footer>

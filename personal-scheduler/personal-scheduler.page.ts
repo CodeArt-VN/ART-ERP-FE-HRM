@@ -22,7 +22,14 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
 import { PopoverPage } from '../../SYS/popover/popover.page';
-
+import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
+import { Geolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
+import { Device } from '@capacitor/device';
+import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
+import { ApiSetting } from 'src/app/services/static/api-setting';
+import { HttpClient } from '@angular/common/http';
+import { ScanCheckinModalPage } from '../scan-checkin-modal/scan-checkin-modal.page';
 @Component({
 	selector: 'app-personal-scheduler',
 	templateUrl: 'personal-scheduler.page.html',
@@ -40,7 +47,7 @@ export class PersonalSchedulerPage extends PageBase {
 	timeoffTypeList = [];
 	fc = null;
 	viewTitle: any;
-
+	myIP = '';
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public openScheduleProvider: HRM_OpenScheduleProvider,
@@ -54,6 +61,9 @@ export class PersonalSchedulerPage extends PageBase {
 		public shiftProvider: HRM_ShiftProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
 
+		private http: HttpClient,
+
+		public scanner: BarcodeScannerService,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
@@ -88,6 +98,7 @@ export class PersonalSchedulerPage extends PageBase {
 					s.Color = shiftType.Color;
 					s.Color = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase());
 					s.ShiftType = shiftType.Name;
+					s.TextColor = lib.getCssVariableValue('--ion-color-' + shiftType.Color?.toLowerCase() + '-contrast');
 				}
 
 				s.Start = lib.dateFormat('01-01-01 ' + s.Start, 'hh:MM');
@@ -132,6 +143,7 @@ export class PersonalSchedulerPage extends PageBase {
 							ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
 							start: i.StartDate,
 							end: i.EndDate,
+							textColor: '#000000'
 						};
 						this.items.push(item);
 					});
@@ -165,6 +177,7 @@ export class PersonalSchedulerPage extends PageBase {
 								e.ShiftName = e.TimeOffType;
 								e.Badge = '';
 								e.html = `<span class="v-align-middle">${e.Title}</span>`;
+								e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
 							} else {
 								console.log(e);
 							}
@@ -175,6 +188,7 @@ export class PersonalSchedulerPage extends PageBase {
 							e.ShiftName = shift.Name;
 							e.ShiftStart = shift.Start;
 							e.ShiftEnd = shift.End;
+							e.textColor = shift.TextColor;
 
 							e.Shift = shift;
 							e.Timesheet = timesheet;
@@ -187,7 +201,7 @@ export class PersonalSchedulerPage extends PageBase {
 										e.resourceId = e.IDStaff;
 										e.Shift = shift;
 										e.Timesheet = timesheet;
-
+										e.textColor = shift.TextColor;
 										e.Checkin = lib.dateFormat(i.Checkin, 'hh:MM');
 										e.Checkout = lib.dateFormat(i.Checkout, 'hh:MM');
 
@@ -199,20 +213,22 @@ export class PersonalSchedulerPage extends PageBase {
 											e.Icon = 'checkmark-circle-outline';
 											e.CheckData = ` ${e.Checkin}→${e.Checkout}`;
 											e.Badge = `${i.MinutesOfWorked}-${point}`;
-
+											e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
 											if (!i.LogCount) {
 												e.Color = 'danger';
 												e.Icon = 'alert-circle-outline';
 												e.Title = `Q`;
 												e.Badge = `0`;
+												e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
 											}
 
 											if (e.TimeOffType) {
 												let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-												e.Color = toType.Color;
+												e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase()); //toType.Color;
 												e.Icon = 'alert-circle-outline';
 												e.Title = `${e.TimeOffType}`;
 												e.Badge = `${point}`;
+												e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
 											}
 										} else {
 											e.Color = 'medium';
@@ -330,7 +346,7 @@ export class PersonalSchedulerPage extends PageBase {
 		// 	}, // lower level of text
 		// ],
 		eventColor: lib.getCssVariableValue('--ion-color-primary') + '22',
-		eventTextColor: lib.getCssVariableValue('--ion-color-dark'),
+		// eventTextColor: lib.getCssVariableValue('--ion-color-dark'),
 		eventDisplay: 'block',
 		displayEventTime: false,
 		editable: false,
@@ -504,7 +520,6 @@ export class PersonalSchedulerPage extends PageBase {
 		return await popover.present();
 	}
 
-
 	fcNext() {
 		this.getCalendar();
 		this.fc?.next();
@@ -550,7 +565,7 @@ export class PersonalSchedulerPage extends PageBase {
 					IDOffice: data.IDOffice,
 					IPAddress: data.IPAddress,
 					Remark: data.Remark,
-					SeftClaim : true
+					SeftClaim: true,
 				};
 				this.timesheetLogProvider.save(submitData).then((resp) => {
 					this.loadData(null);
@@ -570,6 +585,147 @@ export class PersonalSchedulerPage extends PageBase {
 					});
 				}
 			}
+		}
+	}
+
+	async scanQRCodeBS() {
+		// this.pageProvider.commonService
+		// 	.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null)
+		// 	.toPromise()
+		// 	.then((resp: any) => {
+		// 		this.myIP = resp;
+		// 		console.log(this.myIP);
+		// 	});
+		this.env.showLoading('Loading ...', this.http.get('https://api.ipify.org/?format=json').toPromise()).then(async (resp: any) => {
+			this.myIP = resp.ip;
+
+			const modal = await this.modalController.create({
+				component: ScanCheckinModalPage,
+				componentProps: {
+					myIP: this.myIP,
+				},
+				cssClass: 'my-custom-class',
+			});
+
+			await modal.present();
+			const { data } = await modal.onWillDismiss();
+			console.log('Public IP:', this.myIP);
+		});
+	}
+
+	async scanQRCode() {
+		try {
+			let code = await this.scanner.scan();
+
+			let gateCode = '';
+			if (code.indexOf('G:') == 0) {
+				gateCode = code.replace('G:', '');
+			} else {
+				this.env
+					.showPrompt('Please scan valid QR code', 'Invalid QR code', null, 'Retry', 'Cancel')
+					.then(() => {
+						setTimeout(() => this.scanQRCode(), 0);
+					})
+					.catch(() => {});
+				return;
+			}
+
+			const loading = await this.loadingController.create({
+				cssClass: 'my-custom-class',
+				message: 'Vui lòng chờ kiểm tra checkin',
+			});
+			await loading.present().then(async () => {
+				let logItem = {
+					IDStaff: this.env.user.StaffID,
+					GateCode: gateCode,
+					Lat: null,
+					Long: null,
+					UUID: '',
+					IPAddress: this.myIP,
+					IsMockLocation: false,
+				};
+
+				if (Capacitor.isPluginAvailable('Device')) {
+					let UID = await Device.getId();
+					logItem.UUID = UID.identifier;
+				}
+				Geolocation.getCurrentPosition({
+					timeout: 5000,
+					enableHighAccuracy: true,
+				})
+					.then((resp) => {
+						logItem.Lat = resp.coords.latitude;
+						logItem.Long = resp.coords.longitude;
+						console.log(resp);
+					})
+					.catch((err) => {
+						console.log(err);
+					})
+					.finally(() => {
+						this.pageProvider
+							.save(logItem)
+							.then((resp: any) => {
+								console.log(resp);
+								if (loading) loading.dismiss();
+
+								this.refresh();
+								if (resp.Id) {
+									let i = resp;
+									i.Time = lib.dateFormat(i.LogTime, 'hh:MM');
+									i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
+									i.Gate = this.gateList.find((d) => d.Id == i.IDGate);
+									this.env.showMessage('Check-in completed', 'success');
+									this.showLog(i);
+								} else if (resp != 'OK') {
+									this.showLogMessage(resp);
+								} else {
+									this.env.showMessage('Check-in completed', 'success');
+								}
+							})
+							.catch((err) => {
+								if (loading) loading.dismiss();
+								// this.env.showMessage(err, 'danger');
+							});
+					});
+			});
+		} catch (error) {
+			console.error(error);
+			this.scanQRCodeBS();
+		}
+	}
+
+	async showLog(cData) {
+		const modal = await this.modalController.create({
+			component: CateringVoucherModalPage,
+			componentProps: cData,
+			cssClass: 'modal-catering-voucher',
+		});
+		await modal.present();
+	}
+
+	showRemark(i) {
+		if (!i.IsValidLog && i.Remark) {
+			this.showLogMessage(i.Remark);
+		}
+	}
+
+	showLogMessage(message) {
+		if (message.indexOf('Invalid IP') > -1) {
+			this.env.showMessage('IP is invalid. Please use companys wify when checking in', 'warning', null, 0, true);
+		} else if (message.indexOf('Invalid gate coordinate') > -1) {
+			this.env.showMessage('Check-in gates coordintates are invalid.', 'warning', null, 0, true);
+		} else if (message.indexOf('Invalid coordinate') > -1) {
+			this.env.showMessage('Cannot verify check-in location, please turn on GPS during chech-in', 'warning', null, 0, true);
+		} else if (message.indexOf('Invalid distance') > -1) {
+			this.env.showMessage('Please check in at specified location', 'warning', null, 0, true);
+		} else if (message.indexOf('Invalid LogTime') > -1) {
+			this.env.showMessage('Check-in time is invalid, please check-in at specfied time', 'warning', null, 0, true);
+		} else if (message.indexOf('No pre-ordered') > -1) {
+			this.env.showMessage('You have not register for meals. Please register at least 01 day in advance', 'warning', null, 0, true);
+		} else if (message.indexOf('Schedule not found') > -1) {
+			this.env.showMessage('You do not have working schedule', 'warning', null, 0, true);
+		} else if (message.indexOf('Catering voucher has been used') > -1) {
+			this.env.showMessage('Meal Check-in completed', 'warning', null, 0, true);
 		}
 	}
 }
