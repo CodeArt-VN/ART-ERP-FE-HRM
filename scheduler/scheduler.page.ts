@@ -345,9 +345,6 @@ export class SchedulerPage extends PageBase {
 				this.fc?.updateSize();
 				super.loadedData(event, ignoredFromGroup);
 			})
-			.finally(() => {
-				this.loadingController.dismiss();
-			});
 	}
 
 	loadCheckinLogData(event) {
@@ -470,7 +467,8 @@ export class SchedulerPage extends PageBase {
 
 	loadTimesheetCycle(event) {
 		this.getCalendar();
-
+		this.query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
+		this.query.WorkingDateTo = lib.dateFormat(this.fc?.view.activeEnd);
 		// this.query.IDTimesheet = this.id;
 		// this.query.IDCycle = this.idCycle;
 		// this.query.IDShift = JSON.stringify(this.shiftList.filter((d) => d.isChecked).map((m) => m.Id));
@@ -478,6 +476,7 @@ export class SchedulerPage extends PageBase {
 		// this.query.IDOffice = JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id));
 		// this.query.Take = 50000;
 		let query: any = {};
+
 		query.WorkingDateFrom = lib.dateFormat(this.fc?.view.activeStart);
 		query.WorkingDateTo = lib.dateFormat(this.fc?.view.activeEnd);
 		query.IDTimesheet = this.id;
@@ -1347,8 +1346,9 @@ export class SchedulerPage extends PageBase {
 			componentProps: {
 				popConfig: {
 					type: 'PopSingleDate',
-					isShowSingleDate: true,
-					singleDateLabel: 'Ngày',
+					isShowIonDateTime: true,
+					// singleDateLabel: 'Ngày',
+					submitButtonLabel: 'Chọn',
 				},
 				popData: {
 					singleDate: this.pickedDate,
