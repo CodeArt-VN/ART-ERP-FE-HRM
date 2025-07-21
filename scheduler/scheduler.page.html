@@ -26,11 +26,14 @@
 		</ng-container>
 
 		<ng-container *ngIf="segmentView == 's1'">
-			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
-			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
+			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
+			<!-- <ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
 				<ion-icon name="calendar-outline"></ion-icon>
 				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
-			</ion-chip>
+			</ion-chip> -->
+
+			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
+
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
@@ -78,11 +81,12 @@
 		</ng-container>
 
 		<ng-container *ngIf="segmentView == 's2'">
-			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
-			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
+			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
+			<!-- <ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
 				<ion-icon name="calendar-outline"></ion-icon>
 				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
-			</ion-chip>
+			</ion-chip> -->
+			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
@@ -101,11 +105,12 @@
 		</ng-container>
 
 		<ng-container *ngIf="segmentView == 's3'">
-			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
-			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
+			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
+			<!-- <ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
 				<ion-icon name="calendar-outline"></ion-icon>
 				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
-			</ion-chip>
+			</ion-chip> -->
+			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>

@@ -37,6 +37,7 @@ import { PointModalPage } from '../point-modal/point-modal.page';
 import { TimesheetLogPage } from './timesheet-log/timesheet-log.page';
 import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
+import { FormBuilder } from '@angular/forms';
 
 @Component({
 	selector: 'app-scheduler',
@@ -61,6 +62,7 @@ export class SchedulerPage extends PageBase {
 	allResources = [];
 	gateList = [];
 	cycle: any;
+	formGroupDate: any;
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
@@ -82,11 +84,17 @@ export class SchedulerPage extends PageBase {
 		public env: EnvService,
 		public route: ActivatedRoute,
 		public router: Router,
-		public navCtrl: NavController
+		public navCtrl: NavController,
+		public formBuilder: FormBuilder
 	) {
 		super();
 		// this.pageConfig.isShowFeature = true;
 		this.pageConfig.ShowSearch = false;
+		const today = new Date().toISOString().split('T')[0];
+		console.log('today', today);
+		this.formGroupDate = this.formBuilder.group({
+			singleDate: [today],
+		});
 	}
 
 	async openCycleModal() {
@@ -154,6 +162,9 @@ export class SchedulerPage extends PageBase {
 				});
 			}
 		});
+
+
+
 		this.env
 			.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
 			.then((resp) => {
@@ -200,6 +211,7 @@ export class SchedulerPage extends PageBase {
 			this.gateList = values[6]['data'];
 			if (this.id) {
 				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+				if(!this.selectedTimesheet) return super.loadedData(event);
 			} else if (this.timesheetList.length) {
 				this.selectedTimesheet = this.timesheetList[0];
 				this.id = this.selectedTimesheet.Id;
@@ -344,7 +356,7 @@ export class SchedulerPage extends PageBase {
 				this.getCalendar();
 				this.fc?.updateSize();
 				super.loadedData(event, ignoredFromGroup);
-			})
+			});
 	}
 
 	loadCheckinLogData(event) {
@@ -597,10 +609,19 @@ export class SchedulerPage extends PageBase {
 		this.fc?.addEventSource(this.items);
 		if (this.cycle) {
 			this.fc?.gotoDate(this.cycle.Start);
+			this.formGroupDate.controls['singleDate'].setValue(new Date(this.cycle.Start).toISOString().split('T')[0]);
 			this.cycle = null;
 		}
 		this.fc?.updateSize();
 		super.loadedData(event, ignoredFromGroup);
+	}
+
+	savePickDate() {
+		if (this.formGroupDate.value.singleDate) {
+			this.pickedDate = this.formGroupDate.value.singleDate;
+			this.fc?.gotoDate(this.pickedDate);
+			this.loadData();
+		}
 	}
 
 	patchItems() {
@@ -1543,6 +1564,7 @@ export class SchedulerPage extends PageBase {
 		const { data } = await modal.onWillDismiss();
 		if (data) {
 			data.IDTimesheet = this.id;
+			data.WaitReturn = true;
 			this.env.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise()).then((resp) => {
 				this.env.publishEvent({
 					Code: 'app:ShowAppMessage',
@@ -1553,7 +1575,7 @@ export class SchedulerPage extends PageBase {
 					Color: 'danger',
 					Message: 'Đang tính công',
 				});
-			});
+			}).catch((err) => this.env.showErrorMessage(err));
 		}
 	}
 }

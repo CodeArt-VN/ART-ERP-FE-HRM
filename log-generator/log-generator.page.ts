@@ -105,6 +105,14 @@ export class LogGeneratorPage extends PageBase {
 			this.formGroup.controls.DaysOfWeek.setValue([0, 1, 2, 3, 4, 5, 6]);
 			this.formGroup.controls.DaysOfWeek.updateValueAndValidity();
 		}
+		if (!this.pageConfig.canEditPassDay) {
+			let d1 = lib.dateFormat(this.navParams.data.FromDate);
+			let d2 = lib.dateFormat(this.navParams.data.currentDate);
+			if (d1 <= d2) {
+				this.formGroup.disable();
+				this.pageConfig.canEdit = false;
+			}
+		}
 		super.loadedData();
 	}
 

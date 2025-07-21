@@ -30,6 +30,7 @@ import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-vou
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { HttpClient } from '@angular/common/http';
 import { ScanCheckinModalPage } from '../scan-checkin-modal/scan-checkin-modal.page';
+import { FormBuilder } from '@angular/forms';
 @Component({
 	selector: 'app-personal-scheduler',
 	templateUrl: 'personal-scheduler.page.html',
@@ -38,6 +39,7 @@ import { ScanCheckinModalPage } from '../scan-checkin-modal/scan-checkin-modal.p
 })
 export class PersonalSchedulerPage extends PageBase {
 	@ViewChild('calendar') calendarComponent: FullCalendarComponent;
+	formGroupDate;
 	officeList = [];
 	gateList = [];
 	timesheetList = [];
@@ -62,6 +64,7 @@ export class PersonalSchedulerPage extends PageBase {
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
 
 		private http: HttpClient,
+		public formBuilder: FormBuilder,
 
 		public scanner: BarcodeScannerService,
 		public modalController: ModalController,
@@ -74,6 +77,9 @@ export class PersonalSchedulerPage extends PageBase {
 	) {
 		super();
 		this.pageConfig.isShowFeature = false;
+		this.formGroupDate = this.formBuilder.group({
+			singleDate: [''],
+		});
 	}
 
 	preLoadData(event?: any): void {
@@ -143,23 +149,42 @@ export class PersonalSchedulerPage extends PageBase {
 							ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
 							start: i.StartDate,
 							end: i.EndDate,
-							textColor: '#000000'
+							textColor: '#000000',
 						};
 						this.items.push(item);
 					});
 					if (values[1]?.data?.length > 0) {
 						values[1]?.data?.forEach((i) => {
 							let logDate = new Date(i.LogTime).toDateString();
+							let gateName = this.gateList?.find((d) => d.Id == i.IDGate)?.Name || '';
 							let item = this.items.find((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
+							let index = this.items.findIndex((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
 							if (item) {
-								let log = {
+								let log: any = {
 									ShiftName: 'Checkin',
 									start: i.LogTime, //i.StartDate,
+									end: i.LogTime,
 									IDStaff: i.IDStaff,
 									TimeOffType: null,
 									ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
+									ShiftEnd: lib.dateFormat(i.LogTime, 'hh:MM'),
 									Remark: i.Remark,
+									IDGate: i.IDGate,
+									GateName: gateName,
+									allDay: true
 								};
+								log.color = lib.getCssVariableValue('--ion-color-success');
+								log.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
+								if (!i.IsValidLog && !i.SeftClaim) {
+									log.color = lib.getCssVariableValue('--ion-color-danger');
+									log.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
+								}
+								if (!i.IsValidLog && i.SeftClaim) {
+									log.color = lib.getCssVariableValue('--ion-color-warning');
+									log.textColor = lib.getCssVariableValue('--ion-color-warning-contrast');
+								}
+								console.log('Checkin Log:', log);
+								this.items.splice(index + 1, 0, log);
 								if (item.CheckinLog) item.CheckinLog.push(log);
 								else item.CheckinLog = [log];
 							}
@@ -255,7 +280,7 @@ export class PersonalSchedulerPage extends PageBase {
 					this.getCalendar();
 					this.fc?.updateSize();
 					super.loadedData(event, ignoredFromGroup);
-					console.log(this.items);
+					console.log('items: ', this.items);
 				}
 			);
 
@@ -373,6 +398,10 @@ export class PersonalSchedulerPage extends PageBase {
 				html += `<br>${icon}${checkData}${badge}`;
 			}
 
+			if (arg.event.extendedProps.ShiftName == 'Checkin') {
+				html = `<b>${shiftStart}</b> <small>${arg.event.extendedProps.GateName}</small><ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
+			}
+
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
 				booked += arg.event.extendedProps.IsBookLunchCatering ? 'L' : '';
@@ -411,6 +440,9 @@ export class PersonalSchedulerPage extends PageBase {
 		});
 	}
 	eventClick(arg) {
+		if(arg.event.extendedProps.ShiftName == 'Checkin'){
+			return;
+		}
 		this.massShiftAssignment({
 			FromDate: arg.event.startStr.substr(0, 10),
 			ToDate: arg.event.startStr.substr(0, 10),
@@ -442,10 +474,10 @@ export class PersonalSchedulerPage extends PageBase {
 		this.loadData();
 	}
 
-	ngAfterViewInit() {
-		// Gắn sự kiện khi chuyển view hoặc gotoDate
-		this.calendarOptions.datesSet = this.handleDatesSet.bind(this);
-	}
+	// ngAfterViewInit() {
+	// 	// Gắn sự kiện khi chuyển view hoặc gotoDate
+	// 	this.calendarOptions.datesSet = this.handleDatesSet.bind(this);
+	// }
 	changeTimesheet() {
 		let newURL = '#/personal-scheduler/';
 		if (this.selectedTimesheet) {
@@ -496,15 +528,16 @@ export class PersonalSchedulerPage extends PageBase {
 			componentProps: {
 				popConfig: {
 					type: 'PopSingleDate',
-					isShowSingleDate: true,
-					singleDateLabel: 'Ngày',
+					isShowIonDateTime: true,
+					// singleDateLabel: 'Ngày',
+					submitButtonLabel: 'Chọn',
 				},
 				popData: {
 					singleDate: this.pickedDate,
 				},
 			},
 			event: ev,
-			cssClass: 'delivery-review-filter',
+			cssClass: 'w300',
 			translucent: true,
 		});
 		popover.onDidDismiss().then((result: any) => {
@@ -518,6 +551,14 @@ export class PersonalSchedulerPage extends PageBase {
 		});
 		this.pickDatePopover = popover;
 		return await popover.present();
+	}
+
+	savePickDate() {
+		if (this.formGroupDate.value.singleDate) {
+			this.pickedDate = this.formGroupDate.value.singleDate;
+			this.fc?.gotoDate(this.pickedDate);
+			this.loadData();
+		}
 	}
 
 	fcNext() {

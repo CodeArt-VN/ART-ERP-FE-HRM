@@ -14,7 +14,7 @@
 	<ion-grid fixed>
 		<form [formGroup]="formGroup">
 			<ion-row class="hr-group">
-				<ion-col size="12" size-sm size-xl="6">
+				<ion-col size="12" size-sm size-xl="12">
 					<app-form-control
 						[field]="{
 							id: 'FromDate',
@@ -23,8 +23,6 @@
 							form: formGroup,
 						}"
 					></app-form-control>
-				</ion-col>
-				<ion-col size="12" size-sm size-xl="6">
 					<app-form-control
 						[field]="{
 							id: 'ToDate',
@@ -40,6 +38,6 @@
 </ion-content>
 <ion-footer>
 	<ion-toolbar>
-		<ion-button size="large" slot="end" (click)="calculation()">{{'Calculation' | translate}}</ion-button>
+		<ion-button size="medium" slot="end" (click)="calculation()">{{'Calculation' | translate}}</ion-button>
 	</ion-toolbar>
 </ion-footer>

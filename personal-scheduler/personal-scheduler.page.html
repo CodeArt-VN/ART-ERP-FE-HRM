@@ -10,13 +10,10 @@
 				<ion-icon name="qr-code-outline"></ion-icon>
 			</ion-button>
 
-			<ion-button (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
+			<!-- <ion-button (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
 			<!-- <ion-button (click)="pickDate()" title="{{'...' | translate}}"> {{'Pick date' | translate}} </ion-button> -->
+			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
 
-			<ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
-				<ion-icon name="calendar-outline"></ion-icon>
-				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
-			</ion-chip>
 			<ion-button (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
