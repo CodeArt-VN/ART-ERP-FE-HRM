@@ -25,7 +25,7 @@ export class StaffTimesheetCalculationModalPage implements OnInit {
 			FromDate: [this.formDate],
 			ToDate: [this.toDate],
 		});
-	}
+	} 
 
 	calculation() {
 		this.popoverCtrl.dismiss(this.formGroup.value);
