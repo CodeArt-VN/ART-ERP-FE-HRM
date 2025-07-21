@@ -70,6 +70,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		Promise.all([this.env.getType('UDFGroupsType', true), this.udfProvider.read({ Group: 'TimesheetRecordInformation' }), this.env.getType('PayrollTemplateType')]).then(
 			(values: any) => {
 				this.UDFGroups = values[0];
+				if(values[1]?.data?.length > 0) values[1].data = values[1].data.filter(u => (!u.SubGroup || u.SubGroup == 'tbl_HRM_TimesheetRecord') && u.IsDisabled == false);
 				this.UDFList = values[1].data;
 				this.timesheetTemplateType = values[2];
 				const newItems: any[] = [];
@@ -200,12 +201,6 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	changeUDF(e, fg) {
 		fg.get('DataType').setValue(e?.DataType);
 		fg.get('DefaultValue').setValue(e?.DefaultValue);
-		let udf = this.UDFDataSource.find((u) => u.Id == fg.controls.IDUDF.value);
-		if(!fg.controls.UDFValue.value && udf?.DefaultValue){
-			fg.get('UDFValue').setValue(fg.controls.UDFValue.value?? udf?.DefaultValue);	
-			fg.get('UDFValue').markAsDirty();
-		}
-
 		if(fg.controls.Type.value != 'Formula'){
 			fg.get('ControlType').setValue(e?.ControlType);
 		}

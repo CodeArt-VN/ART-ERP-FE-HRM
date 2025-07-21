@@ -23,3 +23,18 @@ form {
 .filter .min-btn {
 	margin-left: 0 !important;
 }
+
+::ng-deep {
+	.save-button {
+		right: 30px;
+		top: -30px !important;
+		left: unset !important;
+	}
+
+	.zoom-button {
+		left: unset !important;
+		right: 0 !important;
+		top: -30px !important;
+	}
+
+}

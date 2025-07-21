@@ -3,11 +3,34 @@
 }
 
 
-.ion-accordion-bg{
+.ion-accordion-bg {
 	background-color: transparent;
 }
-.header-ion-accordion{
+
+.header-ion-accordion {
 	padding: 8px 0 8px 5px;
 	border-bottom: solid 1px var(--menu-right-border-color);
-    margin-bottom: 16px;
+	margin-bottom: 16px;
+}
+
+::ng-deep {
+	.save-button {
+		right: 30px;
+		top: -30px;
+	}
+
+	.zoom-button {
+		right: 0;
+		top: -30px;
+	}
+
+	.formula-button {
+		position: absolute;
+		z-index: 10;
+		--padding-start: -8px;
+		--padding-end: -8px;
+		--padding-top: 4px;
+		--padding-bottom: 4px;
+		font-size: 10px;
+	}
 }

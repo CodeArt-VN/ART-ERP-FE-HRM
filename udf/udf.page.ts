@@ -149,10 +149,10 @@ export class UDFPage extends PageBase {
 						let group = this.groupList.find((d) => d.Code == record.Group);
 						if(group){
 							let subGroup = this.groupList.find((d) => d.Code == record.SubGroup &&  d.IDParent == group.Id);
-							return subGroup?.Name ?? subGroup?.Code ??  'No sub group';
+							return subGroup?.Name ?? subGroup?.Code ?? record.SubGroup ?? 'No sub group';
 
 						}
-						else return 'No sub group';
+						else return record.SubGroup ?? 'No sub group';
 					},
 				},
 			];
