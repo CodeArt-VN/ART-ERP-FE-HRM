@@ -130,8 +130,8 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	}
 	loadedData(event) {
 		if (!this.item?.Id) this.segmentView = 's2';
-		this.patchUDF();
 		super.loadedData(event);
+		this.patchUDF();
 	}
 	openedFieldValues = [];
 	patchUDF() {
@@ -152,7 +152,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			Id: [line?.Id],
 			IDUDF: [line?.IDUDF, Validators.required],
 			// Id: new FormControl({ value: field?.Id, disabled: true }),
-			Type: ['', Validators.required],
+			Type: [line?.Type, Validators.required],
 			UDFValue: [line.UDFValue?? udf?.DefaultValue],
 			Code: new FormControl({ value: line.Code, disabled: true }),
 			Name: new FormControl({ value: line.Name, disabled: true }),
