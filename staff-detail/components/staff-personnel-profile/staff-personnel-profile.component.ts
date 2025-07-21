@@ -437,9 +437,13 @@ export class StaffPersonnelProfileComponent extends PageBase {
 	fileOverBase(e) {}
 
 	async createAccount() {
+		if(this.submitAttempt){
+			return;
+		}
 		if (!this.changePasswordForm.valid) {
 			this.env.showMessage('Please recheck information highlighted in red above', 'warning');
 		} else {
+			this.submitAttempt = true;
 			const loading = await this.loadingController.create({
 				cssClass: 'my-custom-class',
 				message: 'Đang dữ liệu...',
@@ -456,15 +460,18 @@ export class StaffPersonnelProfileComponent extends PageBase {
 				this.userAccount.PartnerID = this.item.IDPartner;
 				this.userAccount.Password = this.changePasswordForm.controls.newPassword.value; //UserName => Password on server
 				// this.userAccount.SYSRoles = ['Staff'];
+				let userAccount = this.userAccount;
 				this.urserProvider
-					.save(this.userAccount)
+					.save(userAccount)
 					.then((newId: any) => {
-						this.userAccount.Id = newId;
-						if (this.userAccount.Email != this.item.Email) {
-							this.item.Email = this.userAccount.Email;
+						console.log(this);
+						
+						userAccount.Id = newId;
+						if (userAccount.Email != this.item.Email) {
+							this.item.Email = userAccount.Email;
 						}
 
-						this.env.showMessage('Account created {{value}}', 'success', this.userAccount.Email);
+						this.env.showMessage('Account created {{value}}', 'success', userAccount.Email);
 						if (loading) loading.dismiss();
 						this.changePasswordForm.markAsPristine();
 						this.cdr.detectChanges();
@@ -473,12 +480,14 @@ export class StaffPersonnelProfileComponent extends PageBase {
 						if (loading) loading.dismiss();
 						// this.env.showErrorMessage(err);
 						this.cdr.detectChanges();
-					});
+					}).finally(()=>this.submitAttempt = false);
 			});
 		}
 	}
 
 	async resetPassword() {
+		this.env.showMessage('Account created {{value}}', 'success', this.userAccount.Email);
+		return;
 		if (!this.changePasswordForm.valid) {
 			this.env.showMessage('Please recheck information highlighted in red above', 'danger');
 		} else {
