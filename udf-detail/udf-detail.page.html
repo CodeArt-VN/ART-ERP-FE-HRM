@@ -16,37 +16,41 @@
 			<ion-row>
 				<ion-col>
 					<app-form-control [field]="{id:'Name', label: 'Name', type : 'text', form: formGroup}" (change)="changeName()"></app-form-control>
-					<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form: formGroup}"></app-form-control>
+					<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form: formGroup}" (change)="saveChange2()"></app-form-control>
 					<app-form-control
 						(change)="changeGroup($event)"
 						[field]="{id:'Group', type: 'ng-select',dataSource:groupList, bindLabel:'Name',bindValue:'Code', form : formGroup, appendTo: '#detail-page'
 						 }"
 					></app-form-control>
-					<app-form-control  (change)="saveChange2()"
-					[field]="{id:'SubGroup', type: 'ng-select',dataSource:subGroupList, bindLabel:'Name',bindValue:'Code', form : formGroup,appendTo: '#detail-page' }"></app-form-control>
+					<app-form-control
+						*ngIf="formGroup.get('IsSystem').value != true"
+						(change)="saveChange2()"
+						[field]="{id:'SubGroup', type: 'ng-select',dataSource:subGroupList, bindLabel:'Name',bindValue:'Code', form : formGroup,appendTo: '#detail-page' }"
+					></app-form-control>
+					<app-form-control *ngIf="formGroup.get('IsSystem').value == true"
+					[field]="{id:'SubGroup', label: 'Sub group', type : 'text', form: formGroup}"></app-form-control>
 				</ion-col>
 				<ion-col>
-					<app-form-control (change)="saveChange2()"
+					<app-form-control
+						(change)="saveChange2()"
 						[field]="{id:'DataType',label:'Data type', type: 'ng-select',dataSource:dataTypeList, bindLabel:'Name',bindValue:'Name', form : formGroup,appendTo: '#detail-page' }"
 					></app-form-control>
-					<app-form-control  (change)="saveChange2()"
+					<app-form-control
+						(change)="saveChange2()"
 						[field]="{id:'ControlType',label:'Control type',  type: 'ng-select', dataSource:controlTypeList, bindLabel:'Name',bindValue:'Code',  form : formGroup,appendTo: '#detail-page' }"
 					></app-form-control>
-					<app-form-control *ngIf="formGroup.get('ControlType').value" (change)="saveChange2()"
+					<app-form-control
+						*ngIf="formGroup.get('ControlType').value"
+						(change)="saveChange2()"
 						[field]="{id:'DefaultValue', label:'Default value', type: formGroup.get('ControlType').value,dataSource:UDFList, form : formGroup}"
 					></app-form-control>
-						<app-form-control  (change)="saveChange2()"
-						[field]="{id:'IsSystem', label:'System', type: 'checkbox', form : formGroup}"
-					></app-form-control>
-					<app-form-control  (change)="saveChange2()"
-						[field]="{id:'IsActive', label:'Active', type: 'checkbox', form : formGroup}"
-					></app-form-control>
-					
+					<app-form-control (change)="saveChange2()" [field]="{id:'IsSystem', label:'System', type: 'checkbox', form : formGroup}"></app-form-control>
+					<app-form-control (change)="saveChange2()" [field]="{id:'IsActive', label:'Active', type: 'checkbox', form : formGroup}"></app-form-control>
 				</ion-col>
 			</ion-row>
 			<ion-row>
 				<ion-col>
-					<app-form-control [field]="{id:'Remark', label:'Remark', type : 'textarea', form : formGroup }"></app-form-control>
+					<app-form-control [field]="{id:'Remark', label:'Remark', type : 'textarea', form : formGroup }" (change)="saveChange2()"></app-form-control>
 
 					<app-form-control [field]="{id:'Sort', label:'Sort', type : 'number', form : formGroup }" (change)="saveChange2()"></app-form-control>
 

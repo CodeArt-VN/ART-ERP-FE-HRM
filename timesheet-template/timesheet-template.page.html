@@ -6,29 +6,36 @@
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
 	<div class="safe-max-width">
-	<app-data-table
-		class="box-shadow responsive"
-		[rows]="items"
-		[trackBy]="'Id'"
-		[(selectedRows)]="selectedItems"
-		[showSpinner]="pageConfig.showSpinner"
-		[showFilter]="pageConfig.isShowSearch"
-		[(query)]="query"
-		(dataInfinite)="loadData($event)"
-		(filter)="onDatatableFilter($event)"
-		(sort)="onSort($event)"
-	>
-		<datatable-column [checkbox]="true" ></datatable-column>
-		<datatable-column class="col-id" name="Id" property="Id"[navLink]="pageConfig.pageName"></datatable-column>
-		
-		<datatable-column class="col-name" name="Name" property="Name">
-		
-		</datatable-column>
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+		>
+			<datatable-column [checkbox]="true"></datatable-column>
+			<datatable-column class="col-id" name="Id" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
 
-		<datatable-column class="col-code" name="Code" property="Code">
-		</datatable-column>
-		<datatable-column class="col-remark" name="Remark" property="Remark">
-		</datatable-column>
-	</app-data-table>
+			<datatable-column class="col-name clickable" name="Name" property="Name">
+				<ng-template let-i="row" datatable-cell-template>
+					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+						<a class="bold">
+							<ion-text color="dark">{{i.Name}}</ion-text>
+						</a>
+						<div *ngIf="i.Remark">{{i.Remark}}</div>
+					</div>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
 	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
 </ion-content>

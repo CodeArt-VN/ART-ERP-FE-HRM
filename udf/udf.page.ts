@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
-import {  HRM_UDFProvider} from 'src/app/services/static/services.service';
+import { HRM_UDFProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { UDFDetailPage } from '../udf-detail/udf-detail.page';
 
@@ -26,12 +26,28 @@ export class UDFPage extends PageBase {
 		public loadingController: LoadingController,
 		public env: EnvService,
 		public navCtrl: NavController,
-		public cdr: ChangeDetectorRef,
+		public cdr: ChangeDetectorRef
 	) {
 		super();
+
+		this.pageConfig.dividers = [
+			{
+				field: 'Group',
+				dividerFn: (record, recordIndex, records) => {
+					let a: any = recordIndex == 0 ? '' : records[recordIndex - 1].Group;
+					let b: any = record.Group;
+					if (a == b) {
+						return null;
+					}
+					return record.Group;
+				},
+			},
+		];
 	}
 
 	preLoadData(event?: any): void {
+		this.pageConfig.sort = [{ Dimension: 'Group', Order: 'ASC' }, { Dimension: 'Sort', Order: 'ASC' }];
+
 		this.dataTypeList = [
 			{ Name: 'int' },
 			{ Name: 'decimal' },
@@ -46,7 +62,7 @@ export class UDFPage extends PageBase {
 			{ Name: 'bit' },
 			{ Name: 'formula' },
 		];
-		Promise.all([this.env.getType('ControlType'),this.env.getType('UDFGroupsType')]).then((values: any) => {
+		Promise.all([this.env.getType('ControlType'), this.env.getType('UDFGroupsType')]).then((values: any) => {
 			this.controlTypeList = values[0];
 			this.groupList = values[1];
 			super.preLoadData(event);
@@ -56,11 +72,10 @@ export class UDFPage extends PageBase {
 	loadedData(event) {
 		this.items.forEach((item) => {
 			item.IsActive = !item.IsDisabled;
-		})
+		});
 
 		super.loadedData(event);
 		console.log(this.pageConfig);
-		
 	}
 
 	add(): void {
@@ -70,18 +85,17 @@ export class UDFPage extends PageBase {
 		};
 		this.showModal(newItem);
 	}
-	
+
 	async showModal(i) {
 		const modal = await this.modalController.create({
 			component: UDFDetailPage,
 			componentProps: {
 				id: i.Id,
-				item:i,
+				item: i,
 				UDFList: this.items,
 			},
 			cssClass: 'my-custom-class',
 		});
 		return await modal.present();
 	}
-	
 }

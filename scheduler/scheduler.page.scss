@@ -13,3 +13,9 @@ ion-content {
 .fc .fc-event-main ion-icon.lunch-booked {
 	margin-left: 5px;
 }
+
+::ng-deep {
+	.ng-dropdown-panel.c-input {
+		min-width: min-content !important;
+	}
+}

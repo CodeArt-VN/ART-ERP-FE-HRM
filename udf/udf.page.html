@@ -20,30 +20,35 @@
 		>
 			<datatable-column [checkbox]="true"></datatable-column>
 
-			<datatable-column class="col-id" name="Id" property="Id">
+			<datatable-column class="col-id clickable" name="Id" property="Id">
 				<ng-template let-i="row" datatable-cell-template>
 					<span (click)="showModal(i)">{{i?.Id}}</span>
 				</ng-template>
 			</datatable-column>
 
-			<datatable-column class="col-name" name="Name" property="Name">
+			<datatable-column class="col-name clickable" name="Name" property="Name">
 				<ng-template let-i="row" datatable-cell-template>
-					<span (click)="showModal(i)">{{i?.Name}}</span>
+					<span class="bold" (click)="showModal(i)">{{i?.Name}}</span>
 				</ng-template>
 			</datatable-column>
 			<datatable-column class="col-code" name="Code" property="Code"></datatable-column>
 
-			<datatable-column class="col-code" name="Group" property="Group" filterControlType="ng-select" [filterDataSource]="groupList"></datatable-column>
-			<datatable-column class="col-code" name="Sub group" property="SubGroup"></datatable-column>
+			<!-- <datatable-column class="col-code" name="Group" property="Group" filterControlType="ng-select" [filterDataSource]="groupList"></datatable-column> -->
+			<!-- <datatable-column class="col-code" name="Sub group" property="SubGroup"></datatable-column> -->
 
-			<datatable-column class="col-code" name="Data type" property="DataType" filterControlType="ng-select" [filterDataSource]="dataTypeList"> </datatable-column>
+			<datatable-column class="col-date" name="Data type" property="DataType" filterControlType="ng-select" [filterDataSource]="dataTypeList"> </datatable-column>
 
-			<datatable-column class="col-code" name="Control type" property="ControlType" filterControlType="ng-select" [filterDataSource]="controlTypeList"> </datatable-column>
-			<datatable-column class="col-checkbox" name="System" property="IsSystem">
+			<!-- <datatable-column class="col-code" name="Control type" property="ControlType" filterControlType="ng-select" [filterDataSource]="controlTypeList"> </datatable-column> -->
+			<datatable-column class="col-status" name="System" property="IsSystem">
 				<ng-template let-i="row" datatable-cell-template>
-					<ion-icon color="success" *ngIf="i.IsSystem" name="checkmark-outline"></ion-icon>
+					<ion-icon color="medium" *ngIf="i.IsSystem" name="lock-closed"></ion-icon>
 				</ng-template>
 			</datatable-column>
 		</app-data-table>
 	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
 </ion-content>

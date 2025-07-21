@@ -90,7 +90,7 @@
 													<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
 
 													<ion-label style="margin-right: 0" class="ion-text-wrap clickable"
-														><span *ngIf="g.get('Id').value">{{g.get('IDUDF').value}} -</span> {{g.get('Name').value}}
+														><span *ngIf="g.get('Id').value">{{idx+1}}</span> - <span class="bold">{{g.get('Name').value}}</span> 
 													</ion-label>
 
 													<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">

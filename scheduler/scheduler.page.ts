@@ -1542,6 +1542,7 @@ export class SchedulerPage extends PageBase {
 		await modal.present();
 		const { data } = await modal.onWillDismiss();
 		if (data) {
+			data.IDTimesheet = this.id;
 			this.env.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise()).then((resp) => {
 				this.env.publishEvent({
 					Code: 'app:ShowAppMessage',
