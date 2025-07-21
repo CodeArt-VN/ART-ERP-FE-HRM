@@ -47,13 +47,21 @@ export class PointModalPage extends PageBase {
 
 	preLoadData(event?: any): void {
 		this.item = this.cData.event.extendedProps; // this.navParams.data.event.extendedProps;
-		let dto = {
-			IDTimesheet: this.item.IDTimesheet,
-			StartDate: this.item.WorkingDate,
-			EndDate: this.item.WorkingDate,
-			IDCycle: this.IDCycle,
-			IDStaff: this.item.IDStaff,
-		};
+		// let dto : any = {
+		// 	IDTimesheet: this.item.IDTimesheet,
+		// 	StartDate: this.item.WorkingDate,
+		// 	EndDate: this.item.WorkingDate,
+		// 	IDCycle: this.IDCycle,
+		// 	IDStaff: this.item.IDStaff,
+		// };
+
+		// Tạo dto với LogTimeFrom và LogTimeTo
+		const workingDate = this.item.WorkingDate; // dạng dd/MM/yyyy
+		const [day, month, year] = workingDate.split('/');
+		const logTimeFrom = `${year}-${month}-${day}T00:00:00`;
+		const logTimeTo = `${year}-${month}-${day}T23:59:59`;
+		// dto.LogTimeFrom = logTimeFrom;
+		// dto.LogTimeTo = logTimeTo;
 
 		let d1 = lib.dateFormat(this.navParams.data.FromDate);
 		let d2 = lib.dateFormat(new Date());
@@ -63,11 +71,12 @@ export class PointModalPage extends PageBase {
 		Promise.all([
 			this.officeProvider.read(),
 			this.gateProvider.read(),
-			this.pageProvider.commonService.connect('GET', 'HRM/TimesheetCycle/GetTimesheetLog', dto).toPromise(),
+			// this.pageProvider.commonService.connect('GET', 'HRM/TimesheetCycle/GetTimesheetLog', dto).toPromise(),
+			this.timesheetLogProvider.read({LogTimeFrom : logTimeFrom ,LogTimeTo: logTimeTo,IDStaff: this.item.IDStaff})
 		]).then((values: any) => {
 			this.officeList = values[0]['data'];
 			this.gateList = values[1]['data'];
-			this.TimesheetLogList = values[2];
+			this.TimesheetLogList = values[2].data;
 
 			this.loadedData(event);
 		});
