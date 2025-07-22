@@ -70,6 +70,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		Promise.all([this.env.getType('UDFGroupsType', true), this.udfProvider.read({ Group: 'TimesheetRecordInformation' }), this.env.getType('PayrollTemplateType')]).then(
 			(values: any) => {
 				this.UDFGroups = values[0];
+				if(values[1]?.data?.length > 0) values[1].data = values[1].data.filter(u => (!u.SubGroup || u.SubGroup == 'tbl_HRM_TimesheetRecord') && u.IsDisabled == false);
 				this.UDFList = values[1].data;
 				this.timesheetTemplateType = values[2];
 				const newItems: any[] = [];
@@ -130,8 +131,8 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	}
 	loadedData(event) {
 		if (!this.item?.Id) this.segmentView = 's2';
-		this.patchUDF();
 		super.loadedData(event);
+		this.patchUDF();
 	}
 	openedFieldValues = [];
 	patchUDF() {
@@ -152,7 +153,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			Id: [line?.Id],
 			IDUDF: [line?.IDUDF, Validators.required],
 			// Id: new FormControl({ value: field?.Id, disabled: true }),
-			Type: ['', Validators.required],
+			Type: [line?.Type, Validators.required],
 			UDFValue: [line.UDFValue?? udf?.DefaultValue],
 			Code: new FormControl({ value: line.Code, disabled: true }),
 			Name: new FormControl({ value: line.Name, disabled: true }),
@@ -200,12 +201,6 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	changeUDF(e, fg) {
 		fg.get('DataType').setValue(e?.DataType);
 		fg.get('DefaultValue').setValue(e?.DefaultValue);
-		let udf = this.UDFDataSource.find((u) => u.Id == fg.controls.IDUDF.value);
-		if(!fg.controls.UDFValue.value && udf?.DefaultValue){
-			fg.get('UDFValue').setValue(fg.controls.UDFValue.value?? udf?.DefaultValue);	
-			fg.get('UDFValue').markAsDirty();
-		}
-
 		if(fg.controls.Type.value != 'Formula'){
 			fg.get('ControlType').setValue(e?.ControlType);
 		}

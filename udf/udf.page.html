@@ -2,8 +2,44 @@
 	<app-toolbar [page]="this"></app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
+<ion-content  appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+	<ion-fab
+		[ngClass]="{withSearch: pageConfig.isShowSearch,'ion-hide-md-down': pageConfig.isSubActive}"
+		class="feature no-print"
+		vertical="bottom"
+		horizontal="start"
+		slot="fixed"
+	>
+		<ion-list-header>
+			<ion-label color="dark">{{'Group' | translate}}</ion-label>
+		</ion-list-header>
+		<ion-list>
+			<ng-container >
+				<ion-item [color]="currentTab == i.Code? 'primary': '' " *ngFor="let i of groupRender" [button]="true" (click)="loadNode(i)">
+					<ion-label>{{i.Name | translate}}</ion-label>
+					<ion-note slot="end">{{i.Count}}</ion-note>
+				</ion-item>
+			</ng-container>
+<!-- 
+			<ng-container *ngIf="query.Type=='Function'">
+				<ng-container *ngFor="let i of typeGroupList; let j = index;">
+					<ion-item [color]="currentTab == i.Name? 'primary': '' " [ngClass]="{'bold': i.HasChild, 'odd': j % 2 !== 0}" class="clickable" *ngIf="i.show">
+						<ng-container *ngFor="let w of i.levels; let k = index;"><span class="spacing" *ngIf="k>0"></span></ng-container>
+						<ion-icon
+							(click)="toggleRow(typeGroupList, i, true);"
+							class="min-btn clickable"
+							[name]="i.HasChild? (!i.showdetail? 'chevron-forward-outline':'chevron-down-outline') : ''"
+						></ion-icon>
+
+						<ion-label (click)="loadNode(i)"> {{i.Name}} </ion-label>
+						<ion-note slot="end">{{i.Count}}</ion-note>
+						
+					</ion-item>
+				</ng-container>
+			</ng-container> -->
+		</ion-list>
+	</ion-fab>
 
 	<div class="safe-max-width">
 		<app-data-table
