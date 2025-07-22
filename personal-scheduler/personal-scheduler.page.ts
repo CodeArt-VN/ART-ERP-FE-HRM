@@ -658,6 +658,10 @@ export class PersonalSchedulerPage extends PageBase {
 
 	async scanQRCode() {
 		try {
+			if (Capacitor.getPlatform() == 'web') {
+				this.scanQRCodeBS();
+				return;
+			}
 			let code = await this.scanner.scan();
 
 			let gateCode = '';
