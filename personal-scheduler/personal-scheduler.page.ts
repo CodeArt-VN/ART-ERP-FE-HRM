@@ -78,7 +78,7 @@ export class PersonalSchedulerPage extends PageBase {
 		super();
 		this.pageConfig.isShowFeature = false;
 		this.formGroupDate = this.formBuilder.group({
-			singleDate: [''],
+			singleDate:  [new Date().toISOString().split('T')[0]],
 		});
 	}
 
@@ -737,7 +737,6 @@ export class PersonalSchedulerPage extends PageBase {
 			});
 		} catch (error) {
 			console.error(error);
-			this.scanQRCodeBS();
 		}
 	}
 
