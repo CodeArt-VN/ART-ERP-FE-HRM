@@ -163,8 +163,6 @@ export class SchedulerPage extends PageBase {
 			}
 		});
 
-
-
 		this.env
 			.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
 			.then((resp) => {
@@ -211,7 +209,7 @@ export class SchedulerPage extends PageBase {
 			this.gateList = values[6]['data'];
 			if (this.id) {
 				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
-				if(!this.selectedTimesheet) return super.loadedData(event);
+				if (!this.selectedTimesheet) return super.loadedData(event);
 			} else if (this.timesheetList.length) {
 				this.selectedTimesheet = this.timesheetList[0];
 				this.id = this.selectedTimesheet.Id;
@@ -235,6 +233,13 @@ export class SchedulerPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.calendarOptions.select = null;
+		this.calendarOptions.eventClick = null;
+		this.calendarOptions.dateClick = null;
+		this.calendarOptions.eventChange = null;
+		this.calendarOptions.eventDrop = null;
+		this.calendarOptions.eventResize = null;
+		this.calendarOptions.eventDidMount = null;
 		if (this.segmentView == 's1') this.loadedSchedulerData(event, ignoredFromGroup);
 		else if (this.segmentView == 's2') this.loadedCheckinLogData(event, ignoredFromGroup);
 		else this.loadedTimesheetCycle(event, ignoredFromGroup);
@@ -426,6 +431,7 @@ export class SchedulerPage extends PageBase {
 					.catch((e) => {});
 			};
 		};
+
 		this.calendarOptions.select = (arg) => {
 			arg.end.setDate(arg.end.getDate() - 1);
 
@@ -435,6 +441,7 @@ export class SchedulerPage extends PageBase {
 				Staffs: [parseInt(arg.resource.id)],
 			});
 		};
+
 		this.calendarOptions.eventClick = (arg) => {
 			this.massShiftAssignmentCheckinLog({
 				FromDate: arg.event.startStr,
@@ -559,7 +566,7 @@ export class SchedulerPage extends PageBase {
 					e.Title = `${e.Checkin}→${e.Checkout}`;
 					e.Badge = `${e.MinutesOfWorked}-${point}`;
 					e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
-					if (!e.LogCount) {
+					if (!e.Checkin && !e.Checkout) {
 						e.Color = 'danger';
 						e.Icon = 'alert-circle-outline';
 						e.Title = `Q`;
@@ -1554,8 +1561,8 @@ export class SchedulerPage extends PageBase {
 		const modal = await this.popoverCtrl.create({
 			component: StaffTimesheetCalculationModalPage,
 			componentProps: {
-				formDate: lib.dateFormat(this.fc?.view.activeStart, 'yyyy-mm-ddThh:MM:ss'),
-				toDate: lib.dateFormat(this.fc?.view.activeEnd, 'yyyy-mm-ddThh:MM:ss'),
+				formDate: lib.dateFormat(this.fc?.view.activeStart, 'yyyy-mm-dd'),
+				toDate: lib.dateFormat(this.fc?.view.activeEnd, 'yyyy-mm-dd'),
 			},
 			cssClass: 'w300',
 			translucent: true,
@@ -1565,17 +1572,20 @@ export class SchedulerPage extends PageBase {
 		if (data) {
 			data.IDTimesheet = this.id;
 			data.WaitReturn = true;
-			this.env.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise()).then((resp) => {
-				this.env.publishEvent({
-					Code: 'app:ShowAppMessage',
-					IsShow: true,
-					Id: 'CalculationTimesheet',
-					Icon: 'flash',
-					IsBlink: true,
-					Color: 'danger',
-					Message: 'Đang tính công',
-				});
-			}).catch((err) => this.env.showErrorMessage(err));
+			this.env
+				.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise())
+				.then((resp) => {
+					this.env.publishEvent({
+						Code: 'app:ShowAppMessage',
+						IsShow: true,
+						Id: 'CalculationTimesheet',
+						Icon: 'flash',
+						IsBlink: true,
+						Color: 'danger',
+						Message: 'Đang tính công',
+					});
+				})
+				.catch((err) => this.env.showErrorMessage(err));
 		}
 	}
 }

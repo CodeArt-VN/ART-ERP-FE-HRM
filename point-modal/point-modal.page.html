@@ -71,7 +71,12 @@
 							</ng-template>
 						</datatable-empty-message>
 
-						<datatable-column class="col-name" name="Log" format="dd/MM/yyyy HH:mm" property="LogTime"></datatable-column>
+						<datatable-column class="col-name" name="Log" format="dd/MM/yyyy HH:mm" property="LogTime">
+							<ng-template let-i="row" datatable-cell-template>
+								<ion-text *ngIf="!i.IsValidLog" color="danger">{{ i.LogTime | date: 'dd/MM/yyyy HH:mm'}} <ion-icon name="alert-circle-outline"></ion-icon></ion-text>
+								<ion-text *ngIf="i.IsValidLog">{{ i.LogTime | date: 'dd/MM/yyyy HH:mm'}}</ion-text>
+							</ng-template>
+						</datatable-column>
 					</app-data-table>
 					<div>
 						<div class="row" *ngIf="canCreateCheckinLog && !isShowCreateCheckin && TimesheetLogList.length > 0">

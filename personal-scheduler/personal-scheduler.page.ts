@@ -159,34 +159,35 @@ export class PersonalSchedulerPage extends PageBase {
 							let gateName = this.gateList?.find((d) => d.Id == i.IDGate)?.Name || '';
 							let item = this.items.find((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
 							let index = this.items.findIndex((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
+							let log: any = {
+								ShiftName: 'Checkin',
+								start: i.LogTime, //i.StartDate,
+								end: i.LogTime,
+								IDStaff: i.IDStaff,
+								TimeOffType: null,
+								ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
+								ShiftEnd: lib.dateFormat(i.LogTime, 'hh:MM'),
+								Remark: i.Remark,
+								IDGate: i.IDGate,
+								GateName: gateName,
+								allDay: true,
+							};
+							log.color = lib.getCssVariableValue('--ion-color-success');
+							log.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
+							if (!i.IsValidLog && !i.SeftClaim) {
+								log.color = lib.getCssVariableValue('--ion-color-danger');
+								log.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
+							}
+							if (!i.IsValidLog && i.SeftClaim) {
+								log.color = lib.getCssVariableValue('--ion-color-warning');
+								log.textColor = lib.getCssVariableValue('--ion-color-warning-contrast');
+							}
 							if (item) {
-								let log: any = {
-									ShiftName: 'Checkin',
-									start: i.LogTime, //i.StartDate,
-									end: i.LogTime,
-									IDStaff: i.IDStaff,
-									TimeOffType: null,
-									ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
-									ShiftEnd: lib.dateFormat(i.LogTime, 'hh:MM'),
-									Remark: i.Remark,
-									IDGate: i.IDGate,
-									GateName: gateName,
-									allDay: true
-								};
-								log.color = lib.getCssVariableValue('--ion-color-success');
-								log.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
-								if (!i.IsValidLog && !i.SeftClaim) {
-									log.color = lib.getCssVariableValue('--ion-color-danger');
-									log.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
-								}
-								if (!i.IsValidLog && i.SeftClaim) {
-									log.color = lib.getCssVariableValue('--ion-color-warning');
-									log.textColor = lib.getCssVariableValue('--ion-color-warning-contrast');
-								}
-								console.log('Checkin Log:', log);
 								this.items.splice(index + 1, 0, log);
 								if (item.CheckinLog) item.CheckinLog.push(log);
 								else item.CheckinLog = [log];
+							} else {
+								this.items.push(log);
 							}
 						});
 					}
@@ -440,7 +441,7 @@ export class PersonalSchedulerPage extends PageBase {
 		});
 	}
 	eventClick(arg) {
-		if(arg.event.extendedProps.ShiftName == 'Checkin'){
+		if (arg.event.extendedProps.ShiftName == 'Checkin') {
 			return;
 		}
 		this.massShiftAssignment({
@@ -650,6 +651,7 @@ export class PersonalSchedulerPage extends PageBase {
 
 			await modal.present();
 			const { data } = await modal.onWillDismiss();
+			this.loadData(null);
 			console.log('Public IP:', this.myIP);
 		});
 	}
