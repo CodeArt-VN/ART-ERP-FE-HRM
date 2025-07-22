@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
@@ -55,12 +55,12 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			Type: ['', Validators.required],
 			CheckInPolicy: ['', Validators.required],
 			NumberOfShiftPerDay: ['', Validators.required],
-			IsCheckOutRequired: ['', Validators.required],
+			IsCheckOutRequired: [''],
 			WorkingHoursPerDay: ['', Validators.required],
 			Manager: [''],
-			IsRequiredApproveToEnroll: ['', Validators.required],
-			IsRequiredApproveToTransfer: ['', Validators.required],
-			IsRequiredApproveToSwitch: ['', Validators.required],
+			IsRequiredApproveToEnroll: [''],
+			IsRequiredApproveToTransfer: [''],
+			IsRequiredApproveToSwitch: [''],
 			Lines: this.formBuilder.array([]),
 			DeletedLines: [[]],
 		});
@@ -70,7 +70,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		Promise.all([this.env.getType('UDFGroupsType', true), this.udfProvider.read({ Group: 'TimesheetRecordInformation' }), this.env.getType('PayrollTemplateType')]).then(
 			(values: any) => {
 				this.UDFGroups = values[0];
-				if(values[1]?.data?.length > 0) values[1].data = values[1].data.filter(u => (!u.SubGroup || u.SubGroup == 'tbl_HRM_TimesheetRecord') && u.IsDisabled == false);
+				if (values[1]?.data?.length > 0) values[1].data = values[1].data.filter((u) => (!u.SubGroup || u.SubGroup == 'tbl_HRM_TimesheetRecord') && u.IsDisabled == false);
 				this.UDFList = values[1].data;
 				this.timesheetTemplateType = values[2];
 				const newItems: any[] = [];
@@ -154,7 +154,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			IDUDF: [line?.IDUDF, Validators.required],
 			// Id: new FormControl({ value: field?.Id, disabled: true }),
 			Type: [line?.Type, Validators.required],
-			UDFValue: [line.UDFValue?? udf?.DefaultValue],
+			UDFValue: [line.UDFValue ?? udf?.DefaultValue],
 			Code: new FormControl({ value: line.Code, disabled: true }),
 			Name: new FormControl({ value: line.Name, disabled: true }),
 			Remark: [line.Remark],
@@ -190,7 +190,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			}),
 		});
 		if (line.IsDisabled) group.disable();
-		this.changeType({Code:line.Type}, group, false);
+		this.changeType({ Code: line.Type }, group, false);
 		group.get('IDTimesheetTemplate').markAsDirty();
 		if (openField) {
 			this.openedFields.push(line?.Id.toString());
@@ -201,25 +201,24 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	changeUDF(e, fg) {
 		fg.get('DataType').setValue(e?.DataType);
 		fg.get('DefaultValue').setValue(e?.DefaultValue);
-		if(fg.controls.Type.value != 'Formula'){
+		if (fg.controls.Type.value != 'Formula') {
 			fg.get('ControlType').setValue(e?.ControlType);
 		}
-		
+
 		fg.get('Name').setValue(e?.Name);
 		fg.get('Code').setValue(e?.Code);
 		// fg.get('Name').markAsDirty();
 		// fg.get('Code').markAsDirty();
 		this.saveChange2();
 	}
-	changeType(e,fg,markAsDirty = true) {
-		if(e?.Code == 'Formula'){
+	changeType(e, fg, markAsDirty = true) {
+		if (e?.Code == 'Formula') {
 			fg.controls.ControlType.setValue('formula');
-		}
-		else{
+		} else {
 			let udf = this.UDFDataSource.find((u) => u.Id == fg.controls.IDUDF.value);
 			fg.controls.ControlType.setValue(udf?.ControlType);
 		}
-		if(markAsDirty) this.saveChange2();
+		if (markAsDirty) this.saveChange2();
 	}
 	removeField(g, index) {
 		let groups = <FormArray>this.formGroup.controls.Lines;
@@ -283,7 +282,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			let newIds = new Set(this.item.Lines.map((i) => i.Id));
 			const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
 			if (diff?.length > 0) {
-				if(diff.length > 1){
+				if (diff.length > 1) {
 					diff.forEach((d) => {
 						this.openedFields = [...this.openedFields, d.toString()];
 					});
@@ -297,5 +296,28 @@ export class TimesheetTemplateDetailPage extends PageBase {
 				console.log(this.openedFields);
 			}
 		}
+	}
+
+	isOpenPopover = false;
+	@ViewChild('popover') popover!: HTMLIonPopoverElement;
+	presentCopyPopover(e) {
+		this.popover.event = e;
+		this.isOpenPopover = !this.isOpenPopover;
+	}
+	addAllTimesheetTemplateDetail() {
+		if (!this.item.Id) return;
+		this.env.showPrompt('Do you want to add all timesheet template detail?', 'Add all timesheet template detail to this template.', 'Add').then((d) => {
+			this.env
+				.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'HRM/TimesheetTemplate/AddAllDetail/' + this.item.Id, {}).toPromise())
+				.then((res) => {
+					if (res) {
+						this.isOpenPopover = false;
+						this.preLoadData();
+					}
+				})
+				.catch((err) => {
+					this.env.showErrorMessage(err);
+				});
+		});
 	}
 }
