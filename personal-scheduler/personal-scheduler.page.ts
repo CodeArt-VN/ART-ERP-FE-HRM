@@ -277,7 +277,7 @@ export class PersonalSchedulerPage extends PageBase {
 						}
 					});
 					this.calendarOptions.events = this.items;
-						
+
 					this.getCalendar();
 					this.fc?.updateSize();
 					super.loadedData(event, ignoredFromGroup);
@@ -651,6 +651,7 @@ export class PersonalSchedulerPage extends PageBase {
 
 			await modal.present();
 			const { data } = await modal.onWillDismiss();
+			this.loadData(null);
 			console.log('Public IP:', this.myIP);
 		});
 	}

@@ -48,7 +48,7 @@
 											<div *ngIf="i">
 												<div>
 													<span *ngFor="let l of i.levels">&nbsp;&nbsp;&nbsp;</span>
-													<span [ngOptionHighlight]="search">{{i.Name}}</span>
+													<span [ngOptionHighlight]="search">{{i.Name | translate}}</span>
 												</div>
 											</div>
 										</ng-template>
