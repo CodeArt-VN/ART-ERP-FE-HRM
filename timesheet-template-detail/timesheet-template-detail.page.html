@@ -41,7 +41,10 @@
 													<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
 
 													<ion-label style="margin-right: 0" class="ion-text-wrap clickable"
-														><span *ngIf="g.get('Id').value">{{idx+1}}</span> - <span class="bold">{{g.get('Name').value}}</span>
+														><span *ngIf="g.get('Id').value">{{idx+1}} - </span> <span class="bold">{{g.get('Name').value}} <small label> 
+															<ion-text color='primary'*ngIf="g.get('Type').value == 'formula' || !g.get('UDFValue').value">{{g.get('DefaultValue').value}}</ion-text>
+															<ion-text color='primary' *ngIf="g.get('Type').value != 'formula' && g.get('UDFValue').value">{{g.get('UDFValue').value}}</ion-text>
+														</small></span>
 													</ion-label>
 
 													<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
@@ -73,7 +76,8 @@
 
 																	<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }" (change)="saveChange2()">
 																	</app-form-control>
-																	<app-form-control *ngIf="g.get('Type').value != 'Auto'"
+																	<app-form-control
+																		*ngIf="g.get('Type').value != 'Auto'"
 																		[field]="{id:'UDFValue', label: 'Value',  type : g.get('ControlType').value,dataSource:UDFList, form : g } "
 																		(change)="saveChange2()"
 																	>
@@ -93,7 +97,7 @@
 																	</app-form-control>
 																	<app-form-control [field]="{id:'ControlType', label: 'Control type', type : 'span-text',form : g }">
 																	</app-form-control>
-																	<app-form-control *ngIf="g.get('Type').value != 'Auto'" [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
+																	<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
 																	</app-form-control>
 																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
 																	</app-form-control>
