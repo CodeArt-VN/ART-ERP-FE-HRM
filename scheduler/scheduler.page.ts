@@ -1575,15 +1575,7 @@ export class SchedulerPage extends PageBase {
 			this.env
 				.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise())
 				.then((resp) => {
-					this.env.publishEvent({
-						Code: 'app:ShowAppMessage',
-						IsShow: true,
-						Id: 'CalculationTimesheet',
-						Icon: 'flash',
-						IsBlink: true,
-						Color: 'danger',
-						Message: 'Đang tính công',
-					});
+					this.refresh();
 				})
 				.catch((err) => this.env.showErrorMessage(err));
 		}
