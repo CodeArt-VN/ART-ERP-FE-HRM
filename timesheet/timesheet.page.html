@@ -1,92 +1,53 @@
 <ion-header>
-	<app-list-toolbar
-		pageTitle="{{'Timesheet' | translate}}"
-		[pageConfig]="pageConfig"
-		[selectedItems]="selectedItems"
-		[query]="query"
-		(add)="add()"
-		(refresh)="refresh()"
-		(export)="export()"
-		(import)="import($event)"
-		(help)="help()"
-		(unselect)="unselect()"
-		(archiveItems)="archiveItems()"
-		(deleteItems)="delete()"
-		(changeBranch)="changeBranch($event)"
-	></app-list-toolbar>
-
-	<section class="table">
-		<header class="bold">
-			<div class="col-checkbox cell"></div>
-
-			<div class="col-id cell" (click)="sortToggle('Id')">
-				{{'Id' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
-			</div>
-
-			<div class="col-name cell" (click)="sortToggle('Name')">
-				{{'Name' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
-			</div>
-
-			<div class="col-branch cell">{{'Unit' | translate}}</div>
-
-			<!-- <div class="col-code cell" (click)="sortToggle('Type')">
-        		{{'Type' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Type" [name]="sort.Type == 'Type'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Type" name="search" color="primary"></ion-icon>
-			</div> -->
-		</header>
-		<form (submit)="refresh()" action="#">
-			<header class="filter" *ngIf="pageConfig.isShowSearch">
-				<div class="col-checkbox cell"></div>
-
-				<div class="col-id cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Id" class="c-input" [ngClass]="{active: query.Id}" type="text" />
-					<ion-icon class="min-btn" (click)="query.Id=''; refresh()" *ngIf="query.Id" name="close-circle-outline"></ion-icon>
-				</div>
-
-				<div class="col-name cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Name" class="c-input" [ngClass]="{active: query.Name}" type="text" />
-					<ion-icon class="min-btn" (click)="query.Name=''; refresh()" *ngIf="query.Name" name="close-circle-outline"></ion-icon>
-				</div>
-
-				<div class="col-branch cell"></div>
-
-				<!-- <div class="col-code cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Type" class="c-input" [ngClass]="{active: query.Email}" type="text">
-					<ion-icon class="min-btn" (click)="query.Type=''; refresh()" *ngIf="query.Type" name="close-circle-outline"></ion-icon>
-				</div> -->
-
-				<button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
-			</header>
-		</form>
-	</section>
+	<app-toolbar [page]="this"></app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
-	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
-	<div *ngIf="items.length && pageConfig.showSpinner==false">
-		<section class="table">
-			<div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-				<div class="col-checkbox cell">
-					<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-				</div>
-				<div class="col-id cell">
-					<a [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">{{i.Id}}</a>
-				</div>
-				<div (click)="nav('timesheet/'+i.Id,'forward')" class="col-name cell">{{i.Name}}</div>
-				<div class="col-branch cell">
-					<span *ngIf="i._Branch">{{i._Branch.Name}}</span>
-				</div>
-			</div>
-		</section>
+	<div class="safe-max-width">
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+
+			<datatable-column class="col-name" name="Name" property="Name">
+				<ng-template let-i="row" datatable-cell-template>
+					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+						<div>{{i.Name}}</div>
+					</div>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-name" name="Unit" property="IDBranch">
+				<ng-template let-i="row" datatable-cell-template>
+					<app-branch-breadcrumbs
+						[maxItems]="3"
+						[itemsBeforeCollapse]="0"
+						[itemsAfterCollapse]="2"
+						[Id]="i.IDBranch"
+						[Items]="env.jobTitleList"
+						[ngClass]="{'no-check-dirty': noCheckDirty}"
+						class="c-input disable breadcrumbs"
+					>
+					</app-branch-breadcrumbs>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
 	</div>
 
-	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
 		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
 	</ion-infinite-scroll>
 </ion-content>
