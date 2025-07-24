@@ -82,9 +82,9 @@
 					</div>
 					<div class="col-date cell">{{i.Date}}</div>
 					<div class="col-name cell">
-						<span *ngIf="!(i.IsValidLog && i.Gate.IsCateringService)"> {{i.Gate.Name}} </span>
-						<a *ngIf="i.IsValidLog && i.Gate.IsCateringService" (click)="showLog(i)">
-							<ion-icon *ngIf="i.Gate.IsCateringService" name="restaurant-outline"></ion-icon>&nbsp; {{i.Gate.Name}}
+						<span *ngIf="!(i.IsValidLog && i.Gate?.IsCateringService)"> {{i.Gate?.Name}} </span>
+						<a *ngIf="i.IsValidLog && i.Gate?.IsCateringService" (click)="showLog(i)">
+							<ion-icon *ngIf="i.Gate?.IsCateringService" name="restaurant-outline"></ion-icon>&nbsp; {{i.Gate?.Name}}
 						</a>
 					</div>
 				</div>
