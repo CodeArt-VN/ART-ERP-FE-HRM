@@ -54,10 +54,11 @@ export class CheckinPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		this.items.forEach((i) => {
+		this.items.forEach((i, idx, arr) => {
 			i.Time = lib.dateFormat(i.LogTime, 'hh:MM');
 			i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
 			i.Gate = this.gateList.find((d) => d.Id == i.IDGate);
+			i._divider = this.myHeaderFn(i, idx, arr);
 		});
 		super.loadedData(event, ignoredFromGroup);
 	}
