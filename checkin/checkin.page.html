@@ -1,95 +1,38 @@
 <ion-header>
-	<app-list-toolbar
-		pageTitle="{{'Check-in history' | translate}}"
-		[ShowArchive]="false"
-		[ShowFeature]="false"
-		[pageConfig]="pageConfig"
-		[selectedItems]="selectedItems"
-		[query]="query"
-		(refresh)="refresh()"
-		(export)="export()"
-		(import)="import($event)"
-		(help)="help()"
-		(unselect)="unselect()"
-		(archiveItems)="archiveItems()"
-		(deleteItems)="delete()"
-		(changeBranch)="changeBranch($event)"
-	></app-list-toolbar>
-	<section class="table">
-		<header class="bold">
-			<div class="col-checkbox cell"></div>
-			<div class="col-id cell">{{'From' | translate}}</div>
-			<div class="col-date cell" (click)="sortToggle('LogTime')">
-				{{'Date' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.LogTime" [name]="sort.LogTime == 'LogTime'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.LogTime" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-name cell" (click)="sortToggle('Name')">
-				{{'Checkin' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
-			</div>
-		</header>
-		<form (submit)="refresh()" action="#">
-			<header class="filter" *ngIf="pageConfig.isShowSearch">
-				<div class="col-date cell">
-					<input
-						[ngModelOptions]="{standalone: true}"
-						placeholder="{{'From date' | translate}}"
-						[(ngModel)]="query.LogTimeFrom"
-						class="c-input"
-						[ngClass]="{active: query.LogTimeFrom}"
-						type="text"
-					/>
-					<ion-icon class="min-btn" (click)="query.LogTimeFrom=''; refresh()" *ngIf="query.LogTimeFrom" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-date cell">
-					<input
-						[ngModelOptions]="{standalone: true}"
-						placeholder="{{'To date' | translate}}"
-						[(ngModel)]="query.LogTimeTo"
-						class="c-input"
-						[ngClass]="{active: query.LogTimeTo}"
-						type="text"
-					/>
-					<ion-icon class="min-btn" (click)="query.LogTimeTo=''; refresh()" *ngIf="query.LogTimeTo" name="close-circle-outline"></ion-icon>
-				</div>
-
-				<button mat-raised-button type="submit" style="display: none">Search</button>
-			</header>
-		</form>
-	</section>
+	<app-toolbar [page]="this"></app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
-	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-	<div *ngIf="items.length && pageConfig.showSpinner==false">
-		<section class="table">
-			<ng-container *ngFor="let i of items; let j = index;">
-				<div class="row" *ngIf="myHeaderFn(i, j, items); let header">
-					<div class="col-name cell">
-						<ion-text color="primary">
-							<b> {{header}} </b>
-						</ion-text>
-					</div>
-				</div>
-				<div class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-					<div class="col-checkbox cell">
-						<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-					</div>
-					<div class="col-id cell" (click)="showRemark(i)">
-						<ion-text [color]="i.IsValidLog? 'success': 'danger'"> {{i.Time}} </ion-text>
-					</div>
-					<div class="col-date cell">{{i.Date}}</div>
-					<div class="col-name cell">
-						<span *ngIf="!(i.IsValidLog && i.Gate.IsCateringService)"> {{i.Gate.Name}} </span>
-						<a *ngIf="i.IsValidLog && i.Gate.IsCateringService" (click)="showLog(i)">
-							<ion-icon *ngIf="i.Gate.IsCateringService" name="restaurant-outline"></ion-icon>&nbsp; {{i.Gate.Name}}
-						</a>
-					</div>
-				</div>
-			</ng-container>
-		</section>
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="{{'From' | translate}}" property="Time">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-text [color]="i.IsValidLog? 'success': 'danger'">{{i.Time}}</ion-text>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-date" name="Date" property="Date" filterControlType="time-frame"></datatable-column>
+			<datatable-column class="col-name" name="Checkin" property="Gate">
+				<ng-template let-i="row" datatable-cell-template>
+					<span *ngIf="!(i.IsValidLog && i.Gate?.IsCateringService)">{{i.Gate?.Name}}</span>
+					<a *ngIf="i.IsValidLog && i.Gate?.IsCateringService" (click)="showLog(i)"> <ion-icon name="restaurant-outline"></ion-icon>&nbsp;{{i.Gate?.Name}} </a>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
 	</div>
 	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
 		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>

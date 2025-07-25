@@ -39,6 +39,8 @@ export class ShiftPage extends PageBase {
 			if (t) {
 				i.Color = t.Color;
 			}
+			i.Start = lib.dateFormat('2000-01-01 ' + i.Start, 'hh:MM');
+			i.End = lib.dateFormat('2000-01-01 ' + i.End, 'hh:MM');
 		});
 		super.loadedData(event, ignoredFromGroup);
 	}

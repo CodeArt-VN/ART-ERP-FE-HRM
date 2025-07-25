@@ -1,82 +1,98 @@
 <ion-header>
-	<app-list-toolbar
-		pageTitle="{{'List' | translate}}"
-		[pageConfig]="pageConfig"
-		[selectedItems]="selectedItems"
-		[query]="query"
-		(add)="add()"
-		(refresh)="refresh()"
-		(export)="export()"
-		(import)="import($event)"
-		(help)="help()"
-		(unselect)="unselect()"
-		(archiveItems)="archiveItems()"
-		(deleteItems)="delete()"
-		(changeBranch)="changeBranch($event)"
-	></app-list-toolbar>
-	<section class="table">
-		<header class="bold">
-			<div class="col-checkbox cell"></div>
-			<div class="col-id cell" (click)="sortToggle('Id')">
-				{{'Id' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Id" [name]="sort.Id == 'Id'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Id" name="search" color="primary"></ion-icon>
-			</div>
-
-			<div class="col-code cell" (click)="sortToggle('Name')">
-				{{'Name' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Name" [name]="sort.Name == 'Name'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Name" name="search" color="primary"></ion-icon>
-			</div>
-			<div class="col-remark cell">Ghi chú</div>
-			<div class="col-code cell" (click)="sortToggle('Type')">
-				{{'Classification' | translate}}
-				<ion-icon class="min-btn" *ngIf="sort.Type" [name]="sort.Type == 'Type'?'arrow-down': 'arrow-up'"></ion-icon>
-				<ion-icon class="min-btn" (click)="pageConfig.isShowSearch = !pageConfig.isShowSearch" *ngIf="query.Type" name="search" color="primary"></ion-icon>
-			</div>
-		</header>
-		<form (submit)="refresh()" action="#">
-			<header class="filter" *ngIf="pageConfig.isShowSearch">
-				<div class="col-checkbox cell"></div>
-				<div class="col-id cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Id" class="c-input" [ngClass]="{active: query.Id}" type="text" />
-					<ion-icon class="min-btn" (click)="query.Id=''; refresh()" *ngIf="query.Id" name="close-circle-outline"></ion-icon>
-				</div>
-
-				<div class="col-code cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Name" class="c-input" [ngClass]="{active: query.Name}" type="text" />
-					<ion-icon class="min-btn" (click)="query.Name=''; refresh()" *ngIf="query.Name" name="close-circle-outline"></ion-icon>
-				</div>
-				<div class="col-remark cell"></div>
-				<div class="col-code cell">
-					<input [ngModelOptions]="{standalone: true}" [(ngModel)]="query.Type" class="c-input" [ngClass]="{active: query.Type}" type="text" />
-					<ion-icon class="min-btn" (click)="query.Type=''; refresh()" *ngIf="query.Type" name="close-circle-outline"></ion-icon>
-				</div>
-				<button mat-raised-button type="submit" style="display: none">{{'Search' | translate}}</button>
-			</header>
-		</form>
-	</section>
+	<app-toolbar [page]="this"></app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
-	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-	<div *ngIf="items.length && pageConfig.showSpinner==false">
-		<section class="table">
-			<div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-				<div class="col-checkbox cell">
-					<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-				</div>
-				<div (click)="nav('shift/'+i.Id,'forward')" class="col-id cell">{{i.Id}}</div>
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}"
+	forceOverscroll="false">
 
-				<div (click)="nav('shift/'+i.Id,'forward')" class="col-code cell">
+
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table class="box-shadow responsive" [rows]="items" [trackBy]="'Id'" [(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner" [showFilter]="pageConfig.isShowSearch" [(query)]="query"
+			(dataInfinite)="loadData($event)" (filter)="onDatatableFilter($event)" (sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)">
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-name" name="Name" property="Name">
+				<ng-template let-i="row" datatable-cell-template>
 					<ion-text [color]="i.Color"> {{i.Name}} </ion-text>
-				</div>
-				<div class="col-remark cell">{{i.Remark}}</div>
-				<div (click)="nav('shift/'+i.Id,'forward')" class="col-code cell">{{i.Type}}</div>
-			</div>
-		</section>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-remark" name="Remark" property="Remark">
+				<ng-template let-i="row" datatable-cell-template>
+					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+						<div>{{i.Remark}}</div>
+					</div>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-code" name="Shift type" property="Type">
+
+			</datatable-column>
+			<datatable-column class="col-custom" name="Standard working days" property="StdPoint">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Standard working days' | translate}}:</span>
+					<span>{{i.StdPoint}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-date" format="HH:mm" filterControlType="date" name="Starting time"
+				property="Start">
+			</datatable-column>
+			<datatable-column class="col-date" format="HH:mm" filterControlType="date" name="Finishing time"
+				property="End">
+			</datatable-column>
+
+			<datatable-column class="col-custom" name="Breaks" property="Breaks">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Breaks' | translate}}:</span>
+					<span>{{i.Breaks}}</span>
+				</ng-template>
+			</datatable-column>
+
+
+			<datatable-column class="col-custom" name="Earliest shift starting time" property="EarliestCheckIn">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Earliest shift starting time' | translate}}:</span>
+					<span>{{i.EarliestCheckIn}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Earliest shift ending time" property="EarliestCheckOut">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Earliest shift ending time' | translate}}:</span>
+					<span>{{i.EarliestCheckIn}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-custom" name="Latest shift starting time" property="LatestCheckIn">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Latest shift starting time' | translate}}:</span>
+					<span>{{i.LatestCheckIn}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Latest shift ending time" property="LatestCheckOut">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Latest shift ending time' | translate}}:</span>
+					<span>{{i.LatestCheckOut}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-icon" name="IsOvernightShift" property="IsOvernightShift">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-icon *ngIf="i.IsOvernightShift" [name]="i.Icon || 'moon'" [color]="i.Color || 'purple'"
+						slot="start"></ion-icon>
+				</ng-template>
+			</datatable-column>
+
+
+		</app-data-table>
 	</div>
-	<ion-infinite-scroll color="primary" threshold="20%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)"
+		[disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
 		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
 	</ion-infinite-scroll>
 </ion-content>
