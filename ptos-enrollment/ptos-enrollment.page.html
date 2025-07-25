@@ -36,7 +36,7 @@
 					</div>
 				</ng-template>
 			</datatable-column>
-			<datatable-column class="col-code" name="Policy" property="PTOPolicy">
+			<datatable-column class="col-name" name="Policy" property="PTOPolicy">
 				<ng-template let-i="row" datatable-cell-template>
 					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
 						<div>{{i.PTOPolicy.Name}}</div>

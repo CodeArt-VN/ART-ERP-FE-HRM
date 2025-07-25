@@ -29,6 +29,30 @@
 					</div>
 				</ng-template>
 			</datatable-column>
+			
+			<datatable-column class="col-code" name="Type" property="Type">
+			</datatable-column>
+			<datatable-column class="col-custom" name="CheckInPolicy" property="CheckInPolicy">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'CheckInPolicy' | translate}}:</span>
+					<span>{{i.CheckInPolicy}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-custom-number" name="Number of Daily working shift" property="NumberOfShiftPerDay">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Number of Daily working shift' | translate}}:</span>
+					<span>{{i.NumberOfShiftPerDay}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom-number" name="Working hours per day" property="WorkingHoursPerDay">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Working hours per day' | translate}}:</span>
+					<span>{{i.WorkingHoursPerDay}}</span>
+				</ng-template>
+			</datatable-column>
+
+
 			<datatable-column class="col-name" name="Unit" property="IDBranch">
 				<ng-template let-i="row" datatable-cell-template>
 					<app-branch-breadcrumbs

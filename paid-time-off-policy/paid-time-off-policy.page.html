@@ -36,6 +36,18 @@
 					</div>
 				</ng-template>
 			</datatable-column>
+			<datatable-column class="col-custom" name="Standard yearly leaves" property="NumberOfDays">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Standard yearly leaves' | translate}}:</span>
+					<span>{{i.NumberOfDays}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Remaning leaves carried forward next year" property="NumberOfCarryOnDays">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Remaning leaves carried forward next year' | translate}}:</span>
+					<span>{{i.NumberOfCarryOnDays}}</span>
+				</ng-template>
+			</datatable-column>
 			<datatable-column class="col-remark" name="Remark" property="Remark"> </datatable-column>
 		</app-data-table>
 	</div>

@@ -29,6 +29,34 @@
 					</div>
 				</ng-template>
 			</datatable-column>
+
+			<datatable-column class="col-code" name="Shift type" property="Type">
+			</datatable-column>
+			
+
+			<datatable-column class="col-date" format="HH:mm" filterControlType="date" name="Starting time"
+				property="Start">
+			</datatable-column>
+			<datatable-column class="col-date" format="HH:mm" filterControlType="date" name="Finishing time"
+				property="End">
+			</datatable-column>
+
+		
+
+			<datatable-column class="col-custom" filterControlType="date" name="Effective date" property="EffectiveDate">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Effective date' | translate}}: </span>
+					<span> {{i.EffectiveDate | date:'dd/MM/yyyy HH:mm'}}</span>
+				</ng-template>
+			</datatable-column>
+			
+
+			<datatable-column class="col-icon" name="IsOvernightShift" property="IsOvernightShift">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-icon *ngIf="i.IsOvernightShift" [name]="i.Icon || 'moon'" [color]="i.Color || 'purple'"
+						slot="start"></ion-icon>
+				</ng-template>
+			</datatable-column>
 			<datatable-column class="col-remark" name="Remark" property="Remark"> </datatable-column>
 		</app-data-table>
 	</div>

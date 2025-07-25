@@ -24,18 +24,14 @@
 			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
 
 			<datatable-column class="col-date" filterControlType="date" format="yyyy-MM-dd" name="From date" property="FromDate">
-				<ng-template let-i="row" datatable-cell-template>
-					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
-						<div>{{i.FromDate | date:'yyyy-MM-dd'}}</div>
-					</div>
-				</ng-template>
+				
 			</datatable-column>
-			<datatable-column class="col-date" filterControlType="date" format="yyyy-MM-dd" name="To date" property="ToDate">
-				<ng-template let-i="row" datatable-cell-template>
+			<datatable-column class="col-date" name="To date" property="ToDate">
+				<!-- <ng-template let-i="row" datatable-cell-template>
 					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
 						<div>{{i.ToDate | date:'yyyy-MM-dd'}}</div>
 					</div>
-				</ng-template>
+				</ng-template> -->
 			</datatable-column>
 			<datatable-column class="col-name" name="Name" property="Name">
 				<ng-template let-i="row" datatable-cell-template>
