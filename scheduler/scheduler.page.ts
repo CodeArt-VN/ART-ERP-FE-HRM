@@ -1173,7 +1173,7 @@ export class SchedulerPage extends PageBase {
 		cData.staffList = this.calendarOptions.resources;
 		cData.officeList = this.officeList;
 		cData.gateList = this.gateList;
-
+		cData.currentDate = this.items[0]?._CurrentDate;
 		const modal = await this.modalController.create({
 			component: LogGeneratorPage,
 			componentProps: cData,
@@ -1232,6 +1232,7 @@ export class SchedulerPage extends PageBase {
 			componentProps: {
 				cData: cData,
 				IDCycle: this.idCycle,
+				IDTimesheet: this.id,
 			},
 			cssClass: 'modal-hrm-point',
 		});
@@ -1575,15 +1576,7 @@ export class SchedulerPage extends PageBase {
 			this.env
 				.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise())
 				.then((resp) => {
-					this.env.publishEvent({
-						Code: 'app:ShowAppMessage',
-						IsShow: true,
-						Id: 'CalculationTimesheet',
-						Icon: 'flash',
-						IsBlink: true,
-						Color: 'danger',
-						Message: 'Đang tính công',
-					});
+					this.refresh();
 				})
 				.catch((err) => this.env.showErrorMessage(err));
 		}

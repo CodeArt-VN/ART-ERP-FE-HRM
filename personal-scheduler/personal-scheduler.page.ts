@@ -78,7 +78,7 @@ export class PersonalSchedulerPage extends PageBase {
 		super();
 		this.pageConfig.isShowFeature = false;
 		this.formGroupDate = this.formBuilder.group({
-			singleDate: [''],
+			singleDate:  [new Date().toISOString().split('T')[0]],
 		});
 	}
 
@@ -658,6 +658,10 @@ export class PersonalSchedulerPage extends PageBase {
 
 	async scanQRCode() {
 		try {
+			if (Capacitor.getPlatform() == 'web') {
+				this.scanQRCodeBS();
+				return;
+			}
 			let code = await this.scanner.scan();
 
 			let gateCode = '';
@@ -733,7 +737,6 @@ export class PersonalSchedulerPage extends PageBase {
 			});
 		} catch (error) {
 			console.error(error);
-			this.scanQRCodeBS();
 		}
 	}
 

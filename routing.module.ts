@@ -113,5 +113,8 @@ export const HRMRoutes: Routes = [
 
     { path: 'timesheet-log', loadChildren: () => import('./scheduler/timesheet-log/timesheet-log.module').then(m => m.TimesheetLogPageModule), canActivate: [AuthGuard] },
 
+
+    { path: 'timesheet-record', loadChildren: () => import('./timesheet-record/timesheet-record.module').then(m => m.TimesheetRecordPageModule), canActivate: [AuthGuard] },
+    { path: 'timesheet-record/:id/:idtimesheet', loadChildren: () => import('./timesheet-record-detail/timesheet-record-detail.module').then(m => m.TimesheetRecordDetailPageModule), canActivate: [AuthGuard] },
 ];
 

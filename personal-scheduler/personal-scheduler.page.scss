@@ -24,3 +24,14 @@ ion-content {
 	height: calc(100% - constant(safe-area-inset-top));
 	height: calc(100% - env(safe-area-inset-top));
 }
+
+@media screen and (max-width: calc(350px)) {
+	::ng-deep {
+		.fc .fc-toolbar.fc-header-toolbar .fc-button-primary {
+			font-size: 8px !important;
+		}
+		.fc .fc-toolbar.fc-header-toolbar .fc-toolbar-title{
+			font-size:20px !important;
+		}
+	}
+}

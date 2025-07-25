@@ -2,7 +2,7 @@ import { Component, ChangeDetectorRef, Input } from '@angular/core';
 import { NavController, LoadingController, AlertController, ModalController, NavParams } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
-import { HRM_ShiftProvider, HRM_TimesheetLogProvider, OST_OfficeGateProvider, OST_OfficeProvider } from 'src/app/services/static/services.service';
+import { HRM_ShiftProvider, HRM_TimesheetCycleProvider, HRM_TimesheetLogProvider, OST_OfficeGateProvider, OST_OfficeProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators } from '@angular/forms';
 import { lib } from 'src/app/services/static/global-functions';
 
@@ -15,14 +15,17 @@ import { lib } from 'src/app/services/static/global-functions';
 export class PointModalPage extends PageBase {
 	cData;
 	IDCycle;
+	IDTimesheet;
 	TimesheetLogList: any[] = [];
 	officeList: any[] = [];
 	gateList: any[] = [];
 	isShowCreateCheckin = false;
 	canCreateCheckinLog = false;
+	cycles: any;
 	constructor(
 		public pageProvider: HRM_ShiftProvider,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
+		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
 		public officeProvider: OST_OfficeProvider,
 		public gateProvider: OST_OfficeGateProvider,
 		public modalController: ModalController,
@@ -47,43 +50,42 @@ export class PointModalPage extends PageBase {
 
 	preLoadData(event?: any): void {
 		this.item = this.cData.event.extendedProps; // this.navParams.data.event.extendedProps;
-		// let dto : any = {
-		// 	IDTimesheet: this.item.IDTimesheet,
-		// 	StartDate: this.item.WorkingDate,
-		// 	EndDate: this.item.WorkingDate,
-		// 	IDCycle: this.IDCycle,
-		// 	IDStaff: this.item.IDStaff,
-		// };
 
 		// Tạo dto với LogTimeFrom và LogTimeTo
 		const workingDate = this.item.WorkingDate; // dạng dd/MM/yyyy
 		const [day, month, year] = workingDate.split('/');
 		const logTimeFrom = `${year}-${month}-${day}T00:00:00`;
 		const logTimeTo = `${year}-${month}-${day}T23:59:59`;
-		// dto.LogTimeFrom = logTimeFrom;
-		// dto.LogTimeTo = logTimeTo;
 
-		let d1 = lib.dateFormat(this.navParams.data.FromDate);
-		let d2 = lib.dateFormat(new Date());
-		if (d1 <= d2) {
-			this.canCreateCheckinLog = true;
-		}
+		// let d1 = lib.dateFormat(this.navParams.data.FromDate);
+		// let d2 = lib.dateFormat(new Date());
+		// if (d1 <= d2) {
+		// 	this.canCreateCheckinLog = true;
+		// }
+
 		Promise.all([
 			this.officeProvider.read(),
 			this.gateProvider.read(),
 			// this.pageProvider.commonService.connect('GET', 'HRM/TimesheetCycle/GetTimesheetLog', dto).toPromise(),
-			this.timesheetLogProvider.read({LogTimeFrom : logTimeFrom ,LogTimeTo: logTimeTo,IDStaff: this.item.IDStaff})
+			this.timesheetLogProvider.read({ LogTimeFrom: logTimeFrom, LogTimeTo: logTimeTo, IDStaff: this.item.IDStaff }),
+			this.timesheetCycleProvider.read({ DateStart: logTimeFrom.split('T')[0], DateEnd: logTimeTo.split('T')[0] }),
 		]).then((values: any) => {
 			this.officeList = values[0]['data'];
 			this.gateList = values[1]['data'];
 			this.TimesheetLogList = values[2].data;
-
+			this.cycles = values[3].data;
 			this.loadedData(event);
 		});
 	}
 	loadedData(event?: any): void {
 		this.formGroup.controls.IDStaff.setValue(this.item.IDStaff);
 		this.formGroup.controls.IDStaff.markAsDirty();
+		let timesheets = this.cycles?.map(s=> s.Timesheets).flat();
+		let timesheet = timesheets?.find((d) => d.IDTimesheet == this.IDTimesheet);
+		if (timesheet?.Status == 'Approved') {
+			this.canCreateCheckinLog = false;
+		}
+
 		super.loadedData(event);
 	}
 
