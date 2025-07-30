@@ -19,6 +19,7 @@ import { environment } from 'src/environments/environment';
 import { lib } from 'src/app/services/static/global-functions';
 import { HRM_TimesheetRecordService } from '../staff-timesheet-record.service';
 import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
+import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 
 @Component({
 	selector: 'app-timesheet-record-detail',
@@ -52,7 +53,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 
 	preLoadData(event?: any): void {
 		this.pageConfig.pageTitle = 'Timesheet record';
-		this.pageConfig.showSpinner= true;
+		this.pageConfig.showSpinner = true;
 		this.jobTitleList = lib.cloneObject(this.env.jobTitleList);
 		Promise.all([this.timesheetCycleProvider.getAnItem(this.id)]).then((values) => {
 			this.cycle = values[0];
@@ -84,7 +85,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 	}
 
 	exportPayrollRecords(type = null): Promise<void> {
-		let recordQuery = { IDTimesheet: this.IDTimesheet, ConfigUDFType: type };
+		let recordQuery = { IDTimesheet: this.IDTimesheet, ConfigUDFType: type, Lang: this.env.language.current };
 		if (this.submitAttempt) return;
 		this.submitAttempt = true;
 		this.env
@@ -200,8 +201,8 @@ export class TimesheetRecordDetailPage extends PageBase {
 		const modal = await this.popoverCtrl.create({
 			component: StaffTimesheetCalculationModalPage,
 			componentProps: {
-				formDate: lib.dateFormat(this.cycle.Start,'yyyy-MM-dd'),
-				toDate: lib.dateFormat(this.cycle.End,'yyyy-MM-dd'),
+				formDate: lib.dateFormat(this.cycle.Start, 'yyyy-MM-dd'),
+				toDate: lib.dateFormat(this.cycle.End, 'yyyy-MM-dd'),
 			},
 			cssClass: 'w300',
 			translucent: true,
@@ -218,5 +219,18 @@ export class TimesheetRecordDetailPage extends PageBase {
 				})
 				.catch((err) => this.env.showErrorMessage(err));
 		}
+	}
+
+	async calculateStaffPayroll() {
+		const modal = await this.popoverCtrl.create({
+			component: StaffPayrollModalPage,
+			componentProps: {
+				IDTimesheet: parseInt(this.IDTimesheet),
+				IDTimesheetCycle: parseInt(this.id),
+			},
+			cssClass: 'w300',
+			translucent: true,
+		});
+		await modal.present();
 	}
 }

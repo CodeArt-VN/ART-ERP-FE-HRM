@@ -11,3 +11,4 @@ import { TimesheetRecordDetailPage } from './timesheet-record-detail.page';
 	declarations: [TimesheetRecordDetailPage],
 })
 export class TimesheetRecordDetailPageModule {}
+ 

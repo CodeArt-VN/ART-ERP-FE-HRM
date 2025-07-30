@@ -8,7 +8,11 @@
 			<ion-icon slot="icon-only" name="document-attach-outline"></ion-icon>
 		</ion-button>
 		<!-- && pageConfig.ShowCalculate -->
-		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canCalculate" title="{{'Calculation ' | translate}}" (click)="calculateTimesheet()">
+		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canCalculate" title="{{'Calculation timesheet record' | translate}}" (click)="calculateTimesheet()">
+			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
+		</ion-button>
+
+			<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canCalculate" title="{{'Calculation staff payroll' | translate}}" (click)="calculateStaffPayroll()">
 			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
 		</ion-button>
 		<!-- <ion-button
