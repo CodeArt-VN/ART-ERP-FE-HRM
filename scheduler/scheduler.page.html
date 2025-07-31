@@ -145,8 +145,8 @@
 			</ion-button> -->
 		</ng-container>
 	</app-toolbar>
-	<ion-toolbar style="--padding-start: 4px">
-		<ion-segment (ionChange)="segmentChanged($event)" [value]="segmentView">
+	<ion-toolbar *ngIf="id" style="--padding-start: 4px">
+		<ion-segment  (ionChange)="segmentChanged($event)" [value]="segmentView">
 			<ion-segment-button value="s1">
 				<ion-label>{{'Scheduler' | translate}}</ion-label>
 			</ion-segment-button>
