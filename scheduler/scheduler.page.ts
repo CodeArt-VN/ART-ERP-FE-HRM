@@ -160,25 +160,25 @@ export class SchedulerPage extends PageBase {
 				this.timesheetCycleProvider.getAnItem(this.idCycle).then((result) => {
 					this.cycle = result;
 				});
+				this.env
+					.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
+					.then((resp) => {
+						this.allResources = resp['data'];
+						//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+						this.staffList = this.allResources.map((m) => m.IDStaff);
+					})
+					.catch((err) => {
+						console.log(err);
+						this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
+					})
+					.finally(() => {
+						if (this.segmentView == 's1' && !this.navigateObj) {
+							super.loadData(event);
+						}
+					});
 			}
 		});
 
-		this.env
-			.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
-			.then((resp) => {
-				this.allResources = resp['data'];
-				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-				this.staffList = this.allResources.map((m) => m.IDStaff);
-			})
-			.catch((err) => {
-				console.log(err);
-				this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
-			})
-			.finally(() => {
-				if (this.segmentView == 's1' && !this.navigateObj) {
-					super.loadData(event);
-				}
-			});
 		Promise.all([
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
@@ -209,6 +209,7 @@ export class SchedulerPage extends PageBase {
 			this.gateList = values[6]['data'];
 			if (this.id) {
 				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+
 				if (!this.selectedTimesheet) return super.loadedData(event);
 			} else if (this.timesheetList.length) {
 				this.selectedTimesheet = this.timesheetList[0];
@@ -227,9 +228,14 @@ export class SchedulerPage extends PageBase {
 
 	loadData(event?: any) {
 		this.showLoading();
-		if (this.segmentView == 's1') this.loadSchedulerData(event);
-		else if (this.segmentView == 's2') this.loadCheckinLogData(event);
-		else this.loadTimesheetCycle(event);
+		this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp: any) => {
+			this.allResources = resp['data'];
+			//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+			this.staffList = this.allResources.map((m) => m.IDStaff);
+			if (this.segmentView == 's1') this.loadSchedulerData(event);
+			else if (this.segmentView == 's2') this.loadCheckinLogData(event);
+			else this.loadTimesheetCycle(event);
+		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
@@ -287,6 +293,7 @@ export class SchedulerPage extends PageBase {
 			this.loadedData(event);
 		}
 	}
+
 
 	loadedSchedulerData(event?: any, ignoredFromGroup?: boolean) {
 		this.calendarOptions.eventContent = (arg) => {
