@@ -28,8 +28,10 @@
 			<datatable-column class="col-date" name="Date" property="Date" filterControlType="time-frame"></datatable-column>
 			<datatable-column class="col-name" name="Checkin" property="Gate">
 				<ng-template let-i="row" datatable-cell-template>
-					<span *ngIf="!(i.IsValidLog && i.Gate?.IsCateringService)">{{i.Gate?.Name}}</span>
-					<a *ngIf="i.IsValidLog && i.Gate?.IsCateringService" (click)="showLog(i)"> <ion-icon name="restaurant-outline"></ion-icon>&nbsp;{{i.Gate?.Name}} </a>
+					<span *ngIf="!(i.IsValidLog && i.Gate?.IsCateringService)"> {{i.Gate?.Name}} </span>
+						<a *ngIf="i.IsValidLog && i.Gate?.IsCateringService" (click)="showLog(i)">
+							<ion-icon *ngIf="i.Gate?.IsCateringService" name="restaurant-outline"></ion-icon>&nbsp; {{i.Gate?.Name}}
+						</a>
 				</ng-template>
 			</datatable-column>
 		</app-data-table>
