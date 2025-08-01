@@ -5,7 +5,7 @@ import { AlertController, LoadingController, PopoverController, ModalController,
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { lib } from 'src/app/services/static/global-functions';
-import { BRA_BranchProvider, HRM_TimesheetProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, HRM_TimesheetProvider, HRM_TimesheetTemplateProvider } from 'src/app/services/static/services.service';
 
 @Component({
 	selector: 'app-timesheet-detail',
@@ -15,8 +15,10 @@ import { BRA_BranchProvider, HRM_TimesheetProvider } from 'src/app/services/stat
 })
 export class TimesheetDetailPage extends PageBase {
 	dataIDBranchList = [];
+	timesheetTemplateList = [];
 	constructor(
 		public pageProvider: HRM_TimesheetProvider,
+		public timesheetTemplateProvider: HRM_TimesheetTemplateProvider,
 		public branchProvicer: BRA_BranchProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
@@ -40,7 +42,7 @@ export class TimesheetDetailPage extends PageBase {
 			Type: ['', Validators.required],
 			Sort: [''],
 			Remark: [''],
-
+			IDTimesheetTemplate: ['', Validators.required],
 			CheckInPolicy: ['', Validators.required],
 			NumberOfShiftPerDay: ['', Validators.required],
 			WorkingHoursPerDay: ['', Validators.required],
@@ -64,7 +66,12 @@ export class TimesheetDetailPage extends PageBase {
 
 	timesheetTypeList;
 	CheckInOutPolicyList;
-
+	preLoadData(event?: any): void {
+		this.timesheetTemplateProvider.read().then((value:any) => {
+			this.timesheetTemplateList = value?.data;
+			super.preLoadData(event);
+		});
+	}
 	loadedData(event) {
 		// this.dataIDBranchList = this.env.branchList;
 		this.env.getType('TimesheetType').then((data) => {

@@ -6,9 +6,9 @@
 		</ion-buttons>
 
 		<ion-buttons slot="primary" *ngIf="fc">
-			<ion-button (click)="scanQRCodeBS()">
+			<!-- <ion-button (click)="scanQRCodeBS()">
 				<ion-icon name="qr-code-outline"></ion-icon>
-			</ion-button>
+			</ion-button> -->
 
 			<!-- <ion-button (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
 			<!-- <ion-button (click)="pickDate()" title="{{'...' | translate}}"> {{'Pick date' | translate}} </ion-button> -->
@@ -28,9 +28,9 @@
 		<full-calendar #calendar [options]="calendarOptions"></full-calendar>
 	</div>
 
-	<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+	<!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
 		<ion-fab-button color="primary" (click)="scanQRCode()">
 			<ion-icon name="qr-code-outline"></ion-icon>
 		</ion-fab-button>
-	</ion-fab>
+	</ion-fab> -->
 </ion-content>

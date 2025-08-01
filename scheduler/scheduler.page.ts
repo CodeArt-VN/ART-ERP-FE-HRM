@@ -38,6 +38,7 @@ import { TimesheetLogPage } from './timesheet-log/timesheet-log.page';
 import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
 import { FormBuilder } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
 	selector: 'app-scheduler',
@@ -63,6 +64,7 @@ export class SchedulerPage extends PageBase {
 	gateList = [];
 	cycle: any;
 	formGroupDate: any;
+	tooltipResource = '';
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
@@ -85,7 +87,8 @@ export class SchedulerPage extends PageBase {
 		public route: ActivatedRoute,
 		public router: Router,
 		public navCtrl: NavController,
-		public formBuilder: FormBuilder
+		public formBuilder: FormBuilder,
+		public translate: TranslateService
 	) {
 		super();
 		// this.pageConfig.isShowFeature = true;
@@ -94,6 +97,10 @@ export class SchedulerPage extends PageBase {
 		console.log('today', today);
 		this.formGroupDate = this.formBuilder.group({
 			singleDate: [today],
+		});
+
+		this.translate.get('The employee has been removed from the work schedule.').subscribe((text)=> {
+			this.tooltipResource = text;
 		});
 	}
 
@@ -152,7 +159,7 @@ export class SchedulerPage extends PageBase {
 	preLoadData(event?: any): void {
 		this.pageConfig.pageTitle = '';
 		this.route.queryParams.subscribe((params) => {
-			this.navigateObj = this.router.getCurrentNavigation().extras.state;
+			this.navigateObj = this.router.getCurrentNavigation()?.extras.state;
 			if (this.navigateObj) {
 				this.id = this.navigateObj?.id;
 				this.idCycle = this.navigateObj?.IDCycle;
@@ -160,25 +167,25 @@ export class SchedulerPage extends PageBase {
 				this.timesheetCycleProvider.getAnItem(this.idCycle).then((result) => {
 					this.cycle = result;
 				});
+				this.env
+					.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
+					.then((resp) => {
+						this.allResources = resp['data'];
+						//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+						this.staffList = this.allResources.map((m) => m.IDStaff);
+					})
+					.catch((err) => {
+						console.log(err);
+						this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
+					})
+					.finally(() => {
+						if (this.segmentView == 's1' && !this.navigateObj) {
+							super.loadData(event);
+						}
+					});
 			}
 		});
 
-		this.env
-			.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
-			.then((resp) => {
-				this.allResources = resp['data'];
-				//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
-				this.staffList = this.allResources.map((m) => m.IDStaff);
-			})
-			.catch((err) => {
-				console.log(err);
-				this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
-			})
-			.finally(() => {
-				if (this.segmentView == 's1' && !this.navigateObj) {
-					super.loadData(event);
-				}
-			});
 		Promise.all([
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
@@ -209,7 +216,11 @@ export class SchedulerPage extends PageBase {
 			this.gateList = values[6]['data'];
 			if (this.id) {
 				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
-				if (!this.selectedTimesheet) return super.loadedData(event);
+				if (!this.selectedTimesheet){
+					this.id = null;
+					var a =0;   
+					return super.loadedData(event);
+				} 
 			} else if (this.timesheetList.length) {
 				this.selectedTimesheet = this.timesheetList[0];
 				this.id = this.selectedTimesheet.Id;
@@ -227,9 +238,14 @@ export class SchedulerPage extends PageBase {
 
 	loadData(event?: any) {
 		this.showLoading();
-		if (this.segmentView == 's1') this.loadSchedulerData(event);
-		else if (this.segmentView == 's2') this.loadCheckinLogData(event);
-		else this.loadTimesheetCycle(event);
+		this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp: any) => {
+			this.allResources = resp['data'];
+			//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
+			this.staffList = this.allResources.map((m) => m.IDStaff);
+			if (this.segmentView == 's1') this.loadSchedulerData(event);
+			else if (this.segmentView == 's2') this.loadCheckinLogData(event);
+			else this.loadTimesheetCycle(event);
+		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
@@ -245,23 +261,33 @@ export class SchedulerPage extends PageBase {
 		else this.loadedTimesheetCycle(event, ignoredFromGroup);
 		this.calendarOptions.resources = this.allResources.filter((resource) => {
 			if (resource.EndDate == null) return true;
+			resource.isDeleted = true;
 			const endDate = new Date(resource.EndDate);
 			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
 			if (!hasData && new Date(this.fc?.view?.activeStart) > endDate) {
 				return hasData; // Chỉ giữ nếu còn dữ liệu2
 			}
-
 			return true; // Chưa xóa => giữ
 		});
 		this.calendarOptions.resourceLabelContent = (arg) => {
 			let imgpath = environment.staffAvatarsServer + arg.resource.extendedProps.Code + '.jpg';
-			let html = `
-            <div class="staff-resource">
-                <span class="name">
-                    <span class="code">${arg.resource.extendedProps.Code} </span>
-                </span>
-                <ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>
-            </div>`;
+			let html = '';
+			if (!arg.resource.extendedProps.isDeleted) {
+				html = `
+						<div class="staff-resource">
+							<span class="name">
+								<span class="code">${arg.resource.extendedProps.Code} </span>
+							</span>
+							<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>
+						</div>`;
+			} else {
+				html = `
+						<div class="staff-resource">
+							<span class="name">
+								<span class="code">${arg.resource.extendedProps.Code} </span>
+							</span>
+						</div>`;
+			}
 			return { html: html };
 		};
 		this.loadingController.dismiss();
@@ -734,6 +760,16 @@ export class SchedulerPage extends PageBase {
 				headerClassNames: 'FullName',
 				headerContent: 'Họ và tên',
 				width: 200,
+				cellContent: (arg) => {
+					const el = document.createElement('div');
+					el.innerText = arg.resource.extendedProps.FullName;
+					if (arg.resource.extendedProps.isDeleted) {
+						el.innerText = el.innerText + '!';
+						el.title = this.tooltipResource;
+						el.style.color = lib.getCssVariableValue('--ion-color-danger');
+					}
+					return { domNodes: [el] };
+				},
 			},
 			{
 				//group: true,
@@ -806,30 +842,35 @@ export class SchedulerPage extends PageBase {
 	}
 
 	resourceLabelDidMount(arg) {
+		if (arg.resource.extendedProps.isDeleted) {
+			arg.el.style.color = lib.getCssVariableValue('--ion-color-danger');
+		}
 		let that = this;
-		arg.el.querySelector('.del-event-btn').onclick = function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			that.env
-				.showPrompt('Bạn có chắc muốn xóa nhân sự này?', null, 'Phân ca')
-				.then((_) => {
-					that.submitAttempt = true;
-					console.log(arg);
+		if (arg.el.querySelector('.del-event-btn')) {
+			arg.el.querySelector('.del-event-btn').onclick = function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				that.env
+					.showPrompt('Bạn có chắc muốn xóa nhân sự này?', null, 'Phân ca')
+					.then((_) => {
+						that.submitAttempt = true;
+						console.log(arg);
 
-					that.staffTimesheetEnrollmentProvider
-						.save({
-							DeletedID: parseInt(arg.resource._resource.extendedProps.Id),
-						})
-						.then((savedItem: any) => {
-							arg.resource.remove();
-							that.submitAttempt = false;
-						})
-						.catch((err) => {
-							that.submitAttempt = false;
-						});
-				})
-				.catch((e) => {});
-		};
+						that.staffTimesheetEnrollmentProvider
+							.save({
+								DeletedID: parseInt(arg.resource._resource.extendedProps.Id),
+							})
+							.then((savedItem: any) => {
+								arg.resource.remove();
+								that.submitAttempt = false;
+							})
+							.catch((err) => {
+								that.submitAttempt = false;
+							});
+					})
+					.catch((e) => {});
+			};
+		}
 	}
 	eventDidMount(arg) {
 		let that = this;
@@ -1173,7 +1214,7 @@ export class SchedulerPage extends PageBase {
 		cData.staffList = this.calendarOptions.resources;
 		cData.officeList = this.officeList;
 		cData.gateList = this.gateList;
-
+		cData.currentDate = this.items[0]?._CurrentDate;
 		const modal = await this.modalController.create({
 			component: LogGeneratorPage,
 			componentProps: cData,
@@ -1232,6 +1273,7 @@ export class SchedulerPage extends PageBase {
 			componentProps: {
 				cData: cData,
 				IDCycle: this.idCycle,
+				IDTimesheet: this.id,
 			},
 			cssClass: 'modal-hrm-point',
 		});
@@ -1575,15 +1617,7 @@ export class SchedulerPage extends PageBase {
 			this.env
 				.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise())
 				.then((resp) => {
-					this.env.publishEvent({
-						Code: 'app:ShowAppMessage',
-						IsShow: true,
-						Id: 'CalculationTimesheet',
-						Icon: 'flash',
-						IsBlink: true,
-						Color: 'danger',
-						Message: 'Đang tính công',
-					});
+					this.refresh();
 				})
 				.catch((err) => this.env.showErrorMessage(err));
 		}

@@ -1,0 +1,146 @@
+<ion-header>
+	<app-toolbar [page]="this">
+		<ion-button
+			*ngIf="!pageConfig.showSpinner && (pageConfig.canExportAllData || pageConfig.canImportAllData || pageConfig.canExportInputData || pageConfig.canImportInputData)"
+			title="{{'Import / Export' | translate}}"
+			(click)="presentPopover($event)"
+		>
+			<ion-icon slot="icon-only" name="document-attach-outline"></ion-icon>
+		</ion-button>
+		<!-- && pageConfig.ShowCalculate -->
+		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canCalculate" title="{{'Calculation timesheet record' | translate}}" (click)="calculateTimesheet()">
+			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
+		</ion-button>
+
+			<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canCalculate" title="{{'Calculation staff payroll' | translate}}" (click)="calculateStaffPayroll()">
+			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
+		</ion-button>
+		<!-- <ion-button
+			*ngIf="!pageConfig.showSpinner && pageConfig.canConfigPayroll && pageConfig.ShowConfigPayroll"
+			title="{{'Open payroll config' | translate}}"
+			(click)="nav('staff-payroll/config/'+item.Id,'forward')"
+		>
+			<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
+		</ion-button> -->
+		<!-- <ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canSendPayslip && pageConfig.ShowSendPayslip" title="{{'Send payslip' | translate}}" (click)="sendPayslip()">
+			<ion-icon slot="icon-only" name="mail-outline"></ion-icon>
+		</ion-button> -->
+		<ion-popover #Popover [isOpen]="isOpenPopover" (didDismiss)="isOpenPopover = false">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<!-- && pageConfig.ShowExportAllData -->
+						<ion-item *ngIf="pageConfig.canExportAllData " (click)="exportPayrollRecords()" [button]="true" [detail]="false" title="{{'Export' | translate}}">
+							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+							<ion-label> {{'Export all data' | translate}}</ion-label>
+						</ion-item>
+						<!-- && pageConfig.ShowImportAllData -->
+						<ion-item
+							*ngIf="pageConfig.canEdit && pageConfig.canImportAllData "
+							(click)="onClickImport()"
+							[button]="true"
+							[detail]="false"
+							title="{{'Import all data' | translate}}"
+						>
+							<ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+							<ion-label> {{'Import' | translate}}</ion-label>
+							<input class="hide-all" #importfile type="file" accept=".xlsx" (change)="importTimesheetRecords($event)" />
+						</ion-item>
+						<!-- && pageConfig.ShowExportInputData -->
+						<ion-item
+							*ngIf="(pageConfig.canExportInputData || pageConfig.canExportAllData) "
+							(click)="exportPayrollRecords('Input')"
+							[button]="true"
+							[detail]="false"
+							title="{{'Export input data' | translate}}"
+						>
+							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+							<ion-label> {{'Export input data' | translate}}</ion-label>
+						</ion-item>
+						<!-- && pageConfig.ShowImportInputData -->
+						<ion-item
+							*ngIf="pageConfig.canEdit && (pageConfig.canImportInputData || pageConfig.canImportAllData)"
+							(click)="onClickImportInput()"
+							[button]="true"
+							[detail]="false"
+							title="{{'Import input data' | translate}}"
+						>
+							<ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+							<ion-label> {{'Import input data' | translate}}</ion-label>
+							<input class="hide-all" #importInputFile type="file" accept=".xlsx" (change)="importPayrollRecordInput($event)" />
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+			<!-- <ion-button *ngIf="!pageConfig.showSpinner" title="{{'Export' | translate}}" (click)="exportPayrollRecords()">
+				<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
+			</ion-button> -->
+		</ion-popover>
+	</app-toolbar>
+</ion-header>
+<ion-content appScrollbarTheme scroll-x="true">
+	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table
+			*ngIf="!pageConfig.showSpinner"
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-empty-message subMessage="Please click calculation to start...">
+				<ng-template datatable-empty-message-template>
+					<div>
+						<ion-button size="small" (click)="calculateTimesheet()">
+							<ion-icon slot="start" name="calculator-outline"></ion-icon>
+							{{ 'Calculation timesheet' | translate }}
+						</ion-button>
+					</div>
+				</ng-template>
+			</datatable-empty-message>
+
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-name flex-break" name="Staff" property="_Staff">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-avatar class="avatar" slot="start">
+						<ion-img #img [src]="i._Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+					</ion-avatar>
+					<div>
+						<span class="bold">{{i._Staff.FullName}}</span>
+						<small *ngIf="i._Staff.Code" class="no-warp"> {{i._Staff.Code}}</small>
+						<br />
+						{{i._Staff.JobTitle}}
+					</div>
+				</ng-template>
+			</datatable-column>
+			<ng-container *ngIf="items.length > 0">
+				<ng-container *ngFor="let c of items[0]._Config ; let idx = index">
+					<datatable-column class="col-remark" [name]="c.Name" property="_ListUDFValue">
+						<ng-template let-i="row" datatable-cell-template>
+							<ng-container *ngIf="c.DataType == 'int' || c.DataType == 'number' || c.DataType == 'decimal' ; else textTemplate">
+								{{i._ListUDFValue[c.Code] || c.UDFValue | number:'1.0-0'}}
+							</ng-container>
+							<ng-template #textTemplate> {{ i._ListUDFValue[c.Code] ||c.UDFValue}} </ng-template>
+						</ng-template>
+					</datatable-column>
+				</ng-container>
+			</ng-container>
+		</app-data-table>
+	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

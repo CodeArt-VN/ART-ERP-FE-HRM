@@ -10,6 +10,8 @@ import { Device } from '@capacitor/device';
 import { Geolocation } from '@capacitor/geolocation';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
+import { HttpClient } from '@angular/common/http';
+import { ScanCheckinModalPage } from '../scan-checkin-modal/scan-checkin-modal.page';
 
 @Component({
 	selector: 'app-checkin',
@@ -28,6 +30,7 @@ export class CheckinPage extends PageBase {
 		public alertCtrl: AlertController,
 		public loadingController: LoadingController,
 		public env: EnvService,
+		private http: HttpClient,
 		public navCtrl: NavController
 	) {
 		super();
@@ -94,6 +97,10 @@ export class CheckinPage extends PageBase {
 	}
 
 	async scanQRCode() {
+		if (Capacitor.getPlatform() == 'web') {
+			this.scanQRCodeBS();
+			return;
+		}
 		try {
 			let code = await this.scanner.scan();
 
@@ -171,6 +178,31 @@ export class CheckinPage extends PageBase {
 		} catch (error) {
 			console.error(error);
 		}
+	}
+	async scanQRCodeBS() {
+		// this.pageProvider.commonService
+		// 	.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null)
+		// 	.toPromise()
+		// 	.then((resp: any) => {
+		// 		this.myIP = resp;
+		// 		console.log(this.myIP);
+		// 	});
+		this.env.showLoading('Loading ...', this.http.get('https://api.ipify.org/?format=json').toPromise()).then(async (resp: any) => {
+			this.myIP = resp.ip;
+
+			const modal = await this.modalController.create({
+				component: ScanCheckinModalPage,
+				componentProps: {
+					myIP: this.myIP,
+				},
+				cssClass: 'my-custom-class',
+			});
+
+			await modal.present();
+			const { data } = await modal.onWillDismiss();
+			this.loadData(null);
+			console.log('Public IP:', this.myIP);
+		});
 	}
 
 	async showLog(cData) {
