@@ -3,7 +3,7 @@
 	        datatable-body-cell.cell.col-custom {
 	            order: 8;
 	            min-width: calc(100% + 100px) !important;
-	            font-size: 90%;
+	            font-size: 100%;
 	            justify-content: flex-start !important;
 	        }
 
@@ -21,7 +21,7 @@
 	::ng-deep {
 	    datatable-body-cell.cell.col-custom {
 	        justify-content: flex-end;
-	        max-width: 100px;
+	        max-width: 125px;
 	    }
 
 	    datatable-header-cell.cell.col-custom {

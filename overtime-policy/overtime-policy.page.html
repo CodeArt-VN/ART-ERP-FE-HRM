@@ -46,7 +46,7 @@
 			<datatable-column class="col-custom" filterControlType="date" name="Effective date" property="EffectiveDate">
 				<ng-template let-i="row" datatable-cell-template>
 					<span class="sp-custom">{{'Effective date' | translate}}: </span>
-					<span> {{i.EffectiveDate | date:'dd/MM/yyyy HH:mm'}}</span>
+					<span class="sp-custom-date"> {{i.EffectiveDate | date:'dd/MM/yyyy HH:mm'}}</span>
 				</ng-template>
 			</datatable-column>
 			

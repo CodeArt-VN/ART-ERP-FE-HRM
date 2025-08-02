@@ -32,7 +32,7 @@
 			<datatable-column class="col-code" name="Code" property="Staff">
 				<ng-template let-i="row" datatable-cell-template>
 					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
-						<div>{{i.Staff.Code}}</div>
+						<span>{{i.Staff.Code}}</span>
 					</div>
 				</ng-template>
 			</datatable-column>
