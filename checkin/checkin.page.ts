@@ -34,12 +34,28 @@ export class CheckinPage extends PageBase {
 		public navCtrl: NavController
 	) {
 		super();
+
+		this.pageConfig.dividers = [
+			{
+				field: 'LogTime',
+				dividerFn: (record, recordIndex, records) => {
+					let a: any = recordIndex == 0 ? new Date('2000-01-01') : new Date(records[recordIndex - 1].LogTime);
+					let b: any = new Date(record.LogTime);
+					let mins = Math.floor((b - a) / 1000 / 60);
+
+					if (Math.abs(mins) < 600) {
+						return null;
+					}
+					return  lib.dateFormat(record.LogTime, 'dd/mm/yyyy') ;
+				},
+			},
+		];
 	}
 	gateList = [];
 	myIP = '';
 	preLoadData(event?: any): void {
-		this.sort.LogTime = 'LogTime';
-		this.sortToggle('LogTime', true);
+		this.pageConfig.sort = [{ Dimension: 'LogTime', Order: 'DESC' }];
+		
 		this.query.IDStaff = this.env.user.StaffID;
 
 		this.gateProvider.read().then((resp) => {
@@ -57,7 +73,7 @@ export class CheckinPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		this.items.forEach((i) => {
+		this.items.forEach((i, idx, arr) => {
 			i.Time = lib.dateFormat(i.LogTime, 'hh:MM');
 			i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
 			i.Gate = this.gateList.find((d) => d.Id == i.IDGate);

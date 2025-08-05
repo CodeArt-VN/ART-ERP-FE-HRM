@@ -1,0 +1,38 @@
+	@media screen and (max-width: 1164px) {
+	    ::ng-deep {
+	        datatable-body-cell.cell.col-custom {
+	            order: 8;
+	            min-width: calc(100% + 100px) !important;
+	            font-size: 100%;
+	            justify-content: flex-start !important;
+	        }
+
+	        datatable-body-cell.cell.col-name {
+	            min-width: calc(100% + 100px) !important;
+	        }
+
+	        .sp-custom {
+	            display: block !important;
+	        }
+
+	    }
+	}
+
+	::ng-deep {
+	    datatable-body-cell.cell.col-custom {
+	        justify-content: flex-end;
+	        max-width: 125px;
+	    }
+
+	    datatable-header-cell.cell.col-custom {
+	        max-width: 125px;
+	    }
+
+	    app-data-table .col-icon {
+	        max-width: 100px;
+	    }
+        
+	    .sp-custom {
+	        display: none;
+	    }
+	}

@@ -1,0 +1,57 @@
+@media screen and (max-width: 1164px) {
+    ::ng-deep {
+        datatable-body-cell.cell.col-custom {
+            order: 8;
+            min-width: calc(100% + 100px) !important;
+            font-size: 100%;
+            justify-content: flex-start !important;
+        }
+
+        .sp-custom {
+            display: block !important;
+        }
+
+        app-data-table .col-name,
+        .table .col-name {
+            min-width: 85%;
+        }
+        datatable-body-cell.cell.col-custom {
+            .sp-custom-date {
+                padding: 1px 7px 1px 0 !important;
+                border-left: solid 3px rgba(var(--ion-color-primary-rgb, 0, 0, 0), 0.2);
+                background-color: rgba(var(--ion-color-primary-rgb, 0, 0, 0), 0.1);
+                border-radius: 2px;
+                font-size: 80%;
+                margin-right: 5px;
+                max-width: fit-content !important;
+                min-width: fit-content !important;
+            }
+        }
+        
+
+        app-data-table.responsive .row .col-code {
+            margin-right: 42%;
+        }
+    }
+}
+
+::ng-deep {
+    datatable-body-cell.cell.col-custom {
+        max-width: 200px;
+        min-width: fit-content;
+        justify-content: center;
+    }
+
+    datatable-header-cell.cell.col-custom {
+        max-width: 200px;
+        min-width: fit-content;
+    }
+
+    app-data-table .col-icon {
+        max-width: 100px;
+    }
+
+    .sp-custom {
+        display: none;
+    }
+}

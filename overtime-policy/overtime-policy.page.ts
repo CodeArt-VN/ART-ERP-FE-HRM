@@ -4,6 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { Location } from '@angular/common';
 import { HRM_PolOvertimeProvider } from 'src/app/services/static/services.service';
+import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
 	selector: 'app-overtime-policy',
@@ -23,5 +24,14 @@ export class OvertimePolicyPage extends PageBase {
 		public location: Location
 	) {
 		super();
+	}
+
+
+	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.items.forEach((i) => {
+			i.Start = lib.dateFormat('2000-01-01 ' + i.Start, 'hh:MM');
+			i.End = lib.dateFormat('2000-01-01 ' + i.End, 'hh:MM');
+		});
+		super.loadedData(event, ignoredFromGroup);
 	}
 }

@@ -1,0 +1,8 @@
+	@media screen and (max-width: 1164px) {
+	    ::ng-deep {
+
+	        datatable-body-cell.cell.col-name {
+                min-width: calc(100% + 100px) !important;
+	        }
+	    }
+	}
