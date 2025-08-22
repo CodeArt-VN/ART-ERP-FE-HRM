@@ -25,17 +25,17 @@
 						<app-form-control (change)="saveChange2()" [field]="{id: 'Code', label: 'Code', type: 'text', form: formGroup}"> </app-form-control>
 						<app-form-control
 							(change)="changePolSalary($event)"
-							[field]="{id: 'IDPolSalary', label: 'Policy salary', type: 'ng-select',dataSource:polSalaryList, bindLabel:'Name', bindValue:'Id', form: formGroup}"
+							[field]="{id: 'IDPolSalary', label: 'Policy salary', type: 'ng-select',dataSource:polSalaryList, bindLabel:'Name', bindValue:'Id', form: formGroup ,appendTo:'#ng-select'}"
 						>
 						</app-form-control>
 						<app-form-control
 							(change)="saveChange2()"
-							[field]="{id: 'SalaryCalculationMethod', label: 'Salary calculation method', type: 'ng-select',dataSource:calculationMethodList, bindLabel:'Name', bindValue:'Code', form: formGroup}"
+							[field]="{id: 'SalaryCalculationMethod', label: 'Salary calculation method', type: 'ng-select',dataSource:calculationMethodList, bindLabel:'Name', bindValue:'Code', form: formGroup,appendTo:'#ng-select'}"
 						>
 						</app-form-control>
 					</ion-col>
 					<ion-col size="12" size-sm size-xl="4">
-						<app-form-control [field]="{id: 'Status', label: 'Status', type: 'ng-select',dataSource : statusList,bindLabel:'Name',bindValue:'Code', form: formGroup}">
+						<app-form-control [field]="{id: 'Status', label: 'Status', type: 'ng-select',dataSource : statusList,bindLabel:'Name',bindValue:'Code', form: formGroup ,appendTo:'#ng-select'}">
 						</app-form-control>
 						<app-form-control (change)="saveChange2()" [field]="{id: 'Remark', label: 'Remark', type: 'textarea', form: formGroup}"> </app-form-control>
 					</ion-col>
@@ -50,9 +50,6 @@
 						<ion-label>{{'UDF list' | translate}}</ion-label>
 					</ion-segment-button>
 					<ion-segment-button value="s2">
-						<ion-label>{{'Define value' | translate}}</ion-label>
-					</ion-segment-button>
-					<ion-segment-button value="s3">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
@@ -64,6 +61,7 @@
 				</ion-buttons>
 			</ion-toolbar>
 			<div *ngIf="segmentView == 's1'">
+				<div id="ng-select" style="position: absolute; z-index: 30005"></div>
 				<ion-grid fixed>
 					<ion-row>
 						<ion-col size="12">
@@ -102,16 +100,21 @@
 																	<app-form-control
 																		(change)="changeUDF($event,g)"
 																		[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFList,bindLabel:'Name',bindValue:'Id',
-																	 form : g }"
+																	 form : g,appendTo:'#ng-select' } "
 																	></app-form-control>
 																	<app-form-control
 																		(change)="saveChange2()"
-																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:payrollTemplateType,bindLable:'Name',bindValue:'Code',form : g }"
+																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:payrollTemplateType,bindLable:'Name',bindValue:'Code',form : g,appendTo:'#ng-select' }"
 																	>
 																	</app-form-control>
 
 																	<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }" (change)="saveChange2()">
 																	</app-form-control>
+
+																	<app-form-control
+																		(change)="saveChange2()"
+																		[field]="{ id: 'UDFValue', type:g.get('ControlType').value, label:'Value',dataSource:UDFList, form: g,appendTo:'#detail-page' }"
+																	></app-form-control>
 
 																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange()">
 																	</app-form-control>
@@ -150,40 +153,6 @@
 				</ion-grid>
 			</div>
 			<div *ngIf="segmentView == 's2'">
-				<ion-grid fixed *ngIf="arrayUDFGroup.length > 0">
-					<ion-row *ngFor="let gr of arrayUDFGroup" class="hr-group">
-						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
-							<ion-list-header class="ion-no-padding">
-								<ion-label color="primary">{{gr.Name | translate}}</ion-label>
-							</ion-list-header>
-						</ion-col>
-						<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="8">
-							<div class="main-view" *ngIf="pageConfig.showSpinner == false">
-								<ion-accordion-group [multiple]="true" [value]="openedFieldValues" (ionChange)="accordionGroupChange($event)">
-									<ion-accordion [value]="sub.Key" *ngFor="let sub of gr.SubGroups" class="ion-accordion-bg">
-										<div slot="header" class="bold header-ion-accordion clickable"><ion-text color="primary">{{sub.Name | translate}}</ion-text></div>
-										<div class="row" slot="content" class="ion-accordion-bg">
-											<ion-grid fixed style="padding: 0px">
-												<ion-row>
-													<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of sub.Items">
-														<!-- {{parseItem(i)}} -->
-														
-														<app-form-control
-															(change)="saveChange2()"
-															[field]="{ id: 'UDFValue', type: i.get('ControlType').value, label:i.get('Name').value,dataSource:UDFList, form: i,appendTo:'#detail-page' }"
-														></app-form-control>
-													</ion-col>
-												</ion-row>
-											</ion-grid>
-										</div>
-									</ion-accordion>
-								</ion-accordion-group>
-								</div>
-						</ion-col>
-					</ion-row>	
-				</ion-grid>
-			</div>
-			<div *ngIf="segmentView == 's3'">
 				<div class="ion-padding">
 					<ion-grid fixed>
 						<ion-row class="hr-group" *ngIf="item?.Id">

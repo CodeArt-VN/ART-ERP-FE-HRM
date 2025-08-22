@@ -32,6 +32,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 	IDTimesheet;
 	cycle: any;
 	jobTitleList: any = [];
+	status:any = null;
 	constructor(
 		public pageProvider: HRM_TimesheetRecordProvider,
 		public staffTimesheetRecordProvider: HRM_TimesheetRecordService,
@@ -57,6 +58,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 		this.jobTitleList = lib.cloneObject(this.env.jobTitleList);
 		Promise.all([this.timesheetCycleProvider.getAnItem(this.id)]).then((values) => {
 			this.cycle = values[0];
+			this.status = this.cycle?.Timesheets?.find(d=> d.IDTimesheet == parseInt(this.IDTimesheet))?.Status;
 			super.preLoadData(event);
 		});
 	}
