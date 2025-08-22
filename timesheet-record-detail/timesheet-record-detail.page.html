@@ -11,9 +11,8 @@
 		<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canCalculate" title="{{'Calculation timesheet record' | translate}}" (click)="calculateTimesheet()">
 			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
 		</ion-button>
-
-			<ion-button *ngIf="!pageConfig.showSpinner && pageConfig.canCalculate" title="{{'Calculation staff payroll' | translate}}" (click)="calculateStaffPayroll()">
-			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
+		<ion-button *ngIf="!pageConfig.showSpinner && status == 'Approved'" title="{{'Create staff payroll' | translate}}" (click)="calculateStaffPayroll()">
+			<ion-icon slot="icon-only" name="cash-outline"></ion-icon>
 		</ion-button>
 		<!-- <ion-button
 			*ngIf="!pageConfig.showSpinner && pageConfig.canConfigPayroll && pageConfig.ShowConfigPayroll"

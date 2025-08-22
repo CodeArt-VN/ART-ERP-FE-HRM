@@ -179,5 +179,17 @@ export class StaffPayrollDetailPage extends PageBase {
 		this.isOpenPopover = !this.isOpenPopover;
 	}
 
-	calcSalary() {}
+	calcSalary() {
+		let data = {
+			IDTimesheet: this.item.IDTimesheet,
+			IDTimesheetCycle : this.item.IDTimesheetCycle,
+			IDPayrollTemplate : this.item.IDPayrollTemplate,
+		}
+		this.env
+			.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationPayroll', data).toPromise())
+			.then((resp) => {
+				this.refresh();
+			})
+			.catch((err) => this.env.showErrorMessage(err));
+	}
 }

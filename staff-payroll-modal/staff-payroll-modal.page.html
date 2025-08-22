@@ -1,16 +1,16 @@
-<ion-header *ngIf="item">
-	<ion-toolbar class="no-padding" [color]="item.Color">
-		<ion-title>{{'Calculate staff payroll' | translate}}</ion-title>
+<ion-header>
+	<ion-toolbar class="no-padding">
+		<ion-title>{{'Payroll' | translate}}</ion-title>
 		<ion-buttons slot="end">
-			<ion-button title="{{'Close' | translate}}" (click)="closeModal()">
+			<ion-button title="{{'Close' | translate}}" (click)="popoverCtrl.dismiss(null)">
 				<ion-icon slot="icon-only" name="close"></ion-icon>
 			</ion-button>
 		</ion-buttons>
 	</ion-toolbar>
 </ion-header>
 
+<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 <ion-content appScrollbarTheme class="ion-padding" fullscreen>
-	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 	<ion-grid fixed>
 		<form [formGroup]="formGroup">
 			<ion-row class="hr-group">
@@ -26,6 +26,6 @@
 </ion-content>
 <ion-footer>
 	<ion-toolbar>
-		<ion-button size="medium" slot="end" (click)="saveChange()">{{'Save' | translate}}</ion-button>
+		<ion-button size="medium" slot="end" (click)="saveChange()">{{'Submit' | translate}}</ion-button>
 	</ion-toolbar>
 </ion-footer>
