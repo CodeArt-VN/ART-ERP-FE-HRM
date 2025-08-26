@@ -38,6 +38,7 @@ export class StaffPayrollModalPage extends PageBase {
 			IDTimesheet: ['', Validators.required],
 			IDPayrollTemplate: ['', Validators.required],
 			Status: ['Draft', Validators.required],
+			IDBranch: [this.env.selectedBranch],
 			// Name: ['', Validators.required],
 		});
 	}
@@ -62,9 +63,29 @@ export class StaffPayrollModalPage extends PageBase {
 	}
 
 	async saveChange(publishEventCode?: any) {
-		this.env.showLoading('Please wait for a few moments', super.saveChange2()).then((_) => {
-			this.env.showMessage('Saved successfully', 'success');
-			this.popoverCtrl.dismiss();
+		let dto = {
+			IDTimesheet: this.formGroup.controls.IDTimesheet.value,
+			IDTimesheetCycle: this.formGroup.controls.IDTimesheetCycle.value,
+		};
+		this.pageProvider.read(dto).then((res: any) => {
+			if (res && res.data && res.data.length > 0) {
+				if (res.data[0].Status == 'Approved') {
+					this.env.showMessage('This payroll has been approved', 'warning');
+					return;
+				} else if (res.data[0].IDPayrollTemplate == this.formGroup.controls.IDPayrollTemplate.value) {
+					this.env.showMessage('This payroll already exists', 'warning');
+				} else {
+					this.env.showLoading('Please wait for a few moments', super.saveChange2()).then((_) => {
+						this.env.showMessage('Saved successfully', 'success');
+						this.popoverCtrl.dismiss();
+					});
+				}
+			} else {
+				this.env.showLoading('Please wait for a few moments', super.saveChange2()).then((_) => {
+					this.env.showMessage('Saved successfully', 'success');
+					this.popoverCtrl.dismiss();
+				});
+			}
 		});
 	}
 }

@@ -51,8 +51,8 @@ export const HRMRoutes: Routes = [
     { path: 'insurance-policy', loadChildren: () => import('./insurance-policy/insurance-policy.module').then(m => m.InsurancePolicyPageModule), canActivate: [AuthGuard] },
     { path: 'insurance-policy/:id', loadChildren: () => import('./insurance-policy-detail/insurance-policy-detail.module').then(m => m.InsurancePolicyDetailPageModule), canActivate: [AuthGuard] },
    
-    { path: 'benefit-policy', loadChildren: () => import('./benefit-policy/benefit-policy.module').then(m => m.BenefitPolicyPageModule), canActivate: [AuthGuard] },
-    { path: 'benefit-policy/:id', loadChildren: () => import('./benefit-policy-detail/benefit-policy-detail.module').then(m => m.BenefitPolicyDetailPageModule), canActivate: [AuthGuard] },
+    { path: 'hrm-benefit-policy', loadChildren: () => import('./benefit-policy/benefit-policy.module').then(m => m.BenefitPolicyPageModule), canActivate: [AuthGuard] },
+    { path: 'hrm-benefit-policy/:id', loadChildren: () => import('./benefit-policy-detail/benefit-policy-detail.module').then(m => m.BenefitPolicyDetailPageModule), canActivate: [AuthGuard] },
 
 
     { path: 'tax-policy', loadChildren: () => import('./tax-policy/tax-policy.module').then(m => m.TaxPolicyPageModule), canActivate: [AuthGuard] },
