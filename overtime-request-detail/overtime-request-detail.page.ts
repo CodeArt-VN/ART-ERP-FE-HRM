@@ -187,6 +187,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 				End: i.get('End').value,
 			};
 		});
+		this.formGroup.get('Staffs').setValue(this.selectedRows.map((x) => x.Id));
 		let staffs = this.formGroup.get('Staffs').value;
 		let config = {
 			IsTransferToDayOff: this.formGroup.get('IsTransferToDayOff').value,
@@ -207,6 +208,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 			.then(() => {
 				this.formGroup.controls.Staffs.setValue([]);
 				this.formGroup.controls.Staffs.markAsDirty();
+				this.item.IDTimesheet = this.formGroup.controls.IDTimesheet.value;
 				this.loadedData();
 
 				// this.saveConfig()
@@ -294,7 +296,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 	}
 	isAllRowChecked = false;
 	selectedRows = [];
-	changeSelection(i, e = null, isSave = false) {
+	changeSelection(i, e = null) {
 		if (e && e.shiftKey) {
 			let from = this.staffList.indexOf(this.lastchecked);
 			let to = this.staffList.indexOf(i);
@@ -340,9 +342,9 @@ export class OvertimeRequestDetailPage extends PageBase {
 
 		//e?.preventDefault();
 		e?.stopPropagation();
-		if (isSave) {
-			this.formGroup.get('Staffs').setValue(this.selectedRows.map((x) => x.Id));
-			this.saveConfig();
-		}
+		// if (isSave) {
+		// 	this.formGroup.get('Staffs').setValue(this.selectedRows.map((x) => x.Id));
+		// 	this.saveConfig();
+		// }
 	}
 }

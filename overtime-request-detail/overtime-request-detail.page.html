@@ -89,14 +89,14 @@
 														<div>
 															<span class="bold"> &nbsp;{{i.FullName}}</span>
 															<small *ngIf="i.Code" class="no-warp"> {{i.Code}}</small>
+															<p style="margin: 0">{{i.JobTitle}}</p>
 														</div>
 													</ng-template>
 												</datatable-column>
 												<!-- <datatable-column class="col-name"  name="Full name" property="FullName">
 
 												</datatable-column> -->
-												<datatable-column class="col-code" name="Job title" property="JobTitle"></datatable-column>
-												<datatable-column class="col-code" name="Department" property="Department"></datatable-column>
+												<!-- <datatable-column class="col-code" name="Job title" property="JobTitle"></datatable-column> -->
 												<!-- <datatable-column class="col-name flex-break" name="Title" property="Name"></datatable-column> -->
 											</app-data-table>
 										</div>
@@ -166,7 +166,7 @@
 									<ion-button (click)="saveConfig()">{{'Add' | translate}}</ion-button>
 								</div>
 								<div class="c-control ion-text-right" *ngIf="item?.Id">
-									<ion-button  (click)="saveConfig()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
+									<ion-button (click)="saveConfig()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
 									<ion-button (click)="refresh()" color="warning">{{'Change cancel' | translate}}</ion-button>
 									<ion-button *ngIf="item?.Id && pageConfig.canDelete" (click)="delete()" color="danger">{{'Delete' | translate}}</ion-button>
 								</div>
