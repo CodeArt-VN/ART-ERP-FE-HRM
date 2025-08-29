@@ -6,9 +6,8 @@
 	[remark]="'Timesheets, Checkins & Timeoffs'"
 ></app-page-title>
 
-
 <ion-header>
-	<ion-toolbar>
+	<!-- <ion-toolbar>
 		<ion-buttons slot="start">
 			<ion-back-button></ion-back-button>
 			<ion-button color="dark"> {{viewTitle}} </ion-button>
@@ -23,10 +22,15 @@
 				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
 			</ion-button>
 		</ion-buttons>
-	</ion-toolbar>
+	</ion-toolbar> -->
 </ion-header>
-<ion-content slot="fixed" fullscreen="true" scrollY="false" appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
-	<div class="calendar-holder">
+<ion-content slot="fixed" fullscreen="true" scrollY="false" appScrollbarTheme class="_left" [ngClass]="{ withFeature: pageConfig.isShowFeature }">
+	<!-- <div class="calendar-holder">
 		<full-calendar #calendar [options]="calendarOptions"></full-calendar>
-	</div>
+	</div> -->
+	<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive" [rows]="items" [(query)]="query" [showSpinner]="pageConfig.showSpinner">
+		<datatable-empty-message [showImg]="false" minHeight="125px"> </datatable-empty-message>
+		<datatable-column class="col-date" format="dd-MM-yyyy" name="Working date" property="WorkingDate" filterControlType="date"></datatable-column>
+		<datatable-column class="col-code" name="Time off type" property="TimeOffType"></datatable-column>
+	</app-data-table>
 </ion-content>

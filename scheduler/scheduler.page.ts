@@ -939,6 +939,7 @@ export class SchedulerPage extends PageBase {
 				IDShift: arg.event.extendedProps.IDShift,
 				TimeOffType: arg.event.extendedProps.TimeOffType,
 				Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
+				Id : arg.event.id,
 				IsAllStaff: false,
 				IsOpenShift: false,
 				IsBookLunchCatering: arg.event.extendedProps.IsBookLunchCatering,
@@ -1013,6 +1014,7 @@ export class SchedulerPage extends PageBase {
 		selectionInfo.end.setDate(selectionInfo.end.getDate() - 1);
 		if (selectionInfo.end.toISOString() != selectionInfo.start.toISOString()) {
 			this.massShiftAssignment({
+				Id : selectionInfo.id,
 				FromDate: selectionInfo.startStr,
 				ToDate: selectionInfo.end.toISOString().substr(0, 10),
 				DaysOfWeek: [0, 1, 2, 3, 4, 5, 6],
