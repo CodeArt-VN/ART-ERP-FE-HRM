@@ -98,6 +98,7 @@ export class SchedulerGeneratorPage extends PageBase {
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		super.loadedData();
+		if(!this.item.Id) this.formGroup.controls.Type.markAsDirty();
 		if (!this.pageConfig.canEditPassDay) {
 			let d1 = lib.dateFormat(this.navParams.data.FromDate);
 			let d2 = lib.dateFormat(this.navParams.data.currentDate);
@@ -147,6 +148,9 @@ export class SchedulerGeneratorPage extends PageBase {
 			this.formGroup.controls.IsBookLunchCatering.setValue(false);
 			this.formGroup.controls.IsBookBreakfastCatering.setValue(false);
 			this.formGroup.controls.IsBookDinnerCatering.setValue(false);
+			this.formGroup.controls.IsBookDinnerCatering.markAsDirty()
+			this.formGroup.controls.IsBookLunchCatering.markAsDirty();
+			this.formGroup.controls.IsBookBreakfastCatering.markAsDirty();
 		}
 	}
 
@@ -157,7 +161,11 @@ export class SchedulerGeneratorPage extends PageBase {
 		if(this.segmentView == 'Shift'){
 			this.formGroup.controls.TimeOffType.setValue(null);
 			this.formGroup.controls.TimeOffType.markAsPristine();
+			this.formGroup.controls.Type.setValue('Shift');
+			this.formGroup.controls.Type.markAsDirty();
 		}else{
+			this.formGroup.controls.Type.setValue('TimeOff');
+			this.formGroup.controls.Type.markAsDirty();
 			this.formGroup.controls.IDShift.setValue(null);
 			this.formGroup.controls.IDShift.markAsPristine();
 		}

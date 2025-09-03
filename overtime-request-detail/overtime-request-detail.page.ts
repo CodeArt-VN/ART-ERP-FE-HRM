@@ -58,6 +58,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 			EndDate: [new Date().toISOString()],
 			IsTransferToDayOff: [''],
 			CanTransferToDayOff: [''],
+			IsForceSave: [false],
 		});
 	}
 
@@ -79,7 +80,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 			});
 			if (this.navParams.data) {
 				this.id = this.navParams.data.id;
-			//	console.log(this.navParams.data);
+				//	console.log(this.navParams.data);
 			}
 			super.preLoadData(event);
 		});
@@ -94,17 +95,16 @@ export class OvertimeRequestDetailPage extends PageBase {
 			this.trackingTimesheet = this.item.IDTimesheet;
 			this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.item?.IDTimesheet }).then((resp) => {
 				this.staffList = resp['data'];
-				if(!this.pageConfig.canEdit){
+				if (!this.pageConfig.canEdit) {
 					this.staffList.forEach((i) => {
 						i.disabled = true;
-					})
-
+					});
 				}
 				console.log(this.staffList);
 				this.patchConfig();
 			});
 		} else this.patchConfig();
-		if(['Submitted','Canceled','Approved'].includes(this.item.Status)){
+		if (['Submitted', 'Canceled', 'Approved'].includes(this.item.Status)) {
 			this.pageConfig.canEdit = false;
 		}
 		super.loadedData(event);
@@ -197,7 +197,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 		};
 		this.formGroup.get('Config').setValue(JSON.stringify(config));
 		this.formGroup.get('Config').markAsDirty();
-		return this.saveChange().then((savedItem) => this.modalController.dismiss(savedItem));
+		this.saveChange();
 	}
 	changeTimesheet() {
 		let promise: Promise<any>;
@@ -244,6 +244,49 @@ export class OvertimeRequestDetailPage extends PageBase {
 
 	async saveChange() {
 		return super.saveChange2();
+	}
+
+	savedChange(savedItem = null, form = this.formGroup) {
+		if (savedItem) {
+			if (Array.isArray(savedItem)) {
+				// xử lý error
+				let message = '';
+					for (let i = 0; i < savedItem.length && i <= 5; i++)
+						if (i == 5) message += '<br> Còn nữa...';
+						else {
+							const e = savedItem[i];
+							message += '<br> ' + e.Id + '. Tại dòng ' + e.Line + ': ' + e.Message;
+						}
+					this.env
+						.showPrompt(
+							{
+								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								value: { value: savedItem.length, value1: message },
+							},
+							'Bạn có muốn xem lại các mục bị lỗi?',
+							'Có lỗi import dữ liệu'
+						).then(()=>{
+							this.formGroup.get('IsForceSave').setValue(true);
+							this.formGroup.get('IsForceSave').markAsDirty();
+							this.submitAttempt = false;
+							this.saveChange();
+						})
+						
+			} else {
+				if (form.controls.Id && savedItem.Id && form.controls.Id.value != savedItem.Id) form.controls.Id.setValue(savedItem.Id);
+
+				if (this.pageConfig.isDetailPage && form == this.formGroup && this.id == 0) {
+					this.item = savedItem;
+					this.id = savedItem.Id;
+				}
+				this.formGroup.get('IsForceSave').setValue(false);
+				form.markAsPristine();
+				this.cdr.detectChanges();
+				this.submitAttempt = false;
+				this.env.showMessage('Saving completed!', 'success');
+				this.modalController.dismiss(savedItem);
+			}
+		}
 	}
 
 	dateRangeValidator(): ValidatorFn {
