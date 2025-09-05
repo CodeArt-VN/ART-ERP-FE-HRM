@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, Type } from '@angular/core';
 import { NavController, LoadingController, AlertController, ModalController, NavParams } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
@@ -27,7 +27,7 @@ export class SchedulerGeneratorPage extends PageBase {
 	shiftList = [];
 	staffList = [];
 	timeoffTypeList = [];
-
+	segmentView = 'Shift';
 	constructor(
 		public pageProvider: HRM_ShiftProvider,
 		public shiftProvider: HRM_ShiftProvider,
@@ -52,11 +52,15 @@ export class SchedulerGeneratorPage extends PageBase {
 			FromDate: [firstDate, Validators.required],
 			ToDate: ['', Validators.required],
 			DaysOfWeek: ['', Validators.required],
+			Start: [''],
+			End: [''],
 			IDShift: [''],
 			IsOpenShift: [false],
 			IsAllStaff: [true],
+			Id: [0],
 			Staffs: [''],
 			TimeOffType: [''],
+			Type: ['Shift'],
 			IsBookLunchCatering: [false],
 			IsBookBreakfastCatering: [false],
 			IsBookDinnerCatering: [false],
@@ -67,7 +71,9 @@ export class SchedulerGeneratorPage extends PageBase {
 		this.staffList = JSON.parse(JSON.stringify(this.navParams.data.staffList));
 		this.shiftList = this.navParams.data.shiftList;
 		this.timeoffTypeList = this.navParams.data.timeoffTypeList;
-
+		if (this.navParams.data.Id) {
+			this.formGroup.controls.Id.setValue(this.navParams.data.Id);
+		}
 		if (this.navParams.data.FromDate) {
 			this.formGroup.controls.FromDate.setValue(this.navParams.data.FromDate);
 			this.formGroup.controls.ToDate.setValue(this.navParams.data.ToDate);
@@ -92,6 +98,7 @@ export class SchedulerGeneratorPage extends PageBase {
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		super.loadedData();
+		if(!this.item.Id) this.formGroup.controls.Type.markAsDirty();
 		if (!this.pageConfig.canEditPassDay) {
 			let d1 = lib.dateFormat(this.navParams.data.FromDate);
 			let d2 = lib.dateFormat(this.navParams.data.currentDate);
@@ -101,6 +108,14 @@ export class SchedulerGeneratorPage extends PageBase {
 			}
 		}
 		setTimeout(() => {}, 0);
+	}
+
+	shiftChange() {
+		let shift = this.shiftList.find((s) => s.Id == this.formGroup.controls.IDShift.value);
+		if (shift) {
+			this.formGroup.controls.Start.setValue(shift.Start);
+			this.formGroup.controls.End.setValue(shift.End);
+		}
 	}
 
 	massShiftAssignment() {
@@ -114,6 +129,7 @@ export class SchedulerGeneratorPage extends PageBase {
 			this.env.showMessage('Please recheck information highlighted in red above', 'warning');
 		} else {
 			let submitItem = this.formGroup.value; //this.getDirtyValues(this.formGroup);
+
 			this.modalController.dismiss(submitItem);
 		}
 	}
@@ -132,6 +148,26 @@ export class SchedulerGeneratorPage extends PageBase {
 			this.formGroup.controls.IsBookLunchCatering.setValue(false);
 			this.formGroup.controls.IsBookBreakfastCatering.setValue(false);
 			this.formGroup.controls.IsBookDinnerCatering.setValue(false);
+			this.formGroup.controls.IsBookDinnerCatering.markAsDirty()
+			this.formGroup.controls.IsBookLunchCatering.markAsDirty();
+			this.formGroup.controls.IsBookBreakfastCatering.markAsDirty();
+		}
+	}
+
+	segmentChanged(event){
+		this.segmentView = event.detail.value;
+		this.formGroup.controls.Type.setValue(this.segmentView);
+		this.formGroup.controls.Type.markAsDirty();
+		if(this.segmentView == 'Shift'){
+			this.formGroup.controls.TimeOffType.setValue(null);
+			this.formGroup.controls.TimeOffType.markAsPristine();
+			this.formGroup.controls.Type.setValue('Shift');
+			this.formGroup.controls.Type.markAsDirty();
+		}else{
+			this.formGroup.controls.Type.setValue('TimeOff');
+			this.formGroup.controls.Type.markAsDirty();
+			this.formGroup.controls.IDShift.setValue(null);
+			this.formGroup.controls.IDShift.markAsPristine();
 		}
 	}
 }

@@ -99,7 +99,7 @@ export class SchedulerPage extends PageBase {
 			singleDate: [today],
 		});
 
-		this.translate.get('The employee has been removed from the work schedule.').subscribe((text)=> {
+		this.translate.get('The employee has been removed from the work schedule.').subscribe((text) => {
 			this.tooltipResource = text;
 		});
 	}
@@ -216,11 +216,11 @@ export class SchedulerPage extends PageBase {
 			this.gateList = values[6]['data'];
 			if (this.id) {
 				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
-				if (!this.selectedTimesheet){
+				if (!this.selectedTimesheet) {
 					this.id = null;
-					var a =0;   
+					var a = 0;
 					return super.loadedData(event);
-				} 
+				}
 			} else if (this.timesheetList.length) {
 				this.selectedTimesheet = this.timesheetList[0];
 				this.id = this.selectedTimesheet.Id;
@@ -882,27 +882,35 @@ export class SchedulerPage extends PageBase {
 					.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
 					.then((_) => {
 						that.submitAttempt = true;
-						let ids = `[${parseInt(arg.event.id)}]`;
-						that.pageProvider.commonService
-							.connect('PUT', 'HRM/StaffSchedule/DeleteSchedule/' + ids, null)
-							.toPromise()
-							.then((savedItem: any) => {
-								try {
-									let obj = JSON.parse(savedItem);
-									console.log(obj);
-									if (obj.IDRequest) {
-										that.env.showPrompt('This leave request has been approved. Do you want to navigate to the leave request page?', null, null).then((_) => {
-											that.navCtrl.navigateForward('/request/' + obj.IDRequest);
-										});
+						if (arg.event.extendedProps.ShiftType == 'OT') {
+							that.overtimeRequestProvider.delete([{Id: arg.event.extendedProps.IDOTRequest}]).then(() => {
+								arg.event.remove();
+							}).finally(()=>that.submitAttempt = false);
+						} else {
+							let ids = `[${parseInt(arg.event.id)}]`;
+							that.pageProvider.commonService
+								.connect('PUT', 'HRM/StaffSchedule/DeleteSchedule/' + ids, null)
+								.toPromise()
+								.then((savedItem: any) => {
+									try {
+										let obj = JSON.parse(savedItem);
+										console.log(obj);
+										if (obj.IDRequest) {
+											that.env
+												.showPrompt('This leave request has been approved. Do you want to navigate to the leave request page?', null, null)
+												.then((_) => {
+													that.navCtrl.navigateForward('/request/' + obj.IDRequest);
+												});
+										}
+									} catch (err) {
+										arg.event.remove();
+										that.submitAttempt = false;
 									}
-								} catch (err) {
-									arg.event.remove();
+								})
+								.catch((err) => {
 									that.submitAttempt = false;
-								}
-							})
-							.catch((err) => {
-								that.submitAttempt = false;
-							});
+								});
+						}
 					})
 					.catch((e) => {});
 			};
@@ -939,6 +947,7 @@ export class SchedulerPage extends PageBase {
 				IDShift: arg.event.extendedProps.IDShift,
 				TimeOffType: arg.event.extendedProps.TimeOffType,
 				Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
+				Id : arg.event.id,
 				IsAllStaff: false,
 				IsOpenShift: false,
 				IsBookLunchCatering: arg.event.extendedProps.IsBookLunchCatering,
@@ -1013,6 +1022,7 @@ export class SchedulerPage extends PageBase {
 		selectionInfo.end.setDate(selectionInfo.end.getDate() - 1);
 		if (selectionInfo.end.toISOString() != selectionInfo.start.toISOString()) {
 			this.massShiftAssignment({
+				Id : selectionInfo.id,
 				FromDate: selectionInfo.startStr,
 				ToDate: selectionInfo.end.toISOString().substr(0, 10),
 				DaysOfWeek: [0, 1, 2, 3, 4, 5, 6],

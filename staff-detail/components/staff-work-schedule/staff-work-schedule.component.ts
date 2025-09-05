@@ -85,12 +85,12 @@ export class StaffWorkScheduleComponent extends PageBase {
 	}
 
 	loadData(event?: any): void {
-		this.getCalendar();
-		console.log(this.fc);
+		// this.getCalendar();
+		// console.log(this.fc);
 
-		this.query.WorkingDateFrom = lib.dateFormat(this.fc.view.activeStart);
-		this.query.WorkingDateTo = lib.dateFormat(this.fc.view.activeEnd);
-
+		// this.query.WorkingDateFrom = lib.dateFormat(this.fc.view.activeStart);
+		// this.query.WorkingDateTo = lib.dateFormat(this.fc.view.activeEnd);
+		this.query.TimeOffType_ne = 'null';
 		this.query.Take = 50000;
 		this.clearData();
 		super.loadData(event);
@@ -98,8 +98,9 @@ export class StaffWorkScheduleComponent extends PageBase {
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		if (this.query.IDStaff) {
-			this.query.StartDateFrom = this.query.WorkingDateFrom;
-			this.query.StartDateTo = this.query.WorkingDateTo;
+			delete this.query.TimeOffType_ne;
+			// this.query.StartDateFrom = this.query.WorkingDateFrom;
+			// this.query.StartDateTo = this.query.WorkingDateTo;
 			this.overtimeRecordProvider.read(this.query).then((values: any) => {
 				console.log('tăng ca:');
 				console.log(values?.data);
@@ -127,6 +128,7 @@ export class StaffWorkScheduleComponent extends PageBase {
 						start: i.StartDate,
 						IDStaff: i.IDStaff,
 						TimeOffType: null,
+						WorkingDate: lib.dateFormat(i.StartDate, 'dd-MM-yyyy'),
 						ShiftStart: lib.dateFormat(i.StartDate, 'hh:MM'),
 						ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
 					});
@@ -143,15 +145,19 @@ export class StaffWorkScheduleComponent extends PageBase {
 						e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
 					}
 				});
-				this.calendarOptions.events = this.items;
+				// this.calendarOptions.events = this.items;
 
-				this.getCalendar();
-				this.fc?.updateSize();
+				// // this.getCalendar();
+				// // this.fc?.updateSize();
 				super.loadedData(event, ignoredFromGroup);
 			});
 			// this.query.EndDate = this.query.WorkingDateFrom;
 		}
 	}
+
+
+
+
 
 	calendarOptions: any = {
 		schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
