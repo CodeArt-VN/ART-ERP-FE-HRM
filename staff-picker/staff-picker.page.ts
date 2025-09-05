@@ -46,7 +46,7 @@ export class StaffPickerPage extends PageBase {
 
 	preLoadData(event) {
 		this.query.Take = 5000;
-		this.branchList = [...this.env.rawBranchList];
+		this.branchList = [...this.env.user.BranchList];
 		this.branchList.filter(d=> d.disabled).forEach(i => i.disabled = false);
 		this.formGroup.get('_selectedBranchList').setValue(JSON.parse(JSON.stringify(this.branchList)));
 		this.formGroup.get('_departmentList').setValue(JSON.parse(JSON.stringify(this.branchList)));

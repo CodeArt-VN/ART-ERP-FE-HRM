@@ -4,7 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { BRA_BranchProvider, HRM_WorkRuleProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
-import { SortConfig } from 'src/app/models/options-interface';
+import { SortConfig } from 'src/app/interfaces/options-interface';
 import { HRM_WorkRule } from 'src/app/models/model-list-interface';
 
 @Component({

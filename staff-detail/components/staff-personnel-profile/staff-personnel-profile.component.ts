@@ -6,8 +6,8 @@ import { AlertController, LoadingController, NavController, PopoverController } 
 import { PageBase } from 'src/app/page-base';
 import { CommonService } from 'src/app/services/core/common.service';
 import { EnvService } from 'src/app/services/core/env.service';
-import { CompareValidator } from 'src/app/services/core/validators';
-import { ACCOUNT_ApplicationUserProvider, AddressService, DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { CompareValidator } from 'src/app/services/util/validators';
+import { ACCOUNT_ApplicationUserProvider, AddressService, DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { lib } from 'src/app/services/static/global-functions';
 import {

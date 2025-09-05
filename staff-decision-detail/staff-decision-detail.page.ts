@@ -15,7 +15,7 @@ import { FormBuilder, Validators, FormControl, FormGroup, FormArray } from '@ang
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
 import { StaffDecisionDetailModal } from './staff-decision-detail-modal/staff-decision-detail-modal';
-import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 declare var Quill: any;
 

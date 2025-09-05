@@ -7,8 +7,8 @@ import { HRM_StaffProvider, HRM_Staff_ConcurrentPositionProvider, BRA_BranchProv
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
-import { CompareValidator } from 'src/app/services/core/validators';
-import { ACCOUNT_ApplicationUserProvider } from 'src/app/services/custom.service';
+import { CompareValidator } from 'src/app/services/util/validators';
+import { ACCOUNT_ApplicationUserProvider } from 'src/app/services/custom/custom.service';
 import { lib } from 'src/app/services/static/global-functions';
 import { environment } from 'src/environments/environment';
 import { concat, of, Subject } from 'rxjs';

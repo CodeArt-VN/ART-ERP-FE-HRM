@@ -17,7 +17,7 @@ import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@ang
 import { CommonService } from 'src/app/services/core/common.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { InsurancePolicyDetailModalPage } from '../insurance-policy-detail/insurance-policy-detail-modal/insurance-policy-detail-modal.page';
-import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 
 declare var Quill: any;
 

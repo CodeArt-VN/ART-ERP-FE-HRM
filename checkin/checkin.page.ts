@@ -4,7 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { HRM_TimesheetLogProvider, OST_OfficeGateProvider, SYS_UserDeviceProvider } from 'src/app/services/static/services.service';
 import { lib } from 'src/app/services/static/global-functions';
-import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
+import { BarcodeScannerService } from 'src/app/services/util/barcode-scanner.service';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { Geolocation } from '@capacitor/geolocation';

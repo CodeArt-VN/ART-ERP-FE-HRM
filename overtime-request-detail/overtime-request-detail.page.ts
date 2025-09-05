@@ -63,7 +63,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 
 	preLoadData(event?: any): void {
 		this.selectedRows = [];
-		this.branchList = [...this.env.rawBranchList];
+		this.branchList = [...this.env.user.BranchList];
 		this.branchList
 			.filter((d) => d.disabled)
 			.forEach((b) => {

@@ -16,7 +16,7 @@ import {
 import { FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
-import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 import { lib } from 'src/app/services/static/global-functions';
 
 declare var Quill: any;

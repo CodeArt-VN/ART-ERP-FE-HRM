@@ -22,7 +22,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
 import { PopoverPage } from '../../SYS/popover/popover.page';
-import { BarcodeScannerService } from 'src/app/services/barcode-scanner.service';
+import { BarcodeScannerService } from 'src/app/services/util/barcode-scanner.service';
 import { Geolocation } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';

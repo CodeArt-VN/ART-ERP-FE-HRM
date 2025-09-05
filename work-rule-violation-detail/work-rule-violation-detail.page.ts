@@ -6,7 +6,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { BRA_BranchProvider,HRM_WorkRuleProvider, HRM_StaffProvider, HRM_StaffWorkRuleViolationProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
-import { DynamicScriptLoaderService } from 'src/app/services/custom.service';
+import { DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 declare var Quill:any;
 

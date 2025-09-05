@@ -48,7 +48,7 @@ export class OvertimePolicyDetailPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		this.branchList = [...this.env.rawBranchList];
+		this.branchList = [...this.env.user.BranchList];
 		this.branchList.filter(d=> d.disabled).forEach(b=>{
 			b.disabled = false;
 		})

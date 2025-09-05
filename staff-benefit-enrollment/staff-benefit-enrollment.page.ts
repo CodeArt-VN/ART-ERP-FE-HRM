@@ -10,7 +10,7 @@ import {
 	SYS_IntegrationProviderProvider,
 } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
-import { SortConfig } from 'src/app/models/options-interface';
+import { SortConfig } from 'src/app/interfaces/options-interface';
 import { lib } from 'src/app/services/static/global-functions';
 import { FormBuilder } from '@angular/forms';
 import { StaffPickerEnrollmentPage } from '../staff-picker-enrollment/staff-picker-enrollment.page';
