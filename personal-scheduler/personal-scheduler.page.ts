@@ -241,19 +241,24 @@ export class PersonalSchedulerPage extends PageBase {
 
 									if (new Date(i.WorkingDate) < new Date()) {
 										let point = 0;
-										if (e.Point) point = Math.round(e.Point * 100) / 100;
+										if (i.Point) point = Math.round(i.Point * 100) / 100;
 
 										e.Color = 'success';
 										e.Icon = 'checkmark-circle-outline';
 										e.CheckData = ` ${e.Checkin}→${e.Checkout}`;
 										e.Badge = `${i.MinutesOfWorked}-${point}`;
 										e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
-										if (!i.LogCount) {
+										if (!i.LogCount && e.ShiftType != 'WorkFromHomeShift') {
 											e.Color = 'danger';
 											e.Icon = 'alert-circle-outline';
 											e.Title = `Q`;
 											e.Badge = `0`;
 											e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
+										}
+
+										if (e.ShiftType == 'WorkFromHomeShift') {
+											e.Title = `WFH`;
+											e.Badge = `${point}`;
 										}
 
 										if (e.TimeOffType) {
@@ -415,7 +420,11 @@ export class PersonalSchedulerPage extends PageBase {
 				let icon = `${arg.event.extendedProps.Icon ? '<ion-icon color="' + arg.event.extendedProps.Color + '" name="' + arg.event.extendedProps.Icon + '"></ion-icon>' : ''}`;
 				let checkData = `${arg.event.extendedProps.CheckData ? '<span class="v-align-middle">' + arg.event.extendedProps.CheckData + '</span>' : ''}`;
 				let badge = `${arg.event.extendedProps.Badge ? '<ion-badge color="' + arg.event.extendedProps.Color + '" class="float-right">' + arg.event.extendedProps.Badge + '</ion-badge>' : ''}`;
-				html += `<br>${icon}${checkData}${badge}`;
+				if (arg.event.extendedProps.ShiftType == 'WorkFromHomeShift') {
+					html += `<br>${icon}${badge}`;
+				}else {
+					html += `<br>${icon}${checkData}${badge}`;
+				}
 			}
 
 			if (arg.event.extendedProps.ShiftName == 'Checkin') {

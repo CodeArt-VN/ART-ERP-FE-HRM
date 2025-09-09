@@ -190,7 +190,7 @@ export class SchedulerPage extends PageBase {
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
 			this.timesheetProvider.read(),
-			this.shiftProvider.read(),
+			this.shiftProvider.read({Skip: 0, Take: 5000, AllParent: true}),
 			this.env.getType('TimeOffType'),
 			this.env.getStatus('StandardApprovalStatus'),
 			this.gateProvider.read(),
@@ -228,17 +228,11 @@ export class SchedulerPage extends PageBase {
 			super.preLoadData(event);
 		});
 	}
-	async showLoading() {
-		const loading = await this.loadingController.create({
-			message: 'Loading...',
-		});
-
-		loading.present();
-	}
-
+	
 	loadData(event?: any) {
-		this.showLoading();
-		this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }).then((resp: any) => {
+		//const loading = this.showLoading();
+		this.env.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
+		.then((resp: any) => {
 			this.allResources = resp['data'];
 			//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
 			this.staffList = this.allResources.map((m) => m.IDStaff);
@@ -592,13 +586,18 @@ export class SchedulerPage extends PageBase {
 					e.Title = `${e.Checkin}→${e.Checkout}`;
 					e.Badge = `${e.MinutesOfWorked}-${point}`;
 					e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
-					if (!e.Checkin && !e.Checkout) {
+					if (!e.Checkin && !e.Checkout && e.ShiftType != 'WorkFromHomeShift') {
 						e.Color = 'danger';
 						e.Icon = 'alert-circle-outline';
 						e.Title = `Q`;
 						e.Badge = `0`;
 						e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
 					}
+					if (e.ShiftType == 'WorkFromHomeShift') {
+						e.Title = `WFH`;
+						e.Badge = `${point}`;
+					}
+
 
 					if (e.TimeOffType) {
 						let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
