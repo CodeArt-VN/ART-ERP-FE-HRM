@@ -39,6 +39,7 @@ import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-moda
 import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
 import { FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { el, ew } from '@fullcalendar/core/internal-common';
 
 @Component({
 	selector: 'app-scheduler',
@@ -190,7 +191,6 @@ export class SchedulerPage extends PageBase {
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
 			this.timesheetProvider.read(),
-			this.shiftProvider.read({Skip: 0, Take: 5000, AllParent: true}),
 			this.env.getType('TimeOffType'),
 			this.env.getStatus('StandardApprovalStatus'),
 			this.gateProvider.read(),
@@ -198,8 +198,30 @@ export class SchedulerPage extends PageBase {
 			this.officeList = values[0]['data'];
 			this.shifTypeList = values[1];
 			this.timesheetList = values[2]['data'];
-			this.shiftList = values[3]['data'];
-			this.timeoffTypeList = values[4];
+			this.timeoffTypeList = values[3];
+
+			this.OTStatusList = values[4];
+			this.gateList = values[5]['data'];
+			if (this.id) {
+				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
+				if (!this.selectedTimesheet) {
+					this.id = null;
+					return super.loadedData(event);
+				}
+			} else if (this.timesheetList.length) {
+				this.selectedTimesheet = this.timesheetList[0];
+				this.id = this.selectedTimesheet.Id;
+			}
+
+			super.preLoadData(event);
+		});
+	}
+
+	loadData(event?: any) {
+		//const loading = this.showLoading();
+		let option = this.selectedTimesheet?.Option ? JSON.parse(this.selectedTimesheet.Option) : null;
+		this.shiftProvider.read({ Skip: 0, Take: 5000, AllParent: true, Id: option?.ShiftList ?? 0 }).then((value: any) => {
+			this.shiftList = value['data'];
 			this.shiftList.forEach((s) => {
 				let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
 				if (shiftType) {
@@ -212,28 +234,12 @@ export class SchedulerPage extends PageBase {
 				s.Start = lib.dateFormat('2000-01-01 ' + s.Start, 'hh:MM');
 				s.End = lib.dateFormat('2000-01-01 ' + s.End, 'hh:MM');
 			});
-			this.OTStatusList = values[5];
-			this.gateList = values[6]['data'];
-			if (this.id) {
-				this.selectedTimesheet = this.timesheetList.find((d) => d.Id == this.id);
-				if (!this.selectedTimesheet) {
-					this.id = null;
-					var a = 0;
-					return super.loadedData(event);
-				}
-			} else if (this.timesheetList.length) {
-				this.selectedTimesheet = this.timesheetList[0];
-				this.id = this.selectedTimesheet.Id;
-			}
-			super.preLoadData(event);
 		});
-	}
-	
-	loadData(event?: any) {
-		//const loading = this.showLoading();
-		this.env.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id }))
-		.then((resp: any) => {
-			this.allResources = resp['data'];
+		this.env.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id })).then((resp: any) => {
+			this.allResources = resp['data'].map((d) => ({
+				...d,
+				LeaveDays: d.LeaveDaysRemaining - d.LeaveDaysScheduled, // gán giá trị bạn muốn
+			}));
 			//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
 			this.staffList = this.allResources.map((m) => m.IDStaff);
 			if (this.segmentView == 's1') this.loadSchedulerData(event);
@@ -284,7 +290,7 @@ export class SchedulerPage extends PageBase {
 			}
 			return { html: html };
 		};
-		this.loadingController.dismiss();
+		// this.loadingController.dismiss();
 	}
 
 	//load data scheduler
@@ -598,6 +604,11 @@ export class SchedulerPage extends PageBase {
 						e.Badge = `${point}`;
 					}
 
+					if (e.Point > e.StandardPoint) {
+						e.Color = 'danger';
+					} else if (e.Point < e.StandardPoint && e.Point != 0) {
+						e.Color = 'warning';
+					}
 
 					if (e.TimeOffType) {
 						let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
@@ -661,7 +672,8 @@ export class SchedulerPage extends PageBase {
 			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
 			if (shift) {
 				e.color = shift.color;
-				e.textColor = shift.TextColor;
+				e.textColor = lib.getCssVariableValue('--ion-color-' + shift.color + '-contrast'); // shift.TextColor;
+
 				if (e.TimeOffType) {
 					let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
 					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
@@ -670,6 +682,8 @@ export class SchedulerPage extends PageBase {
 
 				e.ShiftStart = shift.Start;
 				e.ShiftEnd = shift.End;
+			}else{
+				return;
 			}
 			if (e.TimeOffType) {
 				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
@@ -780,7 +794,7 @@ export class SchedulerPage extends PageBase {
 			},
 			{
 				headerDidMount: this.headerDidMount.bind(this),
-				field: 'LeaveDaysRemaining',
+				field: 'LeaveDays',
 				headerContent: 'Ngày phép',
 				width: 80,
 			},
@@ -882,9 +896,12 @@ export class SchedulerPage extends PageBase {
 					.then((_) => {
 						that.submitAttempt = true;
 						if (arg.event.extendedProps.ShiftType == 'OT') {
-							that.overtimeRequestProvider.delete([{Id: arg.event.extendedProps.IDOTRequest}]).then(() => {
-								arg.event.remove();
-							}).finally(()=>that.submitAttempt = false);
+							that.overtimeRequestProvider
+								.delete([{ Id: arg.event.extendedProps.IDOTRequest }])
+								.then(() => {
+									arg.event.remove();
+								})
+								.finally(() => (that.submitAttempt = false));
 						} else {
 							let ids = `[${parseInt(arg.event.id)}]`;
 							that.pageProvider.commonService
@@ -946,7 +963,7 @@ export class SchedulerPage extends PageBase {
 				IDShift: arg.event.extendedProps.IDShift,
 				TimeOffType: arg.event.extendedProps.TimeOffType,
 				Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
-				Id : arg.event.id,
+				Id: arg.event.id,
 				IsAllStaff: false,
 				IsOpenShift: false,
 				IsBookLunchCatering: arg.event.extendedProps.IsBookLunchCatering,
@@ -1021,7 +1038,7 @@ export class SchedulerPage extends PageBase {
 		selectionInfo.end.setDate(selectionInfo.end.getDate() - 1);
 		if (selectionInfo.end.toISOString() != selectionInfo.start.toISOString()) {
 			this.massShiftAssignment({
-				Id : selectionInfo.id,
+				Id: selectionInfo.id,
 				FromDate: selectionInfo.startStr,
 				ToDate: selectionInfo.end.toISOString().substr(0, 10),
 				DaysOfWeek: [0, 1, 2, 3, 4, 5, 6],
@@ -1068,9 +1085,6 @@ export class SchedulerPage extends PageBase {
 					this.env.showMessage('Error loading staff timesheet enrollment data', 'danger');
 				})
 				.finally(() => {
-					// if (this.segmentView == 's1' && !this.navigateObj) {
-					// 	super.loadData(event);
-					// }
 					this.loadData(null);
 				});
 		} else {

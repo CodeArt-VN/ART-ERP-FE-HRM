@@ -19,13 +19,33 @@
 
 							<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
 								<app-form-control (change)="saveChange()" [field]="{id:'Name', label:'Name', type:'text', form:formGroup}"></app-form-control>
-								<app-form-control (change)="saveChange()" [field]="{id:'Type', label:'Classification', type:'ng-select', dataSource:timesheetTypeList,bindLabel:'Name',bindValue:'Code',form:formGroup, appendTo:'#detail-page'}"></app-form-control>
-								<app-form-control (change)="saveChange()" [field]="{id:'IDTimesheetTemplate', label:'Template', type:'ng-select', dataSource:timesheetTemplateList,bindLabel:'Name',bindValue:'Id',form:formGroup, appendTo:'#detail-page'}"></app-form-control>
-								<app-form-control (change)="saveChange()" [field]="{id:'CheckInPolicy', label:'CheckInPolicy', type:'ng-select', dataSource:CheckInOutPolicyList,bindLabel:'Name',bindValue:'Code',form:formGroup, appendTo:'#detail-page'}"></app-form-control>
-								<app-form-control (change)="saveChange()" [field]="{id:'NumberOfShiftPerDay', label:'Number of Daily working shift', type:'number', form:formGroup}"></app-form-control>
-								<app-form-control (change)="saveChange()" [field]="{id:'WorkingHoursPerDay', label:'Working hours per day', type:'number', form:formGroup}"></app-form-control>
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id:'Type', label:'Classification', type:'ng-select', dataSource:timesheetTypeList,bindLabel:'Name',bindValue:'Code',form:formGroup, appendTo:'#detail-page'}"
+								></app-form-control>
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id:'IDTimesheetTemplate', label:'Template', type:'ng-select', dataSource:timesheetTemplateList,bindLabel:'Name',bindValue:'Id',form:formGroup, appendTo:'#detail-page'}"
+								></app-form-control>
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id:'CheckInPolicy', label:'CheckInPolicy', type:'ng-select', dataSource:CheckInOutPolicyList,bindLabel:'Name',bindValue:'Code',form:formGroup, appendTo:'#detail-page'}"
+								></app-form-control>
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id:'ShiftList', label:'Shift list', type:'ng-select', dataSource:shiftList,bindLabel:'Name',bindValue:'Id',form:formGroup, appendTo:'#detail-page',multiple:true}"
+								>
+								</app-form-control>
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id:'NumberOfShiftPerDay', label:'Number of Daily working shift', type:'number', form:formGroup}"
+								></app-form-control>
+								<app-form-control
+									(change)="saveChange()"
+									[field]="{id:'WorkingHoursPerDay', label:'Working hours per day', type:'number', form:formGroup}"
+								></app-form-control>
 								<app-form-control (change)="saveChange()" [field]="{id:'Remark', label:'Remark', type:'textarea', form:formGroup}"></app-form-control>
-								
+
 								<div class="c-control">
 									<span class="no-warp">
 										<input (change)="saveChange()" class="c-checkbox" id="IsCheckOutRequired" formControlName="IsCheckOutRequired" type="checkbox" />
