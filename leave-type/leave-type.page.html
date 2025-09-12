@@ -19,10 +19,10 @@
 				<ng-template let-i="row" datatable-cell-template>
 					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
 						<ion-text color="dark">{{i.Name}}</ion-text>
-						
+
 					</div>
 				</ng-template>
-				
+
 			</datatable-column>
 			<datatable-column class="col-code" name="Gender" property="ApplicableGender">
 				<ng-template let-i="row" datatable-cell-template>
@@ -49,7 +49,7 @@
 					<span>{{i.MinAdvanceDays}}</span>
 				</ng-template>
 			</datatable-column>
-			
+
 			<datatable-column class="col-custom" name="Min age" property="MinAge">
 				<ng-template let-i="row" datatable-cell-template>
 					<span class="sp-custom">{{'Min age' | translate}}:</span>
@@ -66,22 +66,21 @@
 			<datatable-column class="col-icon-custom" name="Paid" property="IsPaid">
 				<ng-template let-i="row" datatable-cell-template>
 					<span class="sp-custom">{{'Paid' | translate}}:</span>
-					<ion-icon [name]="i.IsPaid ? 'checkmark' : 'close'"
-						[color]="i.IsPaid ? 'success' : 'danger'"></ion-icon>
+					<ion-icon [name]="i.IsPaid ? 'checkmark' : ''" [color]="i.IsPaid ? 'success' : ''"></ion-icon>
 				</ng-template>
 			</datatable-column>
 			<datatable-column class="col-icon-custom" name="Require approval" property="RequireApproval">
 				<ng-template let-i="row" datatable-cell-template>
 					<span class="sp-custom">{{'Require approval' | translate}}:</span>
-					<ion-icon [name]="i.RequireApproval ? 'checkmark' : 'close'"
-						[color]="i.RequireApproval ? 'success' : 'danger'"></ion-icon>
+					<ion-icon [name]="i.RequireApproval ? 'checkmark' : ''"
+						[color]="i.RequireApproval ? 'success' : ''"></ion-icon>
 				</ng-template>
 			</datatable-column>
 			<datatable-column class="col-icon-custom" name="Require document" property="RequireDocument">
 				<ng-template let-i="row" datatable-cell-template>
 					<span class="sp-custom">{{'Require document' | translate}}:</span>
-					<ion-icon [name]="i.RequireDocument ? 'checkmark' : 'close'"
-						[color]="i.RequireDocument ? 'success' : 'danger'"></ion-icon>
+					<ion-icon [name]="i.RequireDocument ? 'checkmark' : ''"
+						[color]="i.RequireDocument ? 'success' : ''"></ion-icon>
 				</ng-template>
 			</datatable-column>
 		</app-data-table>

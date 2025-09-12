@@ -119,5 +119,8 @@ export const HRMRoutes: Routes = [
 
     { path: 'leave-type', loadChildren: () => import('./leave-type/leave-type.module').then(m => m.LeaveTypePageModule), canActivate: [AuthGuard] },
     { path: 'leave-type/:id', loadChildren: () => import('./leave-type-detail/leave-type-detail.module').then(m => m.LeaveTypeDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'staff-time-off', loadChildren: () => import('./staff-time-off/staff-time-off.module').then(m => m.StaffTimeOffPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-time-off/:id', loadChildren: () => import('./staff-time-off-detail/staff-time-off-detail.module').then(m => m.StaffTimeOffDetailPageModule), canActivate: [AuthGuard] },
 ];
 
