@@ -54,6 +54,7 @@ export class LeaveTypeDetailPage extends PageBase {
 			MaxAge: [null],
 			BeforeHoliday: [null],
 			AfterHoliday: [null],
+			BadgeColor:[''],
 		});
 	}
 	_genderdataSource = [
@@ -79,10 +80,10 @@ export class LeaveTypeDetailPage extends PageBase {
 		this.saveChange();
 	}
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		if (this.item && (this.formGroup.get('ApplicableGender').value === null )) {
-			this.item.ApplicableGender = -1;
-		}
 		super.loadedData(event, ignoredFromGroup);
+		if (this.item && this.formGroup.get('ApplicableGender').value === null) {
+			this.formGroup.get('ApplicableGender').setValue(-1);
+		}
 	}
 
 	async saveChange() {

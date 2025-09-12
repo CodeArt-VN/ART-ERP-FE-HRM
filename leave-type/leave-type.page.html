@@ -15,6 +15,13 @@
 			(selectedRowsChange)="showCommandBySelectedRows($event)">
 			<datatable-column [checkbox]="true" name=""></datatable-column>
 			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-code" name="Code" property="Code">
+				<ng-template let-i="row" datatable-cell-template>
+					<div class="custom-code" [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+						<span>{{i.Code}}</span>
+					</div>
+				</ng-template>
+			</datatable-column>
 			<datatable-column class="col-name" name="Name" property="Name">
 				<ng-template let-i="row" datatable-cell-template>
 					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
@@ -22,7 +29,6 @@
 
 					</div>
 				</ng-template>
-
 			</datatable-column>
 			<datatable-column class="col-code" name="Gender" property="ApplicableGender">
 				<ng-template let-i="row" datatable-cell-template>

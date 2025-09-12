@@ -11,6 +11,17 @@
 		.sp-custom {
 			display: block !important;
 		}
+		.custom-code {
+			padding: 1px 7px 1px 0 !important;
+			border-left: solid 3px rgba(var(--ion-color-primary-rgb, 0, 0, 0), 0.2);
+			background-color: rgba(var(--ion-color-primary-rgb, 0, 0, 0), 0.1);
+			border-radius: 2px;
+			font-size: 80%;
+			margin-right: 5px;
+			max-width: fit-content !important;
+			min-width: fit-content !important;
+		
+        }
 	}
 }
 
