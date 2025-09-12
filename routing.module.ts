@@ -116,5 +116,8 @@ export const HRMRoutes: Routes = [
 
     { path: 'timesheet-record', loadChildren: () => import('./timesheet-record/timesheet-record.module').then(m => m.TimesheetRecordPageModule), canActivate: [AuthGuard] },
     { path: 'timesheet-record/:id/:idtimesheet', loadChildren: () => import('./timesheet-record-detail/timesheet-record-detail.module').then(m => m.TimesheetRecordDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'leave-type', loadChildren: () => import('./leave-type/leave-type.module').then(m => m.LeaveTypePageModule), canActivate: [AuthGuard] },
+    { path: 'leave-type/:id', loadChildren: () => import('./leave-type-detail/leave-type-detail.module').then(m => m.LeaveTypeDetailPageModule), canActivate: [AuthGuard] },
 ];
 

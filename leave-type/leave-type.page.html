@@ -1,0 +1,95 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}"
+	forceOverscroll="false">
+
+
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table class="box-shadow responsive" [rows]="items" [trackBy]="'Id'" [(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner" [showFilter]="pageConfig.isShowSearch" [(query)]="query"
+			(dataInfinite)="loadData($event)" (filter)="onDatatableFilter($event)" (sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)">
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-name" name="Name" property="Name">
+				<ng-template let-i="row" datatable-cell-template>
+					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+						<ion-text color="dark">{{i.Name}}</ion-text>
+						
+					</div>
+				</ng-template>
+				
+			</datatable-column>
+			<datatable-column class="col-code" name="Gender" property="ApplicableGender">
+				<ng-template let-i="row" datatable-cell-template>
+					<span>
+						{{ i.ApplicableGender === 0 ? 'Male' : (i.ApplicableGender === 1 ? 'Female' : 'All') }}
+					</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Max days/request" property="MaxDaysPerRequest">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Max days/request' | translate}}:</span>
+					<span>{{i.MaxDaysPerRequest}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Max days/year" property="MaxDaysPerYear">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Max days/year' | translate}}:</span>
+					<span>{{i.MaxDaysPerYear}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Advance days" property="MinAdvanceDays">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Advance days' | translate}}:</span>
+					<span>{{i.MinAdvanceDays}}</span>
+				</ng-template>
+			</datatable-column>
+			
+			<datatable-column class="col-custom" name="Min age" property="MinAge">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Min age' | translate}}:</span>
+					<span>{{i.MinAge}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Max age" property="MaxAge">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Max age' | translate}}:</span>
+					<span>{{i.MaxAge}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-icon-custom" name="Paid" property="IsPaid">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Paid' | translate}}:</span>
+					<ion-icon [name]="i.IsPaid ? 'checkmark' : 'close'"
+						[color]="i.IsPaid ? 'success' : 'danger'"></ion-icon>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-icon-custom" name="Require approval" property="RequireApproval">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Require approval' | translate}}:</span>
+					<ion-icon [name]="i.RequireApproval ? 'checkmark' : 'close'"
+						[color]="i.RequireApproval ? 'success' : 'danger'"></ion-icon>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-icon-custom" name="Require document" property="RequireDocument">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Require document' | translate}}:</span>
+					<ion-icon [name]="i.RequireDocument ? 'checkmark' : 'close'"
+						[color]="i.RequireDocument ? 'success' : 'danger'"></ion-icon>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
+	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)"
+		[disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

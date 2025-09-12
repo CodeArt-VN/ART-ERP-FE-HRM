@@ -1,0 +1,91 @@
+<ion-header>
+	<app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="leave-type-detail-page" style="position: absolute"></div>
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<div class="row-full shadow full-screen">
+			<div class="ion-padding">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<ion-row>
+							<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Leave type' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size="12" size-md="4">
+								<app-form-control [field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+								<app-form-control
+									[field]="{id: 'MaxDaysPerRequest', label: 'Max Days/Request', type: 'number', form: formGroup}"
+									(change)="changeValueInt('MaxDaysPerRequest')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'MaxDaysPerYear', label: 'Max Days/Year', type: 'number', form: formGroup}"
+									(change)="changeValueInt('MaxDaysPerYear')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'MinAdvanceDays', label: 'Advance Days', type: 'number', form: formGroup}"
+									(change)="changeValueInt('MinAdvanceDays')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'IsPaid', label: 'Paid', type: 'checkbox', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+								<app-form-control
+									[field]="{id: 'RequireApproval', label: 'Require Approval', type: 'checkbox', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+								<app-form-control
+									[field]="{id: 'RequireDocument', label: 'Require Document', type: 'checkbox', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+							</ion-col>
+							<ion-col size="12" size-md="4">
+								<app-form-control
+									[field]="{id: 'ApplicableGender', label: 'Gender', type: 'ng-select', form: formGroup,  dataSource: _genderdataSource,  bindLabel: 'Name',  bindValue: 'Code', appendTo:'#leave-type-detail-page' }"
+									(change)="changeApplicableGender()">
+								</app-form-control>
+							
+								<app-form-control
+									[field]="{id: 'MinAge', label: 'Min Age', type: 'number', form: formGroup}"
+									(change)="changeValueInt('MinAge')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'MaxAge', label: 'Max Age', type: 'number', form: formGroup}"
+									(change)="changeValueInt('MaxAge')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'BeforeHoliday', label: 'Before Holiday', type: 'number', form: formGroup}"
+									(change)="changeValueInt('BeforeHoliday')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'AfterHoliday', label: 'After Holiday', type: 'number', form: formGroup}"
+									(change)="changeValueInt('AfterHoliday')"></app-form-control>
+
+							</ion-col>
+						</ion-row>
+					</form>
+					<!-- Other information -->
+					<ion-row class="hr-group" *ngIf="item.Id">
+						<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+							</ion-list-header>
+						</ion-col>
+						<ion-col size="12" size-sm size-xl="4">
+							<app-form-control
+								[field]="{id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
+							<app-form-control
+								[field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+							<app-form-control
+								[field]="{id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+							<app-form-control
+								[field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+						</ion-col>
+						<ion-col size="12" size-sm size-xl="4">
+							<app-form-control
+								[field]="{id: 'IDBranch', type: 'branch-breadcrumbs', label: 'Branch', form: formGroup, dataSource:env.branchList }"></app-form-control>
+							<app-form-control [field]="{id: 'Remark', type: 'textarea', form: formGroup }"
+								(change)="saveChange()"></app-form-control>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+		</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>
