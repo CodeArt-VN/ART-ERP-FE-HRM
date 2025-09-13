@@ -4,17 +4,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { ShareModule } from 'src/app/share.module';
-import { StaffTimeOffDetailPage } from './staff-time-off-detail.page';
+import { StaffTimeOffRequestDetailPage } from './staff-time-off-request-detail.page';
 
 const routes: Routes = [
 	{
 		path: '',
-		component: StaffTimeOffDetailPage,
+		component: StaffTimeOffRequestDetailPage,
 	},
 ];
 
 @NgModule({
 	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, RouterModule.forChild(routes)],
-	declarations: [StaffTimeOffDetailPage],
+	declarations: [StaffTimeOffRequestDetailPage],
 })
-export class StaffTimeOffDetailPageModule {}
+export class StaffTimeOffRequestDetailPageModule {}

@@ -84,13 +84,13 @@ export class LeaveTypeDetailPage extends PageBase {
 		if (this.item && this.formGroup.get('ApplicableGender').value === null) {
 			this.formGroup.get('ApplicableGender').setValue(-1);
 		}
-	}
-
-	async saveChange() {
-		if (!this.id && this.formGroup.get('ApplicableGender').value == -1) {
+		if (!this.item.Id && this.formGroup.get('ApplicableGender').value == -1) {
 			this.formGroup.get('ApplicableGender').setValue(null);
 			this.formGroup.get('ApplicableGender').markAsDirty();
 		}
+	}
+
+	async saveChange() {
 		super.saveChange2();
 	}
 

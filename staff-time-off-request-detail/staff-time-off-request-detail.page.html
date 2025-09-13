@@ -1,0 +1,102 @@
+<ion-header>
+	<app-detail-toolbar [page]="this"></app-detail-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="staff-time-off-request-detail-page" style="position: absolute"></div>
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<div class="row-full shadow full-screen">
+			<div class="ion-padding">
+				<ion-grid fixed>
+					<form [formGroup]="formGroup">
+						<ion-row>
+							<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Time off request' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size="12" size-sm="12" size-md="6" size-xl="4">
+								<app-form-control
+									[field]="{id: 'IDLeaveType', label: 'Leave type', type: 'ng-select', dataSource: leaveTypeDataSource, bindLabel: 'Name', bindValue: 'Id', form: formGroup, appendTo:'#staff-time-off-request-detail-page'}"
+									(change)="saveChange()"></app-form-control>
+								<app-form-control
+									[field]="{id: 'IDStaff',label: 'Staff', type : 'ng-select-staff',dataSource: staffDataSource, bindLabel: 'FullName',bindValue: 'Id', clearable: true, form : formGroup,appendTo:'#staff-time-off-request-detail-page'}"
+									(change)="staffChange($event)"></app-form-control>
+								<app-form-control
+									[field]="{id: 'IDReplacementStaff', label: 'Replacement staff', type: 'ng-select-staff', dataSource: replacementStaffDataSource, bindLabel: 'FullName', bindValue: 'Id', clearable: true, form: formGroup, appendTo:'#staff-time-off-request-detail-page'}"
+									(change)="saveChange()"></app-form-control>	
+								<app-form-control
+									[field]="{id: 'StartDate', label: 'Start date', type: 'date', placeholder: 'yyyy-MM-dd', form: formGroup}"
+									(change)="checkStartEnd('StartDate')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'EndDate', label: 'End date', type: 'date', placeholder: 'yyyy-MM-dd', form: formGroup}"
+									(change)="checkStartEnd('EndDate')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'TotalHours', label: 'Total hours', type: 'number', form: formGroup}"
+									(change)="checkStartEnd('TotalHours')"></app-form-control>
+								<app-form-control
+									[field]="{id: 'TotalDays', label: 'Total days', type: 'number', form: formGroup}"
+									(change)="checkStartEnd('TotalDays')"></app-form-control>
+
+							</ion-col>
+							<ion-col size="12" size-sm="12" size-md="6" size-xl="4">
+								<app-form-control
+									[field]="{id: 'Status', label: 'Status', type: 'ng-select-status',  dataSource: statusDataSource, bindLabel:'Name',  bindValue: 'Code' ,form: formGroup }"
+									(change)="saveChange()">
+								</app-form-control>
+
+								<app-form-control
+									[field]="{id: 'RequestDate', label: 'Request date', type: 'date', placeholder: 'yyyy-MM-dd', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+
+								<app-form-control
+									[field]="{id: 'ContactInfo', label: 'Contact info', type: 'text', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+
+								<app-form-control
+									[field]="{id: 'AttachmentPath', label: 'Attachment path', type: 'text', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+								<app-form-control
+									[field]="{id: 'AttachmentDescription', label: 'Attachment description', type: 'text', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+
+								<app-form-control
+									[field]="{id: 'Reason', label: 'Reason', type: 'textarea', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+								<app-form-control
+									[field]="{id: 'HandoverNotes', label: 'Handover notes', type: 'textarea', form: formGroup}"
+									(change)="saveChange()"></app-form-control>
+							</ion-col>
+
+						</ion-row>
+					</form>
+					<!-- Other information -->
+					<ion-row class="hr-group" *ngIf="item.Id">
+						<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+							<ion-list-header class="ion-no-padding">
+								<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+							</ion-list-header>
+						</ion-col>
+						<ion-col size="12" size-sm size-xl="4">
+							<app-form-control
+								[field]="{id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
+							<app-form-control
+								[field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+							<app-form-control
+								[field]="{id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+							<app-form-control
+								[field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+						</ion-col>
+						<ion-col size="12" size-sm size-xl="4">
+							<app-form-control
+								[field]="{id: 'IDBranch', type: 'branch-breadcrumbs', label: 'Branch', form: formGroup, dataSource:env.branchList }"></app-form-control>
+							<app-form-control [field]="{id: 'Remark', type: 'textarea', form: formGroup }"
+								(change)="saveChange()"></app-form-control>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+		</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>
