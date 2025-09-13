@@ -19,9 +19,13 @@
 								<app-form-control
 									[field]="{id: 'IDStaff',label: 'Staff', type : 'ng-select-staff',dataSource: staffDataSource, bindLabel: 'FullName',bindValue: 'Id', clearable: true, form : formGroup,appendTo:'#staff-time-off-detail-page'}"
 									(change)="staffChange($event)"></app-form-control>
-								<app-form-control
+								<!-- <app-form-control
 									[field]="{id: 'Date', label: 'Date', type: 'datetime-local', form: formGroup}"
-									(change)="saveChange()"></app-form-control>
+									(change)="saveChange()"></app-form-control> -->
+									<app-form-control
+									[field]="{id: 'Date', label: 'Date', type: 'date', placeholder: 'yyyy-MM-dd', form: formGroup}"
+									(change)="saveChange()"></app-form-control>	
+									
 							</ion-col>
 							<ion-col size="12" size-md="4">
 								<div class="c-control">

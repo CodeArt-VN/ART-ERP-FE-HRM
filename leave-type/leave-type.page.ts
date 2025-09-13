@@ -33,7 +33,7 @@ export class LeaveTypePage extends PageBase {
 	preLoadData(event?: any): void {
 		let sorted: SortConfig[] = [{ Dimension: 'Id', Order: 'DESC' }];
 		this.pageConfig.sort = sorted;
-		this.pageConfig.pageIcon = 'flash-outline';
+		//this.pageConfig.pageIcon = 'flash-outline';
 		super.preLoadData(event);
 	}
 

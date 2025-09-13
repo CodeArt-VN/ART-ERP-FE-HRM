@@ -11,6 +11,10 @@
 		.sp-custom {
 			display: block !important;
 		}
+
+		datatable-body-cell.cell.col-name.item-name {
+			min-width: 100% !important;
+		}
 	}
 }
 

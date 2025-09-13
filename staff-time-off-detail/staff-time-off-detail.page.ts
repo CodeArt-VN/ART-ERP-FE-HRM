@@ -5,6 +5,7 @@ import { NavController, LoadingController, AlertController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { CommonService } from 'src/app/services/core/common.service';
 import { EnvService } from 'src/app/services/core/env.service';
+import { lib } from 'src/app/services/static/global-functions';
 import { BRA_BranchProvider, HRM_StaffProvider, HRM_StaffTimeOffProvider } from 'src/app/services/static/services.service';
 
 @Component({
@@ -49,11 +50,12 @@ export class StaffTimeOffDetailPage extends PageBase {
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		super.loadedData(event, ignoredFromGroup);
+		this.item.Date = lib.dateFormat(this.item.Date);
 		if (this.id && this.item._Staff) {
 			if (!this.staffDataSource.selected.some((d) => d.Id == this.item._Staff.Id)) this.staffDataSource.selected.push(this.item._Staff);
 		}
 		this.staffDataSource.initSearch();
+		super.loadedData(event, ignoredFromGroup);
 	}
 
 	staffChange(e) {
