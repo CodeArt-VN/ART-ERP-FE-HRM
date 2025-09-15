@@ -64,6 +64,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 	statusDataSource = [];
 	leaveTypeDataSource = [];
 	holidayDataSource = [];
+	selectedStaff: any = null; 
 
 	preLoadData(event?: any): void {
 		Promise.all([this.leaveTypeProvider.read(), this.holidayProvider.read(), this.env.getStatus('StandardApprovalStatus')]).then((values: any) => {
@@ -187,7 +188,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 			return;
 		}
 		if (leaveTypeCode === 'AL') {
-			const remainingDays = this.item?.Staff?.LeaveDaysRemaining ?? 0;
+			const remainingDays = this.selectedStaff?.LeaveDaysRemaining ?? 0;
 			if (days > remainingDays) {
 				this.env.showMessage(`You only have ${remainingDays} annual leave days left, you cannot request ${days} days`, 'danger');
 				endDateCtrl?.setValue('');
@@ -305,7 +306,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		return total;
 	}
 
-	changeLeaveType(e) {
+	async changeLeaveType(e) {
 		if (e) {
 			if (e.RequireDocument) {
 				this.formGroup.controls.AttachmentPath.addValidators(Validators.required);
@@ -315,6 +316,15 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 			this.formGroup.controls.AttachmentPath.updateValueAndValidity();
 			this.formGroup.controls.IDLeaveType.setValue(e.Id);
 			this.formGroup.controls.IDLeaveType.markAsDirty();
+			if (e.Code === 'AL') {
+                const staffId = this.formGroup.get('IDStaff')?.value;
+                if (staffId) {
+                    const staffRes: any = await this.staffProvider.read({ Id: staffId });
+                    if (staffRes?.data?.length) {
+                        this.selectedStaff = staffRes.data[0];
+                    }
+                }
+            }
 			this.validateHoliday();
 			// this.saveChange();
 		}
