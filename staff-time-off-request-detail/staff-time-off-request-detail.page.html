@@ -18,7 +18,7 @@
 							<ion-col size="12" size-sm="12" size-md="6" size-xl="4">
 								<app-form-control
 									[field]="{id: 'IDLeaveType', label: 'Leave type', type: 'ng-select', dataSource: leaveTypeDataSource, bindLabel: 'Name', bindValue: 'Id', form: formGroup, appendTo:'#staff-time-off-request-detail-page'}"
-									(change)="saveChange()"></app-form-control>
+									(change)="changeLeaveType($event)"></app-form-control>
 								<app-form-control
 									[field]="{id: 'IDStaff',label: 'Staff', type : 'ng-select-staff',dataSource: staffDataSource, bindLabel: 'FullName',bindValue: 'Id', clearable: true, form : formGroup,appendTo:'#staff-time-off-request-detail-page'}"
 									(change)="staffChange($event)"></app-form-control>
@@ -26,10 +26,10 @@
 									[field]="{id: 'IDReplacementStaff', label: 'Replacement staff', type: 'ng-select-staff', dataSource: replacementStaffDataSource, bindLabel: 'FullName', bindValue: 'Id', clearable: true, form: formGroup, appendTo:'#staff-time-off-request-detail-page'}"
 									(change)="saveChange()"></app-form-control>	
 								<app-form-control
-									[field]="{id: 'StartDate', label: 'Start date', type: 'date', placeholder: 'yyyy-MM-dd', form: formGroup}"
+									[field]="{id: 'StartDate', label: 'Start date', type: 'datetime-local', placeholder: 'yyyy-MM-dd', form: formGroup}"
 									(change)="checkStartEnd('StartDate')"></app-form-control>
 								<app-form-control
-									[field]="{id: 'EndDate', label: 'End date', type: 'date', placeholder: 'yyyy-MM-dd', form: formGroup}"
+									[field]="{id: 'EndDate', label: 'End date', type: 'datetime-local', placeholder: 'yyyy-MM-dd', form: formGroup}"
 									(change)="checkStartEnd('EndDate')"></app-form-control>
 								<app-form-control
 									[field]="{id: 'TotalHours', label: 'Total hours', type: 'number', form: formGroup}"
@@ -46,7 +46,7 @@
 								</app-form-control>
 
 								<app-form-control
-									[field]="{id: 'RequestDate', label: 'Request date', type: 'date', placeholder: 'yyyy-MM-dd', form: formGroup}"
+									[field]="{id: 'RequestDate', label: 'Request date', type: 'datetime-local', placeholder: 'yyyy-MM-dd', form: formGroup}"
 									(change)="saveChange()"></app-form-control>
 
 								<app-form-control
