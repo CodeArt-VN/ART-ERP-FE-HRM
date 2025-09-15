@@ -64,7 +64,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 	leaveTypeDataSource = [];
 
 	preLoadData(event?: any): void {
-		Promise.all([this.leaveTypeProvider.read(), this.env.getStatus('ApprovalStatus')]).then((values: any) => {
+		Promise.all([this.leaveTypeProvider.read(), this.env.getStatus('StandardApprovalStatus')]).then((values: any) => {
 			this.leaveTypeDataSource = values[0].data;
 			this.statusDataSource = values[1];
 			super.preLoadData(event);
@@ -81,6 +81,11 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		super.loadedData(event, ignoredFromGroup);
 		if (this.id && this.item._Staff) {
 			if (!this.staffDataSource.selected.some((d) => d.Id == this.item._Staff.Id)) this.staffDataSource.selected.push(this.item._Staff);
+		}
+		if(!this.item._Staff){
+			this.formGroup.controls.IDStaff.setValue(this.env.user.StaffID);
+			this.staffDataSource.selected.push({FullName: this.env.user.FullName, Id: this.env.user.StaffID});
+			this.formGroup.controls.IDStaff.markAsDirty();
 		}
 		this.staffDataSource.initSearch();
 
