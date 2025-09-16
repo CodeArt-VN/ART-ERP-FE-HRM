@@ -33,6 +33,6 @@
 </ion-content>
 <ion-footer>
 	<ion-toolbar>
-		<ion-button [disabled]="!items || items.length === 0" size="large" slot="end" (click)="checkin()">{{'Check in' | translate}}</ion-button>
+		<ion-button [disabled]="!items || items.length === 0 && activeGate" size="large" slot="end" (click)="checkin()">{{'Check in' | translate}}</ion-button>
 	</ion-toolbar>
 </ion-footer>

@@ -19,6 +19,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typecateringg
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import { lib } from 'src/app/services/static/global-functions';
 import { PersonalSchedulerGeneratorPage } from '../personal-scheduler-generator/personal-scheduler-generator.page';
 import { PopoverPage } from '../../SYS/popover/popover.page';
@@ -31,6 +32,8 @@ import { ApiSetting } from 'src/app/services/static/api-setting';
 import { HttpClient } from '@angular/common/http';
 import { ScanCheckinModalPage } from '../scan-checkin-modal/scan-checkin-modal.page';
 import { FormBuilder } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
+
 @Component({
 	selector: 'app-personal-scheduler',
 	templateUrl: 'personal-scheduler.page.html',
@@ -73,12 +76,13 @@ export class PersonalSchedulerPage extends PageBase {
 		public loadingController: LoadingController,
 		public env: EnvService,
 		public route: ActivatedRoute,
-		public navCtrl: NavController
+		public navCtrl: NavController,
+		public translate: TranslateService
 	) {
 		super();
 		this.pageConfig.isShowFeature = false;
 		this.formGroupDate = this.formBuilder.group({
-			singleDate:  [new Date().toISOString().split('T')[0]],
+			singleDate: [new Date().toISOString().split('T')[0]],
 		});
 	}
 
@@ -137,160 +141,170 @@ export class PersonalSchedulerPage extends PageBase {
 			this.query.StartDateTo = this.query.WorkingDateTo;
 			this.query.LogTimeFrom = this.query.WorkingDateFrom;
 			this.query.LogTimeTo = this.query.WorkingDateTo;
-			Promise.all([this.overtimeRecordProvider.read(this.query), this.timesheetLogProvider.read(this.query), this.timesheetRecordProvider.read(this.query)]).then(
-				(values: any) => {
-					console.log(values);
-					values[0]?.data?.forEach((i) => {
-						let item: any = {
-							ShiftName: 'OT',
+			Promise.all([
+				this.overtimeRecordProvider.read(this.query),
+				this.timesheetLogProvider.read(this.query),
+				this.timesheetRecordProvider.read(this.query),
+				this.translate.get('There is no schedule').toPromise(),
+			]).then((values: any) => {
+				console.log(values);
+				values[0]?.data?.forEach((i) => {
+					let item: any = {
+						ShiftName: 'OT',
+						IDStaff: i.IDStaff,
+						TimeOffType: null,
+						ShiftStart: lib.dateFormat(i.StartDate, 'hh:MM'),
+						ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
+						start: i.StartDate,
+						end: i.EndDate,
+						textColor: '#000000',
+					};
+					this.items.push(item);
+				});
+				if (values[1]?.data?.length > 0) {
+					values[1]?.data?.forEach((i) => {
+						let logDate = new Date(i.LogTime).toDateString();
+						let gateName = this.gateList?.find((d) => d.Id == i.IDGate)?.Name || '';
+						let item = this.items.find((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
+						let index = this.items.findIndex((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
+						let log: any = {
+							ShiftName: 'Checkin',
+							start: i.LogTime, //i.StartDate,
+							end: i.LogTime,
 							IDStaff: i.IDStaff,
 							TimeOffType: null,
-							ShiftStart: lib.dateFormat(i.StartDate, 'hh:MM'),
-							ShiftEnd: lib.dateFormat(i.EndDate, 'hh:MM'),
-							start: i.StartDate,
-							end: i.EndDate,
-							textColor: '#000000',
+							ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
+							ShiftEnd: lib.dateFormat(i.LogTime, 'hh:MM'),
+							Remark: i.Remark,
+							IDGate: i.IDGate,
+							GateName: gateName,
+							allDay: true,
 						};
-						this.items.push(item);
+						log.color = lib.getCssVariableValue('--ion-color-success');
+						log.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
+						if (!i.IsValidLog && !i.SeftClaim) {
+							log.color = lib.getCssVariableValue('--ion-color-danger');
+							log.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
+						}
+						if (!i.IsValidLog && i.SeftClaim) {
+							log.color = lib.getCssVariableValue('--ion-color-warning');
+							log.textColor = lib.getCssVariableValue('--ion-color-warning-contrast');
+						}
+						if (item) {
+							this.items.splice(index + 1, 0, log);
+							if (item.CheckinLog) item.CheckinLog.push(log);
+							else item.CheckinLog = [log];
+						} else {
+							this.items.push(log);
+						}
 					});
-					if (values[1]?.data?.length > 0) {
-						values[1]?.data?.forEach((i) => {
-							let logDate = new Date(i.LogTime).toDateString();
-							let gateName = this.gateList?.find((d) => d.Id == i.IDGate)?.Name || '';
-							let item = this.items.find((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
-							let index = this.items.findIndex((d) => d.IDStaff == i.IDStaff && new Date(d.start).toDateString() == logDate);
-							let log: any = {
-								ShiftName: 'Checkin',
-								start: i.LogTime, //i.StartDate,
-								end: i.LogTime,
-								IDStaff: i.IDStaff,
-								TimeOffType: null,
-								ShiftStart: lib.dateFormat(i.LogTime, 'hh:MM'),
-								ShiftEnd: lib.dateFormat(i.LogTime, 'hh:MM'),
-								Remark: i.Remark,
-								IDGate: i.IDGate,
-								GateName: gateName,
-								allDay: true,
-							};
-							log.color = lib.getCssVariableValue('--ion-color-success');
-							log.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
-							if (!i.IsValidLog && !i.SeftClaim) {
-								log.color = lib.getCssVariableValue('--ion-color-danger');
-								log.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
-							}
-							if (!i.IsValidLog && i.SeftClaim) {
-								log.color = lib.getCssVariableValue('--ion-color-warning');
-								log.textColor = lib.getCssVariableValue('--ion-color-warning-contrast');
-							}
-							if (item) {
-								this.items.splice(index + 1, 0, log);
-								if (item.CheckinLog) item.CheckinLog.push(log);
-								else item.CheckinLog = [log];
-							} else {
-								this.items.push(log);
-							}
-						});
-					}
-					this.items.forEach((e) => {
-						let shift = this.shiftList.find((d) => d.Id == e.IDShift);
-						let timesheet = this.timesheetList.find((d) => d.Id == e.IDTimesheet);
-						if (e.TimeOffType) {
-							let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-							if (toType) {
-								e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
-								e.color = e.Color;
-								e.resourceId = e.IDStaff;
-								e.ShiftName = e.TimeOffType;
-								e.Badge = '';
-								e.html = `<span class="v-align-middle">${e.Title}</span>`;
-								e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
-							} else {
-								console.log(e);
-							}
-						} else if (shift && timesheet) {
-							e.Color = shift.Color;
+				}
+				this.items.forEach((e) => {
+					let shift = this.shiftList.find((d) => d.Id == e.IDShift);
+					let timesheet = this.timesheetList.find((d) => d.Id == e.IDTimesheet);
+					if (e.TimeOffType) {
+						let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+						if (toType) {
+							e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
 							e.color = e.Color;
 							e.resourceId = e.IDStaff;
-							e.ShiftName = shift.Name;
-							e.ShiftStart = shift.Start;
-							e.ShiftEnd = shift.End;
-							e.textColor = shift.TextColor;
+							e.ShiftName = e.TimeOffType;
+							e.Badge = '';
+							e.html = `<span class="v-align-middle">${e.Title}</span>`;
+							e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+						} else {
+							console.log(e);
+						}
+					} else if (shift && timesheet) {
+						e.Color = shift.Color;
+						e.color = e.Color;
+						e.resourceId = e.IDStaff;
+						e.ShiftName = shift.Name;
+						e.ShiftStart = shift.Start;
+						e.ShiftEnd = shift.End;
+						e.textColor = shift.TextColor;
 
-							e.Shift = shift;
-							e.Timesheet = timesheet;
-							e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
-							if (values[2]?.data?.length > 0) {
-								let i = values[2].data.find((d) => d.IDStaff == e.IDStaff && d.WorkingDate == e.WorkingDate);
-								if (i) {
-									if (shift && timesheet) {
-										e.Color = shift.Color;
-										e.resourceId = e.IDStaff;
-										e.Shift = shift;
-										e.Timesheet = timesheet;
-										e.textColor = shift.TextColor;
-										e.Checkin = lib.dateFormat(i.Checkin, 'hh:MM');
-										e.Checkout = lib.dateFormat(i.Checkout, 'hh:MM');
+						e.Shift = shift;
+						e.Timesheet = timesheet;
+						e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
+						if (values[2]?.data?.length > 0) {
+							let i = values[2].data.find((d) => d.IDStaff == e.IDStaff && d.WorkingDate == e.WorkingDate);
+							if (i) {
+								if (shift && timesheet) {
+									e.Color = shift.Color;
+									e.resourceId = e.IDStaff;
+									e.Shift = shift;
+									e.Timesheet = timesheet;
+									e.textColor = shift.TextColor;
+									e.Checkin = lib.dateFormat(i.Checkin, 'hh:MM');
+									e.Checkout = lib.dateFormat(i.Checkout, 'hh:MM');
 
-										if (new Date(i.WorkingDate) < new Date()) {
-											let point = 0;
-											if (e.Point) point = Math.round(e.Point * 100) / 100;
+									if (new Date(i.WorkingDate) < new Date()) {
+										let point = 0;
+										if (i.Point) point = Math.round(i.Point * 100) / 100;
 
-											e.Color = 'success';
-											e.Icon = 'checkmark-circle-outline';
-											e.CheckData = ` ${e.Checkin}→${e.Checkout}`;
-											e.Badge = `${i.MinutesOfWorked}-${point}`;
-											e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
-											if (!i.LogCount) {
-												e.Color = 'danger';
-												e.Icon = 'alert-circle-outline';
-												e.Title = `Q`;
-												e.Badge = `0`;
-												e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
-											}
-
-											if (e.TimeOffType) {
-												let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-												e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase()); //toType.Color;
-												e.Icon = 'alert-circle-outline';
-												e.Title = `${e.TimeOffType}`;
-												e.Badge = `${point}`;
-												e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
-											}
-										} else {
-											e.Color = 'medium';
-											e.Icon = 'timer-outline';
-											e.Title = `${shift.Name}`;
-											e.Badge = `${shift.Start}→${shift.End}`;
+										e.Color = 'success';
+										e.Icon = 'checkmark-circle-outline';
+										e.CheckData = ` ${e.Checkin}→${e.Checkout}`;
+										e.Badge = `${i.MinutesOfWorked}-${point}`;
+										e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
+										if (!i.LogCount && e.ShiftType != 'WorkFromHomeShift') {
+											e.Color = 'danger';
+											e.Icon = 'alert-circle-outline';
+											e.Title = `Q`;
+											e.Badge = `0`;
+											e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
 										}
-										e.PointObject = {
-											Point: i.Point,
-											MinutesOfWorked: i.MinutesOfWorked,
-											LogCount: i.LogCount,
-											StdTimeIn: i.StdTimeIn,
-											StdTimeOut: i.StdTimeOut,
-											Breaks: i.Breaks,
-										};
-										e.color = lib.getCssVariableValue('--ion-color-' + e.Color) + '22';
+
+										if (e.ShiftType == 'WorkFromHomeShift') {
+											e.Title = `WFH`;
+											e.Badge = `${point}`;
+										}
+
+										if (e.TimeOffType) {
+											let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+											e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase()); //toType.Color;
+											e.Icon = 'alert-circle-outline';
+											e.Title = `${e.TimeOffType}`;
+											e.Badge = `${point}`;
+											e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+										}
+									} else {
+										e.Color = 'medium';
+										e.Icon = 'timer-outline';
+										e.Title = `${shift.Name}`;
+										e.Badge = `${shift.Start}→${shift.End}`;
 									}
+									e.PointObject = {
+										Point: i.Point,
+										MinutesOfWorked: i.MinutesOfWorked,
+										LogCount: i.LogCount,
+										StdTimeIn: i.StdTimeIn,
+										StdTimeOut: i.StdTimeOut,
+										Breaks: i.Breaks,
+									};
+									e.color = lib.getCssVariableValue('--ion-color-' + e.Color) + '22';
 								}
 							}
 						}
-					});
-					this.calendarOptions.events = this.items;
+					}
+				});
 
-					this.getCalendar();
-					this.fc?.updateSize();
-					super.loadedData(event, ignoredFromGroup);
-					console.log('items: ', this.items);
-				}
-			);
+				this.calendarOptions.views.listMonth.noEventsContent = values[3];
+				this.calendarOptions.events = this.items;
+
+				this.getCalendar();
+				this.fc?.updateSize();
+				super.loadedData(event, ignoredFromGroup);
+				console.log('items: ', this.items);
+			});
 
 			// this.query.EndDate = this.query.WorkingDateFrom;
 		}
 	}
 
 	calendarOptions: any = {
-		plugins: [dayGridPlugin, timeGridPlugin],
+		plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
 		initialView: 'dayGridMonth',
 		height: '100%',
 		timeZone: 'Asia/Ho_Chi_Minh',
@@ -316,11 +330,12 @@ export class PersonalSchedulerPage extends PageBase {
 		//     { title: 'event 1', date: '2019-04-01' },
 		//     { title: 'event 2', date: '2019-04-02' }
 		// ],
-		headerToolbar: {
-			left: '',
-			center: 'title',
-			right: 'dayGridMonth timeGridWeek timeGridDay', // thứ tự hiển thị nút
-		},
+		headerToolbar: false,
+		// headerToolbar: {
+		// 	left: '',
+		// 	center: 'title',
+		// 	//right: 'dayGridMonth timeGridWeek timeGridDay listMonth', // thứ tự hiển thị nút
+		// },
 
 		views: {
 			dayGridMonth: {
@@ -355,6 +370,15 @@ export class PersonalSchedulerPage extends PageBase {
 					day: 'numeric',
 					omitCommas: true,
 				},
+			},
+			listMonth: {
+				buttonText: 'List',
+				noEventsContent: 'There is no schedule',
+				eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+				listDaySideFormat: { weekday: 'long' }, // phải
+            	listDayFormat: { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }, // trái
+				displayEventEnd: true, // Giờ kết thúc
+				eventOrder: 'title', // Sắp xếp
 			},
 		},
 		slotLabelFormat: {
@@ -396,7 +420,11 @@ export class PersonalSchedulerPage extends PageBase {
 				let icon = `${arg.event.extendedProps.Icon ? '<ion-icon color="' + arg.event.extendedProps.Color + '" name="' + arg.event.extendedProps.Icon + '"></ion-icon>' : ''}`;
 				let checkData = `${arg.event.extendedProps.CheckData ? '<span class="v-align-middle">' + arg.event.extendedProps.CheckData + '</span>' : ''}`;
 				let badge = `${arg.event.extendedProps.Badge ? '<ion-badge color="' + arg.event.extendedProps.Color + '" class="float-right">' + arg.event.extendedProps.Badge + '</ion-badge>' : ''}`;
-				html += `<br>${icon}${checkData}${badge}`;
+				if (arg.event.extendedProps.ShiftType == 'WorkFromHomeShift') {
+					html += `<br>${icon}${badge}`;
+				}else {
+					html += `<br>${icon}${checkData}${badge}`;
+				}
 			}
 
 			if (arg.event.extendedProps.ShiftName == 'Checkin') {
@@ -773,5 +801,16 @@ export class PersonalSchedulerPage extends PageBase {
 		} else if (message.indexOf('Catering voucher has been used') > -1) {
 			this.env.showMessage('Meal Check-in completed', 'warning', null, 0, true);
 		}
+	}
+
+	isOpenPopover = false;
+	@ViewChild('popover') popover!: HTMLIonPopoverElement;
+	presentPopover(e) {
+		this.popover.event = e;
+		this.isOpenPopover = !this.isOpenPopover;
+	}
+
+	changeCalendarView(viewName: string) {
+		this.fc?.changeView(viewName);
 	}
 }
