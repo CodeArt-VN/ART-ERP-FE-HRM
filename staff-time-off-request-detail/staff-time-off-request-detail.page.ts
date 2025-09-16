@@ -49,8 +49,10 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 			IDReplacementStaff: [''],
 			StartDate: ['', Validators.required],
 			EndDate: ['', Validators.required],
-			TotalDays: ['', Validators.required],
-			TotalHours: ['', Validators.required],
+			// TotalDays: new FormControl({ value: 0, disabled: true }),
+			// TotalHours: new FormControl({ value: 0, disabled: true }),
+			TotalDays: [''],
+			TotalHours: [''],
 			RequestDate: [lib.dateFormat(new Date()), Validators.required],
 			Reason: ['', Validators.required],
 			ContactInfo: [''],
@@ -64,7 +66,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 	statusDataSource = [];
 	leaveTypeDataSource = [];
 	holidayDataSource = [];
-	selectedStaff: any = null; 
+	selectedStaff: any = null;
 
 	preLoadData(event?: any): void {
 		Promise.all([this.leaveTypeProvider.read(), this.holidayProvider.read(), this.env.getStatus('StandardApprovalStatus')]).then((values: any) => {
@@ -101,6 +103,13 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		if (!this.item.Id) {
 			this.formGroup.controls.Status.markAsDirty();
 			this.formGroup.controls.RequestDate.markAsDirty();
+		}
+
+		const leaveTypeId = this.formGroup.get('IDLeaveType')?.value;
+		const leaveTypeData = this.leaveTypeDataSource.find((x) => x.Id == leaveTypeId);
+		const leaveTypeCode = leaveTypeData?.Code;
+		if (leaveTypeCode === 'AL') {
+			this.getSelectedStaff();
 		}
 	}
 
@@ -141,13 +150,11 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		});
 	});
 
-	checkStartEnd(changedField?: string) {
+	validateStartEnd() {
 		const startDateCtrl = this.formGroup.get('StartDate');
 		const endDateCtrl = this.formGroup.get('EndDate');
-		const totalDaysCtrl = this.formGroup.get('TotalDays');
-		const totalHoursCtrl = this.formGroup.get('TotalHours');
 		const leaveTypeId = this.formGroup.get('IDLeaveType')?.value;
-
+		
 		const startDate = startDateCtrl?.value ? new Date(startDateCtrl.value) : null;
 		const endDate = endDateCtrl?.value ? new Date(endDateCtrl.value) : null;
 
@@ -172,17 +179,16 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		let days = 0;
 		let leaveHours = 0;
 		leaveHours = this.calcLeaveHours(startDate, endDate);
-		//days = Math.floor(leaveHours / 8) + (leaveHours % 8 > 0 ? 1 : 0);
+
 		days = leaveHours / 8;
 		days = Math.round(days * 100) / 100;
-
-		totalDaysCtrl?.setValue(days);
-		totalDaysCtrl?.markAsDirty();
-		totalHoursCtrl?.setValue(leaveHours);
-		totalHoursCtrl?.markAsDirty();
+		this.formGroup.get('TotalDays').setValue(days);
+		this.formGroup.get('TotalDays').markAsDirty();
+		this.formGroup.get('TotalHours').setValue(leaveHours);
+		this.formGroup.get('TotalHours').markAsDirty();
 
 		if (maxDaysPerRequest && days > maxDaysPerRequest) {
-			this.env.showMessage(`You can only request up to ${maxDaysPerRequest} days for this leave type`, 'danger');
+			this.env.showMessage('You can only request up to {value} days for this leave type', 'danger', { value: maxDaysPerRequest });
 			endDateCtrl?.setValue('');
 			endDateCtrl?.markAsDirty();
 			return;
@@ -190,13 +196,14 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		if (leaveTypeCode === 'AL') {
 			const remainingDays = this.selectedStaff?.LeaveDaysRemaining ?? 0;
 			if (days > remainingDays) {
-				this.env.showMessage(`You only have ${remainingDays} annual leave days left, you cannot request ${days} days`, 'danger');
+				this.env.showMessage('You only have {value} annual leave days left, you cannot request {value1} days', 'danger', { value: remainingDays, value1: days });
 				endDateCtrl?.setValue('');
 				endDateCtrl?.markAsDirty();
 				return;
 			}
 			if (maxDaysPerYear && days > maxDaysPerYear) {
-				this.env.showMessage(`You cannot request more than ${maxDaysPerYear} days per year for this leave type`, 'danger');
+				this.env.showMessage('You cannot request more than {value} days per year for this leave type', 'danger', { value: maxDaysPerYear });
+
 				endDateCtrl?.setValue('');
 				endDateCtrl?.markAsDirty();
 				return;
@@ -204,31 +211,14 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		}
 		if (minAdvanceDays) {
 			const today = new Date();
-			const diffAdvance = Math.floor((startDate.getTime() - today.setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24));
+			const todayStart = new Date(today.setHours(0, 0, 0, 0)); // reset về 00:00 hôm nay
+			const diffAdvance = (startDate.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24);
 			if (diffAdvance < minAdvanceDays) {
-				this.env.showMessage(`You must request at least ${minAdvanceDays} days in advance`, 'danger');
+				this.env.showMessage('You must request at least {value} days in advance', 'danger', { value: minAdvanceDays });
 				startDateCtrl?.setValue('');
 				startDateCtrl?.markAsDirty();
 				return;
 			}
-		}
-
-		if (changedField === 'TotalDays' && startDate && days > 0) {
-			const newEnd = new Date(startDate);
-			newEnd.setDate(startDate.getDate() + days - 1);
-			endDateCtrl?.setValue(lib.dateFormat(newEnd, 'yyyy-mm-ddThh:MM:ss').slice(0, 19).slice(0, 13) + ':00:00');
-			endDateCtrl?.markAsDirty();
-			totalHoursCtrl?.setValue(days * 8);
-			totalHoursCtrl?.markAsDirty();
-		}
-		if (changedField === 'TotalHours' && startDate && totalHoursCtrl?.value > 0) {
-			const hours = totalHoursCtrl.value;
-			const calcDays = Math.floor(hours / 8) + (hours % 8 > 0 ? 1 : 0);
-			const newEnd = new Date(startDate.getTime() + (calcDays - 1) * 24 * 60 * 60 * 1000);
-			endDateCtrl?.setValue(lib.dateFormat(newEnd, 'yyyy-mm-ddThh:MM:ss').slice(0, 19).slice(0, 13) + ':00:00');
-			endDateCtrl?.markAsDirty();
-			totalDaysCtrl?.setValue(calcDays);
-			totalDaysCtrl?.markAsDirty();
 		}
 
 		this.saveChange();
@@ -247,7 +237,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		let holidays = this.holidayDataSource;
 		const beforeHoliday = leaveTypeData.BeforeHoliday ?? 0;
 		const afterHoliday = leaveTypeData.AfterHoliday ?? 0;
-		
+
 		for (let holiday of holidays) {
 			const holidayStart = new Date(holiday.FromDate);
 			const holidayEnd = new Date(holiday.ToDate);
@@ -306,7 +296,33 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		return total;
 	}
 
-	async changeLeaveType(e) {
+	getSelectedStaff() {
+		const staffId = this.formGroup.get('IDStaff')?.value;
+		return new Promise((resolve, reject) => {
+			if (!staffId) {
+				this.selectedStaff = null;
+				resolve(null);
+				return;
+			}
+			this.staffProvider
+				.read({ Id: staffId })
+				.then((staffRes: any) => {
+					if (staffRes?.data?.length) {
+						this.selectedStaff = staffRes.data[0];
+						resolve(this.selectedStaff);
+					} else {
+						this.selectedStaff = null;
+						resolve(null);
+					}
+				})
+				.catch((err) => {
+					this.selectedStaff = null;
+					reject(err);
+				});
+		});
+	}
+
+	changeLeaveType(e) {
 		if (e) {
 			if (e.RequireDocument) {
 				this.formGroup.controls.AttachmentPath.addValidators(Validators.required);
@@ -316,19 +332,21 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 			this.formGroup.controls.AttachmentPath.updateValueAndValidity();
 			this.formGroup.controls.IDLeaveType.setValue(e.Id);
 			this.formGroup.controls.IDLeaveType.markAsDirty();
-			if (e.Code === 'AL') {
-                const staffId = this.formGroup.get('IDStaff')?.value;
-                if (staffId) {
-                    const staffRes: any = await this.staffProvider.read({ Id: staffId });
-                    if (staffRes?.data?.length) {
-                        this.selectedStaff = staffRes.data[0];
-                    }
-                }
-            }
 			this.validateHoliday();
-			// this.saveChange();
+			if (e.Code === 'AL') {
+				this.getSelectedStaff()
+					.then(() => {
+						this.saveChange();
+					})
+					.catch(() => {
+						this.saveChange();
+					});
+			} else {
+				this.saveChange();
+			}
 		}
 	}
+
 	async saveChange() {
 		super.saveChange2();
 	}

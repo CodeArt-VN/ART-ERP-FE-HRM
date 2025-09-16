@@ -27,16 +27,16 @@
 									(change)="saveChange()"></app-form-control>	
 								<app-form-control
 									[field]="{id: 'StartDate', label: 'Start date', type: 'datetime-local', placeholder: 'yyyy-MM-dd', form: formGroup}"
-									(change)="checkStartEnd('StartDate')"></app-form-control>
+									(change)="validateStartEnd()"></app-form-control>
 								<app-form-control
 									[field]="{id: 'EndDate', label: 'End date', type: 'datetime-local', placeholder: 'yyyy-MM-dd', form: formGroup}"
-									(change)="checkStartEnd('EndDate')"></app-form-control>
+									(change)="validateStartEnd()"></app-form-control>
 								<app-form-control
-									[field]="{id: 'TotalHours', label: 'Total hours', type: 'number', form: formGroup}"
-									(change)="checkStartEnd('TotalHours')"></app-form-control>
+									[field]="{id: 'TotalHours', label: 'Total hours', type: 'span-number', form: formGroup}"
+									></app-form-control>
 								<app-form-control
-									[field]="{id: 'TotalDays', label: 'Total days', type: 'number', form: formGroup}"
-									(change)="checkStartEnd('TotalDays')"></app-form-control>
+									[field]="{id: 'TotalDays', label: 'Total days', type: 'span-number', form: formGroup}"
+									></app-form-control>
 
 							</ion-col>
 							<ion-col size="12" size-sm="12" size-md="6" size-xl="4">
