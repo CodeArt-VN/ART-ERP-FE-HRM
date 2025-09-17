@@ -82,7 +82,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		if (this.item.RequestDate) {
 			this.formGroup.controls.RequestDate.setValue(this.item.RequestDate);
 		} else {
-			this.formGroup.controls.RequestDate.setValue(lib.dateFormat(new Date(), 'yyyy-mm-ddThh:MM:ss').slice(0, 19).slice(0, 13) + ':00:00');
+			this.formGroup.controls.RequestDate.setValue(lib.dateFormat(new Date(), 'yyyy-mm-ddThh:MM:ss'));
 			this.formGroup.controls.RequestDate.markAsDirty();
 		}
 		if (this.id && this.item._Staff) {
@@ -154,7 +154,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 		const startDateCtrl = this.formGroup.get('StartDate');
 		const endDateCtrl = this.formGroup.get('EndDate');
 		const leaveTypeId = this.formGroup.get('IDLeaveType')?.value;
-		
+
 		const startDate = startDateCtrl?.value ? new Date(startDateCtrl.value) : null;
 		const endDate = endDateCtrl?.value ? new Date(endDateCtrl.value) : null;
 
