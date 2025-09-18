@@ -16,6 +16,7 @@ import {
 	HRM_TimesheetLogProvider,
 	HRM_TimesheetCycleProvider,
 	HRM_TimesheetRecordProvider,
+	HRM_LeaveTypeProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typechecking
@@ -55,7 +56,7 @@ export class SchedulerPage extends PageBase {
 	selectedTimesheet = null;
 	shiftList = [];
 	shifTypeList = [];
-	timeoffTypeList = [];
+	timeoffTypeList: any = [];
 	OTStatusList = [];
 	fc: any = null;
 	isOpenPopover = false;
@@ -77,6 +78,7 @@ export class SchedulerPage extends PageBase {
 		public staffRecordOvertimeProvider: HRM_StaffRecordOvertimeProvider,
 		public officeProvider: OST_OfficeProvider,
 		public shiftProvider: HRM_ShiftProvider,
+		public leaveTypeProvider: HRM_LeaveTypeProvider,
 		public staffTimesheetEnrollmentProvider: HRM_StaffTimesheetEnrollmentProvider,
 		public timesheetCycleDetailProvider: HRM_TimesheetCycleDetailProvider,
 		public gateProvider: OST_OfficeGateProvider,
@@ -191,14 +193,14 @@ export class SchedulerPage extends PageBase {
 			this.officeProvider.read(),
 			this.env.getType('ShiftType'),
 			this.timesheetProvider.read(),
-			this.env.getType('TimeOffType'),
+			this.leaveTypeProvider.read(),
 			this.env.getStatus('StandardApprovalStatus'),
 			this.gateProvider.read(),
 		]).then((values) => {
 			this.officeList = values[0]['data'];
 			this.shifTypeList = values[1];
 			this.timesheetList = values[2]['data'];
-			this.timeoffTypeList = values[3];
+			this.timeoffTypeList = values[3]['data'];
 
 			this.OTStatusList = values[4];
 			this.gateList = values[5]['data'];

@@ -15,6 +15,7 @@ import { CommonService } from 'src/app/services/core/common.service';
 })
 export class PaidTimeOffPolicyDetailPage extends PageBase {
 	TypeList = [];
+	prorationMethodList =[]; 
 	constructor(
 		public pageProvider: HRM_PolicyPaidTimeOffProvider,
 		public ptoGrandByLengthOfServices: HRM_PolicyPaidTimeOffGrantsByLengthOfServicesProvider,
@@ -43,12 +44,16 @@ export class PaidTimeOffPolicyDetailPage extends PageBase {
 			NumberOfCarryOnDays: ['', Validators.required],
 
 			IsGrantsByLengthOfServices: [false],
-
+			ApplicableFromMonth: [''],
+			ProrationMethod: [''],
+			MaxCarryOverDays: [''],
+			CarryOverExpireMonths: [''],
 			Lines: this.formBuilder.array([]),
 		});
 	}
 
 	preLoadData(event?: any): void {
+		this.prorationMethodList = [{Name:'Monthly', Code:'Monthly'}, {Name:'Daily',  Code:'Daily'}];
 		this.env.getType('PaidTimeOffPolicy').then((resp) => {
 			this.TypeList = resp;
 			super.preLoadData(event);

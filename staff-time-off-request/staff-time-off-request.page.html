@@ -1,0 +1,111 @@
+<ion-header>
+	<app-toolbar [page]="this"></app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="left scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}"
+	forceOverscroll="false">
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table class="box-shadow responsive" [rows]="items" [trackBy]="'Id'" [(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner" [showFilter]="pageConfig.isShowSearch" [(query)]="query"
+			(dataInfinite)="loadData($event)" (filter)="onDatatableFilter($event)" (sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)">
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-name item-name" name="Reason" property="Reason">
+				<ng-template let-i="row" datatable-cell-template>
+					<div class="reason-row" [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+						<span class="reason-label">Reason:</span>
+						<span>{{i.Reason}}</span>
+
+					</div>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-code" name="Leave type" property="IDLeaveType">
+				<ng-template let-i="row" datatable-cell-template>
+					<span>{{i?._LeaveType?.Name}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-name item-name" name="Staff" property="IDStaff">
+				<ng-template let-i="row" datatable-cell-template>
+					<div *ngIf="i._Staff" (click)="nav('staff/'+i._Staff.Id,'forward')"
+						class="cell col-name staff-mobile">
+						<span class="staff-label">Staff:</span>
+						<ion-avatar class="avatar" slot="start">
+							<ion-img #img [src]="i._Staff.Avatar"
+								(ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+						</ion-avatar>
+						<div>
+							<span class="bold">{{i._Staff.FullName}}</span>
+							<small *ngIf="i._Staff.Code" class="no-warp">
+								{{i._Staff.Code}}
+							</small>
+							<br />
+							<span class="staff-email">{{i._Staff.Email}}</span>
+						</div>
+					</div>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-name item-name" name="Replacement staff" property="IDReplacementStaff">
+				<ng-template let-i="row" datatable-cell-template>
+					<div *ngIf="i._ReplacementStaff" (click)="nav('staff/'+i._ReplacementStaff.Id,'forward')"
+						class="cell col-name staff-mobile">
+						<span class="staff-label">Replacement staff:</span>
+						<ion-avatar class="avatar" slot="start">
+							<ion-img #img [src]="i._ReplacementStaff.Avatar"
+								(ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+						</ion-avatar>
+						<div>
+							<span class="bold">{{i._ReplacementStaff.FullName}}</span>
+							<small *ngIf="i._ReplacementStaff.Code" class="no-warp">
+								{{i._ReplacementStaff.Code}}
+							</small>
+							<br />
+							<span class="staff-email">{{i._ReplacementStaff.Email}}</span>
+						</div>
+					</div>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-date" format="yyyy-MM-dd" name="Request date" property="RequestDate">
+			</datatable-column>
+			<datatable-column class="col-date" format="yyyy-MM-dd" name="Start date" property="StartDate">
+			</datatable-column>
+			<datatable-column class="col-date" format="yyyy-MM-dd" name="End date" property="EndDate">
+			</datatable-column>
+			<datatable-column class="col-custom" name="Total days" property="TotalDays">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Total days' | translate}}:</span>
+					<span>{{i.TotalDays}}</span>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-custom" name="Total hours" property="TotalHours">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Total hours' | translate}}:</span>
+					<span>{{i.TotalHours}}</span>
+				</ng-template>
+			</datatable-column>
+
+			<datatable-column class="col-status" name="Status" property="Status">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="bar-holder">
+						<ng-container *ngFor="let s of statusList">
+							<ion-text *ngIf="s.Code==i.Status" class="bar-title" [color]="s.Color">{{s.Name}}</ion-text>
+						</ng-container>
+						<span class="bar" [ngClass]="{active: s.Code==i.Status}"
+							[ngStyle]="{'background-color': 'var(--ion-color-'+s.Color+')'}"
+							*ngFor="let s of statusList" [title]="s.Name"></span>
+					</span>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
+	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)"
+		[disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>
