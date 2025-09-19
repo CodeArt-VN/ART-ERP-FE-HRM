@@ -82,25 +82,39 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([
-			this.env.getStatus('StandardApprovalStatus'), 
-			this.env.getType('HRMEffectiveTimeType')
-		]).then((values: any) => {
+		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.env.getType('HRMEffectiveTimeType')]).then((values: any) => {
 			this.statusList = values[0];
 			this.HRMEffectiveTimeTypeList = values[1];
 		});
 
 		this.route.queryParams.subscribe(() => {
 			const navigation = this.router.getCurrentNavigation();
-			if (navigation?.extras?.state?.StaffList) {
-				this.initStaffPolicyEnrollmentDetails = navigation.extras.state.StaffList;
-				this.initIdPolEnrollment = navigation.extras.state.PolicyId;
-				this.initTypePolEnrollment = navigation.extras.state.PolicyType;
+
+			if (navigation?.extras?.state?.StaffList) this.initStaffPolicyEnrollmentDetails = navigation.extras.state.StaffList;
+			if (navigation?.extras?.state?.PolicyId) this.initIdPolEnrollment = navigation.extras.state.PolicyId;
+			if (navigation?.extras?.state?.PolicyType) this.initTypePolEnrollment = navigation.extras.state.PolicyType;
+			if (!this.initTypePolEnrollment) {
+				Promise.all([this.polBenefitProvider.read(), this.polInsuranceProvider.read(), this.polEmployeeProvider.read(), this.polPaidTimeOffProvider.read()]).then(
+					(results: any[]) => {
+						let fakeId = 1;
+						const allData = [
+							...results[0].data.map((item) => ({ ...item, Type: 'PolBenefit', FakeId: fakeId++ })),
+							...results[1].data.map((item) => ({ ...item, Type: 'PolInsurance', FakeId: fakeId++ })),
+							...results[2].data.map((item) => ({ ...item, Type: 'PolEmployee', FakeId: fakeId++ })),
+							...results[3].data.map((item) => ({ ...item, Type: 'PolPaidTimeOff', FakeId: fakeId++ })),
+						];
+						this.polEnrollmentType = allData;
+						super.preLoadData(event);
+					}
+				);
+			} else {
+				this.getPolEnrollmentProvider()
+					.read()
+					.then((res: any) => {
+						this.polEnrollmentType = res.data.map((item) => ({ ...item, Type: this.initTypePolEnrollment }));
+						super.preLoadData(event);
+					});
 			}
-			this.getPolEnrollmentProvider().read().then((res: any) => {
-                this.polEnrollmentType = res.data;
-                super.preLoadData(event);
-            });
 		});
 	}
 
@@ -142,6 +156,7 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 			if (!this.signedByDataSource.selected.some((d) => d.Id == this.item._StaffSignedBy.Id)) this.signedByDataSource.selected.push(this.item._StaffSignedBy);
 		}
 		this.signedByDataSource.initSearch();
+		if (!this.initTypePolEnrollment) this.setSelectedPolicyEnrollment();
 	}
 
 	patchFormArray() {
@@ -239,6 +254,26 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 		});
 	});
 
+	onPolicyIdChange(e: any) {
+		if (!this.initTypePolEnrollment) {
+			this.formGroup.controls.PolicyId.setValue(e.Id);
+			this.formGroup.controls.PolicyId.markAsDirty();
+			this.formGroup.controls.PolicyType.setValue(e.Type);
+			this.formGroup.controls.PolicyType.markAsDirty();
+		} else {
+			this.formGroup.controls.PolicyId.setValue(e.Id);
+			this.formGroup.controls.PolicyId.markAsDirty();
+		}
+		this.saveChange();
+	}
+
+	private setSelectedPolicyEnrollment() {
+		const selected = this.polEnrollmentType.find((item) => item.Id === this.formGroup.controls.PolicyId.value && item.Type === this.formGroup.controls.PolicyType.value);
+		if (selected) {
+			this.formGroup.controls.PolicyId.setValue(selected.FakeId);
+		}
+	}
+
 	private getPolEnrollmentProvider() {
 		switch (this.initTypePolEnrollment) {
 			case 'PolBenefit':
@@ -248,7 +283,7 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 			case 'PolEmployee':
 				return this.polEmployeeProvider;
 			case 'PolPaidTimeOff':
-				return this.polPaidTimeOffProvider;	
+				return this.polPaidTimeOffProvider;
 			default:
 				return this.polPaidTimeOffProvider;
 		}

@@ -18,8 +18,8 @@
 							[field]="{id: 'Code', label: 'Code', type: 'text', form: formGroup}"> </app-form-control>
 						<app-form-control (change)="saveChange()"
 							[field]="{id: 'Name', label: 'Name', type: 'text', form: formGroup}"> </app-form-control>
-						<app-form-control (change)="saveChange()"
-							[field]="{id: 'PolicyId', label: 'Policy enrollment', type: 'ng-select', dataSource: polEnrollmentType, bindLabel: 'Name', bindValue: 'Id', form: formGroup,appendTo:'#ng-select-header'}">
+						<app-form-control (change)="onPolicyIdChange($event)"
+							[field]="{id: 'PolicyId', label: 'Policy enrollment', type: 'ng-select', dataSource: polEnrollmentType, bindLabel: 'Name', bindValue: !initTypePolEnrollment ? 'FakeId' : 'Id', form: formGroup,appendTo:'#ng-select-header'}">
 						</app-form-control>
 						<app-form-control
 							[field]="{id: 'PolicyType', label: 'Policy enrollment type', type: 'span-text', form: formGroup}"></app-form-control>

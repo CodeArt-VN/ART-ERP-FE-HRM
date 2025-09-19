@@ -76,6 +76,7 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 	onGroupChange(g) {
 		this.pageConfig.isSubActive = true;
 		this.groupControl.selectedGroup = g;
+		this.polEnrollmentType = [];
 
 		if (g) {
 			this.query.PolicyType = g.Code;
@@ -94,18 +95,14 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 					provider = this.polPaidTimeOffProvider;
 					break;
 				default:
-					provider = null;
 			}
 			if (provider) {
 				provider.read().then((res: any) => {
 					this.polEnrollmentType = res.data;
 				});
-			} else {
-				this.polEnrollmentType = [];
 			}
 		} else {
 			delete this.query.PolicyType;
-			this.polEnrollmentType = [];
 		}
 
 		this.refresh();
@@ -132,5 +129,13 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 			};
 			this.nav('/staff-policy-enrollment/0', 'forward', navigationExtras);
 		}
+	}
+	goToDetail(item: any) {
+		const navigationExtras: NavigationExtras = {
+			state: {
+				PolicyType: this.groupControl.selectedGroup?.Code,
+			}
+		};
+		this.nav('/staff-policy-enrollment/' + item.Id, 'forward', navigationExtras);
 	}
 }

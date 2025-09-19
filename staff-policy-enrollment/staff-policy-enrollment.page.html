@@ -43,10 +43,10 @@
 			(selectedRowsChange)="showCommandBySelectedRows($event)"
 		>
 			<datatable-column [checkbox]="true" name=""></datatable-column>
-			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id"></datatable-column>
 			<datatable-column class="col-name" name="Name" property="Name">
 				<ng-template let-i="row" datatable-cell-template>
-					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+					<div (click)="goToDetail(i)">
 						<a class="bold">
 							<ion-text color="dark">{{i.Name}}</ion-text>
 						</a>
