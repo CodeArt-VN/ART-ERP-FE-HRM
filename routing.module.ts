@@ -108,7 +108,7 @@ export const HRMRoutes: Routes = [
     { path: 'staff-payslip/:id', loadChildren: () => import('./staff-payslip-detail/staff-payslip-detail.module').then(m => m.StaffPayslipDetailPageModule), canActivate: [AuthGuard] },
 
 
-     { path: 'timesheet-template', loadChildren: () => import('./timesheet-template/timesheet-template.module').then(m => m.TimesheetTemplatePageModule), canActivate: [AuthGuard] },
+    { path: 'timesheet-template', loadChildren: () => import('./timesheet-template/timesheet-template.module').then(m => m.TimesheetTemplatePageModule), canActivate: [AuthGuard] },
     { path: 'timesheet-template/:id', loadChildren: () => import('./timesheet-template-detail/timesheet-template-detail.module').then(m => m.TimesheetTemplateDetailPageModule), canActivate: [AuthGuard] },
 
     { path: 'timesheet-log', loadChildren: () => import('./scheduler/timesheet-log/timesheet-log.module').then(m => m.TimesheetLogPageModule), canActivate: [AuthGuard] },
@@ -116,5 +116,8 @@ export const HRMRoutes: Routes = [
 
     { path: 'timesheet-record', loadChildren: () => import('./timesheet-record/timesheet-record.module').then(m => m.TimesheetRecordPageModule), canActivate: [AuthGuard] },
     { path: 'timesheet-record/:id/:idtimesheet', loadChildren: () => import('./timesheet-record-detail/timesheet-record-detail.module').then(m => m.TimesheetRecordDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'staff-policy-enrollment', loadChildren: () => import('./staff-policy-enrollment/staff-policy-enrollment.module').then(m => m.StaffPolicyEnrollmentPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-policy-enrollment/:id', loadChildren: () => import('./staff-policy-enrollment-detail/staff-policy-enrollment-detail.module').then(m => m.StaffPolicyEnrollmentDetailPageModule), canActivate: [AuthGuard] },
 ];
 
