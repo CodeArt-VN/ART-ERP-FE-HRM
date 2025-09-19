@@ -27,11 +27,6 @@ import { StaffPolicyEnrollmentDetailModalPage } from './staff-policy-enrollment-
 export class StaffPolicyEnrollmentDetailPage extends PageBase {
 	statusList = [];
 	HRMEffectiveTimeTypeList = [];
-	polBenefitType = [];
-	polInsuranceType = [];
-	polEmployeeType = [];
-	polPaidTimeOffType = [];
-
 	polEnrollmentType = [];
 	initStaffPolicyEnrollmentDetails = [];
 	initTypePolEnrollment;
@@ -87,11 +82,12 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.env.getType('HRMEffectiveTimeType'), this.polPaidTimeOffProvider.read()]).then((values: any) => {
+		Promise.all([
+			this.env.getStatus('StandardApprovalStatus'), 
+			this.env.getType('HRMEffectiveTimeType')
+		]).then((values: any) => {
 			this.statusList = values[0];
 			this.HRMEffectiveTimeTypeList = values[1];
-			this.polEnrollmentType = values[2].data;
-			super.preLoadData(event);
 		});
 
 		this.route.queryParams.subscribe(() => {
@@ -101,6 +97,10 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 				this.initIdPolEnrollment = navigation.extras.state.PolicyId;
 				this.initTypePolEnrollment = navigation.extras.state.PolicyType;
 			}
+			this.getPolEnrollmentProvider().read().then((res: any) => {
+                this.polEnrollmentType = res.data;
+                super.preLoadData(event);
+            });
 		});
 	}
 
@@ -238,6 +238,21 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 			Id_ne: staffId ? staffId : null,
 		});
 	});
+
+	private getPolEnrollmentProvider() {
+		switch (this.initTypePolEnrollment) {
+			case 'PolBenefit':
+				return this.polBenefitProvider;
+			case 'PolInsurance':
+				return this.polInsuranceProvider;
+			case 'PolEmployee':
+				return this.polEmployeeProvider;
+			case 'PolPaidTimeOff':
+				return this.polPaidTimeOffProvider;	
+			default:
+				return this.polPaidTimeOffProvider;
+		}
+	}
 	requesterChange(e) {
 		if (e) {
 			this.formGroup.controls.IDRequester.setValue(e.Id);

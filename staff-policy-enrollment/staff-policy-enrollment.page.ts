@@ -29,11 +29,6 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 		groupList: [],
 		selectedGroup: null,
 	};
-	polBenefitType = [];
-	polInsuranceType = [];
-	polEmployeeType = [];
-	polPaidTimeOffType = [];
-
 	polEnrollmentType = [];
 	statusList = [];
 	constructor(
@@ -64,20 +59,9 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([
-			this.env.getType('PolEnrollmentType'),
-			this.env.getStatus('StandardApprovalStatus'),
-			this.polBenefitProvider.read(),
-			this.polInsuranceProvider.read(),
-			this.polEmployeeProvider.read(),
-			this.polPaidTimeOffProvider.read(),
-		]).then((values: any) => {
+		Promise.all([this.env.getType('PolEnrollmentType'), this.env.getStatus('StandardApprovalStatus')]).then((values: any) => {
 			this.groupControl.groupList = values[0];
 			this.statusList = values[1];
-			this.polBenefitType = values[2].data;
-			this.polInsuranceType = values[3].data;
-			this.polEmployeeType = values[4].data;
-			this.polPaidTimeOffType = values[5].data;
 			super.preLoadData(event);
 		});
 	}
@@ -88,33 +72,40 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 		});
 		super.loadedData(event);
 	}
+
 	onGroupChange(g) {
 		this.pageConfig.isSubActive = true;
 		this.groupControl.selectedGroup = g;
 
 		if (g) {
-			this.query.Type = g.Code;
+			this.query.PolicyType = g.Code;
+			let provider;
 			switch (g.Code) {
 				case 'PolBenefit':
-					this.polEnrollmentType = this.polBenefitType;
+					provider = this.polBenefitProvider;
 					break;
 				case 'PolInsurance':
-					this.polEnrollmentType = this.polInsuranceType;
+					provider = this.polInsuranceProvider;
 					break;
 				case 'PolEmployee':
-					this.polEnrollmentType = this.polEmployeeType;
+					provider = this.polEmployeeProvider;
 					break;
 				case 'PolPaidTimeOff':
-					this.polEnrollmentType = this.polPaidTimeOffType;
+					provider = this.polPaidTimeOffProvider;
 					break;
 				default:
-					this.polEnrollmentType = [];
+					provider = null;
+			}
+			if (provider) {
+				provider.read().then((res: any) => {
+					this.polEnrollmentType = res.data;
+				});
+			} else {
+				this.polEnrollmentType = [];
 			}
 		} else {
-			delete this.query.Type;
-			//todo
+			delete this.query.PolicyType;
 			this.polEnrollmentType = [];
-			//this.polEnrollmentTypeList = [...this.polBenefitType, ...this.polInsuranceType, ...this.polEmployeeType, ...this.polPaidTimeOffType];
 		}
 
 		this.refresh();
