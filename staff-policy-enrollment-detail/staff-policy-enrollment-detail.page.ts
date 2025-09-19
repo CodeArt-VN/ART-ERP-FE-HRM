@@ -34,7 +34,7 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 
 	polEnrollmentType = [];
 	initStaffPolicyEnrollmentDetails = [];
-	initTypePolEnrollment = [];
+	initTypePolEnrollment;
 	initIdPolEnrollment;
 	constructor(
 		public pageProvider: HRM_StaffEnrollmentProvider,
@@ -87,29 +87,7 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		// const policyType = this.formGroup.controls.PolicyType.value;
-
-		// let providerPromise;
-		// switch (policyType) {
-		// 	case 'PolPaidTimeOff':
-		// 		providerPromise = this.polPaidTimeOffProvider.read();
-		// 		break;
-		// 	case 'PolBenefit':
-		// 		providerPromise = this.polBenefitProvider.read();
-		// 		break;
-		// 	case 'PolInsurance':
-		// 		providerPromise = this.polInsuranceProvider.read();
-		// 		break;
-		// 	case 'PolEmployee':
-		// 		providerPromise = this.polEmployeeProvider.read();
-		// 		break;
-		// 	default:
-		// }
-		Promise.all([
-			this.env.getStatus('StandardApprovalStatus'),
-			this.env.getType('HRMEffectiveTimeType'),
-			this.polPaidTimeOffProvider.read(),
-		]).then((values: any) => {
+		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.env.getType('HRMEffectiveTimeType'), this.polPaidTimeOffProvider.read()]).then((values: any) => {
 			this.statusList = values[0];
 			this.HRMEffectiveTimeTypeList = values[1];
 			this.polEnrollmentType = values[2].data;
@@ -121,9 +99,8 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 			if (navigation?.extras?.state?.StaffList) {
 				this.initStaffPolicyEnrollmentDetails = navigation.extras.state.StaffList;
 				this.initIdPolEnrollment = navigation.extras.state.PolicyId;
-				this.initTypePolEnrollment = navigation.extras.state.PolicyType
+				this.initTypePolEnrollment = navigation.extras.state.PolicyType;
 			}
-			
 		});
 	}
 
@@ -151,9 +128,9 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 				});
 			}
 		}
-		if(!this.item._StaffRequester){
+		if (!this.item._StaffRequester) {
 			this.formGroup.controls.IDRequester.setValue(this.env.user.StaffID);
-			this.requesterDataSource.selected.push({FullName: this.env.user.FullName, Id: this.env.user.StaffID});
+			this.requesterDataSource.selected.push({ FullName: this.env.user.FullName, Id: this.env.user.StaffID });
 			this.formGroup.controls.IDRequester.markAsDirty();
 		}
 		if (this.id && this.item._StaffRequester) {
@@ -161,12 +138,10 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 		}
 		this.requesterDataSource.initSearch();
 
-		
 		if (this.id && this.item._StaffSignedBy) {
-			if (!this.signedInDataSource.selected.some((d) => d.Id == this.item._StaffSignedBy.Id)) this.signedInDataSource.selected.push(this.item._ReplacementStaff);
+			if (!this.signedByDataSource.selected.some((d) => d.Id == this.item._StaffSignedBy.Id)) this.signedByDataSource.selected.push(this.item._StaffSignedBy);
 		}
-		this.signedInDataSource.initSearch();
-	
+		this.signedByDataSource.initSearch();
 	}
 
 	patchFormArray() {
@@ -175,14 +150,11 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 		if (this.item.StaffPolicyEnrollmentDetails?.length > 0)
 			this.item.StaffPolicyEnrollmentDetails.forEach((i) => {
 				this.addLine(i);
-				i._Staff.Avatar = i._Staff.Code ? environment.staffAvatarsServer + i._Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
+				if (i._Staff) {
+					i._Staff.Avatar = i._Staff.Code ? environment.staffAvatarsServer + i._Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
+					i._Staff.Email = i._Staff.Email ? i._Staff.Email.replace(environment.loginEmail, '') : '';
+				}
 			});
-	}
-	editSelectedLine() {
-		//this.showModal(this.selectedItems);
-	}
-	editLine(i) {
-		//this.showModal([i]);
 	}
 
 	addLine(line) {
@@ -193,8 +165,7 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 			IDStaff: [line.IDStaff, Validators.required],
 			Code: [line.Code ?? ''],
 			Name: [line.Name ?? ''],
-			Remark: [line.Remark ?? '']
-			
+			Remark: [line.Remark ?? ''],
 		});
 		groups.push(group);
 	}
@@ -257,7 +228,7 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 		});
 	});
 
-	signedInDataSource = this.buildSelectDataSource((term) => {
+	signedByDataSource = this.buildSelectDataSource((term) => {
 		const staffId = this.formGroup.get('IDSignedBy')?.value;
 		return this.staffProvider.search({
 			Take: 20,
@@ -281,54 +252,87 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 			this.saveChange();
 		}
 	}
-	// async showModal(i) {
-	// 	if (!i) {
-	// 		const modal1 = await this.modalController.create({
-	// 			component: StaffPickerEnrollmentPage,
-	// 			backdropDismiss: false,
-	// 			cssClass: 'modal90',
-	// 			componentProps: {
-	// 				dataSource: this.polInsuranceList.filter((d) => d.Id == this.formGroup.controls.IDPolInsurance.value),
-	// 			},
-	// 		});
-	// 		await modal1.present();
-	// 		const { data } = await modal1.onWillDismiss();
-	// 		if (data) i = data.StaffList;
-	// 	}
-	// 	const modal = await this.modalController.create({
-	// 		component: StaffPolicyEnrollmentDetailModalPage,
-	// 		backdropDismiss: false,
-	// 		cssClass: 'modal90',
-	// 		componentProps: {
-	// 			Items: i,
-	// 		},
-	// 	});
-	// 	await modal.present();
-	// 	const { data } = await modal.onWillDismiss();
-	// 	if (data) {
-	// 		let groups = this.formGroup.controls.StaffPolicyEnrollmentDetails as FormArray;
-	// 		data.forEach((i) => {
-	// 			let staffControl = groups.controls.find((d) => d.get('IDStaff').value == i.IDStaff);
-	// 			if (!staffControl) {
-	// 				this.addLine(i);
-	// 				staffControl = groups.controls.find((d) => d.get('IDStaff').value == i.IDStaff);
-	// 				staffControl.get('Id').markAsDirty();
-	// 				staffControl.get('IDStaff').markAsDirty();
-	// 				staffControl.get('IDStaffPolStaffPolicyEnrollment').markAsDirty();
-	// 				staffControl.get('InsuranceSalary').markAsDirty();
-	// 			} else {
-	// 				Object.keys(i).forEach((key) => {
-	// 					if (staffControl.get(key) && i[key] != staffControl.get(key)?.value) {
-	// 						staffControl.get(key).setValue(i[key]);
-	// 						staffControl.get(key).markAsDirty();
-	// 					}
-	// 				});
-	// 				staffControl.get('Id').markAsDirty();
-	// 			}
-	// 		});
-	// 		this.saveChange();
-	// 	}
-	// }
+
+	validateEnrollmentDates(changedField) {
+		const signDate = this.formGroup.controls.EnrollmentSignDate.value;
+		const effectiveDate = this.formGroup.controls.EnrollmentEffectiveDate.value;
+		const sign = new Date(signDate);
+		const effective = new Date(effectiveDate);
+		if (!signDate || !effectiveDate) return;
+		if (effective < sign) {
+			this.env.showMessage('The sign date must be on or before the effective date!', 'warning');
+			if (changedField === 'EnrollmentSignDate') {
+				this.formGroup.controls.EnrollmentSignDate.setValue(this.item.EnrollmentSignDate ?? '');
+				this.formGroup.controls.EnrollmentSignDate.markAsPristine();
+			} else if (changedField === 'EnrollmentEffectiveDate') {
+				this.formGroup.controls.EnrollmentEffectiveDate.setValue(this.item.EnrollmentEffectiveDate ?? '');
+				this.formGroup.controls.EnrollmentEffectiveDate.markAsPristine();
+			}
+			return;
+		}
+		this.saveChange();
+	}
+
+	editSelectedLine() {
+		this.showModal(this.selectedItems);
+	}
+	editLine(i) {
+		this.showModal([i]);
+	}
+	async showModal(i) {
+		if (!i) {
+			const modal1 = await this.modalController.create({
+				component: StaffPickerEnrollmentPage,
+				backdropDismiss: false,
+				cssClass: 'modal90',
+				componentProps: {
+					dataSource: this.polEnrollmentType.filter((d) => d.Id == this.formGroup.controls.PolicyId.value),
+				},
+			});
+			await modal1.present();
+			const { data } = await modal1.onWillDismiss();
+			// if (data) i = data.StaffList;
+			if (!data || !data.StaffList || data.StaffList.length === 0) {
+				return;
+			}
+			i = data.StaffList;
+		}
+		const modal = await this.modalController.create({
+			component: StaffPolicyEnrollmentDetailModalPage,
+			backdropDismiss: false,
+			cssClass: 'modal90',
+			componentProps: {
+				Items: i,
+				IDEnrollment: this.formGroup.controls.Id.value,
+			},
+		});
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+		if (data) {
+			let groups = this.formGroup.controls.StaffPolicyEnrollmentDetails as FormArray;
+			data.forEach((i) => {
+				let staffControl = groups.controls.find((d) => d.get('IDStaff').value == i.IDStaff);
+				if (!staffControl) {
+					this.addLine(i);
+					staffControl = groups.controls.find((d) => d.get('IDStaff').value == i.IDStaff);
+					staffControl.get('Id').markAsDirty();
+					staffControl.get('IDStaff').markAsDirty();
+					staffControl.get('IDEnrollment').markAsDirty();
+					staffControl.get('Remark').markAsDirty();
+				} else {
+					Object.keys(i).forEach((key) => {
+						if (staffControl.get(key) && i[key] != staffControl.get(key)?.value) {
+							staffControl.get(key).setValue(i[key]);
+							staffControl.get(key).markAsDirty();
+						}
+					});
+					staffControl.get('Id').markAsDirty();
+				}
+			});
+			this.selectedItems = [];
+			this.saveChange();
+		}
+	}
 
 	savedChange(savedItem?: any, form?: FormGroup<any>): void {
 		super.savedChange(savedItem, form);

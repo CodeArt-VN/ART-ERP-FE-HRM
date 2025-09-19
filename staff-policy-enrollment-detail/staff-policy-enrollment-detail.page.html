@@ -27,7 +27,7 @@
 							[field]="{id: 'IDRequester',label: 'Requester', type : 'ng-select-staff',dataSource: requesterDataSource, bindLabel: 'FullName',bindValue: 'Id', clearable: true, form : formGroup,appendTo:'#ng-select-header'}"
 							(change)="requesterChange($event)"></app-form-control>
 						<app-form-control
-							[field]="{id: 'IDSignedBy',label: 'Sign by', type : 'ng-select-staff',dataSource: signedInDataSource, bindLabel: 'FullName',bindValue: 'Id', clearable: true, form : formGroup,appendTo:'#ng-select-header'}"
+							[field]="{id: 'IDSignedBy',label: 'Sign by', type : 'ng-select-staff',dataSource: signedByDataSource, bindLabel: 'FullName',bindValue: 'Id', clearable: true, form : formGroup,appendTo:'#ng-select-header'}"
 							(change)="signedByChange($event)"></app-form-control>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
@@ -37,10 +37,10 @@
 						<app-form-control (change)="saveChange()"
 							[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo:'#ng-select-header'}">
 						</app-form-control>
-						<app-form-control (change)="saveChange()"
+						<app-form-control (change)="validateEnrollmentDates('EnrollmentSignDate')"
 							[field]="{id: 'EnrollmentSignDate', label: 'Enrollment sign date', type: 'datetime-local', form: formGroup}">
 						</app-form-control>
-						<app-form-control (change)="saveChange()"
+						<app-form-control (change)="validateEnrollmentDates('EnrollmentEffectiveDate')"
 							[field]="{id: 'EnrollmentEffectiveDate', label: 'Enrollment effective date', type: 'datetime-local', form: formGroup}">
 						</app-form-control>
 						<app-form-control (change)="saveChange()"
@@ -77,8 +77,7 @@
 							<input class="c-checkbox" type="checkbox" (change)="checkAllSelectedItems($event)" />
 						</ng-template> -->
 					</datatable-column>
-					<datatable-column class="col-id" name="#" property="Id"
-						[navLink]="pageConfig.pageName"></datatable-column>
+					<datatable-column class="col-id" name="#" property="Id"></datatable-column>
 					<datatable-column class="col-name" name="Staff" property="_Staff">
 						<ng-template let-i="row" datatable-cell-template>
 							<ion-avatar class="avatar" slot="start">
@@ -91,6 +90,21 @@
 								<br />
 								{{i.Email}}
 							</div>
+						</ng-template>
+					</datatable-column>
+					<datatable-column class="col-remark" name="Remark" property="Remark"> </datatable-column>
+					<datatable-column class="col-icon" name="" property="Id">
+						<ng-template datatable-header-template>
+							<ion-button *ngIf="pageConfig.canEdit && selectedItems.length > 0"
+								(click)="editSelectedLine()" size="small" title="{{'Edit' | translate}}" fill="clear">
+								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
+							</ion-button>
+						</ng-template>
+						<ng-template let-i="row" datatable-cell-template>
+							<ion-button *ngIf="pageConfig.canEdit" (click)="editLine(i)" size="small"
+								title="{{'Edit' | translate}}" fill="clear">
+								<ion-icon class="min-btn clickable" slot="icon-only" name="pencil"></ion-icon>
+							</ion-button>
 						</ng-template>
 					</datatable-column>
 					<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">

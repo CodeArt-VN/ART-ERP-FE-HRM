@@ -7,3 +7,9 @@ ion-avatar {
 	width: calc(10 / 16 * 4rem);
 	margin-right: 8px;
 }
+
+::ng-deep {
+	datatable-header-cell {
+		height: calc(10 / 16 * 4rem);
+	}
+}

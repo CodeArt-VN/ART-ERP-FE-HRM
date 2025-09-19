@@ -14,10 +14,9 @@ import { CommonService } from 'src/app/services/core/common.service';
 	standalone: false,
 })
 export class StaffPolicyEnrollmentDetailModalPage extends PageBase {
-	line;
-	calculationMethodTypeList = [];
-	typeList = [];
+
 	Items;
+	IDEnrollment;
 	staffDataSource = this.buildSelectDataSource((term) => {
 		return this.staffProvider.search({ Take: 20, Skip: 0, Term: term });
 	});
@@ -37,18 +36,13 @@ export class StaffPolicyEnrollmentDetailModalPage extends PageBase {
 		super();
 		this.formGroup = formBuilder.group({
 			IDStaffList: [],
-			InsuranceSalary:['',Validators.required],
+			IDEnrollment:[this.IDEnrollment,Validators.required],
 			Remark:['']
 		});
 	}
 	preLoadData(event?: any): void {
 		this.pageConfig.showSpinner = true;
 		this.loadedData();
-
-		// Promise.all([this.env.getType('CalculationMethodType'), this.env.getType('HRMInsuranceType')]).then((values) => {
-		// 	this.calculationMethodTypeList = values[0];
-		// 	this.typeList = values[1];
-		// });
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
@@ -60,7 +54,6 @@ export class StaffPolicyEnrollmentDetailModalPage extends PageBase {
 				}
 			});
 		}
-		let values = this.Items[0];
 		this.pageConfig.showSpinner = false;
 		this.staffDataSource.initSearch();
 	}
@@ -73,7 +66,8 @@ export class StaffPolicyEnrollmentDetailModalPage extends PageBase {
 		const formData = this.formGroup.getRawValue();
 		const result = formData.IDStaffList.map((id) => ({
 			IDStaff: id,
-			InsuranceSalary: formData.InsuranceSalary,
+			IDEnrollment: this.IDEnrollment,
+			Remark: formData.Remark
 		}));
 		this.modalController.dismiss(result);
 	}
