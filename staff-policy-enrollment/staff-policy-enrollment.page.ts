@@ -31,6 +31,9 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 	};
 	polEnrollmentType = [];
 	statusList = [];
+	policyType = null;
+
+	isOpenAddNewPopover = false;
 	constructor(
 		public pageProvider: HRM_StaffEnrollmentProvider,
 		public polBenefitProvider: HRM_PolBenefitProvider,
@@ -108,6 +111,30 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 		this.refresh();
 	}
 
+	addNew(g) {
+		this.query.PolicyType = g.Code;
+		let provider;
+		switch (g.Code) {
+			case 'PolBenefit':
+				provider = this.polBenefitProvider;
+				break;
+			case 'PolInsurance':
+				provider = this.polInsuranceProvider;
+				break;
+			case 'PolEmployee':
+				provider = this.polEmployeeProvider;
+				break;
+			case 'PolPaidTimeOff':
+				provider = this.polPaidTimeOffProvider;
+				break;
+			default:
+		}
+		provider.read().then((res: any) => {
+			this.polEnrollmentType = res.data;
+			this.add();
+		});
+	}
+
 	async add() {
 		const modal = await this.modalController.create({
 			component: StaffPickerEnrollmentPage,
@@ -123,7 +150,7 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 			let navigationExtras: NavigationExtras = {
 				state: {
 					PolicyId: data.IDPol,
-					PolicyType: this.groupControl.selectedGroup?.Code,
+					PolicyType: this.query.PolicyType,
 					StaffList: data.StaffList,
 				},
 			};
@@ -134,8 +161,14 @@ export class StaffPolicyEnrollmentPage extends PageBase {
 		const navigationExtras: NavigationExtras = {
 			state: {
 				PolicyType: this.groupControl.selectedGroup?.Code,
-			}
+			},
 		};
 		this.nav('/staff-policy-enrollment/' + item.Id, 'forward', navigationExtras);
+	}
+
+	@ViewChild('addNewPopover') addNewPopover!: HTMLIonPopoverElement;
+	presentCopyPopover(e) {
+		this.addNewPopover.event = e;
+		this.isOpenAddNewPopover = !this.isOpenAddNewPopover;
 	}
 }

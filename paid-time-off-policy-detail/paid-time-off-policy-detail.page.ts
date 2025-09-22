@@ -3,7 +3,12 @@ import { NavController, LoadingController, AlertController } from '@ionic/angula
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_PolicyPaidTimeOffGrantsByLengthOfServicesProvider, HRM_PolicyPaidTimeOffProvider } from 'src/app/services/static/services.service';
+import {
+	BRA_BranchProvider,
+	HRM_LeaveTypeProvider,
+	HRM_PolicyPaidTimeOffGrantsByLengthOfServicesProvider,
+	HRM_PolicyPaidTimeOffProvider,
+} from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 
@@ -15,9 +20,39 @@ import { CommonService } from 'src/app/services/core/common.service';
 })
 export class PaidTimeOffPolicyDetailPage extends PageBase {
 	TypeList = [];
+	ConfigRunMonthlyMethodList = [];
+	leaveTypeList = [];
+
+	dayList = Array.from({ length: 31 }, (_, i) => ({
+		Code: i + 1,
+		Name: (i + 1).toString(),
+	}));
+
+	monthList = Array.from({ length: 12 }, (_, i) => ({
+		Code: i + 1,
+		Name: (i + 1).toString(),
+	}));
+
+	configRunMonthlyMethodList = [
+		{ Code: 'StandardLeave', Name: 'Standard Leave', Description: '📝 Ghi chú: Mỗi tháng cộng 1/12 tổng số ngày phép năm' },
+		{
+			Code: 'DirectAccrual',
+			Name: '+1 Leave Day per Month (Direct Accrual)',
+			Description: '📝 Ghi chú: Mỗi tháng cộng thêm 1 ngày phép. Số dư hiện tại sẽ cộng vào tháng được chọn.',
+		},
+		{
+			Code: 'ProratedAccrual',
+			Name: '+1 Leave Day per Month (Prorated Accrual)',
+			Description: '📝 Ghi chú: Mỗi tháng cộng thêm 1 ngày phép. Số dư còn lại sẽ được chia đều theo 12 tháng làm việc.',
+		},
+	];
+
+	_description = '';
+
 	constructor(
 		public pageProvider: HRM_PolicyPaidTimeOffProvider,
 		public ptoGrandByLengthOfServices: HRM_PolicyPaidTimeOffGrantsByLengthOfServicesProvider,
+		public leaveTypeProvider: HRM_LeaveTypeProvider,
 		public branchProvider: BRA_BranchProvider,
 		public env: EnvService,
 		public navCtrl: NavController,
@@ -33,6 +68,7 @@ export class PaidTimeOffPolicyDetailPage extends PageBase {
 
 		this.formGroup = formBuilder.group({
 			IDBranch: [env.selectedBranch],
+			IDLeaveType: ['', Validators.required],
 			Id: new FormControl({ value: '', disabled: true }),
 			Code: [''],
 			Name: ['', Validators.required],
@@ -43,20 +79,34 @@ export class PaidTimeOffPolicyDetailPage extends PageBase {
 			NumberOfCarryOnDays: ['', Validators.required],
 
 			IsGrantsByLengthOfServices: [false],
+			CarryOverExpireMonths: [''],
 
+			ConfigRunOnMonth: [''],
+			ConfigRunOnDay: [''],
+			ConfigRunMonthlyMethod: [''],
+			ConfigRunMonthlySelectedMonth: [''],
 			Lines: this.formBuilder.array([]),
 		});
 	}
 
 	preLoadData(event?: any): void {
-		this.env.getType('PaidTimeOffPolicy').then((resp) => {
-			this.TypeList = resp;
+		Promise.all([this.env.getType('PaidTimeOffPolicy'), this.leaveTypeProvider.read()]).then((values: any) => {
+			this.TypeList = values[0];
+			console.log('typelist: ', this.TypeList);
+
+			this.leaveTypeList = values[1]['data'];
 			super.preLoadData(event);
 		});
 	}
 	loadedData(event) {
 		this.setLines();
 		super.loadedData(event);
+
+		if (this.item?.Id) {
+			if (this.formGroup.controls.ConfigRunMonthlyMethod.value) {
+				this._description = this.configRunMonthlyMethodList.find((d) => d.Code == this.formGroup.controls.ConfigRunMonthlyMethod.value).Description;
+			}
+		}
 	}
 
 	setLines() {
@@ -131,6 +181,40 @@ export class PaidTimeOffPolicyDetailPage extends PageBase {
 		}
 
 		this.saveChange();
+	}
+
+	monthlyMethodChange() {
+		this._description = this.configRunMonthlyMethodList.find((d) => d.Code == this.formGroup.get('ConfigRunMonthlyMethod').value).Description;
+		if (this.formGroup.get('ConfigRunMonthlyMethod').value == 'DirectAccrual') {
+			this.formGroup.get('ConfigRunMonthlySelectedMonth').setValidators([Validators.required]);
+			this.formGroup.get('ConfigRunMonthlySelectedMonth').updateValueAndValidity();
+		} else {
+			this.formGroup.get('ConfigRunMonthlySelectedMonth').setValidators([]);
+			this.formGroup.get('ConfigRunMonthlySelectedMonth').updateValueAndValidity();
+		}
+		this.saveChange();
+	}
+
+	calculationLeave(type) {
+		if (type == 'monthly') {
+			this.env
+				.showLoading(
+					'Generate monthly leave ...',
+					this.pageProvider.commonService.connect('POST', 'HRM/PolicyPaidTimeOff/GenerateMonthlyLeave', { Id: this.id }).toPromise()
+				)
+				.then((_) => {
+					this.env.showMessage('Generated success','success');
+				});
+		} else {
+			this.env
+				.showLoading(
+					'Generate annual leave ...',
+					this.pageProvider.commonService.connect('POST', 'HRM/PolicyPaidTimeOff/GenerateAnnualLeave', { Id: this.id }).toPromise()
+				)
+				.then((_) => {
+					this.env.showMessage('Generated success','success');
+				});
+		}
 	}
 
 	async saveChange() {
