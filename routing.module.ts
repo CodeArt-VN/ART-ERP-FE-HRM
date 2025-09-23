@@ -117,6 +117,11 @@ export const HRMRoutes: Routes = [
     { path: 'timesheet-record', loadChildren: () => import('./timesheet-record/timesheet-record.module').then(m => m.TimesheetRecordPageModule), canActivate: [AuthGuard] },
     { path: 'timesheet-record/:id/:idtimesheet', loadChildren: () => import('./timesheet-record-detail/timesheet-record-detail.module').then(m => m.TimesheetRecordDetailPageModule), canActivate: [AuthGuard] },
 
+    { path: 'leave-type', loadChildren: () => import('./leave-type/leave-type.module').then(m => m.LeaveTypePageModule), canActivate: [AuthGuard] },
+    { path: 'leave-type/:id', loadChildren: () => import('./leave-type-detail/leave-type-detail.module').then(m => m.LeaveTypeDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'staff-time-off-request', loadChildren: () => import('./staff-time-off-request/staff-time-off-request.module').then(m => m.StaffTimeOffRequestPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-time-off-request/:id', loadChildren: () => import('./staff-time-off-request-detail/staff-time-off-request-detail.module').then(m => m.StaffTimeOffRequestDetailPageModule), canActivate: [AuthGuard] },
     { path: 'staff-policy-enrollment', loadChildren: () => import('./staff-policy-enrollment/staff-policy-enrollment.module').then(m => m.StaffPolicyEnrollmentPageModule), canActivate: [AuthGuard] },
     { path: 'staff-policy-enrollment/:id', loadChildren: () => import('./staff-policy-enrollment-detail/staff-policy-enrollment-detail.module').then(m => m.StaffPolicyEnrollmentDetailPageModule), canActivate: [AuthGuard] },
 ];
