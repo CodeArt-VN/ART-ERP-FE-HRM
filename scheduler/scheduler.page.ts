@@ -684,7 +684,7 @@ export class SchedulerPage extends PageBase {
 
 				e.ShiftStart = shift.Start;
 				e.ShiftEnd = shift.End;
-			}else{
+			} else {
 				return;
 			}
 			if (e.TimeOffType) {
@@ -1203,6 +1203,17 @@ export class SchedulerPage extends PageBase {
 					this.refresh();
 				});
 		}
+	}
+
+	calculationTimeOff() {
+		let postDTO = {
+			IDTimesheet: parseInt(this.id),
+			FromDate: this.query.WorkingDateFrom,
+			idStaffList : this.staffList
+		};
+		this.env.showLoading('Calculating...', this.pageProvider.commonService.connect('POST', 'HRM/StaffSchedule/CalculationTimeoff', postDTO).toPromise()).then((_) => {
+			this.env.showMessage('Calculation completed', 'success');
+		});
 	}
 
 	async massShiftAssignment(cData = null) {
