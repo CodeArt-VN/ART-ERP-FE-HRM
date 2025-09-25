@@ -1,0 +1,107 @@
+@media screen and (max-width: 1164px) {
+	::ng-deep {
+
+		datatable-body-cell.cell.col-custom,
+		datatable-body-cell.cell.col-icon-custom {
+			order: 8;
+			min-width: calc(100% + 100px) !important;
+			font-size: 90%;
+			justify-content: flex-start !important;
+
+		}
+
+		.sp-custom {
+			display: block !important;
+			margin-right: 4px;
+		}
+
+		.reason-row {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 90%;
+		}
+
+		.reason-label,
+		.sp-custom-name,
+		.sp-custom-name+span {
+			display: block !important;
+			font-size: 90%;
+			margin-right: 4px;
+		}
+
+		.staff-mobile {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.staff-email {
+			display: none !important;
+		}
+
+		.staff-label {
+			display: block !important;
+			font-size: 90%;
+			font-weight: 500;
+			margin-right: 4px;
+		}
+
+		.staff-mobile .avatar {
+			width: 28px !important;
+			height: 28px !important;
+			min-width: 28px !important;
+		}
+
+		.staff-mobile .bold {
+			font-weight: 600;
+			font-size: 90%;
+		}
+
+		.staff-mobile .no-warp {
+			font-size: 90%;
+			white-space: nowrap;
+		}
+
+
+		datatable-body-cell.cell.col-name.item-name {
+			min-width: 100% !important;
+			padding: 0px !important;
+		}
+	}
+}
+
+::ng-deep {
+
+	datatable-body-cell.cell.col-custom {
+		justify-content: flex-end;
+		max-width: 100px;
+	}
+
+	datatable-header-cell.cell.col-custom {
+		max-width: 100px;
+	}
+
+	app-data-table .col-icon-custom {
+		min-width: 35px;
+		max-width: 100px;
+		justify-content: center;
+	}
+
+	.reason-label,
+	.staff-label,
+	.sp-custom,
+	.sp-custom-name {
+		display: none;
+	}
+
+	.staff-email {
+		display: block;
+	}
+
+	datatable-body-cell.cell.col-name.cell ion-avatar {
+		height: calc(10 / 16 * 4rem);
+		width: calc(10 / 16 * 4rem);
+		margin-right: 8px;
+	}
+}
