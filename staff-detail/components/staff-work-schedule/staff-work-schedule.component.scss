@@ -79,24 +79,3 @@ ion-content {
   --background: var(--feature-background-top) !important;
   overflow: hidden;
 }
-
-.calendar-holder {
-  position: relative;
-  height: 100%;
-  padding: 20px;
-  background: var(--feature-background-top);
-
-  ::ng-deep {
-    .fc {
-      height: 100% !important;
-      
-      .fc-view-harness {
-        height: 100% !important;
-      }
-      
-      .fc-scroller {
-        height: 100% !important;
-      }
-    }
-  }
-}
