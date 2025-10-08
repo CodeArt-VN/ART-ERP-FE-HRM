@@ -14,6 +14,7 @@ import {
 	HRM_TimesheetRecordProvider,
 	OST_OfficeGateProvider,
 	OST_OfficeProvider,
+	HRM_LeaveTypeProvider,
 } from 'src/app/services/static/services.service';
 import { ActivatedRoute } from '@angular/router';
 import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typecateringg
@@ -28,7 +29,6 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
-import { ApiSetting } from 'src/app/services/static/api-setting';
 import { HttpClient } from '@angular/common/http';
 import { ScanCheckinModalPage } from '../scan-checkin-modal/scan-checkin-modal.page';
 import { FormBuilder } from '@angular/forms';
@@ -61,6 +61,7 @@ export class PersonalSchedulerPage extends PageBase {
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
 		public timesheetRecordProvider: HRM_TimesheetRecordProvider,
 		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
+		public leaveTypeProvider: HRM_LeaveTypeProvider,
 		public officeProvider: OST_OfficeProvider,
 		public gateProvider: OST_OfficeGateProvider,
 		public shiftProvider: HRM_ShiftProvider,
@@ -90,16 +91,16 @@ export class PersonalSchedulerPage extends PageBase {
 		Promise.all([
 			this.env.getType('ShiftType'),
 			this.shiftProvider.read(),
-			this.env.getType('TimeOffType'),
+			this.leaveTypeProvider.read(),
 			this.officeProvider.read(),
 			this.gateProvider.read(),
 			this.timesheetProvider.read(),
 		]).then((values) => {
-			this.officeList = values[3]['data'];
-			this.gateList = values[4]['data'];
 			this.shifTypeList = values[0];
 			this.shiftList = values[1]['data'];
-			this.timeoffTypeList = values[2];
+			this.timeoffTypeList = values[2]['data'];
+			this.officeList = values[3]['data'];
+			this.gateList = values[4]['data'];
 			this.timesheetList = values[5]['data'];
 
 			this.shiftList.forEach((s) => {
