@@ -63,20 +63,20 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 			EnrollmentDate: ['', Validators.required],
 			StaffPolBenefitEnrollmentDetails: this.formBuilder.array([]),
 			DeletedLines: [],
+			DeletedUDF:[]
 		});
 	}
 	preLoadData(event?: any): void {
 		Promise.all([
 			this.env.getStatus('StandardApprovalStatus'),
 			this.polBenefitProvider.read(),
-			this.udfProvider.read({ Group: 'Benefits' }),
+			// this.udfProvider.read({ Group: 'Benefits' }),
 			this.env.getType('HRMEffectiveTimeType'),
 		]).then((res: any) => {
 			this.statusList = res[0];
 			this.polBenefitList = res[1].data;
-			this.UDFList = res[2].data;
-			this.HRMEffectiveTimeTypeList = res[3];
-			super.preLoadData(event);
+			// this.UDFList = res[2].data;
+			this.HRMEffectiveTimeTypeList = res[2];
 		});
 		this.route.queryParams.subscribe(() => {
 			const navigation = this.router.getCurrentNavigation();
@@ -84,50 +84,49 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 				this.initStaffPolBenefitEnrollmentDetails = navigation.extras.state.StaffList;
 				this.initPolBenefit = navigation.extras.state.IDPol;
 			}
+			super.preLoadData(event);
 		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		if (this.item.Id == 0) if (this.initStaffPolBenefitEnrollmentDetails) this.item.StaffPolBenefitEnrollmentDetails = this.initStaffPolBenefitEnrollmentDetails;
-		this.patchFormArray();
-
-		super.loadedData(event, ignoredFromGroup);
 		if (this.item.Id == 0) {
-			this.formGroup.controls.Status.markAsDirty();
+			if (this.initStaffPolBenefitEnrollmentDetails) {
+				this.item.StaffPolBenefitEnrollmentDetails = this.initStaffPolBenefitEnrollmentDetails;
+			}
 			if (this.initPolBenefit) {
-				this.formGroup.controls.IDPolBenefit.setValue(parseInt(this.initPolBenefit));
-				this.formGroup.controls.IDPolBenefit.markAsDirty();
-			}
-			if (this.item.StaffPolBenefitEnrollmentDetails) {
-				let groups = this.formGroup.controls.StaffPolBenefitEnrollmentDetails as FormArray;
-				groups.controls.forEach((control: any) => {
-					Object.keys(control.controls).forEach((key) => {
-						control.get(key).markAsDirty();
-					});
+				this.trackingIDPolBenefit = this.initPolBenefit;
+				this.polBenefitProvider.getAnItem(this.initPolBenefit).then((res: any) => {
+					this.UDFList = res.Lines;
+					console.log('UDFList: ', this.UDFList);
+					this.patchFormArray();
+					super.loadedData(event, ignoredFromGroup);
+					this.formGroup.controls.IDPolBenefit.setValue(parseInt(this.initPolBenefit));
+					this.formGroup.controls.IDPolBenefit.markAsDirty();
+					if (this.item.StaffPolBenefitEnrollmentDetails) {
+						let groups = this.formGroup.controls.StaffPolBenefitEnrollmentDetails as FormArray;
+						groups.controls.forEach((control: any) => {
+							Object.keys(control.controls).forEach((key) => {
+								control.get(key).markAsDirty();
+							});
+						});
+					}
 				});
-				// data.forEach((i) => {
-				// 	let staffControl = groups.controls.find((d) => d.get('IDStaff').value == i.IDStaff);
-				// 	if (!staffControl) {
-				// 		this.addLine(i);
-				// 		staffControl = groups.controls.find((d) => d.get('IDStaff').value == i.IDStaff);
-				// 		staffControl.get('Id').markAsDirty();
-				// 		staffControl.get('IDStaff').markAsDirty();
-				// 		staffControl.get('IDStaffPolBenefitEnrollment').markAsDirty();
-				// 		staffControl.get('BenefitEnrollmentValue').markAsDirty();
-				// 	} else {
-				// 		Object.keys(i).forEach((key) => {
-				// 			if (staffControl.get(key) && i[key] != staffControl.get(key)?.value) {
-				// 				staffControl.get(key).setValue(i[key]);
-				// 				staffControl.get(key).markAsDirty();
-				// 			}
-				// 		});
-				// 	}
+			} else {
+				this.patchFormArray();
+				super.loadedData(event, ignoredFromGroup);
 			}
+			this.formGroup.controls.Status.markAsDirty();
+		} else {
+			this.polBenefitProvider.getAnItem(this.item.IDPolBenefit).then((res: any) => {
+				this.UDFList = res.Lines;
+				this.patchFormArray();
+				super.loadedData(event, ignoredFromGroup);
+			});
 		}
+
 		if (['Approved', 'Submitted'].includes(this.item.Status)) {
 			this.pageConfig.canEdit = false;
 		}
-		console.log(this.item.StaffPolBenefitEnrollmentDetails);
 	}
 
 	patchFormArray() {
@@ -141,6 +140,8 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 	}
 
 	addLine(line) {
+		line.BenefitEnrollmentConfig = {};
+		this.patchBenefitEnrollmentConfig(line);
 		let groups = this.formGroup.controls.StaffPolBenefitEnrollmentDetails as FormArray;
 		let group = this.formBuilder.group({
 			Id: [line.Id ?? 0],
@@ -149,14 +150,12 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 			BenefitEnrollmentValue: [line.BenefitEnrollmentValue],
 		});
 		groups.push(group);
-		line.BenefitEnrollmentConfig = {};
-		this.patchBenefitEnrollmentConfig(line);
+
 		// this.showModal(line);
 	}
 
 	removeSelectedLine() {
 		let groups = <FormArray>this.formGroup.controls.StaffPolBenefitEnrollmentDetails;
-
 		if (this.selectedItems.length > 0) {
 			this.env
 				.showPrompt('Are you sure you want to delete this staff benefit?', null, 'Delete staff benefit')
@@ -206,19 +205,24 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 		line.BenefitEnrollmentConfig = {};
 		let values: any = line.BenefitEnrollmentValue ? JSON.parse(line.BenefitEnrollmentValue) : [];
 		values.forEach((e) => {
-			let item = this.UDFList.find((d) => d.Id == e.IDUDF);
+			let item = this.UDFList.find((d) => d.IDUDF == e.IDUDF);
 			if (item) {
-				if (!this.UDFUsedList.some((d) => d.Id == item.Id)) {
+				if (!this.UDFUsedList.some((d) => d.IDUDF == item.IDUDF)) {
 					this.UDFUsedList.push(item);
 				}
 				line.BenefitEnrollmentConfig[item.Code] = e.Value;
+				line.Id = e.Id;
 			}
 		});
 		// this.UDFUsedList =
-		// this.UDFList.forEach((e) => {
-		// 	let item = values.find((d) => d.IDUDF == e.Id);
-		// 	line.BenefitEnrollmentConfig[e.Code] = item.Value;
-		// });
+		if (values.length == 0) {
+			line.BenefitEnrollmentValue = [];
+			this.UDFList.forEach((e) => {
+				line.BenefitEnrollmentValue.push(e);
+				line.BenefitEnrollmentConfig[e.Code] = e._Value;
+			});
+			line.BenefitEnrollmentValue = JSON.stringify(line.BenefitEnrollmentValue);
+		}
 	}
 
 	editLine(i) {
@@ -300,14 +304,17 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 	changeBenefitPolicy() {
 		if (this.item.StaffPolBenefitEnrollmentDetails.length > 0) {
 			this.env
-				.showPrompt(null, 'Changing the policy will delete all assigned benefit data for employees. Are you sure?', 'Benefit policy change')
+				.showPrompt(null, 'Changing the policy will remove the benefits that do not belong to the new policy.. Are you sure?', 'Benefit policy change')
 				.then((_) => {
-					let groups = this.formGroup.controls.StaffPolBenefitEnrollmentDetails as FormArray;
-					let ids = groups.controls.map((d) => d.value.IDStaff);
-					this.formGroup.get('DeletedLines').setValue(ids);
-					this.formGroup.get('DeletedLines').markAsDirty();
-					this.UDFUsedList = [];
-					this.saveChange();
+					this.polBenefitProvider.getAnItem(this.formGroup.controls.IDPolBenefit.value).then((res: any) => {
+						let idsUDF = res.Lines.map((d) => d.IDUDF);
+						// let groups = this.formGroup.controls.StaffPolBenefitEnrollmentDetails as FormArray;
+						// let ids = groups.controls.map((d) => d.value.IDStaff);
+						this.formGroup.get('DeletedUDF').setValue(idsUDF);
+						this.formGroup.get('DeletedUDF').markAsDirty();
+						this.UDFUsedList = [];
+						this.saveChange();
+					});
 				})
 				.catch((_) => {
 					this.formGroup.controls.IDPolBenefit.setValue(this.trackingIDPolBenefit);

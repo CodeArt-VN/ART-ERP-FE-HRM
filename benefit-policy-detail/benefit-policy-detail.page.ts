@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, Type } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
@@ -22,6 +22,7 @@ export class BenefitPolicyDetailPage extends PageBase {
 	segmentView = 's1';
 	UDFList = [];
 	UDFModal = [];
+	udfTypeList = [];
 	constructor(
 		public pageProvider: HRM_PolBenefitProvider,
 		public welfareDetailProvider: HRM_PolBenefitDetailProvider,
@@ -71,10 +72,16 @@ export class BenefitPolicyDetailPage extends PageBase {
 			{ Id: 5, Code: 'Event', Name: 'Event' }, // sự kiện
 		];
 
-		Promise.all([this.env.getType('WelfareType'), this.env.getType('WelfareFrequencyType'), this.hrmUDFProvider.read({ Group: 'Benefits' })]).then((values: any) => {
+		Promise.all([
+			this.env.getType('WelfareType'),
+			this.env.getType('WelfareFrequencyType'),
+			this.hrmUDFProvider.read({ Group: 'Benefits' }),
+			this.env.getType('PayrollTemplateType'),
+		]).then((values: any) => {
 			this.typeList = values[0];
 			// this.frequencyList = values[1];
 			this.UDFList = values[2].data;
+			this.udfTypeList = values[3];
 			super.preLoadData();
 		});
 	}
@@ -164,14 +171,46 @@ export class BenefitPolicyDetailPage extends PageBase {
 		let group = this.formBuilder.group({
 			IDUDF: [line.IDUDF],
 			Id: [line.Id],
+			Code: new FormControl({ value: line.Code, disabled: true }),
+			Name: new FormControl({ value: line.Name, disabled: true }),
+			Remark: [line.Remark],
 			IsManagerCanCreateInsurance: [line.IsManagerCanCreateInsurance],
 			IsIncome: [line.IsIncome],
 			IsCurrency: [line.IsCurrency],
 			IsManagerCanCreateBenefit: [line.IsManagerCanCreateBenefit],
-			Value: [line._Value, Validators.required],
+			Value: [line._Value ?? udf?.DefaultValue, Validators.required],
 			Frequency: [line.Frequency, Validators.required],
+			DataType: new FormControl({ value: udf?.DataType, disabled: true }),
 			ControlType: [udf?.ControlType || 'text'],
-			
+			Type: [line.Type, Validators.required],
+			IsHidden: [line.IsHidden],
+			IsLock: [line.IsLock],
+			Sort: 1,
+			DefaultValue: new FormControl({ value: udf?.DefaultValue, disabled: true }),
+			IsDisabled: new FormControl({
+				value: line.IsDisabled,
+				disabled: true,
+			}),
+			IsDeleted: new FormControl({
+				value: line.IsDeleted,
+				disabled: true,
+			}),
+			CreatedBy: new FormControl({
+				value: line.CreatedBy,
+				disabled: true,
+			}),
+			CreatedDate: new FormControl({
+				value: line.CreatedDate,
+				disabled: true,
+			}),
+			ModifiedBy: new FormControl({
+				value: line.ModifiedBy,
+				disabled: true,
+			}),
+			ModifiedDate: new FormControl({
+				value: line.ModifiedDate,
+				disabled: true,
+			}),
 		});
 		groups.push(group);
 		if (openModal) this.showModal(group);
@@ -223,5 +262,40 @@ export class BenefitPolicyDetailPage extends PageBase {
 			}
 			this.saveChange();
 		}
+	}
+
+	openedFields: any = [];
+	accordionGroupChange(e) {
+		this.openedFields = e.detail.value;
+		console.log(this.openedFields);
+	}
+
+	isAccordionExpanded(id: string): boolean {
+		return this.openedFields.includes(id?.toString());
+	}
+
+	changeUDF(e, fg) {
+		fg.get('DataType').setValue(e?.DataType);
+		fg.get('DefaultValue').setValue(e?.DefaultValue);
+		if (fg.controls.Type.value != 'Formula') {
+			fg.get('ControlType').setValue(e?.ControlType);
+		}
+		fg.get('Value').setValue(e?.DefaultValue);
+		fg.get('Value').markAsDirty();
+		fg.get('Name').setValue(e?.Name);
+		fg.get('Code').setValue(e?.Code);
+		fg.get('Name').markAsDirty();
+		fg.get('Code').markAsDirty();
+		this.saveChange2();
+	}
+
+	changeType(e, fg, markAsDirty = true) {
+		if (e?.Code == 'Formula') {
+			fg.controls.ControlType.setValue('formula');
+		} else {
+			let udf = this.UDFList.find((u) => u.Id == fg.controls.IDUDF.value);
+			fg.controls.ControlType.setValue(udf?.ControlType);
+		}
+		this.saveChange2();
 	}
 }

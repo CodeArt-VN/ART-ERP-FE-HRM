@@ -32,82 +32,124 @@
 					<ion-label>{{'Other information' | translate}}</ion-label>
 				</ion-segment-button>
 			</ion-segment>
+			<ion-buttons slot="end">
+				<ion-button (click)="addLine({})">
+					<ion-icon name="add-circle-outline" color="success" slot="start"></ion-icon>
+					<ion-label> {{'Add' | translate}}</ion-label>
+				</ion-button>
+			</ion-buttons>
 		</ion-toolbar>
 		<div *ngIf="segmentView == 's1' && !pageConfig.showSpinner">
-			<app-data-table
-				class="box-shadow responsive"
-				[rows]="item.Lines"
-				[trackBy]="'Id'"
-				[showSpinner]="pageConfig.showSpinner"
-				[showFilter]="pageConfig.isShowSearch"
-				[(query)]="query"
-				(dataInfinite)="loadData($event)"
-				(filter)="onDatatableFilter($event)"
-				(sort)="onSort($event)"
-			>
-				<!-- <datatable-column [checkbox]="true" name="" property="_checked">
-					<ng-template let-i="row" datatable-cell-template>
-						<ion-checkbox [checked]="i?._checked" (ionChange)="selectRow(i)"></ion-checkbox>
-					</ng-template>
-				</datatable-column> -->
-				<datatable-column class="col-name" name="Name" property="UDFName"> </datatable-column>
-				<datatable-column class="col-code" name="Is income" property="IsIncome">
-					<ng-template let-i="row" datatable-cell-template>
-						<ion-icon *ngIf="!i?.isEdit" class="min-btn" [name]="i.IsIncome?'checkmark-outline': 'ban-outline'" [color]="i.IsIncome?'primary':'red'"></ion-icon>
-					</ng-template>
-				</datatable-column>
-				<datatable-column class="col-code" name="Is currency" property="IsCurrency">
-					<ng-template let-i="row" datatable-cell-template>
-						<ion-icon *ngIf="!i?.isEdit" class="min-btn" [name]="i.IsCurrency?'checkmark-outline': 'ban-outline' "></ion-icon>
-					</ng-template>
-				</datatable-column>
-				<datatable-column class="col-code" name="Is manager can create benefit" property="IsManagerCanCreateBenefit">
-					<ng-template let-i="row" datatable-cell-template>
-						<ion-icon
-							*ngIf="!i?.isEdit"
-							class="min-btn"
-							[name]="i.IsManagerCanCreateBenefit?'checkmark-outline': 'ban-outline' "
-							[color]="i.IsManagerCanCreateBenefit?'red':''"
-						></ion-icon>
-					</ng-template>
-				</datatable-column>
-				<datatable-column class="col-name" name="Frequency" property="Frequency"> </datatable-column>
-				<datatable-column class="col-number" name="Value" property="_Value">
-					<ng-template let-i="row" datatable-cell-template>
-						<span *ngIf="!i?.isEdit && i.ControlType == 'number'">{{i?._Value | number:'1.0-0'}}</span>
-						<span *ngIf="!i?.isEdit && i.ControlType != 'number'">{{i?._Value}}</span>
-					</ng-template>
-				</datatable-column>
-				<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
-					<!-- <ng-template datatable-header-template >
-						<ion-icon *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="pencil-outline" (click)="showModal()"></ion-icon>
-					</ng-template> -->
-					<ng-template let-i="row" datatable-cell-template>
-						<ion-icon color="danger" class="min-btn clickable" name="pencil-outline" (click)="editLine(i)"></ion-icon>
-					</ng-template>
-				</datatable-column>
+			<div id="ng-select-modal" style="position: absolute; z-index: 30005"></div>
+			<ion-grid fixed>
+				<ion-row>
+					<ion-col size="12">
+						<ion-list>
+							<ion-list-header lines="full" class="ion-no-padding">
+								<ion-label>{{'Data field' | translate }}</ion-label>
+								<ion-button (click)="toggleReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
+							</ion-list-header>
+							<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
+								<ion-reorder-group [disabled]="isDisabled" (ionItemReorder)="doReorder($event, formGroup.get('Lines')['controls'])">
+									<ng-container *ngFor="let g of formGroup.get('Lines')['controls']; let idx = index;">
+										<ion-accordion [value]="g.get('Id').value">
+											<ion-item class="clickable" slot="header" [style.order]="g.get('Sort').value" lines="full">
+												<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->
+												<ion-label style="margin-right: 0" class="ion-text-wrap clickable"
+													><span *ngIf="g.get('Id').value">{{idx+1}} - </span>
+													<span class="bold"
+														>{{g.get('Name').value}}
+														<small label>
+															<ion-text color="primary" *ngIf="g.get('Type').value == 'formula' || !g.get('Value').value"
+																>{{g.get('DefaultValue').value}}</ion-text
+															>
+															<ion-text color="primary" *ngIf="g.get('Type').value != 'formula' && g.get('Value').value"
+																>{{g.get('Value').value}}</ion-text
+															>
+														</small></span
+													>
+												</ion-label>
 
-				<datatable-column class="col-icon" name="" property="Id" *ngIf="pageConfig.canEdit">
-					<!-- <ng-template datatable-header-template>
-						<ion-icon  *ngIf="selectedItems.length>0" color="danger" class="min-btn clickable" name="trash-outline" (click)="removeLine()"></ion-icon>
-					</ng-template> -->
+												<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
+													<ion-icon slot="icon-only" name="trash"></ion-icon>
+												</ion-button>
+												<ion-reorder slot="end"></ion-reorder>
+											</ion-item>
 
-					<ng-template let-i="row" datatable-cell-template>
-						<ion-icon color="danger" class="min-btn clickable" name="trash-outline" (click)="removeLine(i)"></ion-icon>
-					</ng-template>
-				</datatable-column>
-			</app-data-table>
-			<div class="table-contain">
-				<div class="row" *ngIf="pageConfig.canEdit">
-					<div class="cell">
-						<ion-button fill="clear" size="small" (click)="openModal = true;addLine({},true)">
-							<ion-icon slot="start" name="add-circle-outline"></ion-icon>
-							{{ 'Add allowance & benefit' | translate }}
-						</ion-button>
-					</div>
-				</div>
-			</div>
-
+											<div
+												class="ion-padding"
+												slot="content"
+												[ngStyle]="{ 'background': !isAccordionExpanded(g.get('Id').value) ? 'none' : 'var(--table-header-background)' }"
+											>
+												<ion-grid fixed>
+													<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
+														<ion-row>
+															<ion-col size="12" size-xl="4">
+																<!-- , treeConfig: {searchFnDefault: true,isTree: true, isCollapsed: true,rootCollapsed:false} -->
+																<app-form-control
+																	(change)="changeUDF($event,g)"
+																	[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFList,bindLabel:'Name',bindValue:'Id', form : g,appendTo:'#ng-select-modal'}"
+																></app-form-control>
+																<app-form-control
+																	(change)="changeType($event,g)"
+																	[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:udfTypeList,bindLable:'Name',bindValue:'Code',form : g ,appendTo:'#ng-select-modal'}"
+																>
+																</app-form-control>
+																<app-form-control
+																	*ngIf="g.get('Type').value != 'Auto'"
+																	[field]="{id:'Value', label: 'Value',  type : g.get('ControlType').value,dataSource:UDFList, form : g } "
+																	(change)="saveChange2()"
+																>
+																</app-form-control>
+																<app-form-control
+																	[field]="{id:'Frequency', type: 'ng-select', dataSource:frequencyList, bindValue:'Code',bindLabel:'Name' ,form : g, appendTo: '#ng-select-modal' }"
+																	(change)="saveChange2()"
+																></app-form-control>
+																<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange2()">
+																</app-form-control>
+																<app-form-control
+																	[field]="{id:'IsHidden', label: 'Hidden', type : 'checkbox', form : g } "
+																	(change)="saveChange2()"
+																>
+																</app-form-control>
+																<app-form-control
+																	[field]="{id:'IsIncome', label:'Is income', type: 'checkbox', form : g }"
+																	(change)="saveChange2()"
+																></app-form-control>
+																<app-form-control
+																	[field]="{id:'IsCurrency', label:'Is currency', type: 'checkbox', form : g }"
+																	(change)="saveChange2()"
+																></app-form-control>
+																<app-form-control
+																	[field]="{id:'IsManagerCanCreateBenefit', label:'Is manager can create benefit', type: 'checkbox', form : g }"
+																	(change)="saveChange2()"
+																></app-form-control>
+															</ion-col>
+															<ion-col size="12" size-xl="4">
+																<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : g }"> </app-form-control>
+																<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : g }"> </app-form-control>
+																<app-form-control [field]="{id:'ControlType', label: 'Control type', type : 'span-text',form : g }">
+																</app-form-control>
+																<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
+																</app-form-control>
+																<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }"> </app-form-control>
+																<app-form-control
+																	[field]="{id:'Remark', type : 'textarea', label: 'Remark', form : g }"
+																	(change)="saveChange2()"
+																></app-form-control>
+															</ion-col>
+														</ion-row>
+													</form>
+												</ion-grid>
+											</div>
+										</ion-accordion>
+									</ng-container>
+								</ion-reorder-group>
+							</ion-accordion-group>
+						</ion-list>
+					</ion-col>
+				</ion-row>
+			</ion-grid>
 		</div>
 
 		<div *ngIf="segmentView == 's2'">

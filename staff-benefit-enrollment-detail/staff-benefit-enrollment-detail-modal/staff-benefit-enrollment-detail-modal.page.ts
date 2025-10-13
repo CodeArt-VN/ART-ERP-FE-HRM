@@ -68,10 +68,10 @@ export class StaffBenefitEnrollmentDetailModalPage extends PageBase {
 				}
 			});
 			let values = this.Items[0].BenefitEnrollmentValue ? JSON.parse(this.Items[0].BenefitEnrollmentValue) : [];
-			this.UDFList = this.UDFList.filter((e) => this.item.Lines.some((line) => line.IDUDF === e.Id));
+			this.UDFList = this.UDFList.filter((e) => this.item.Lines.some((line) => line.IDUDF === e.IDUDF));
 			this.UDFList.forEach((e) => {
 				e.isEdit = false;
-				let line = values.find((d) => d.IDUDF == e.Id) || {};
+				let line = values.find((d) => d.IDUDF == e.IDUDF) || {};
 				e._value = line.Value || '';
 				e._checked = !!line.Value;
 				e._isIncome = line.IsIncome || false;
@@ -79,14 +79,15 @@ export class StaffBenefitEnrollmentDetailModalPage extends PageBase {
 				e._isManagerCanCreateBenefit = line.IsManagerCanCreateBenefit || false;
 				e._frequency = line.Frequency || '';
 				e._formGroup = this.formBuilder.group({
-					IDUDF: new FormControl({ value: e.Id, disabled: true }),
+					IDUDF: new FormControl({ value: e.IDUDF, disabled: true }),
 					IDPolBenefit: new FormControl({ value: this.item.Id, disabled: true }),
-					Value: [e._value],
+					Value: [e._value ?? e.Value],
 					Id: new FormControl({ value: line.Id || 0, disabled: true }),
-					IsIncome: [e._isIncome],
-					IsCurrency: [e._isCurrency],
-					IsManagerCanCreateBenefit: [e._isManagerCanCreateBenefit],
-					Frequency: [e._frequency],
+					IsIncome: [e._isIncome ?? e.IsIncome],
+					IsCurrency: [e._isCurrency ?? e.IsCurrency],
+					IsManagerCanCreateBenefit: [e._isManagerCanCreateBenefit ?? e.IsManagerCanCreateBenefit],
+					Frequency: [e._frequency ?? e.Frequency],
+					Type: [line.Type || 'Auto'],
 				});
 				// if (line.Id) {
 				// 	delete line.Id;
@@ -94,10 +95,10 @@ export class StaffBenefitEnrollmentDetailModalPage extends PageBase {
 				// }
 			});
 		} else {
-			this.UDFList = this.UDFList.filter((e) => this.item.Lines.some((line) => line.IDUDF === e.Id));
+			this.UDFList = this.UDFList.filter((e) => this.item.Lines.some((line) => line.IDUDF === e.IDUDF));
 			this.UDFList.forEach((e) => {
 				e.isEdit = false;
-				let line = this.item.Lines.find((d) => d.IDUDF == e.Id) || {};
+				let line = this.item.Lines.find((d) => d.IDUDF == e.IDUDF) || {};
 				e._value = line.Value || '';
 				e._checked = !!line.Value;
 				e._isIncome = line.IsIncome || false;
@@ -105,14 +106,15 @@ export class StaffBenefitEnrollmentDetailModalPage extends PageBase {
 				e._isManagerCanCreateBenefit = line.IsManagerCanCreateBenefit || false;
 				e._frequency = line.Frequency || '';
 				e._formGroup = this.formBuilder.group({
-					IDUDF: new FormControl({ value: e.Id, disabled: true }),
+					IDUDF: new FormControl({ value: e.IDUDF, disabled: true }),
 					IDPolBenefit: new FormControl({ value: this.item.Id, disabled: true }),
-					Value: [e._value],
+					Value: [e._value ?? e.Value],
 					Id: new FormControl({ value: line.Id || 0, disabled: true }),
-					IsIncome: [e._isIncome],
-					IsCurrency: [e._isCurrency],
-					IsManagerCanCreateBenefit: [e._isManagerCanCreateBenefit],
-					Frequency: [e._frequency],
+					IsIncome: [e._isIncome ?? e.IsIncome],
+					IsCurrency: [e._isCurrency ?? e.IsCurrency],
+					IsManagerCanCreateBenefit: [e._isManagerCanCreateBenefit ?? e.IsManagerCanCreateBenefit],
+					Frequency: [e._frequency ?? e.Frequency],
+					Type: [line.Type || 'Auto'],
 				});
 				// if (line.Id) {
 				// 	delete line.Id;

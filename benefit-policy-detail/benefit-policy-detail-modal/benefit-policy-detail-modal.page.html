@@ -20,21 +20,38 @@
 							<ion-label color="primary">{{ 'General information' | translate}}</ion-label>
 						</ion-list-header>
 					</ion-col>
-					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+					<ion-col size="12" size-xl="4">
+						<!-- , treeConfig: {searchFnDefault: true,isTree: true, isCollapsed: true,rootCollapsed:false} -->
 						<app-form-control
-							(change)="changeUDF()"
-							[field]="{id: 'IDUDF', label: 'Name', type: 'ng-select', dataSource: UDFModal, bindLabel: 'Name', bindValue: 'Id', form: formGroup ,appendTo:'#ng-select-modal'}"
+							(change)="changeUDF($event,formGroup)"
+							[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFList,bindLabel:'Name',bindValue:'Id', form : formGroup,appendTo:'#ng-select-modal'}"
+						></app-form-control>
+						<app-form-control
+							(change)="changeType($event,formGroup)"
+							[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:udfTypeList,bindLable:'Name',bindValue:'Code',form : formGroup ,appendTo:'#ng-select-modal'}"
 						>
 						</app-form-control>
 						<app-form-control
-							[field]="{id:'Frequency', type: 'ng-select', label:'Frequency', dataSource:frequencyList, bindValue:'Code',bindLabel:'Name' ,form : formGroup }"
+							*ngIf="formGroup.get('Type').value != 'Auto'"
+							[field]="{id:'Value', label: 'Value',  type : formGroup.get('ControlType').value,dataSource:UDFList, form : formGroup } "
+						>
+						</app-form-control>
+						<app-form-control
+							[field]="{id:'Frequency', type: 'ng-select', dataSource:frequencyList, bindValue:'Code',bindLabel:'Name' ,form : formGroup, appendTo: '#ng-select-modal' }"
 						></app-form-control>
-						<app-form-control [field]="{id:'Value', label:'Value',type: this.formGroup.controls.ControlType.value?? 'text',dataSource: UDFList, form : formGroup }"></app-form-control>
-					</ion-col>
-					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+						<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : formGroup }"> </app-form-control>
+						<app-form-control [field]="{id:'IsHidden', label: 'Hidden', type : 'checkbox', form : formGroup }"> </app-form-control>
 						<app-form-control [field]="{id:'IsIncome', label:'Is income', type: 'checkbox', form : formGroup }"></app-form-control>
 						<app-form-control [field]="{id:'IsCurrency', label:'Is currency', type: 'checkbox', form : formGroup }"></app-form-control>
 						<app-form-control [field]="{id:'IsManagerCanCreateBenefit', label:'Is manager can create benefit', type: 'checkbox', form : formGroup }"></app-form-control>
+					</ion-col>
+					<ion-col size="12" size-xl="4">
+						<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : formGroup }"> </app-form-control>
+						<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : formGroup }"> </app-form-control>
+						<app-form-control [field]="{id:'ControlType', label: 'Control type', type : 'span-text',form : formGroup }"> </app-form-control>
+						<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : formGroup }"> </app-form-control>
+						<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : formGroup }"> </app-form-control>
+						<app-form-control [field]="{id:'Remark', type : 'textarea', label: 'Remark', form : formGroup }"></app-form-control>
 					</ion-col>
 				</ion-row>
 			</form>
