@@ -55,6 +55,8 @@ export class LeaveTypeDetailPage extends PageBase {
 			BeforeHoliday: [null],
 			AfterHoliday: [null],
 			BadgeColor:[''],
+			Icon:[''],
+			Color:['']
 		});
 	}
 	_genderdataSource = [
