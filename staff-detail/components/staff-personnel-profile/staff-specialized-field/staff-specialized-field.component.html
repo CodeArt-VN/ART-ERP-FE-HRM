@@ -10,7 +10,7 @@
 				</ng-template>
 			</datatable-empty-message>
 
-			<datatable-column class="col-code" name="Specialized field" property="SpecializedField"></datatable-column>
+			<datatable-column class="col-code" name="Specialized field" property="Type"></datatable-column>
 			<datatable-column *ngIf="pageConfig.canEdit" class="col-icon" name="" property="Id">
 				<ng-template let-i="row" datatable-cell-template>
 					<ion-button (click)="editRow(i)" size="small" title="{{ 'Edit' | translate }}" fill="clear"> <ion-icon slot="icon-only" name="pencil"></ion-icon> </ion-button>

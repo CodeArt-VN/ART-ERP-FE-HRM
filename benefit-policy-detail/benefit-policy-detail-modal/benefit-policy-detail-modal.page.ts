@@ -20,6 +20,8 @@ export class BenefitPolicyDetailModalPage extends PageBase {
 	UDFList = [];
 	UDFModal = [];
 	frequencyList = [];
+
+	udfTypeList = [];
 	constructor(
 		public pageProvider: HRM_PolBenefitProvider,
 		public env: EnvService,
@@ -44,9 +46,10 @@ export class BenefitPolicyDetailModalPage extends PageBase {
 	}
 	preLoadData(event?: any): void {
 		this.pageConfig.showSpinner = true;
-		Promise.all([this.env.getType('CalculationMethodType'), this.env.getType('HRMInsuranceType')]).then((values) => {
+		Promise.all([this.env.getType('CalculationMethodType'), this.env.getType('HRMInsuranceType'), this.env.getType('PayrollTemplateType')]).then((values) => {
 			this.calculationMethodTypeList = values[0];
 			this.typeList = values[1];
+			this.udfTypeList = values[2];
 			this.loadedData();
 		});
 	}
@@ -60,6 +63,7 @@ export class BenefitPolicyDetailModalPage extends PageBase {
 			{ Id: 5, Code: 'Event', Name: 'Event' }, // sự kiện
 		];
 		this.formGroup = this.line;
+		console.log('UDFList: ', this.UDFList);
 		if (this.formGroup.controls.Id.value && this.formGroup.controls.Id.value != 0) {
 			let udf = this.UDFList.find((d) => d.Id == this.formGroup.controls.IDUDF.value);
 			this.formGroup.controls.ControlType.setValue(udf.ControlType);
@@ -68,17 +72,31 @@ export class BenefitPolicyDetailModalPage extends PageBase {
 		this.pageConfig.showSpinner = false;
 	}
 
-	changeUDF() {
-		let udf = this.UDFList.find((d) => d.Id == this.formGroup.controls.IDUDF.value);
-		this.formGroup.controls.ControlType.setValue(udf.ControlType);
-		this.formGroup.controls.Value.setValue(null);
+	changeUDF(e,fg) {
+		fg.get('DataType').setValue(e?.DataType);
+		fg.get('DefaultValue').setValue(e?.DefaultValue);
+		if (fg.controls.Type.value != 'Formula') {
+			fg.get('ControlType').setValue(e?.ControlType);
+		}
+		fg.get('Value').setValue(e?.DefaultValue);
+		fg.get('Value').markAsDirty();
+		fg.get('Name').setValue(e?.Name);
+		fg.get('Code').setValue(e?.Code);
+	}
+
+	changeType(e, fg, markAsDirty = true) {
+		if (e?.Code == 'Formula') {
+			fg.controls.ControlType.setValue('formula');
+		} else {
+			let udf = this.UDFList.find((u) => u.Id == fg.controls.IDUDF.value);
+			fg.controls.ControlType.setValue(udf?.ControlType);
+		}
 	}
 	dismiss() {
 		this.modalController.dismiss();
 	}
 
 	submitModal() {
-		console.log(this.formGroup.getRawValue());
 		this.modalController.dismiss(this.formGroup.getRawValue());
 	}
 }

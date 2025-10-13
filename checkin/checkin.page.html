@@ -32,6 +32,7 @@
 						<a *ngIf="i.IsValidLog && i.Gate?.IsCateringService" (click)="showLog(i)">
 							<ion-icon *ngIf="i.Gate?.IsCateringService" name="restaurant-outline"></ion-icon>&nbsp; {{i.Gate?.Name}}
 						</a>
+
 				</ng-template>
 			</datatable-column>
 		</app-data-table>

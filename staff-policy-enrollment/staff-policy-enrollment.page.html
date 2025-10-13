@@ -1,5 +1,22 @@
 <ion-header>
-	<app-toolbar [page]="this"></app-toolbar>
+	<app-toolbar [page]="this">
+		<ion-button class="clickable" title="{{'Add new' | translate}}" (click)="presentCopyPopover($event)">
+			<ion-icon name="add-circle-outline" color="success" slot="icon-only"></ion-icon>
+		</ion-button>
+		<ion-popover #addNewPopover [isOpen]="isOpenAddNewPopover" (didDismiss)="isOpenAddNewPopover = false">
+			<ng-template>
+				<ion-content scroll-y="false">
+					<ion-list lines="none">
+						<ion-item lines="full" class="clickable" *ngFor="let g of groupControl.groupList" (click)="isOpenAddNewPopover=false; addNew(g)">
+							<ion-icon aria-hidden="true" [name]="g.Icon || 'layers'" slot="start"></ion-icon>
+							<ion-label [title]="g.Id">{{g.Name | translate}}</ion-label>
+							<!-- <ion-reorder slot="end"></ion-reorder> -->
+						</ion-item>
+					</ion-list>
+				</ion-content>
+			</ng-template>
+		</ion-popover>
+	</app-toolbar>
 </ion-header>
 
 <ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">

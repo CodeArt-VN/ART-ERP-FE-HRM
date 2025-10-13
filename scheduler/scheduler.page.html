@@ -34,6 +34,7 @@
 
 			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
 
+
 			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
@@ -41,6 +42,11 @@
 				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
 			</ion-button>
 			<span class="split ion-hide-sm-down">|</span>
+
+			<ion-button *ngIf="id" (click)="calculationTimeOff()" title="{{'Calculation time off' | translate}}">
+					<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
+			</ion-button>
+
 			<ion-button *ngIf="id" (click)="massShiftAssignment()" title="{{'Mass shift allocation' | translate}}">
 				<ion-icon slot="icon-only" name="trail-sign-outline"></ion-icon>
 			</ion-button>

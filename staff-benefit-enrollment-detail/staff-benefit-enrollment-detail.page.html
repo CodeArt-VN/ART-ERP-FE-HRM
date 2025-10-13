@@ -86,7 +86,7 @@
 						</ng-template>
 					</datatable-column>
 					<ng-container *ngIf="UDFUsedList.length > 0">
-						<datatable-column *ngFor="let v of UDFUsedList" [class]="v.ControlType =='number' ? 'col-number' :'col-name' " [name]="v.Name" property="_Staff">
+						<datatable-column *ngFor="let v of UDFUsedList" [class]="v.ControlType =='number' ? 'col-number' :'col-name' " [name]="v.UDFName" property="_Staff">
 							<ng-template let-i="row" datatable-cell-template>
 								<ng-container *ngIf="i.BenefitEnrollmentConfig">
 									<span *ngIf="v.ControlType === 'number'; else textTemplate"> {{ i.BenefitEnrollmentConfig[v.Code] | number }} </span>

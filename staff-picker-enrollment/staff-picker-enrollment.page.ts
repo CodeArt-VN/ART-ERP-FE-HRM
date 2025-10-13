@@ -36,7 +36,7 @@ export class StaffPickerEnrollmentPage extends PageBase {
 	}
 
 	preLoadData() {
-		this.query.Take = 2000;
+		this.query.Take = 100;
 		Promise.all([
 			this.branchProvider.read({
 				Take: 5000,

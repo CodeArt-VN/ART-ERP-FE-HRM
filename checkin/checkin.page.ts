@@ -78,6 +78,7 @@ export class CheckinPage extends PageBase {
 			i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
 			i.Gate = this.gateList.find((d) => d.Id == i.IDGate);
 		});
+
 		super.loadedData(event, ignoredFromGroup);
 	}
 

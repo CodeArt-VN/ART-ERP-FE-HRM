@@ -87,7 +87,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 	}
 
 	exportPayrollRecords(type = null): Promise<void> {
-		let recordQuery = { IDTimesheet: this.IDTimesheet, ConfigUDFType: type, Lang: this.env.language.current };
+		let recordQuery = { IDTimesheet: this.IDTimesheet, ConfigUDFType: type, Lang: this.env.language.current, IDTimesheetCycle: this.id };
 		if (this.submitAttempt) return;
 		this.submitAttempt = true;
 		this.env
