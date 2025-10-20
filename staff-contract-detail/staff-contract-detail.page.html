@@ -237,12 +237,18 @@
 								<div *ngIf="!isCustomTemplate" [innerHtml]="formGroup.controls._ContractContent.value| safeHtml" class="ql-editor"></div>
 								<form *ngIf="isCustomTemplate" [formGroup]="formGroup" id="screenEditor">
 									<!-- Create the editor container -->
-									<div
-										#quillEditor
-										style="min-height: calc(100vh - 400px)"
-										id="editor"
-										[innerHTML]="formGroup.controls._ContractContent.value ?? '' | safeHtml"
-									></div>
+								
+									<app-input-control
+										[field]="{
+											form: formGroup,
+											type: 'editor',
+											id: '_ContractContent',
+											label: 'Template Content',
+											placeholder: 'Enter template content...'
+										}"
+										(change)="onTemplateChange($event)"
+									>
+						</app-input-control>
 								</form>
 								<div class="c-control ion-text-right">
 									<label class="c-label" for=""></label>

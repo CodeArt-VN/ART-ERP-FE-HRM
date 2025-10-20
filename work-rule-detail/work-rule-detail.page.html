@@ -70,7 +70,18 @@
 					
 						<form *ngIf="showEditorContent.ComplianceRules" [formGroup]="formGroup" id="screenEditor">
 							<!-- Create the editor container -->
-							<div #quillEditorComplianceRules style="min-height: calc(100vh - 400px)" id="quillEditorComplianceRules" [innerHTML]="item.ComplianceRules ?? '' | safeHtml"></div>
+							 <app-input-control
+							[field]="{
+								form: formGroup,
+								type: 'editor',
+								id: 'ComplianceRules',
+								label: 'Template Content',
+								placeholder: 'Enter template content...'
+							}"
+							(change)="onTemplateChange($event,'ComplianceRules')"
+						>
+						</app-input-control>
+							<!-- <div #quillEditorComplianceRules style="min-height: calc(100vh - 400px)" id="quillEditorComplianceRules" [innerHTML]="item.ComplianceRules ?? '' | safeHtml"></div> -->
 							<div class="c-control ion-text-right">
 								<label class="c-label" for=""></label>
 								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
@@ -100,7 +111,18 @@
 						
 						<form *ngIf="showEditorContent.DisciplinaryActions" [formGroup]="formGroup" id="screenEditor">
 							<!-- Create the editor container -->
-							<div #quillEditorDisciplinaryActions style="min-height: calc(100vh - 400px)" id="quillEditorDisciplinaryActions" [innerHTML]="item.DisciplinaryActions ?? '' | safeHtml"></div>
+							 	<app-input-control
+							[field]="{
+								form: formGroup,
+								type: 'editor',
+								id: 'DisciplinaryActions',
+								label: 'Template Content',
+								placeholder: 'Enter template content...'
+							}"
+							(change)="onTemplateChange($event,'DisciplinaryActions')"
+						>
+						</app-input-control>
+							<!-- <div #quillEditorDisciplinaryActions style="min-height: calc(100vh - 400px)" id="quillEditorDisciplinaryActions" [innerHTML]="item.DisciplinaryActions ?? '' | safeHtml"></div> -->
 							<div class="c-control ion-text-right">
 								<label class="c-label" for=""></label>
 								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>

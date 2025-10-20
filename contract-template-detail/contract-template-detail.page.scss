@@ -1,4 +1,4 @@
-.full-screen {
+.main-view {
 	min-height: calc(100vh - 97px);
 }
 
@@ -7,12 +7,31 @@
 	top: 0;
 	left: 0;
 	width: 100%;
-	z-index: 1000;
-	background-color: white;
+	height: 100%;
+	z-index: 9999;
+	background: white;
 	overflow: hidden;
 }
 
 .quill-container-fullscreen {
 	height: 100%;
 	overflow: auto;
+}
+
+/* Ensure proper spacing for Quill editor */
+#screenEditor {
+	margin-bottom: 20px;
+}
+
+/* Style for save button container */
+.c-control {
+	margin-top: 16px !important;
+	padding: 8px 0;
+}
+
+/* Ensure Quill editor doesn't overlap with other elements */
+.quill-editor-container {
+	min-height: 300px;
+	position: relative;
+	z-index: 1;
 }

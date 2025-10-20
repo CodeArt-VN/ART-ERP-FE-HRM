@@ -19,7 +19,6 @@ import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { InsurancePolicyDetailModalPage } from '../insurance-policy-detail/insurance-policy-detail-modal/insurance-policy-detail-modal.page';
 import { DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 
-declare var Quill: any;
 
 @Component({
 	selector: 'app-staff-contract-detail',
@@ -46,7 +45,6 @@ export class StaffContractDetailPage extends PageBase {
 	UDFGroups = [];
 	isCustomTemplate = false;
 	trackingTemplate;
-	@ViewChildren('quillEditor')  quillElement: QueryList<ElementRef>;
 	constructor(
 		public pageProvider: HRM_StaffContractProvider,
 		public staffProvider: HRM_StaffProvider,
@@ -404,158 +402,21 @@ export class StaffContractDetailPage extends PageBase {
 		return super.saveChange2();
 	}
 
-	ngAfterViewInit() {
-		this.quillElement.changes.subscribe((elements) => {
-			if (typeof elements.first !== 'undefined') {
-				this.loadQuillEditor();
-			}
-		});
+	
+	onTemplateChange(value: string) {
+		this.formGroup.get('_ContractContent')?.setValue(value);
+		this.formGroup.get('_ContractContent')?.markAsDirty();
 	}
 
-	loadQuillEditor() {
-		if (typeof Quill !== 'undefined') {
-			this.initQuill();
-		} else {
-			this.dynamicScriptLoaderService
-				.loadResources(thirdPartyLibs.quill.source)
-				.then(() => {
-					this.initQuill();
-				})
-				.catch((error) => console.error('Error loading script', error));
-		}
-	}
-	imageHandler() {
-		const imageUrl = prompt('Please enter the image URL:');
-		if (imageUrl) {
-			const range = this.editor.getSelection();
-			this.editor.insertEmbed(range.index, 'image', imageUrl);
-		}
-	}
-
-	showHtml() {
-		const editorContent = this.editor.root;
-		const isHtmlMode = /&lt;|&gt;|&amp;|&quot;|&#39;/.test(editorContent.innerHTML);
-		if (isHtmlMode) {
-			const htmlContent = editorContent.textContent || '';
-			this.editor.root.innerHTML = htmlContent;
-		} else {
-			const richTextContent = this.editor.root.innerHTML;
-			this.editor.root.textContent = richTextContent;
-		}
-
-		this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
-		if (this.editor.root.innerHTML == '<p><br></p>') {
-			this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
-		}
-		this.saveConfig();
-	}
 	edit() {
 		this.isCustomTemplate = true;
-		if (this.item?._ContractContent) {
-			this.item._ContractContent = this.item._ContractContent ?? this.editor?.root?.innerHTML ?? '';
-			this.remarkBeforeChange = this.item._ContractContent;
-		}
+		this.remarkBeforeChange = this.item._ContractContent;
 	}
+
 	preView() {
 		this.isCustomTemplate = false;
-		if (this.item?._ContractContent) {
-			this.remarkBeforeChange = this.item._ContractContent;
-			this.item._ContractContent= this.editor?.root?.innerHTML ?? '';
-		}
-	}
-	initQuill() {
-		if (typeof Quill !== 'undefined') {
-			const existingToolbar = document.querySelector('.ql-toolbar');
-			if (existingToolbar) {
-				existingToolbar.parentNode.removeChild(existingToolbar);
-			}
-			this.editor = new Quill('#editor', {
-				modules: {
-					toolbar: {
-						container: [
-							['bold', 'italic', 'underline', 'strike'], // toggled buttons
-							['blockquote', 'code-block'],
-
-							[{ header: 1 }, { header: 2 }], // custom button values
-							[{ list: 'ordered' }, { list: 'bullet' }],
-							[{ script: 'sub' }, { script: 'super' }], // superscript/subscript
-							[{ indent: '-1' }, { indent: '+1' }], // outdent/indent
-							[{ direction: 'rtl' }], // text direction
-
-							[{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
-							[{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-							[{ color: [] }, { background: [] }], // dropdown with defaults from theme
-							[{ font: [] }],
-							[{ align: [] }],
-							['image', 'code-block'],
-
-							['clean'], // remove formatting button
-							['fullscreen'],
-							['showhtml'],
-						],
-						handlers: {
-							image: this.imageHandler.bind(this),
-							// fullscreen: () => this.toggleFullscreen(),
-							showhtml: () => this.showHtml(),
-						},
-					},
-				},
-				theme: 'snow',
-				placeholder: 'Typing ...',
-			});
-
-			// Set default background color to white for the editor area
-			const editorContainer = document.querySelector('#editor .ql-editor') as HTMLElement;
-			if (editorContainer) {
-				editorContainer.style.backgroundColor = '#ffffff';
-				editorContainer.style.height = '100%';
-				editorContainer.style.width = '100%';
-				editorContainer.style.minHeight = 'calc(-400px + 100vh)';
-			}
-			const editorParent = document.querySelector('#editor') as HTMLElement;
-			if (editorParent) {
-				editorParent.style.height = '100%';
-				editorParent.style.width = '100%';
-			}
-			//choose image
-			//this.editor.getModule("toolbar").addHandler("image", this.imageHandler.bind(this));
-
-			this.editor.on('text-change', (delta, oldDelta, source) => {
-				if (typeof this.editor.root.innerHTML !== 'undefined' && this.item.Template.value !== this.editor.root.innerHTML) {
-					this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
-					this.formGroup.controls.Template.markAsDirty();
-				}
-				if (this.editor.root.innerHTML == '<p><br></p>') {
-					this.formGroup.controls.Template.setValue(null);
-				}
-			});
-
-			// icon fullscreen
-			const toolbarCustom = this.editor.getModule('toolbar');
-			const fullscreenButton = toolbarCustom.container.querySelector('button.ql-fullscreen');
-			if (fullscreenButton) {
-				const fullscreenIcon = document.createElement('ion-icon');
-				fullscreenIcon.setAttribute('name', 'resize');
-				fullscreenIcon.setAttribute('color', 'dark');
-				fullscreenButton.innerHTML = '';
-				fullscreenButton.appendChild(fullscreenIcon);
-			}
-
-			// icon show HTML
-			const showHtmlButton = toolbarCustom.container.querySelector('button.ql-showhtml');
-			if (showHtmlButton) {
-				const showHtmlIcon = document.createElement('ion-icon');
-				showHtmlIcon.setAttribute('name', 'logo-html5');
-				showHtmlIcon.setAttribute('color', 'dark');
-				showHtmlButton.innerHTML = '';
-				showHtmlButton.appendChild(showHtmlIcon);
-			}
-			const toolbar = document.querySelector('.ql-toolbar');
-			toolbar.addEventListener('mousedown', (event) => {
-				event.preventDefault();
-			});
-		}
+		this.remarkBeforeChange = this.item._ContractContent;
+		this.item._ContractContent = this.formGroup.get('_ContractContent')?.value ?? '';
 	}
 
 	editInsuranceLine(i) {

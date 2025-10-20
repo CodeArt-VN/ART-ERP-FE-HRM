@@ -461,6 +461,10 @@ export class SchedulerPage extends PageBase {
 		};
 
 		this.calendarOptions.select = (arg) => {
+			console.log('PageConfig: ',this.pageConfig);
+			if(!this.pageConfig.canEditCheckinLog){
+				return;
+			}
 			arg.end.setDate(arg.end.getDate() - 1);
 
 			this.massShiftAssignmentCheckinLog({

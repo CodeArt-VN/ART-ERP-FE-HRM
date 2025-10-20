@@ -105,15 +105,16 @@
 																	[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:g.controls.DataSource.value, bindLabel:'Name',bindValue:'Id',
 																	form : g , appendTo: '#ng-select-header', treeConfig: {searchFnDefault: true,isTree: true, isCollapsed: true}}"
 																></app-form-control>
-																<app-form-control (change)="saveConfig()" *ngIf="g.get('IDUDF').value" [field]="{id:'IsRequired', label: 'Required', type : 'checkbox', form : g }"></app-form-control>
-															
+																<app-form-control
+																	(change)="saveConfig()"
+																	*ngIf="g.get('IDUDF').value"
+																	[field]="{id:'IsRequired', label: 'Required', type : 'checkbox', form : g }"
+																></app-form-control>
 															</ion-col>
 															<ion-col size="12" size-xl="6">
 																<app-form-control [field]="{id:'Group', label: 'Group', type : 'span-text', form : g }"></app-form-control>
 																<app-form-control [field]="{id:'SubGroup', label: 'Sub group', type : 'span-text', form : g }"></app-form-control>
-																<app-form-control
-																	[field]="{id:'Code', label: 'Code', type : 'span-text', form : g }"
-																></app-form-control>
+																<app-form-control [field]="{id:'Code', label: 'Code', type : 'span-text', form : g }"></app-form-control>
 															</ion-col>
 														</ion-row>
 													</form>
@@ -140,14 +141,26 @@
 					</ion-buttons>
 				</ion-toolbar>
 				<div *ngIf="!showEditorContent && item?.Template" [innerHtml]=" item?.Template | safeHtml" class="ql-editor"></div>
-				<form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
-					<!-- Create the editor container -->
-					<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="item.Template ?? '' | safeHtml"></div>
-					<div class="c-control ion-text-right">
+				<div *ngIf="showEditorContent">
+					<form [formGroup]="formGroup" id="screenEditor">
+						<!-- Use input-control component for Quill editor -->
+						<app-input-control
+							[field]="{
+								form: formGroup,
+								type: 'editor',
+								id: 'Template',
+								label: 'Template Content',
+								placeholder: 'Enter template content...'
+							}"
+							(change)="onTemplateChange($event)"
+						>
+						</app-input-control>
+					</form>
+					<div class="c-control ion-text-right" style="margin-top: 16px;">
 						<label class="c-label" for=""></label>
 						<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
 					</div>
-				</form>
+				</div>
 			</div>
 
 			<!-- Order information -->
