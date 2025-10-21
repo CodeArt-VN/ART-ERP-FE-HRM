@@ -159,19 +159,6 @@
 								<app-form-control [field]="{id:'Remark', label:'Remark', type : 'textarea', form : formGroup }"></app-form-control>
 							</ion-col>
 						</ion-row>
-						<ion-row *ngIf="pageConfig.canEdit">
-							<ion-col>
-								<div class="c-control ion-text-right" *ngIf="!item?.Id && (pageConfig.canEdit || pageConfig.canAdd)">
-									<label class="c-label" for=""></label>
-									<ion-button (click)="saveConfig()">{{'Add' | translate}}</ion-button>
-								</div>
-								<div class="c-control ion-text-right" *ngIf="item?.Id">
-									<ion-button (click)="saveConfig()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
-									<ion-button (click)="refresh()" color="warning">{{'Change cancel' | translate}}</ion-button>
-									<ion-button *ngIf="item?.Id && pageConfig.canDelete" (click)="delete()" color="danger">{{'Delete' | translate}}</ion-button>
-								</div>
-							</ion-col>
-						</ion-row>
 					</form>
 				</ion-grid>
 			</div>
@@ -179,3 +166,11 @@
 	</div>
 	<!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
 </ion-content>
+<ion-footer>
+	<ion-toolbar>
+		<ion-button slot="end" *ngIf="!item?.Id && (pageConfig.canEdit || pageConfig.canAdd)" (click)="saveConfig()">{{'Add' | translate}}</ion-button>
+		<ion-button slot="end" *ngIf="item?.Id && pageConfig.canEdit" (click)="saveConfig()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
+		<ion-button slot="end" *ngIf="item?.Id && pageConfig.canEdit" (click)="refresh()" color="warning">{{'Change cancel' | translate}}</ion-button>
+		<ion-button slot="end" *ngIf="item?.Id && pageConfig.canEdit && pageConfig.canDelete" (click)="delete()" color="danger">{{'Delete' | translate}}</ion-button>
+	</ion-toolbar>
+</ion-footer>
