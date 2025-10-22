@@ -1,7 +1,7 @@
 <ion-header>
 	<app-toolbar [page]="this"></app-toolbar>
 </ion-header>	
-<ion-content appScrollbarTheme class="header-table" *ngIf="!pageConfig.showSpinner">
+<ion-content appScrollbarTheme class="left scrollx" forceOverscroll="false" *ngIf="!pageConfig.showSpinner">
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 	<div class="safe-max-width">
 		<app-data-table

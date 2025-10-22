@@ -1,3 +1,46 @@
-.icon-30 {
-	width: 30px;
+@media screen and (max-width: 1164px) {
+	::ng-deep {
+		datatable-body-cell.cell.col-name.cell ion-avatar {
+			height: calc(10 / 16 * 4rem);
+			width: calc(10 / 16 * 4rem);
+			margin-right: 8px;
+		}
+
+		datatable-body-cell.cell.col-custom {
+			order: 8;
+			min-width: calc(100% + 100px) !important;
+			font-size: 90%;
+			justify-content: flex-start !important;
+		}
+
+		.sp-custom {
+			display: block !important;
+		}
+
+		app-data-table .col-name,
+		.table .col-name {
+			min-width: calc(100% + 100px) !important;
+		}
+
+	}
+}
+
+::ng-deep {
+	datatable-body-cell.cell.col-custom {
+		max-width: 250px;
+	}
+
+	datatable-header-cell.cell.col-custom {
+		max-width: 250px;
+	}
+
+	.sp-custom {
+		display: none;
+	}
+
+	.col-name.cell ion-avatar {
+		height: calc(10 / 16 * 4rem);
+		width: calc(10 / 16 * 4rem);
+		margin-right: 8px;
+	}
 }
