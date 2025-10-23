@@ -32,7 +32,7 @@ export class StaffTimeOffRequestPage extends PageBase {
 	statusList = [];
 
 	preLoadData(event?: any): void {
-		let sysConfigQuery = ['POUsedApprovalModule'];
+		let sysConfigQuery = ['TimeOffUsedApprovalModule'];
 		let sorted: SortConfig[] = [{ Dimension: 'Id', Order: 'DESC' }];
 		this.pageConfig.sort = sorted;
 		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.sysConfigProvider.read({ Code_in: sysConfigQuery, IDBranch: this.env.selectedBranch })]).then((values: any) => {
@@ -60,7 +60,7 @@ export class StaffTimeOffRequestPage extends PageBase {
 				i._ReplacementStaff.Email = i._ReplacementStaff.Email ? i._ReplacementStaff.Email.replace(environment.loginEmail, '') : '';
 			}
 		});
-		if (this.pageConfig['POUsedApprovalModule']) {
+		if (this.pageConfig['TimeOffUsedApprovalModule']) {
 			this.pageConfig['canApprove'] = false;
 		}
 		super.loadedData(event);
