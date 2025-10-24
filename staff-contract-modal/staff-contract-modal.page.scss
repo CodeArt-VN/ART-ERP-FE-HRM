@@ -1,0 +1,13 @@
+.full-screen {
+	min-height: calc(100vh - 97px);
+}
+
+
+.ion-accordion-bg{
+	background-color: transparent;
+}
+.header-ion-accordion{
+	padding: 8px 0 8px 5px;
+	border-bottom: solid 1px var(--menu-right-border-color);
+    margin-bottom: 16px;
+}

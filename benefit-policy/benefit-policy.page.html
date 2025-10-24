@@ -24,7 +24,19 @@
 			<datatable-column class="col-name" name="Name" property="Name"></datatable-column>
 			<datatable-column class="col-number" name="Value" property="Value"></datatable-column>
 			<datatable-column class="col-remark" name="Remark" property="Remark"></datatable-column>
-			<datatable-column class="col-status" name="Status" property="Status"></datatable-column>
+			<datatable-column
+				class="col-status"
+				name="Status"
+				property="Status"
+				filterControlType="ng-select"
+				[filterDataSource]="statusList"
+				filterBindValue="Code"
+				filterBindLabel="Name"
+			>
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-badge [color]="i.StatusColor" [title]="i.StatusText"> {{i.StatusText | translate}} </ion-badge>
+				</ng-template>
+			</datatable-column>
 		</app-data-table>
 	</div>
 

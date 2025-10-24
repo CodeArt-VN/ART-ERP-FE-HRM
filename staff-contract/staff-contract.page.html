@@ -1,6 +1,12 @@
 <ion-header>
-	<app-toolbar [page]="this"></app-toolbar>
+	<app-toolbar [page]="this">
+		<ion-button *ngIf="pageConfig.canAdd" (click)="showStaffPickerModal()" title="{{'Add list staff contract' | translate}}">
+			<ion-icon slot="icon-only" name="person-add-outline"></ion-icon>
+		</ion-button>
+	</app-toolbar>
 </ion-header>
+
+
 <ion-content appScrollbarTheme class="header-table">
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
