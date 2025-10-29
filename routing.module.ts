@@ -117,7 +117,11 @@ export const HRMRoutes: Routes = [
 
     { path: 'staff-time-off-request', loadChildren: () => import('./staff-time-off-request/staff-time-off-request.module').then(m => m.StaffTimeOffRequestPageModule), canActivate: [AuthGuard] },
     { path: 'staff-time-off-request/:id', loadChildren: () => import('./staff-time-off-request-detail/staff-time-off-request-detail.module').then(m => m.StaffTimeOffRequestDetailPageModule), canActivate: [AuthGuard] },
+    
     { path: 'staff-policy-enrollment', loadChildren: () => import('./staff-policy-enrollment/staff-policy-enrollment.module').then(m => m.StaffPolicyEnrollmentPageModule), canActivate: [AuthGuard] },
     { path: 'staff-policy-enrollment/:id', loadChildren: () => import('./staff-policy-enrollment-detail/staff-policy-enrollment-detail.module').then(m => m.StaffPolicyEnrollmentDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'leave-statistics', loadChildren: () => import('./leave-statistics/leave-statistics.module').then(m => m.LeaveStatisticsPageModule), canActivate: [AuthGuard] },
+    
 ];
 

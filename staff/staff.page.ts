@@ -457,45 +457,4 @@ export class StaffPage extends PageBase {
 		}
 	}
 
-	exportLeaveBalance() {
-		let apiPath = {
-			getExport: {
-				method: 'DOWNLOAD',
-				url: function () {
-					return ApiSetting.apiDomain('HRM/Staff/ExportLeaveBalance/');
-				},
-			},
-		};
-
-		this.loadingController
-			.create({
-				cssClass: 'my-custom-class',
-				message: 'Please wait for a few moments',
-			})
-			.then((loading) => {
-				loading.present();
-				const currentYear = new Date().getFullYear();
-				const exportFilter = {
-					FromDate: `${currentYear}-01-01`,
-					ToDate: `${currentYear}-12-31`
-				};
-				this.commonService
-					.export(apiPath, exportFilter)
-					.then((response: any) => {
-						this.submitAttempt = false;
-						if (loading) loading.dismiss();
-						this.downloadURLContent(response);
-					})
-					.catch((err) => {
-						if (err.message != null) {
-							this.env.showMessage(err.message, 'danger');
-						} else {
-							this.env.showMessage('Cannot extract data', 'danger');
-						}
-						this.submitAttempt = false;
-						if (loading) loading.dismiss();
-						this.refresh();
-					});
-			});
-	}
 }
