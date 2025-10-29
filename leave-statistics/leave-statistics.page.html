@@ -17,7 +17,7 @@
 					<a [routerLink]="['/staff/'+i.Id]">{{i.Id}}</a>
 				</ng-template>
 			</datatable-column>
-			<datatable-column class="col-name" name="FullName" property="FullName">
+			<datatable-column class="col-name" name="Full name" property="FullName">
 				<ng-template let-i="row" datatable-cell-template>
 					<div (click)="nav('staff/'+i.Id,'forward')" class="col-name cell">
 						<ion-avatar class="avatar" slot="start">
