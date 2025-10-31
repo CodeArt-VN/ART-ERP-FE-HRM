@@ -67,6 +67,12 @@
 					<span>{{ i.LeaveDaysUsed | number:'1.0-2' }}</span>
 				</ng-template>
 			</datatable-column>
+			<datatable-column class="col-custom bold" name="Years worked" property="YearsWorked">
+				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Years worked' | translate}}:&nbsp;</span>
+					<span>{{ i.YearsWorked | number:'1.0-2' }}</span>
+				</ng-template>
+			</datatable-column>
 			<datatable-column class="col-custom bold" name="Leave days seniority" property="LeaveDaysSeniority">
 				<ng-template let-i="row" datatable-cell-template>
 					<span class="sp-custom">{{'Leave days seniority' | translate}}:&nbsp;</span>
