@@ -5,10 +5,8 @@ import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
 import { BRA_BranchProvider, HRM_StaffProvider } from 'src/app/services/static/services.service';
 import { environment } from 'src/environments/environment';
-import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal/advance-filter-modal.component';
 import { CommonService } from 'src/app/services/core/common.service';
 import { ApiSetting } from 'src/app/services/static/api-setting';
-import { lib } from 'src/app/services/static/global-functions';
 
 @Component({
 	selector: 'app-leave-statistics',
@@ -107,13 +105,8 @@ export class LeaveStatisticsPage extends PageBase {
 			})
 			.then((loading) => {
 				loading.present();
-				const currentYear = new Date().getFullYear();
-				const exportFilter = {
-					FromDate: `${currentYear}-01-01`,
-					ToDate: `${currentYear}-12-31`
-				};
 				this.commonService
-					.export(apiPath, exportFilter)
+					.export(apiPath, this.query)
 					.then((response: any) => {
 						this.submitAttempt = false;
 						if (loading) loading.dismiss();
