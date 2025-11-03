@@ -19,7 +19,6 @@ import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { InsurancePolicyDetailModalPage } from '../insurance-policy-detail/insurance-policy-detail-modal/insurance-policy-detail-modal.page';
 import { DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 
-
 @Component({
 	selector: 'app-staff-contract-detail',
 	templateUrl: './staff-contract-detail.page.html',
@@ -41,10 +40,11 @@ export class StaffContractDetailPage extends PageBase {
 	contractValue: any;
 	insuranceList = [];
 	polBefitUFLList = [];
-	arrayUDFGroup =[];
+	arrayUDFGroup = [];
 	UDFGroups = [];
 	isCustomTemplate = false;
 	trackingTemplate;
+	UDFValue = [];
 	constructor(
 		public pageProvider: HRM_StaffContractProvider,
 		public staffProvider: HRM_StaffProvider,
@@ -71,7 +71,7 @@ export class StaffContractDetailPage extends PageBase {
 		this.formGroup = formBuilder.group({
 			Id: new FormControl({ value: '', disabled: true }),
 			Code: [''],
-			Name: ['', Validators.required],
+			Name: [''],
 			Remark: [''],
 			Sort: [''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
@@ -101,7 +101,7 @@ export class StaffContractDetailPage extends PageBase {
 				Remark: [],
 			}),
 			PolBenefit: this.formBuilder.array([]),
-			UDFConfig:  this.formBuilder.group({}), // From config of Contact template
+			UDFConfig: this.formBuilder.group({}), // From config of Contact template
 			_ContractContent: [],
 		});
 	}
@@ -118,7 +118,7 @@ export class StaffContractDetailPage extends PageBase {
 			this.env.getType('HRPolicyTaxType'),
 			this.env.getType('CalculationMethodType'),
 			this.env.getType('HRMInsuranceType'),
-			this.hrmUDF.read(),//{ Group: 'Benefits' }
+			this.hrmUDF.read({ Take: 1000 }), //{ Group: 'Benefits' }
 			this.env.getType('HRMEffectiveTimeType'),
 			this.env.getType('UDFGroupsType', true),
 		]).then((res: any) => {
@@ -130,7 +130,7 @@ export class StaffContractDetailPage extends PageBase {
 			this.insuranceTypeList = res[5];
 			this.UDFList = res[6].data;
 			this.HRMEffectiveTimeTypeList = res[7];
-			this.UDFGroups= res[8]
+			this.UDFGroups = res[8];
 			super.preLoadData(event);
 		});
 	}
@@ -148,20 +148,29 @@ export class StaffContractDetailPage extends PageBase {
 			if (this.item._Contractor) {
 				this.staffDataSource.selected.push(this.item._Contractor);
 			}
-			
-		
-			if (this.item._ContractTemplate?.Template) {
-				this.formGroup.controls._ContractContent.patchValue(this.item._ContractTemplate?.Template);
-			}
+
 			this.patchConfigValue();
-		
+			if (this.item._ContractTemplate?.Template) {
+				this.UDFValue.push(this.item._Staff);
+				var content = this.replacePlaceholders(this.item._ContractTemplate?.Template, this.UDFValue);
+				this.formGroup.controls._ContractContent.patchValue(content);
+			}
+
 			this.trackingTemplate = this.item.IDContractTemplate;
 		}
 		this.staffDataSource.initSearch();
-		
 	}
 
-	patchConfigValue(){
+	replacePlaceholders(content: string, data: any): string {
+		const flatData =  Array.isArray(data) ? Object.assign({}, ...data) :data;
+		
+		return content.replace(/\[([^\]]+)\]/g, (match, fieldName) => {
+			console.log("fieldName:", fieldName, "=>", flatData[fieldName]);
+			return flatData[fieldName] !== undefined && flatData[fieldName] !== null ? flatData[fieldName] : match; // nếu không có dữ liệu thì giữ nguyên [FieldName]
+		});
+	}
+
+	patchConfigValue() {
 		if (this.item.ContractValue) {
 			let value = JSON.parse(this.item.ContractValue);
 			this.contractValue = value;
@@ -172,16 +181,15 @@ export class StaffContractDetailPage extends PageBase {
 		this.patchPolInsurance();
 		this.patchUDFConfig();
 	}
-	patchPolInsurance(){
+	patchPolInsurance() {
 		let groups = <FormArray>this.formGroup.controls.PolInsurance;
 		groups.clear();
 		if (this.item.PolInsuranceDetail?.Lines) this.insuranceList = this.item.PolInsuranceDetail.Lines;
 		let values = [];
-		if(this.item.ContractValue){
+		if (this.item.ContractValue) {
 			values = JSON.parse(this.item.ContractValue)?.PolInsurance;
 			this.insuranceList = values;
-		}
-		else values = this.insuranceList;
+		} else values = this.insuranceList;
 		values.forEach((i) => {
 			let group = this.formBuilder.group({
 				Id: new FormControl({ value: i.Id, disabled: true }),
@@ -193,20 +201,19 @@ export class StaffContractDetailPage extends PageBase {
 			});
 			groups.push(group);
 		});
-
 	}
-	patchPolBenefit(){
+	patchPolBenefit() {
 		let groups = <FormArray>this.formGroup.controls.PolBenefit;
 		groups.clear();
 		if (this.item.PolBenefitDetails?.Lines) {
 			this.polBefitUFLList = this.item.PolBenefitDetails?.Lines;
 		}
-		if(this.polBefitUFLList.length > 0){
+		if (this.polBefitUFLList.length > 0) {
 			let values = [];
-			if(this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.PolBenefit;
+			if (this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.PolBenefit;
 
 			this.polBefitUFLList.forEach((line) => {
-				if(values.find(d=> d.IDUDF == line.IDUDF)) line = values.find(d=> d.IDUDF == line.IDUDF);
+				if (values.find((d) => d.IDUDF == line.IDUDF)) line = values.find((d) => d.IDUDF == line.IDUDF);
 				const group = this.formBuilder.group({
 					IDUDF: [line.IDUDF],
 					Code: [this.UDFList.find((d) => d.Id == line.IDUDF).Code],
@@ -214,33 +221,33 @@ export class StaffContractDetailPage extends PageBase {
 					Value: [line.Value],
 					ControlType: [this.UDFList.find((d) => d.Id === line.IDUDF)?.ControlType],
 				});
+				this.UDFValue.push({ [this.UDFList.find((d) => d.Id == line.IDUDF).Code]: line.Value });
 				group.addControl(this.UDFList.find((d) => d.Id == line.IDUDF).Code, new FormControl(line.Value));
 				(this.formGroup.controls.PolBenefit as FormArray).push(group);
 			});
-		
 		}
 	}
 
-	patchUDFConfig(config = null){
+	patchUDFConfig(config = null) {
 		let group = new FormGroup({});
 		(this.formGroup.controls as any).UDFConfig = group;
-		
-		if(this.item._ContractTemplate?.Config){
+
+		if (this.item._ContractTemplate?.Config) {
 			let values = [];
 			let udfConfigList = JSON.parse(this.item._ContractTemplate.Config) || [];
-			udfConfigList = udfConfigList.filter(u=> !this.polBefitUFLList.map(s=> s.IDUDF).includes(u.IDUDF));
-			if(this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.UDFConfig || [];
+			udfConfigList = udfConfigList.filter((u) => !this.polBefitUFLList.map((s) => s.IDUDF).includes(u.IDUDF));
+			if (this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.UDFConfig || [];
 			udfConfigList.forEach((i) => {
-				let UDF = this.UDFList.find(d=> d.Id == i.IDUDF);
-				let value = values.find(d => d.IDUDF == i.IDUDF);
+				let UDF = this.UDFList.find((d) => d.Id == i.IDUDF);
+				let value = values.find((d) => d.IDUDF == i.IDUDF);
 				if (UDF) {
-
 					let control: any = new FormControl(value?.Value ?? '', i?.IsRequired ? Validators.required : null);
 					control.IDUDF = UDF.Id;
 					group.addControl(UDF.Code, control);
+					this.UDFValue.push({ [UDF.Code]: value?.Value ?? '' });
 				}
 			});
-			this.arrayUDFGroup = this.UDFList.filter(u=>udfConfigList.map(s=> s.IDUDF).includes(u.Id)).reduce((acc, item) => {
+			this.arrayUDFGroup = this.UDFList.filter((u) => udfConfigList.map((s) => s.IDUDF).includes(u.Id)).reduce((acc, item) => {
 				let code = item.Group || 'No Group';
 				let subGroup = item.SubGroup || 'No SubGroup';
 				let groupName = this.UDFGroups.find((d) => d.Code == item.Group)?.Name || code;
@@ -250,7 +257,7 @@ export class StaffContractDetailPage extends PageBase {
 					groupItem = { Code: code, SubGroups: [], Name: groupName };
 					acc.push(groupItem);
 				}
-	
+
 				// Find or create the subGroup inside the group
 				let subGroupItem = groupItem.SubGroups.find((sg) => sg.Code === subGroup);
 				let subName = this.UDFGroups.find((d) => d.Code == subGroup)?.Name || subGroup;
@@ -264,7 +271,6 @@ export class StaffContractDetailPage extends PageBase {
 				return acc;
 			}, []);
 		}
-	
 	}
 
 	loadPolicies(event) {
@@ -340,7 +346,7 @@ export class StaffContractDetailPage extends PageBase {
 		}
 	}
 
-	saveContractContent(){
+	saveContractContent() {
 		this.formGroup.controls.Template.setValue(this.formGroup.controls._ContractContent.value);
 		this.formGroup.controls.isCustomTemplate.setValue(true);
 		this.formGroup.controls.isCustomTemplate.markAsDirty();
@@ -361,7 +367,6 @@ export class StaffContractDetailPage extends PageBase {
 			};
 		});
 
-		
 		let udfConfig = [];
 		let group = this.formGroup.get('UDFConfig') as FormGroup;
 		Object.keys(group['controls']).forEach((d) => {
@@ -402,7 +407,6 @@ export class StaffContractDetailPage extends PageBase {
 		return super.saveChange2();
 	}
 
-	
 	onTemplateChange(value: string) {
 		this.formGroup.get('_ContractContent')?.setValue(value);
 		this.formGroup.get('_ContractContent')?.markAsDirty();

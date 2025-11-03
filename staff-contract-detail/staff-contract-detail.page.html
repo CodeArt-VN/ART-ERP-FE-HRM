@@ -20,7 +20,7 @@
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control [field]="{id: 'Code', label: 'Contract code', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
-						<app-form-control [field]="{id: 'Name', label: 'Contract name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
+						<!-- <app-form-control [field]="{id: 'Name', label: 'Contract name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control> -->
 						<app-form-control
 							[field]="{id: 'IDStaff', label: 'Staff', type: 'ng-select-staff', dataSource: staffDataSource, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
 							(change)="saveChange()"
@@ -237,7 +237,6 @@
 								<div *ngIf="!isCustomTemplate" [innerHtml]="formGroup.controls._ContractContent.value| safeHtml" class="ql-editor"></div>
 								<form *ngIf="isCustomTemplate" [formGroup]="formGroup" id="screenEditor">
 									<!-- Create the editor container -->
-								
 									<app-input-control
 										[field]="{
 											form: formGroup,
@@ -248,9 +247,10 @@
 										}"
 										(change)="onTemplateChange($event)"
 									>
-						</app-input-control>
+									</app-input-control>
+									
 								</form>
-								<div class="c-control ion-text-right">
+								<div class="c-control ion-text-right" *ngIf="pageConfig.canEdit && isCustomTemplate">
 									<label class="c-label" for=""></label>
 									<ion-button (click)="saveContractContent()">{{'Save' | translate}}</ion-button>
 								</div>
@@ -263,7 +263,11 @@
 			<div *ngIf="segmentView == 's3'">
 				<ion-row *ngIf="formGroup.controls.PolEmployee.controls.Id.value" class="hr-group">
 					<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="12">
-						<div *ngIf="formGroup.controls.PolEmployee?.controls.Remark?.value"[innerHtml]="formGroup.controls.PolEmployee?.controls.Remark | safeHtml" class="ql-editor"></div>
+						<div
+							*ngIf="formGroup.controls.PolEmployee?.controls.Remark?.value"
+							[innerHtml]="formGroup.controls.PolEmployee?.controls.Remark | safeHtml"
+							class="ql-editor"
+						></div>
 						<!-- <form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
 							<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="contractValue?.PolEmployee?.Remark ?? '' | safeHtml"></div>
 							<div class="c-control ion-text-right">

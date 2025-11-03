@@ -26,7 +26,7 @@
 						[field]="{id: 'IDStaffList', label: 'Staff', type: 'ng-select-staff', dataSource: staffDataSource, bindLabel:'Name' , bindValue:'Id', multiple:true,form: formGroup , appendTo: '#ng-select-modal'}"></app-form-control>
 					<app-form-control
 						[field]="{id: 'IDContractTemplate', label: 'Contract template', type: 'ng-select', dataSource: contractTemplateList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
-						(change)="changeTemplate($event)"></app-form-control>
+						(change)="saveChange()"></app-form-control>
 					<app-form-control
 						[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel:'Name' , bindValue:'Code', form: formGroup , appendTo: '#ng-select-header'}"
 						(change)="saveChange()"></app-form-control>

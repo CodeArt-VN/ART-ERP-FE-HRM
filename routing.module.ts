@@ -123,5 +123,7 @@ export const HRMRoutes: Routes = [
 
     { path: 'leave-statistics', loadChildren: () => import('./leave-statistics/leave-statistics.module').then(m => m.LeaveStatisticsPageModule), canActivate: [AuthGuard] },
     
+
+ 
 ];
 

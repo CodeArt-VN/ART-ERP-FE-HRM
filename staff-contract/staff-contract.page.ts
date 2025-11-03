@@ -75,7 +75,9 @@ export class StaffContractPage extends PageBase {
 
 			await modal.present();
 			await modal.onWillDismiss();
-			
 		}
+	}
+	add() {
+		this.showStaffPickerModal();
 	}
 }
