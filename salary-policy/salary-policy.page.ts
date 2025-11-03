@@ -14,6 +14,7 @@ import { HRM_PolSalaryProvider } from 'src/app/services/static/services.service'
 	standalone: false,
 })
 export class SalaryPolicyPage extends PageBase {
+	statusList = [];
 	constructor(
 		public pageProvider: HRM_PolSalaryProvider,
 		public modalController: ModalController,
@@ -27,5 +28,23 @@ export class SalaryPolicyPage extends PageBase {
 		public location: Location
 	) {
 		super();
+	}
+
+	preLoadData(event?: any): void {
+		Promise.all([]).then((values: any) => {
+			super.preLoadData(event);
+		});
+		Promise.all([this.env.getStatus('StandardApprovalStatus')]).then((res) => {
+			this.statusList = res[0];
+			super.preLoadData(event);
+		});
+	}
+
+	loadedData(event) {
+		this.items.forEach((i) => {
+			i.StatusText = lib.getAttrib(i.Status, this.statusList, 'Name', '--', 'Code');
+			i.StatusColor = lib.getAttrib(i.Status, this.statusList, 'Color', 'dark', 'Code');
+		});
+		super.loadedData(event);
 	}
 }

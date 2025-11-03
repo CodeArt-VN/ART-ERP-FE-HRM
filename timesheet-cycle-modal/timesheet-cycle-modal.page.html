@@ -91,14 +91,12 @@
 					</div>
 				</ion-col>
 			</ion-row>
-			<ion-row>
-				<ion-col>
-					<div class="c-control ion-text-right">
-						<ion-button color='danger'(click)="delete()">{{'Delete' | translate}}</ion-button>
-						<ion-button (click)="submitForm()">{{'Save' | translate}}</ion-button>
-					</div>
-				</ion-col>
-			</ion-row>
 		</ion-grid>
 	</form>
 </ion-content>
+<ion-footer>
+	<ion-toolbar>
+		<ion-button slot="end" color='danger'(click)="delete()">{{'Delete' | translate}}</ion-button>
+		<ion-button slot="end" (click)="submitForm()">{{'Save' | translate}}</ion-button>
+	</ion-toolbar>
+</ion-footer>

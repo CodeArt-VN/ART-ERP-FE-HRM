@@ -18,7 +18,7 @@
 		</ion-popover>
 	</app-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme forceOverscroll="false">
+<ion-content appScrollbarTheme class="left scrollx" forceOverscroll="false">
 	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
 		<ion-refresher-content></ion-refresher-content>
 	</ion-refresher>
@@ -41,19 +41,22 @@
 		>
 			<datatable-column [checkbox]="true" name=""></datatable-column>
 			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
-			<datatable-column class="col-staff" name="Requester" property="Id">
+			<datatable-column class="col-name" name="Requester" property="Id">
 				<ng-template let-i="row" datatable-cell-template>
 					<ion-avatar *ngIf="i._Requester" class="avatar" slot="start" [title]="i._Requester.FullName">
 						<ion-img #img [src]="imgPath + i._Requester.Code + '.jpg'" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
 					</ion-avatar>
-					<span *ngIf="i._Requester">&nbsp;{{i._Requester.FullName}}</span>
+					<div *ngIf="i._Requester">
+						<span class="bold">{{i._Requester.FullName}}</span>
+					</div>
 				</ng-template>
 			</datatable-column>
 			<datatable-column class="col-date" format="yyyy-MM-dd" name="Effective date" property="DecisionEffectiveDate" filterControlType="date"></datatable-column>
 			<datatable-column class="col-date" format="yyyy-MM-dd" name="Sign date" property="DecisionSignDate" filterControlType="date"></datatable-column>
 			<datatable-column class="col-name" name="Name" property="Name"></datatable-column>
-			<datatable-column class="col-name" name="Employee policy" property="Id">
+			<datatable-column class="col-custom" name="Employee policy" property="Id">
 				<ng-template let-i="row" datatable-cell-template>
+					<span class="sp-custom">{{'Employee policy' | translate}}:&nbsp;</span>
 					<span *ngIf="i._PolEmployee">{{i._PolEmployee.Name}}</span>
 				</ng-template>
 			</datatable-column>

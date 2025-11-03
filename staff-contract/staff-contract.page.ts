@@ -4,9 +4,12 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { BRA_BranchProvider, HRM_StaffContractProvider, SYS_ActionProvider, SYS_IntegrationProviderProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
-import { SortConfig } from 'src/app/interfaces/options-interface';
+import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { environment } from 'src/environments/environment';
 import { lib } from 'src/app/services/static/global-functions';
+import { StaffPickerEnrollmentPage } from '../staff-picker-enrollment/staff-picker-enrollment.page';
+import { StaffContractModalPage } from '../staff-contract-modal/staff-contract-modal.page';
+
 @Component({
 	selector: 'app-staff-contract',
 	templateUrl: 'staff-contract.page.html',
@@ -45,5 +48,36 @@ export class StaffContractPage extends PageBase {
 			i.StatusColor = lib.getAttrib(i.Status, this.statusList, 'Color', 'dark', 'Code');
 		});
 		super.loadedData(event);
+	}
+
+	async showStaffPickerModal() {
+		const modalStaff = await this.modalController.create({
+			component: StaffPickerPage,
+			componentProps: {
+				id: this.id,
+			},
+			cssClass: 'modal90',
+		});
+
+		await modalStaff.present();
+		const { data } = await modalStaff.onWillDismiss();
+
+		if (data && data.length) {
+			const modal = await this.modalController.create({
+				component: StaffContractModalPage,
+				backdropDismiss: false,
+				cssClass: 'modal90',
+				componentProps: {
+					Id: this.id,
+					Items: data,
+				},
+			});
+
+			await modal.present();
+			await modal.onWillDismiss();
+		}
+	}
+	add() {
+		this.showStaffPickerModal();
 	}
 }

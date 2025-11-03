@@ -461,6 +461,10 @@ export class SchedulerPage extends PageBase {
 		};
 
 		this.calendarOptions.select = (arg) => {
+			console.log('PageConfig: ', this.pageConfig);
+			if (!this.pageConfig.canEditCheckinLog) {
+				return;
+			}
 			arg.end.setDate(arg.end.getDate() - 1);
 
 			this.massShiftAssignmentCheckinLog({
@@ -639,17 +643,20 @@ export class SchedulerPage extends PageBase {
 				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
 				if (toType) {
 					// e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
-					// e.resourceId = e.IDStaff;
 					// e.Title = e.TimeOffType;
-					// e.start = e.WorkingDate;
 					// e.Badge = '';
 					// e.html = `<span class="v-align-middle">${e.Title}</span>`;
 					// e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+					e.start = e.WorkingDate;
+					e.resourceId = e.IDStaff;
 					e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
 					e.Icon = 'alert-circle-outline';
 					e.Title = `${e.TimeOffType}`;
 					e.Badge = `${point}`;
+					e.WorkingDate = lib.dateFormat(e.WorkingDate, 'dd/mm/yyyy');
 					e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+					e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
+					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
 				} else {
 					console.log(e);
 				}

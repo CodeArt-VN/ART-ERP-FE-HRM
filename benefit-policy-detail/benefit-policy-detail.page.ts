@@ -185,7 +185,7 @@ export class BenefitPolicyDetailPage extends PageBase {
 			Type: [line.Type, Validators.required],
 			IsHidden: [line.IsHidden],
 			IsLock: [line.IsLock],
-			Sort: 1,
+			Sort: [line.Sort],
 			DefaultValue: new FormControl({ value: udf?.DefaultValue, disabled: true }),
 			IsDisabled: new FormControl({
 				value: line.IsDisabled,
@@ -295,6 +295,21 @@ export class BenefitPolicyDetailPage extends PageBase {
 		} else {
 			let udf = this.UDFList.find((u) => u.Id == fg.controls.IDUDF.value);
 			fg.controls.ControlType.setValue(udf?.ControlType);
+		}
+		this.saveChange2();
+	}
+
+	public isDisabled = true;
+
+	toggleReorder() {
+		this.isDisabled = !this.isDisabled;
+	}
+	doReorder(ev, groups) {
+		groups = ev.detail.complete(groups);
+		for (let i = 0; i < groups.length; i++) {
+			const g = groups[i];
+			g.controls.Sort.setValue(i + 1);
+			g.controls.Sort.markAsDirty();
 		}
 		this.saveChange2();
 	}

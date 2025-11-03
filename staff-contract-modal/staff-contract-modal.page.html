@@ -1,0 +1,54 @@
+<ion-header>
+	<ion-toolbar class="no-padding">
+		<ion-title>{{'Staff contract' | translate}}</ion-title>
+		<ion-buttons slot="end">
+			<ion-button title="{{'Close' | translate}}" (click)="closeModal()">
+				<ion-icon slot="icon-only" name="close"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+
+	<ion-grid fixed>
+		<form [formGroup]="formGroup">
+			<ion-row class="hr-group">
+				<ion-col size-xs="12" size-sm="12" size-md="12" size-lg="12" size-xl="3">
+					<ion-list-header class="ion-no-padding">
+						<ion-label color="primary">{{'Staff contract' | translate}}</ion-label>
+					</ion-list-header>
+				</ion-col>
+				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+					<app-form-control
+						[field]="{id: 'IDStaffList', label: 'Staff', type: 'ng-select-staff', dataSource: staffDataSource, bindLabel:'Name' , bindValue:'Id', multiple:true,form: formGroup , appendTo: '#ng-select-modal'}"></app-form-control>
+					<app-form-control
+						[field]="{id: 'IDContractTemplate', label: 'Contract template', type: 'ng-select', dataSource: contractTemplateList, bindLabel:'Name' , bindValue:'Id', form: formGroup , appendTo: '#ng-select-header'}"
+						(change)="saveChange()"></app-form-control>
+					<app-form-control
+						[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel:'Name' , bindValue:'Code', form: formGroup , appendTo: '#ng-select-header'}"
+						(change)="saveChange()"></app-form-control>
+				</ion-col>
+				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
+					<app-form-control (change)="saveChange()"
+						[field]="{id: 'ApplyType', label: 'Apply type', type: 'ng-select-status', dataSource: HRMEffectiveTimeTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo: '#ng-select-header'}">
+					</app-form-control>
+					<app-form-control (change)="saveChange()"
+						[field]="{id: 'ContractType', label: 'Contract type', type: 'ng-select-status', dataSource: contractTypeList, bindLabel: 'Name', bindValue: 'Code', form: formGroup,appendTo: '#ng-select-header'}">
+					</app-form-control>
+					<app-form-control
+						[field]="{id: 'EffectiveDate', label: 'Effective date', type: 'datetime-local', form: formGroup }"
+						(change)="saveChange()"></app-form-control>
+					<app-form-control
+						[field]="{id: 'EndDate', label: 'End date', type: 'datetime-local',form: formGroup }"
+						(change)="saveChange()"></app-form-control>
+					<app-form-control
+						[field]="{id: 'ContractDate', label: 'Contract date', type: 'datetime-local',form: formGroup }"
+						(change)="saveChange()"></app-form-control>
+				</ion-col>
+			</ion-row>
+		</form>
+	</ion-grid>
+</ion-content>

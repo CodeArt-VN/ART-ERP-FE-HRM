@@ -19,8 +19,6 @@ import { thirdPartyLibs } from 'src/app/services/static/thirdPartyLibs';
 import { InsurancePolicyDetailModalPage } from '../insurance-policy-detail/insurance-policy-detail-modal/insurance-policy-detail-modal.page';
 import { DynamicScriptLoaderService } from 'src/app/services/custom/custom.service';
 
-declare var Quill: any;
-
 @Component({
 	selector: 'app-staff-contract-detail',
 	templateUrl: './staff-contract-detail.page.html',
@@ -42,11 +40,11 @@ export class StaffContractDetailPage extends PageBase {
 	contractValue: any;
 	insuranceList = [];
 	polBefitUFLList = [];
-	arrayUDFGroup =[];
+	arrayUDFGroup = [];
 	UDFGroups = [];
 	isCustomTemplate = false;
 	trackingTemplate;
-	@ViewChildren('quillEditor')  quillElement: QueryList<ElementRef>;
+	UDFValue = [];
 	constructor(
 		public pageProvider: HRM_StaffContractProvider,
 		public staffProvider: HRM_StaffProvider,
@@ -73,7 +71,7 @@ export class StaffContractDetailPage extends PageBase {
 		this.formGroup = formBuilder.group({
 			Id: new FormControl({ value: '', disabled: true }),
 			Code: [''],
-			Name: ['', Validators.required],
+			Name: [''],
 			Remark: [''],
 			Sort: [''],
 			IsDisabled: new FormControl({ value: '', disabled: true }),
@@ -103,7 +101,7 @@ export class StaffContractDetailPage extends PageBase {
 				Remark: [],
 			}),
 			PolBenefit: this.formBuilder.array([]),
-			UDFConfig:  this.formBuilder.group({}), // From config of Contact template
+			UDFConfig: this.formBuilder.group({}), // From config of Contact template
 			_ContractContent: [],
 		});
 	}
@@ -120,7 +118,7 @@ export class StaffContractDetailPage extends PageBase {
 			this.env.getType('HRPolicyTaxType'),
 			this.env.getType('CalculationMethodType'),
 			this.env.getType('HRMInsuranceType'),
-			this.hrmUDF.read(),//{ Group: 'Benefits' }
+			this.hrmUDF.read({ Take: 1000 }), //{ Group: 'Benefits' }
 			this.env.getType('HRMEffectiveTimeType'),
 			this.env.getType('UDFGroupsType', true),
 		]).then((res: any) => {
@@ -132,7 +130,7 @@ export class StaffContractDetailPage extends PageBase {
 			this.insuranceTypeList = res[5];
 			this.UDFList = res[6].data;
 			this.HRMEffectiveTimeTypeList = res[7];
-			this.UDFGroups= res[8]
+			this.UDFGroups = res[8];
 			super.preLoadData(event);
 		});
 	}
@@ -150,20 +148,29 @@ export class StaffContractDetailPage extends PageBase {
 			if (this.item._Contractor) {
 				this.staffDataSource.selected.push(this.item._Contractor);
 			}
-			
-		
-			if (this.item._ContractTemplate?.Template) {
-				this.formGroup.controls._ContractContent.patchValue(this.item._ContractTemplate?.Template);
-			}
+
 			this.patchConfigValue();
-		
+			if (this.item._ContractTemplate?.Template) {
+				this.UDFValue.push(this.item._Staff);
+				var content = this.replacePlaceholders(this.item._ContractTemplate?.Template, this.UDFValue);
+				this.formGroup.controls._ContractContent.patchValue(content);
+			}
+
 			this.trackingTemplate = this.item.IDContractTemplate;
 		}
 		this.staffDataSource.initSearch();
-		
 	}
 
-	patchConfigValue(){
+	replacePlaceholders(content: string, data: any): string {
+		const flatData =  Array.isArray(data) ? Object.assign({}, ...data) :data;
+		
+		return content.replace(/\[([^\]]+)\]/g, (match, fieldName) => {
+			console.log("fieldName:", fieldName, "=>", flatData[fieldName]);
+			return flatData[fieldName] !== undefined && flatData[fieldName] !== null ? flatData[fieldName] : match; // nếu không có dữ liệu thì giữ nguyên [FieldName]
+		});
+	}
+
+	patchConfigValue() {
 		if (this.item.ContractValue) {
 			let value = JSON.parse(this.item.ContractValue);
 			this.contractValue = value;
@@ -174,16 +181,15 @@ export class StaffContractDetailPage extends PageBase {
 		this.patchPolInsurance();
 		this.patchUDFConfig();
 	}
-	patchPolInsurance(){
+	patchPolInsurance() {
 		let groups = <FormArray>this.formGroup.controls.PolInsurance;
 		groups.clear();
 		if (this.item.PolInsuranceDetail?.Lines) this.insuranceList = this.item.PolInsuranceDetail.Lines;
 		let values = [];
-		if(this.item.ContractValue){
+		if (this.item.ContractValue) {
 			values = JSON.parse(this.item.ContractValue)?.PolInsurance;
 			this.insuranceList = values;
-		}
-		else values = this.insuranceList;
+		} else values = this.insuranceList;
 		values.forEach((i) => {
 			let group = this.formBuilder.group({
 				Id: new FormControl({ value: i.Id, disabled: true }),
@@ -195,20 +201,19 @@ export class StaffContractDetailPage extends PageBase {
 			});
 			groups.push(group);
 		});
-
 	}
-	patchPolBenefit(){
+	patchPolBenefit() {
 		let groups = <FormArray>this.formGroup.controls.PolBenefit;
 		groups.clear();
 		if (this.item.PolBenefitDetails?.Lines) {
 			this.polBefitUFLList = this.item.PolBenefitDetails?.Lines;
 		}
-		if(this.polBefitUFLList.length > 0){
+		if (this.polBefitUFLList.length > 0) {
 			let values = [];
-			if(this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.PolBenefit;
+			if (this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.PolBenefit;
 
 			this.polBefitUFLList.forEach((line) => {
-				if(values.find(d=> d.IDUDF == line.IDUDF)) line = values.find(d=> d.IDUDF == line.IDUDF);
+				if (values.find((d) => d.IDUDF == line.IDUDF)) line = values.find((d) => d.IDUDF == line.IDUDF);
 				const group = this.formBuilder.group({
 					IDUDF: [line.IDUDF],
 					Code: [this.UDFList.find((d) => d.Id == line.IDUDF).Code],
@@ -216,33 +221,33 @@ export class StaffContractDetailPage extends PageBase {
 					Value: [line.Value],
 					ControlType: [this.UDFList.find((d) => d.Id === line.IDUDF)?.ControlType],
 				});
+				this.UDFValue.push({ [this.UDFList.find((d) => d.Id == line.IDUDF).Code]: line.Value });
 				group.addControl(this.UDFList.find((d) => d.Id == line.IDUDF).Code, new FormControl(line.Value));
 				(this.formGroup.controls.PolBenefit as FormArray).push(group);
 			});
-		
 		}
 	}
 
-	patchUDFConfig(config = null){
+	patchUDFConfig(config = null) {
 		let group = new FormGroup({});
 		(this.formGroup.controls as any).UDFConfig = group;
-		
-		if(this.item._ContractTemplate?.Config){
+
+		if (this.item._ContractTemplate?.Config) {
 			let values = [];
 			let udfConfigList = JSON.parse(this.item._ContractTemplate.Config) || [];
-			udfConfigList = udfConfigList.filter(u=> !this.polBefitUFLList.map(s=> s.IDUDF).includes(u.IDUDF));
-			if(this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.UDFConfig || [];
+			udfConfigList = udfConfigList.filter((u) => !this.polBefitUFLList.map((s) => s.IDUDF).includes(u.IDUDF));
+			if (this.item.ContractValue) values = JSON.parse(this.item.ContractValue)?.UDFConfig || [];
 			udfConfigList.forEach((i) => {
-				let UDF = this.UDFList.find(d=> d.Id == i.IDUDF);
-				let value = values.find(d => d.IDUDF == i.IDUDF);
+				let UDF = this.UDFList.find((d) => d.Id == i.IDUDF);
+				let value = values.find((d) => d.IDUDF == i.IDUDF);
 				if (UDF) {
-
 					let control: any = new FormControl(value?.Value ?? '', i?.IsRequired ? Validators.required : null);
 					control.IDUDF = UDF.Id;
 					group.addControl(UDF.Code, control);
+					this.UDFValue.push({ [UDF.Code]: value?.Value ?? '' });
 				}
 			});
-			this.arrayUDFGroup = this.UDFList.filter(u=>udfConfigList.map(s=> s.IDUDF).includes(u.Id)).reduce((acc, item) => {
+			this.arrayUDFGroup = this.UDFList.filter((u) => udfConfigList.map((s) => s.IDUDF).includes(u.Id)).reduce((acc, item) => {
 				let code = item.Group || 'No Group';
 				let subGroup = item.SubGroup || 'No SubGroup';
 				let groupName = this.UDFGroups.find((d) => d.Code == item.Group)?.Name || code;
@@ -252,7 +257,7 @@ export class StaffContractDetailPage extends PageBase {
 					groupItem = { Code: code, SubGroups: [], Name: groupName };
 					acc.push(groupItem);
 				}
-	
+
 				// Find or create the subGroup inside the group
 				let subGroupItem = groupItem.SubGroups.find((sg) => sg.Code === subGroup);
 				let subName = this.UDFGroups.find((d) => d.Code == subGroup)?.Name || subGroup;
@@ -266,7 +271,6 @@ export class StaffContractDetailPage extends PageBase {
 				return acc;
 			}, []);
 		}
-	
 	}
 
 	loadPolicies(event) {
@@ -342,7 +346,7 @@ export class StaffContractDetailPage extends PageBase {
 		}
 	}
 
-	saveContractContent(){
+	saveContractContent() {
 		this.formGroup.controls.Template.setValue(this.formGroup.controls._ContractContent.value);
 		this.formGroup.controls.isCustomTemplate.setValue(true);
 		this.formGroup.controls.isCustomTemplate.markAsDirty();
@@ -363,7 +367,6 @@ export class StaffContractDetailPage extends PageBase {
 			};
 		});
 
-		
 		let udfConfig = [];
 		let group = this.formGroup.get('UDFConfig') as FormGroup;
 		Object.keys(group['controls']).forEach((d) => {
@@ -404,158 +407,20 @@ export class StaffContractDetailPage extends PageBase {
 		return super.saveChange2();
 	}
 
-	ngAfterViewInit() {
-		this.quillElement.changes.subscribe((elements) => {
-			if (typeof elements.first !== 'undefined') {
-				this.loadQuillEditor();
-			}
-		});
+	onTemplateChange(value: string) {
+		this.formGroup.get('_ContractContent')?.setValue(value);
+		this.formGroup.get('_ContractContent')?.markAsDirty();
 	}
 
-	loadQuillEditor() {
-		if (typeof Quill !== 'undefined') {
-			this.initQuill();
-		} else {
-			this.dynamicScriptLoaderService
-				.loadResources(thirdPartyLibs.quill.source)
-				.then(() => {
-					this.initQuill();
-				})
-				.catch((error) => console.error('Error loading script', error));
-		}
-	}
-	imageHandler() {
-		const imageUrl = prompt('Please enter the image URL:');
-		if (imageUrl) {
-			const range = this.editor.getSelection();
-			this.editor.insertEmbed(range.index, 'image', imageUrl);
-		}
-	}
-
-	showHtml() {
-		const editorContent = this.editor.root;
-		const isHtmlMode = /&lt;|&gt;|&amp;|&quot;|&#39;/.test(editorContent.innerHTML);
-		if (isHtmlMode) {
-			const htmlContent = editorContent.textContent || '';
-			this.editor.root.innerHTML = htmlContent;
-		} else {
-			const richTextContent = this.editor.root.innerHTML;
-			this.editor.root.textContent = richTextContent;
-		}
-
-		this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
-		if (this.editor.root.innerHTML == '<p><br></p>') {
-			this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
-		}
-		this.saveConfig();
-	}
 	edit() {
 		this.isCustomTemplate = true;
-		if (this.item?._ContractContent) {
-			this.item._ContractContent = this.item._ContractContent ?? this.editor?.root?.innerHTML ?? '';
-			this.remarkBeforeChange = this.item._ContractContent;
-		}
+		this.remarkBeforeChange = this.item._ContractContent;
 	}
+
 	preView() {
 		this.isCustomTemplate = false;
-		if (this.item?._ContractContent) {
-			this.remarkBeforeChange = this.item._ContractContent;
-			this.item._ContractContent= this.editor?.root?.innerHTML ?? '';
-		}
-	}
-	initQuill() {
-		if (typeof Quill !== 'undefined') {
-			const existingToolbar = document.querySelector('.ql-toolbar');
-			if (existingToolbar) {
-				existingToolbar.parentNode.removeChild(existingToolbar);
-			}
-			this.editor = new Quill('#editor', {
-				modules: {
-					toolbar: {
-						container: [
-							['bold', 'italic', 'underline', 'strike'], // toggled buttons
-							['blockquote', 'code-block'],
-
-							[{ header: 1 }, { header: 2 }], // custom button values
-							[{ list: 'ordered' }, { list: 'bullet' }],
-							[{ script: 'sub' }, { script: 'super' }], // superscript/subscript
-							[{ indent: '-1' }, { indent: '+1' }], // outdent/indent
-							[{ direction: 'rtl' }], // text direction
-
-							[{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
-							[{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-							[{ color: [] }, { background: [] }], // dropdown with defaults from theme
-							[{ font: [] }],
-							[{ align: [] }],
-							['image', 'code-block'],
-
-							['clean'], // remove formatting button
-							['fullscreen'],
-							['showhtml'],
-						],
-						handlers: {
-							image: this.imageHandler.bind(this),
-							// fullscreen: () => this.toggleFullscreen(),
-							showhtml: () => this.showHtml(),
-						},
-					},
-				},
-				theme: 'snow',
-				placeholder: 'Typing ...',
-			});
-
-			// Set default background color to white for the editor area
-			const editorContainer = document.querySelector('#editor .ql-editor') as HTMLElement;
-			if (editorContainer) {
-				editorContainer.style.backgroundColor = '#ffffff';
-				editorContainer.style.height = '100%';
-				editorContainer.style.width = '100%';
-				editorContainer.style.minHeight = 'calc(-400px + 100vh)';
-			}
-			const editorParent = document.querySelector('#editor') as HTMLElement;
-			if (editorParent) {
-				editorParent.style.height = '100%';
-				editorParent.style.width = '100%';
-			}
-			//choose image
-			//this.editor.getModule("toolbar").addHandler("image", this.imageHandler.bind(this));
-
-			this.editor.on('text-change', (delta, oldDelta, source) => {
-				if (typeof this.editor.root.innerHTML !== 'undefined' && this.item.Template.value !== this.editor.root.innerHTML) {
-					this.formGroup.controls.Template.setValue(this.editor.root.innerHTML);
-					this.formGroup.controls.Template.markAsDirty();
-				}
-				if (this.editor.root.innerHTML == '<p><br></p>') {
-					this.formGroup.controls.Template.setValue(null);
-				}
-			});
-
-			// icon fullscreen
-			const toolbarCustom = this.editor.getModule('toolbar');
-			const fullscreenButton = toolbarCustom.container.querySelector('button.ql-fullscreen');
-			if (fullscreenButton) {
-				const fullscreenIcon = document.createElement('ion-icon');
-				fullscreenIcon.setAttribute('name', 'resize');
-				fullscreenIcon.setAttribute('color', 'dark');
-				fullscreenButton.innerHTML = '';
-				fullscreenButton.appendChild(fullscreenIcon);
-			}
-
-			// icon show HTML
-			const showHtmlButton = toolbarCustom.container.querySelector('button.ql-showhtml');
-			if (showHtmlButton) {
-				const showHtmlIcon = document.createElement('ion-icon');
-				showHtmlIcon.setAttribute('name', 'logo-html5');
-				showHtmlIcon.setAttribute('color', 'dark');
-				showHtmlButton.innerHTML = '';
-				showHtmlButton.appendChild(showHtmlIcon);
-			}
-			const toolbar = document.querySelector('.ql-toolbar');
-			toolbar.addEventListener('mousedown', (event) => {
-				event.preventDefault();
-			});
-		}
+		this.remarkBeforeChange = this.item._ContractContent;
+		this.item._ContractContent = this.formGroup.get('_ContractContent')?.value ?? '';
 	}
 
 	editInsuranceLine(i) {

@@ -111,12 +111,22 @@
 							<div *ngIf="!showEditorContent && item?.Remark" [innerHtml]=" item?.Remark | safeHtml" class="ql-editor"></div>
 							<form *ngIf="showEditorContent" [formGroup]="formGroup" id="screenEditor">
 								<!-- Create the editor container -->
-								<div #quillEditor style="min-height: calc(100vh - 400px)" id="editor" [innerHTML]="item.Remark||'' | safeHtml"></div>
-								<div class="c-control ion-text-right">
-									<label class="c-label" for=""></label>
-									<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
-								</div>
+								<app-input-control
+									[field]="{
+								form: formGroup,
+								type: 'editor',
+								id: 'Remark',
+								label: 'Template Content',
+								placeholder: 'Enter template content...'
+							}"
+									(change)="onTemplateChange($event)"
+								>
+								</app-input-control>
 							</form>
+							<div class="c-control ion-text-right">
+								<label class="c-label" for=""></label>
+								<ion-button (click)="saveChange()">{{'Save' | translate}}</ion-button>
+							</div>
 						</ion-col>
 					</ion-row>
 
