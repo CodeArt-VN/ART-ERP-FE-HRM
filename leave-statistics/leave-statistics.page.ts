@@ -31,48 +31,8 @@ export class LeaveStatisticsPage extends PageBase {
 	) {
 		super();
 	}
-	branchList = [];
-	departmentList = [];
-	preLoadData() {
-		this.branchList = this.env.branchList;
-		Promise.all([
-			this.branchProvider.read({
-				Take: 5000,
-				AllChildren: true,
-				AllParent: true,
-			}),
-		]).then((values) => {
-			this.branchList = values[0]['data'];
-			this.buildFlatTree(this.branchList, this.branchList, true).then((resp: any) => {
-				this.branchList = resp;
-				this.departmentList = [];
-				this.branchList.forEach((i) => {
-					let prefix = '';
-					for (let j = 1; j < i.level; j++) {
-						prefix += '- ';
-					}
-					i.NamePadding = prefix + i.Name;
-					if (i.Type == 'TitlePosition') {
-						i.Flag = true;
-					} else {
-						this.departmentList.push(i);
-					}
-				});
-				this.departmentList.forEach((i) => {
-					i.IDs = [];
-					this.getChildrenDepartmentID(i.IDs, i.Id);
-				});
-				this.departmentList.forEach((i) => {
-					i.Query = JSON.stringify(i.IDs);
-				});
-			});
 
-			super.preLoadData(null);
-		});
-	}
-
-	loadData(event = null, forceReload = false) {
-		
+	loadData(event = null, forceReload = false) {	
 		const currentYear = new Date().getFullYear();
 		this.query.FromDate = `${currentYear}-01-01`;
 		this.query.ToDate = `${currentYear}-12-31`;
@@ -172,11 +132,4 @@ export class LeaveStatisticsPage extends PageBase {
 			});
 	}
 
-	getChildrenDepartmentID(ids, id) {
-		ids.push(id);
-		let children = this.departmentList.filter((i) => i.IDParent == id);
-		children.forEach((i) => {
-			this.getChildrenDepartmentID(ids, i.Id);
-		});
-	}
 }

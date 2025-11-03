@@ -32,14 +32,9 @@
 					</div>
 				</ng-template>
 			</datatable-column>
-			<datatable-column class="col-name" name="Unit" property="IDJobTitle">
-				<ng-template let-i="row" datatable-cell-template>
-					<app-branch-breadcrumbs [maxItems]="3" [itemsBeforeCollapse]="0" [itemsAfterCollapse]="2"
-						[Id]="i.IDJobTitle" [Items]="env.jobTitleList" [ngClass]="{'no-check-dirty': noCheckDirty}"
-						class="c-input disable breadcrumbs">
-					</app-branch-breadcrumbs>
-				</ng-template>
-
+			<datatable-column class="col-name" name="Job title" property="JobTitle">
+			</datatable-column>
+			<datatable-column class="col-name" name="Department" property="Department">
 			</datatable-column>
 			<datatable-column class="col-date" format="yyyy-MM-dd" name="Start date" property="StartDate"
 				filterControlType="date"></datatable-column>
