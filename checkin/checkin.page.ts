@@ -181,41 +181,26 @@ export class CheckinPage extends PageBase {
 		}
 	}
 	async scanQRCodeBS() {
-		// this.pageProvider.commonService
-		// 	.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null)
-		// 	.toPromise()
-		// 	.then(async (resp: any) => {
-		// 		this.myIP = resp;
-		// 		console.log(this.myIP);
-		// 		const modal = await this.modalController.create({
-		// 			component: ScanCheckinModalPage,
-		// 			componentProps: {
-		// 				myIP: this.myIP,
-		// 			},
-		// 			cssClass: 'my-custom-class',
-		// 		});
+		this.pageProvider.commonService
+			.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null)
+			.toPromise()
+			.then(async (resp: any) => {
+				this.myIP = resp;
+				console.log(this.myIP);
+				const modal = await this.modalController.create({
+					component: ScanCheckinModalPage,
+					componentProps: {
+						myIP: this.myIP,
+					},
+					cssClass: 'my-custom-class',
+				});
 
-		// 		await modal.present();
-		// 		const { data } = await modal.onWillDismiss();
-		// 		this.loadData(null);
-		// 		console.log('Public IP:', this.myIP);
-		// 	});
-		this.env.showLoading('Loading ...', this.http.get('https://ipinfo.io/json').toPromise()).then(async (resp: any) => {
-			this.myIP = resp.ip;
-
-			const modal = await this.modalController.create({
-				component: ScanCheckinModalPage,
-				componentProps: {
-					myIP: this.myIP,
-				},
-				cssClass: 'my-custom-class',
+				await modal.present();
+				const { data } = await modal.onWillDismiss();
+				this.loadData(null);
+				console.log('Public IP:', this.myIP);
 			});
-
-			await modal.present();
-			const { data } = await modal.onWillDismiss();
-			this.loadData(null);
-			console.log('Public IP:', this.myIP);
-		});
+		
 	}
 
 	async showLog(cData) {
