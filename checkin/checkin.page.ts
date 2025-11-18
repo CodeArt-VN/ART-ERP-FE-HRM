@@ -46,7 +46,7 @@ export class CheckinPage extends PageBase {
 					if (Math.abs(mins) < 600) {
 						return null;
 					}
-					return  lib.dateFormat(record.LogTime, 'dd/mm/yyyy') ;
+					return lib.dateFormat(record.LogTime, 'dd/mm/yyyy');
 				},
 			},
 		];
@@ -55,7 +55,7 @@ export class CheckinPage extends PageBase {
 	myIP = '';
 	preLoadData(event?: any): void {
 		this.pageConfig.sort = [{ Dimension: 'LogTime', Order: 'DESC' }];
-		
+
 		this.query.IDStaff = this.env.user.StaffID;
 
 		this.gateProvider.read().then((resp) => {
@@ -184,11 +184,23 @@ export class CheckinPage extends PageBase {
 		// this.pageProvider.commonService
 		// 	.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null)
 		// 	.toPromise()
-		// 	.then((resp: any) => {
+		// 	.then(async (resp: any) => {
 		// 		this.myIP = resp;
 		// 		console.log(this.myIP);
+		// 		const modal = await this.modalController.create({
+		// 			component: ScanCheckinModalPage,
+		// 			componentProps: {
+		// 				myIP: this.myIP,
+		// 			},
+		// 			cssClass: 'my-custom-class',
+		// 		});
+
+		// 		await modal.present();
+		// 		const { data } = await modal.onWillDismiss();
+		// 		this.loadData(null);
+		// 		console.log('Public IP:', this.myIP);
 		// 	});
-		this.env.showLoading('Loading ...', this.http.get('https://api.ipify.org/?format=json').toPromise()).then(async (resp: any) => {
+		this.env.showLoading('Loading ...', this.http.get('https://ipinfo.io/json').toPromise()).then(async (resp: any) => {
 			this.myIP = resp.ip;
 
 			const modal = await this.modalController.create({
