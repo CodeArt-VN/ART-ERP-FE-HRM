@@ -475,6 +475,9 @@ export class SchedulerPage extends PageBase {
 		};
 
 		this.calendarOptions.eventClick = (arg) => {
+			if (!this.pageConfig.canEditCheckinLog) {
+				return;
+			}
 			this.massShiftAssignmentCheckinLog({
 				FromDate: arg.event.startStr,
 				ToDate: arg.event.startStr,
