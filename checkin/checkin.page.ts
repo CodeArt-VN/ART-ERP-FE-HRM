@@ -46,7 +46,7 @@ export class CheckinPage extends PageBase {
 					if (Math.abs(mins) < 600) {
 						return null;
 					}
-					return  lib.dateFormat(record.LogTime, 'dd/mm/yyyy') ;
+					return lib.dateFormat(record.LogTime, 'dd/mm/yyyy');
 				},
 			},
 		];
@@ -55,7 +55,7 @@ export class CheckinPage extends PageBase {
 	myIP = '';
 	preLoadData(event?: any): void {
 		this.pageConfig.sort = [{ Dimension: 'LogTime', Order: 'DESC' }];
-		
+
 		this.query.IDStaff = this.env.user.StaffID;
 
 		this.gateProvider.read().then((resp) => {
@@ -98,112 +98,15 @@ export class CheckinPage extends PageBase {
 	}
 
 	async scanQRCode() {
-		if (Capacitor.getPlatform() == 'web') {
-			this.scanQRCodeBS();
-			return;
-		}
-		try {
-			let code = await this.scanner.scan();
-
-			let gateCode = '';
-			if (code.indexOf('G:') == 0) {
-				gateCode = code.replace('G:', '');
-			} else {
-				this.env
-					.showPrompt('Please scan valid QR code', 'Invalid QR code', null, 'Retry', 'Cancel')
-					.then(() => {
-						setTimeout(() => this.scanQRCode(), 0);
-					})
-					.catch(() => {});
-				return;
-			}
-
-			const loading = await this.loadingController.create({
-				cssClass: 'my-custom-class',
-				message: 'Vui lòng chờ kiểm tra checkin',
-			});
-			await loading.present().then(async () => {
-				let logItem = {
-					IDStaff: this.env.user.StaffID,
-					GateCode: gateCode,
-					Lat: null,
-					Long: null,
-					UUID: '',
-					IPAddress: this.myIP,
-					IsMockLocation: false,
-				};
-
-				if (Capacitor.isPluginAvailable('Device')) {
-					let UID = await Device.getId();
-					logItem.UUID = UID.identifier;
-				}
-				Geolocation.getCurrentPosition({
-					timeout: 5000,
-					enableHighAccuracy: true,
-				})
-					.then((resp) => {
-						logItem.Lat = resp.coords.latitude;
-						logItem.Long = resp.coords.longitude;
-						console.log(resp);
-					})
-					.catch((err) => {
-						console.log(err);
-					})
-					.finally(() => {
-						this.pageProvider
-							.save(logItem)
-							.then((resp: any) => {
-								console.log(resp);
-								if (loading) loading.dismiss();
-
-								this.refresh();
-								if (resp.Id) {
-									let i = resp;
-									i.Time = lib.dateFormat(i.LogTime, 'hh:MM');
-									i.Date = lib.dateFormat(i.LogTime, 'dd/mm/yyyy');
-									i.Gate = this.gateList.find((d) => d.Id == i.IDGate);
-									this.env.showMessage('Check-in completed', 'success');
-									this.showLog(i);
-								} else if (resp != 'OK') {
-									this.showLogMessage(resp);
-								} else {
-									this.env.showMessage('Check-in completed', 'success');
-								}
-							})
-							.catch((err) => {
-								if (loading) loading.dismiss();
-								// this.env.showMessage(err, 'danger');
-							});
-					});
-			});
-		} catch (error) {
-			console.error(error);
-		}
-	}
-	async scanQRCodeBS() {
-		// this.pageProvider.commonService
-		// 	.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null)
-		// 	.toPromise()
-		// 	.then((resp: any) => {
-		// 		this.myIP = resp;
-		// 		console.log(this.myIP);
-		// 	});
-		this.env.showLoading('Loading ...', this.http.get('https://api.ipify.org/?format=json').toPromise()).then(async (resp: any) => {
-			this.myIP = resp.ip;
-
-			const modal = await this.modalController.create({
-				component: ScanCheckinModalPage,
-				componentProps: {
-					myIP: this.myIP,
-				},
-				cssClass: 'my-custom-class',
-			});
-
-			await modal.present();
-			const { data } = await modal.onWillDismiss();
-			this.loadData(null);
-			console.log('Public IP:', this.myIP);
+		const modal = await this.modalController.create({
+			component: ScanCheckinModalPage,
+			cssClass: 'my-custom-class',
 		});
+
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+		if(!data) return;
+		this.refresh(null);
 	}
 
 	async showLog(cData) {

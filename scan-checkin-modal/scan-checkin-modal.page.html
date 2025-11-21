@@ -2,23 +2,19 @@
 	<ion-toolbar class="no-padding">
 		<ion-title>{{'Scan checkin'}}</ion-title>
 		<ion-buttons slot="end">
-			<ion-button title="{{'Close' | translate}}" (click)="modalController.dismiss()">
+			<ion-button title="{{'Close' | translate}}" (click)="modalController.dismiss(null)">
 				<ion-icon slot="icon-only" name="close"></ion-icon>
 			</ion-button>
 		</ion-buttons>
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding" fullscreen>
-<app-page-message [itemsLength]="items?.length>0? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-
-	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
-	<ion-grid fixed>
-		<ion-list *ngIf="items && items.length>0">
-			<ion-list-header lines="full">
-				<ion-label color="dark">{{'Checkin gate' | translate}}</ion-label>
-			</ion-list-header>
-			<ion-item lines="full" button class="clickable" (click)="changeGate(i)" [color]="i.Id == activeGate.Id ? 'primary': '' " *ngFor="let i of items">
+<ion-content appScrollbarTheme>
+	<div style="min-height: 0%">
+		<app-page-message [itemsLength]="(items?.length>0 || canScanQRCode )? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+		<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+		<ion-radio-group *ngIf="items && items.length>0" [(ngModel)]="selectedGateId" (ionChange)="onGateSelectionChanged()">
+			<ion-item *ngFor="let i of items"  button lines="full" (click)="changeGate(i)">
 				<ion-label class="ion-text-wrap">
 					<ion-text [color]="i.Color">
 						<h3>{{i.Name}}</h3>
@@ -27,12 +23,13 @@
 						<small>{{i.GateType}}</small>
 					</p>
 				</ion-label>
+				<ion-radio slot="start" [value]="i.Id"></ion-radio>
 			</ion-item>
-		</ion-list>
-	</ion-grid>
+		</ion-radio-group>
+	</div>
 </ion-content>
 <ion-footer>
 	<ion-toolbar>
-		<ion-button [disabled]="!items || items.length === 0 && activeGate" size="medium" slot="end" (click)="checkin()">{{'Check in' | translate}}</ion-button>
+		<ion-button [disabled]="activeGate.Id == undefined || activeGate.Code == 'SCAN_QR'" size="medium" slot="end" (click)="checkin()">{{'Check in' | translate}}</ion-button>
 	</ion-toolbar>
 </ion-footer>
