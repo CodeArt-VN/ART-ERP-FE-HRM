@@ -6,6 +6,8 @@
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
 	<div class="safe-max-width">
+
+
 		<app-data-table
 			class="box-shadow responsive"
 			[rows]="items"
@@ -29,10 +31,9 @@
 			<datatable-column class="col-name" name="Checkin" property="Gate">
 				<ng-template let-i="row" datatable-cell-template>
 					<span *ngIf="!(i.IsValidLog && i.Gate?.IsCateringService)"> {{i.Gate?.Name}} </span>
-						<a *ngIf="i.IsValidLog && i.Gate?.IsCateringService" (click)="showLog(i)">
-							<ion-icon *ngIf="i.Gate?.IsCateringService" name="restaurant-outline"></ion-icon>&nbsp; {{i.Gate?.Name}}
-						</a>
-
+					<a *ngIf="i.IsValidLog && i.Gate?.IsCateringService" (click)="showLog(i)">
+						<ion-icon *ngIf="i.Gate?.IsCateringService" name="restaurant-outline"></ion-icon>&nbsp; {{i.Gate?.Name}}
+					</a>
 				</ng-template>
 			</datatable-column>
 		</app-data-table>
@@ -48,6 +49,4 @@
 			<ion-icon name="qr-code-outline"></ion-icon>
 		</ion-fab-button>
 	</ion-fab>
-
-	
 </ion-content>
