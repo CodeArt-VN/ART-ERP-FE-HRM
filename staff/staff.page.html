@@ -1,5 +1,8 @@
 <ion-header>
 	<app-toolbar [page]="this">
+		<ion-button endSlot title="{{'Export advance' | translate}}" (click)="advanceExport()">
+			<ion-icon slot="start" name="document-attach-outline"></ion-icon>
+		</ion-button>
 	</app-toolbar>
 	<ion-toolbar *ngIf="segmentView.viewList.length">
 		<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="activeViewIndex">
@@ -11,54 +14,48 @@
 		</ion-segment>
 
 		<ion-buttons slot="end">
-			<ion-button fill="outline" size="small" class="small-btn" *ngIf="pageConfig.canAdd"
-				(click)="customizeView('add')">
+			<ion-button fill="outline" size="small" class="small-btn" *ngIf="pageConfig.canAdd" (click)="customizeView('add')">
 				<ion-icon slot="start" name="add"></ion-icon>
 				{{'View' | translate}}
 			</ion-button>
 
-			<ion-button fill="outline" size="small" class="small-btn" *ngIf="pageConfig.canEdit"
-				(click)="customizeView('edit')">
+			<ion-button fill="outline" size="small" class="small-btn" *ngIf="pageConfig.canEdit" (click)="customizeView('edit')">
 				<ion-icon slot="start" name="cog-outline"></ion-icon>
 				{{'Customize' | translate}}
 			</ion-button>
 		</ion-buttons>
 	</ion-toolbar>
-
 </ion-header>
 
 <ion-content appScrollbarTheme class="scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
-	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature" vertical="top"
-		[ngClass]="{'ion-hide-md-down': !pageConfig.isSubActive}" horizontal="end" slot="fixed">
+	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature" vertical="top" [ngClass]="{'ion-hide-md-down': !pageConfig.isSubActive}" horizontal="end" slot="fixed">
 		<div class="ion-padding" *ngIf="editView">
 			<form [formGroup]="editView._formGroup">
-				<app-form-control
-					[field]="{id:'ViewName', type : 'text', label: 'View name', form : editView._formGroup }"
-					(change)="saveView(editView)"></app-form-control>
+				<app-form-control [field]="{id:'ViewName', type : 'text', label: 'View name', form : editView._formGroup }" (change)="saveView(editView)"></app-form-control>
 				<ng-container>
 					<ion-list lines="none" *ngFor="let group of groupView">
 						<ion-list-header>
 							<ion-label>
 								<h3>{{ group.Name | translate }}</h3>
 							</ion-label>
-							<ion-label (click)="removeAllFieldsFromShown()"
-								*ngIf="group.Name == 'Shown' && groupView[0].Fields.length > 0">
+							<ion-label (click)="removeAllFieldsFromShown()" *ngIf="group.Name == 'Shown' && groupView[0].Fields.length > 0">
 								<h3 class="hidden-all">{{ 'Hide all' | translate }}</h3>
 							</ion-label>
 						</ion-list-header>
-						<ion-reorder-group [disabled]="group.Name !== 'Shown'"
-							(ionItemReorder)="doReorder($event, groupView[0].Fields, group.Name)">
+						<ion-reorder-group [disabled]="group.Name !== 'Shown'" (ionItemReorder)="doReorder($event, groupView[0].Fields, group.Name)">
 							<ion-item class="item-status" *ngFor="let field of group.Fields">
 								<ion-reorder *ngIf="group.Name === 'Shown'" slot="start"></ion-reorder>
 								<span class="icon-status">
-									<ion-icon class="menu-icon" [color]="field.Color"
-										[name]="field.Icon || 'pricetag-outline'"></ion-icon>
+									<ion-icon class="menu-icon" [color]="field.Color" [name]="field.Icon || 'pricetag-outline'"></ion-icon>
 								</span>
 								<ion-label>
 									<h3>{{ field.Name | translate }}</h3>
 								</ion-label>
-								<ion-toggle slot="end" [checked]="group.Name === 'Shown'"
-									(ionChange)="group.Name === 'Shown' ? removeFieldFromShown(field) : addFieldToShown(field)"></ion-toggle>
+								<ion-toggle
+									slot="end"
+									[checked]="group.Name === 'Shown'"
+									(ionChange)="group.Name === 'Shown' ? removeFieldFromShown(field) : addFieldToShown(field)"
+								></ion-toggle>
 							</ion-item>
 						</ion-reorder-group>
 					</ion-list>
@@ -70,17 +67,30 @@
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
 	<div class="safe-max-width">
-		<app-data-table class="box-shadow responsive" [rows]="items" [trackBy]="'Id'" [(selectedRows)]="selectedItems"
-			[showSpinner]="pageConfig.showSpinner" [showFilter]="pageConfig.isShowSearch" [(query)]="query"
-			(dataInfinite)="loadData($event)" (filter)="onDatatableFilter($event)" (sort)="onSort($event)">
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+		>
 			<datatable-column class="col-checkbox cell" [checkbox]="true"></datatable-column>
 			<ng-container *ngFor="let col of viewStaffConfig?.Fields">
-				<datatable-column [class]="
+				<datatable-column
+					[class]="
 				col.Code === 'Id' ? 'col-id' :
 				col.Code === 'FullName' ? 'col-name' :
 				col.Code === 'IDJobTitle' ? 'col-name' :
 				col.Code === 'CreatedDate' ? 'col-date' :
-				'col-code'" [name]="col.Name" [property]="col.Code">
+				'col-code'"
+					[name]="col.Name"
+					[property]="col.Code"
+				>
 					<ng-template let-i="row" datatable-cell-template>
 						<ng-container [ngSwitch]="col.Code">
 							<!-- customize -->
@@ -92,8 +102,7 @@
 							<ng-container *ngSwitchCase="'FullName'">
 								<div (click)="nav('staff/'+i.Id,'forward')" class="col-name cell">
 									<ion-avatar class="avatar" slot="start">
-										<ion-img #img [src]="i.Avatar"
-											(ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+										<ion-img #img [src]="i.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
 									</ion-avatar>
 									<div>
 										<span class="bold">{{i.FullName}}</span>
@@ -103,23 +112,23 @@
 									</div>
 								</div>
 							</ng-container>
-							<ng-container *ngSwitchCase="'CreatedDate'">
-								{{i.CreatedDate | date:'dd/MM/yyyy HH:mm'}}
-							</ng-container>
-							<ng-container *ngSwitchCase="'ModifiedDate'">
-								{{i.CreatedDate | date:'dd/MM/yyyy HH:mm'}}
-							</ng-container>
+							<ng-container *ngSwitchCase="'CreatedDate'"> {{i.CreatedDate | date:'dd/MM/yyyy HH:mm'}} </ng-container>
+							<ng-container *ngSwitchCase="'ModifiedDate'"> {{i.CreatedDate | date:'dd/MM/yyyy HH:mm'}} </ng-container>
 							<ng-container *ngSwitchCase="'IDJobTitle'">
-								<app-branch-breadcrumbs [maxItems]="3" [itemsBeforeCollapse]="0"
-									[itemsAfterCollapse]="2" [Id]="i.IDJobTitle" [Items]="env.jobTitleList"
-									[ngClass]="{'no-check-dirty': noCheckDirty}" class="c-input disable breadcrumbs">
+								<app-branch-breadcrumbs
+									[maxItems]="3"
+									[itemsBeforeCollapse]="0"
+									[itemsAfterCollapse]="2"
+									[Id]="i.IDJobTitle"
+									[Items]="env.jobTitleList"
+									[ngClass]="{'no-check-dirty': noCheckDirty}"
+									class="c-input disable breadcrumbs"
+								>
 								</app-branch-breadcrumbs>
 							</ng-container>
 
 							<!-- defaut -->
-							<ng-container *ngSwitchDefault>
-								{{i[col.Code]}}
-							</ng-container>
+							<ng-container *ngSwitchDefault> {{i[col.Code]}} </ng-container>
 						</ng-container>
 					</ng-template>
 				</datatable-column>
@@ -128,10 +137,7 @@
 	</div>
 
 	<div class="ion-padding"></div>
-	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)"
-		[disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
 		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
 	</ion-infinite-scroll>
-
-
 </ion-content>
