@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { CommonService } from 'src/app/services/core/common.service';
+import { StaffAdvanceExportModalComponent } from 'src/app/modals/staff-advance-export-modal/staff-advance-export-modal.component';
 @Component({
 	selector: 'app-staff',
 	templateUrl: 'staff.page.html',
@@ -46,8 +47,7 @@ export class StaffPage extends PageBase {
 				IsDefault: true,
 				IsActive: false,
 			},
-			Card: {
-			},
+			Card: {},
 		},
 		Fields: [
 			{ Code: 'Id', Name: 'Id', Icon: '', Color: '', Sort: 1 },
@@ -172,7 +172,7 @@ export class StaffPage extends PageBase {
 
 	loadedData(event) {
 		this.items.forEach((i) => {
-			i.Avatar = i.Code? (environment.staffAvatarsServer + i.Code + '.jpg') : 'assets/avartar-empty.jpg';
+			i.Avatar = i.Code ? environment.staffAvatarsServer + i.Code + '.jpg' : 'assets/avartar-empty.jpg';
 			i.Department = this.branchList.find((d) => d.Id == i.IDDepartment); // lib.getAttrib(i.IDDepartment, this.branchList);
 			i.JobTitle = lib.getAttrib(i.IDJobTitle, this.branchList);
 			i.Email = i.Email ? i.Email.replace(environment.loginEmail, '') : '';
@@ -203,6 +203,10 @@ export class StaffPage extends PageBase {
 			Id: 0,
 		};
 		this.showDetail(newStaff);
+	}
+
+	export(): Promise<void> {
+		return this.advanceExport();
 	}
 
 	customizeView(type) {
@@ -457,4 +461,17 @@ export class StaffPage extends PageBase {
 		}
 	}
 
+	async advanceExport() {
+		console.log('advanceExport: ', this.query.id);
+		const modal = await this.modalController.create({
+			component: StaffAdvanceExportModalComponent,
+			componentProps: {
+				Id: this.query.Id,
+			},
+			cssClass: 'my-custom-class',
+		});
+
+		await modal.present();
+		const { data } = await modal.onWillDismiss();
+	}
 }
