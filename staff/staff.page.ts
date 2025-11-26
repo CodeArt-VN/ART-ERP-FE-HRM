@@ -205,6 +205,10 @@ export class StaffPage extends PageBase {
 		this.showDetail(newStaff);
 	}
 
+	export(): Promise<void> {
+		return this.advanceExport();
+	}
+
 	customizeView(type) {
 		this.pageConfig.isShowFeature = !this.pageConfig.isShowFeature;
 		if (!this.pageConfig.isShowFeature) return;

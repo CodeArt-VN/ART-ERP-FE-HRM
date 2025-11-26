@@ -1,8 +1,6 @@
 <ion-header>
 	<app-toolbar [page]="this">
-		<ion-button endSlot title="{{'Export advance' | translate}}" (click)="advanceExport()">
-			<ion-icon slot="start" name="document-attach-outline"></ion-icon>
-		</ion-button>
+
 	</app-toolbar>
 	<ion-toolbar *ngIf="segmentView.viewList.length">
 		<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="activeViewIndex">
