@@ -68,6 +68,11 @@
 							<ion-label> {{'Import input data' | translate}}</ion-label>
 							<input class="hide-all" #importInputFile type="file" accept=".xlsx" (change)="importPayrollRecordInput($event)" />
 						</ion-item>
+
+						<ion-item (click)="exportRecordSummary()" [button]="true" [detail]="false" title="{{'Export record summary' | translate}}">
+							<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+							<ion-label> {{'Export record summary' | translate}}</ion-label>
+						</ion-item>
 					</ion-list>
 				</ion-content>
 			</ng-template>

@@ -40,4 +40,16 @@ export class HRM_TimesheetRecordService extends HRM_TimesheetRecordProvider {
 		return this.commonService.export(apiPath, query);
 	}
 
+	exportTimesheetRecordSummary(query) {
+		let apiPath = {
+			getExport: {
+				method: 'DOWNLOAD',
+				url: function () {
+					return 'HRM/TimesheetRecord/ExportTimesheetRecordSummary';
+				},
+			},
+		};
+		return this.commonService.export(apiPath, query);
+	}
+
 }
