@@ -1,6 +1,8 @@
 <ion-header>
 	<app-toolbar [page]="this">
-
+			<ion-button *ngIf="pageConfig.canEdit" (click)="exportInsurance()" title="{{'Export insurance' | translate}}" color="danger">
+			<ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+		</ion-button>
 	</app-toolbar>
 	<ion-toolbar *ngIf="segmentView.viewList.length">
 		<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="activeViewIndex">
