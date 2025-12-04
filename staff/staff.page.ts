@@ -474,4 +474,31 @@ export class StaffPage extends PageBase {
 		await modal.present();
 		const { data } = await modal.onWillDismiss();
 	}
+
+	exportStaffInsurance(query) {
+		let apiPath = {
+			getExport: {
+				method: 'DOWNLOAD',
+				url: function () {
+					return 'HRM/Staff/ExportInsurance';
+				},
+			},
+		};
+		return this.commonService.export(apiPath, query);
+	}
+
+	exportInsurance(type = null): Promise<void> {
+		let recordQuery = { Id: this.query.Id };
+		if (this.submitAttempt) return;
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', this.exportStaffInsurance(recordQuery))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+	}
 }

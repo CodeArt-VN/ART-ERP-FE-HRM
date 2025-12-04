@@ -101,6 +101,21 @@ export class TimesheetRecordDetailPage extends PageBase {
 			});
 	}
 
+	exportRecordSummary(type = null): Promise<void> {
+		let recordQuery = { IDTimesheet: this.IDTimesheet, Lang: this.env.language.current, IDTimesheetCycle: this.id };
+		if (this.submitAttempt) return;
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', this.staffTimesheetRecordProvider.exportTimesheetRecordSummary(recordQuery))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+	}
+
 	@ViewChild('importfile') importfile: any;
 	onClickImport() {
 		this.importfile.nativeElement.value = '';
