@@ -42,11 +42,12 @@ export class StaffPersonnelUDFComponent extends PageBase {
 			console.log(values);
 			if (values && values[0]) {
 				this.subGroupList = values[0];
+				console.log('Staff personel udf : ', this.subGroupList);
 			}
 			super.preLoadData(event);
 		});
 	}
-	
+
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		this.staffUDFProvider
 			.getAnItem(this.IDStaff)
@@ -56,6 +57,9 @@ export class StaffPersonnelUDFComponent extends PageBase {
 				}
 				this.subGroup = this.items.reduce(
 					(acc, row) => {
+						if(row.IsSystem){
+							return acc;
+						}
 						const key = row.SubGroup || 'Others';
 
 						// Find existing group
@@ -74,12 +78,12 @@ export class StaffPersonnelUDFComponent extends PageBase {
 							Id: [this.IDStaff],
 							Name: [row.Name],
 							Code: [row.Code],
-						  });
-						  row._formGroup.addControl(row.Code, new FormControl(res?res['UDF'+row.UDF]:''));
-						  row._formGroup.get('Name').markAsDirty();
-						  row._formGroup.get('Code').markAsDirty();
-						  console.log( row._formGroup);
-						  
+						});
+						row._formGroup.addControl(row.Code, new FormControl(res ? res['UDF' + row.UDF] : ''));
+						row._formGroup.get('Name').markAsDirty();
+						row._formGroup.get('Code').markAsDirty();
+						console.log(row._formGroup);
+
 						group.items.push(row);
 						return acc;
 					},
@@ -90,9 +94,10 @@ export class StaffPersonnelUDFComponent extends PageBase {
 			})
 			.finally(() => {
 				super.loadedData(event);
+				console.log('Staff personel udf loaded : ', this.subGroupList);
 			});
 	}
-	openedFields
+	openedFields;
 	accordionGroupChange(e) {
 		this.openedFields = e.detail.value;
 	}
@@ -101,7 +106,6 @@ export class StaffPersonnelUDFComponent extends PageBase {
 	}
 
 	async saveChange(fg) {
-		super.saveChange2(fg,null,this.staffUDFProvider);
+		super.saveChange2(fg, null, this.staffUDFProvider);
 	}
-
 }

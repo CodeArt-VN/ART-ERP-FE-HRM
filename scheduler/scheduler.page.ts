@@ -446,7 +446,7 @@ export class SchedulerPage extends PageBase {
 					.showPrompt('Bạn có chắc muốn xóa không?', null, 'Checkin logs')
 					.then((_) => {
 						that.submitAttempt = true;
-						that.pageProvider
+						that.timesheetLogProvider
 							.delete([{ Id: parseInt(arg.event.id) }])
 							.then((savedItem: any) => {
 								arg.event.remove();
