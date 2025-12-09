@@ -1,0 +1,55 @@
+<ion-header>
+	<app-toolbar [page]="this">
+	</app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="scrollx">
+	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
+
+	<div class="safe-max-width">
+		<app-data-table
+			class="box-shadow responsive"
+			[rows]="items"
+			[trackBy]="'Id'"
+			[(selectedRows)]="selectedItems"
+			[showSpinner]="pageConfig.showSpinner"
+			[showFilter]="pageConfig.isShowSearch"
+			[(query)]="query"
+			(dataInfinite)="loadData($event)"
+			(filter)="onDatatableFilter($event)"
+			(sort)="onSort($event)"
+			(selectedRowsChange)="showCommandBySelectedRows($event)"
+		>
+			<datatable-column [checkbox]="true" name=""></datatable-column>
+			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
+			<datatable-column class="col-name" name="Staff" property="_Staff">
+				<ng-template let-i="row" datatable-cell-template>
+					<div (click)="nav('staff/'+i.Id,'forward')" class="col-name cell">
+						<ion-avatar class="avatar" slot="start">
+							<ion-img #img [src]="i.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+						</ion-avatar>
+						<div>
+							<span class="bold">{{i.FullName}}</span>
+							<small *ngIf="i.Code" class="no-warp"> {{i.Code}}</small>
+							<br />
+							{{i.Email}}
+						</div>
+					</div>
+				</ng-template>
+			</datatable-column>
+			<datatable-column class="col-date" format="yyyy-MM-dd" name="Effective from" property="EffectiveFrom" filterControlType="date"></datatable-column>
+			<datatable-column class="col-date" format="yyyy-MM-dd" name="Effective to" property="EffectiveTo" filterControlType="date"></datatable-column>
+			<datatable-column class="col-name flex-break" name="Title" property="Name"></datatable-column>
+			<datatable-column class="col-status" name="Status" property="Status" filterControlType="ng-select" [filterDataSource]="statusList">
+				<ng-template let-i="row" datatable-cell-template>
+					<ion-badge [color]="i._Status?.Color" [title]="i._Status?.Name"> {{i._Status?.Name | translate}} </ion-badge>
+				</ng-template>
+			</datatable-column>
+		</app-data-table>
+	</div>
+
+	<div class="ion-padding"></div>
+	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
+		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

@@ -123,6 +123,8 @@ export const HRMRoutes: Routes = [
 
     { path: 'leave-statistics', loadChildren: () => import('./leave-statistics/leave-statistics.module').then(m => m.LeaveStatisticsPageModule), canActivate: [AuthGuard] },
     
+     { path: 'staff-agreement', loadChildren: () => import('./staff-agreement/staff-agreement.module').then(m => m.StaffAgreementPageModule), canActivate: [AuthGuard] },
+    { path: 'staff-agreement/:id', loadChildren: () => import('./staff-agreement-detail/staff-agreement-detail.module').then(m => m.StaffAgreementDetailPageModule), canActivate: [AuthGuard] },
 
  
 ];

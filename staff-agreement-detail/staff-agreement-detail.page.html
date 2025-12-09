@@ -1,0 +1,163 @@
+<ion-header>
+	<app-toolbar [page]="this">
+	</app-toolbar>
+</ion-header>
+
+<ion-content appScrollbarTheme class="ion-padding">
+	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
+	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
+		<ion-grid fixed>
+			<form [formGroup]="formGroup">
+				<ion-row class="hr-group">
+					<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+						<ion-list-header class="ion-no-padding">
+							<ion-label color="primary">{{'Agreement' | translate}}</ion-label>
+						</ion-list-header>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control (change)="saveChange();" [field]="{id: 'Code', type: 'text', label: 'Code', form: formGroup}"></app-form-control>
+						<app-form-control (change)="saveChange();" [field]="{id: 'Name', type: 'text', label: 'Name', form: formGroup}"></app-form-control>
+						<app-form-control
+							[clearable]="true"
+							[field]="{id: 'IDStaff', label: 'Staff', type: 'ng-select-staff', form: formGroup, dataSource: _staffDataSource, bindLabel: 'FullName', bindValue: 'Id' }"
+							(change)="saveChange()"
+						></app-form-control>
+					</ion-col>
+					<ion-col size="12" size-sm size-xl="4">
+						<app-form-control
+							(change)="saveChange();"
+							[field]="{id: 'Status', label: 'Status', type: 'ng-select-status', dataSource: statusList, bindLabel: 'Name', bindValue: 'Code', form: formGroup}"
+						></app-form-control>
+
+						<app-form-control
+							[field]="{id:'EffectiveFrom', label: 'Effective from', type : 'date', placeholder: 'yyyy-MM-dd', form : formGroup }"
+							(change)="changeDate()"></app-form-control>
+						<app-form-control
+							[field]="{id:'EffectiveTo', label: 'Effective to', type : 'date', placeholder: 'yyyy-MM-dd', form : formGroup }"
+							(change)="changeDate()"></app-form-control>
+
+					</ion-col>
+				</ion-row>
+			</form>
+		</ion-grid>
+
+		<div class="row-full shadow safe-max-width" style="max-width: 1760px">
+			<ion-toolbar color="primary">
+				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
+					<ion-segment-button value="s1">
+						<ion-label>{{'Agreement list' | translate}}</ion-label>
+			
+					</ion-segment-button>
+					<ion-segment-button value="s2">
+						<ion-label>{{'Other information' | translate}}</ion-label>
+					</ion-segment-button>
+				
+				</ion-segment>
+				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
+
+					
+					</ion-buttons>
+			</ion-toolbar>
+			<div *ngIf="segmentView == 's1'">
+				<form [formGroup]="formGroup">
+					<ng-container formArrayName="Lines">
+						<app-data-table [rows]="formGroup.get('Lines')['controls']"
+							[showSpinner]="pageConfig.showSpinner">
+							<datatable-empty-message subMessage="Please click add new to start...">
+								<ng-template datatable-empty-message-template>
+									<div>
+										<ion-button *ngIf="formGroup.controls.Id.value != null" size="small"
+											(click)="addItemLine({}, true)">
+											<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+											{{ 'Add agreement' | translate }}
+										</ion-button>
+									</div>
+								</ng-template>
+							</datatable-empty-message>
+							<datatable-column [checkbox]="true" property="value" *ngIf="pageConfig.canEdit">
+								<ng-template datatable-header-template>
+									<input class="c-checkbox" type="checkbox" (change)="toggleSelectAll()"
+										[checked]="isAllChecked" />
+								</ng-template>
+								<ng-template let-g="row" datatable-cell-template>
+									<app-input-control (change)="changeSelection(g, $event)"
+										[field]="{ id: 'IsChecked', label: 'Checked', type: 'checkbox', form: g }"></app-input-control>
+								</ng-template>
+							</datatable-column>
+							<datatable-column class="col-id" name="No." property="#"></datatable-column>
+							<datatable-column class="col-name" name="Items" property="value">
+								<ng-template let-g="row" datatable-cell-template>
+									<app-input-control [field]="{ id: 'IDItem', label: 'Item', type: 'ng-select-item', form: g,
+										dataSource: g.get('_IDItemDataSource').value,
+										bindValue: 'Id',
+										bindLabel: 'Name',
+										clearable: true,
+										placeholder: 'Type to search...',
+										appendTo: '#scenario-detail', }" (change)="saveChange()"></app-input-control>
+								</ng-template>
+							</datatable-column>
+							<datatable-column class="col-del" name="" property="value" *ngIf="pageConfig.canEdit">
+								<ng-template datatable-header-template>
+									<ion-icon *ngIf="formGroup.get('Lines')['controls'].length > 0" color="danger"
+										class="min-btn clickable"
+										title="{{ 'SELECTED_ITEMS' | translate: { COUNT: selectedLines.controls?.length } }}"
+										name="trash-outline" (click)="removeSelectedItems()"></ion-icon>
+								</ng-template>
+								<ng-template let-g="row" let-idx="idx" datatable-cell-template>
+									<ion-icon color="danger" class="min-btn clickable" name="trash-outline"
+										(click)="removeLine(idx)"></ion-icon>
+								</ng-template>
+							</datatable-column>
+
+						</app-data-table>
+					</ng-container>
+				</form>
+				<div class="ion-padding" *ngIf="pageConfig.canEdit && formGroup.controls.Lines.value.length ">
+					<ion-button fill="clear" size="small" (click)="addItemLine({}, true)">
+						<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+						{{ 'Add agreement' | translate }}
+					</ion-button>
+				</div>			
+			</div>
+			<div *ngIf="segmentView == 's2'">
+				<div class="ion-padding">
+					<ion-grid fixed>
+						<ion-row class="hr-group" *ngIf="item?.Id">
+							<ion-col size="12" size-sm="12" size-md="12" size-xl="3">
+								<ion-list-header class="ion-no-padding">
+									<ion-label color="primary">{{'Other information' | translate}}</ion-label>
+								</ion-list-header>
+							</ion-col>
+							<ion-col size="12" size-sm size-xl="4">
+								<app-form-control
+									[field]="{id: 'IDBranch', type: 'branch-breadcrumbs', label: 'Branch', form: formGroup, dataSource: env.branchList }"
+								></app-form-control>
+								<app-form-control [field]="{id: 'CreatedBy', type: 'text', label: 'Created by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'CreatedDate', type: 'span-datetime', label: 'Created date', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedBy', type: 'text', label: 'Last modified by', form: formGroup }"></app-form-control>
+								<app-form-control [field]="{id: 'ModifiedDate', type: 'span-datetime', label: 'Last modified date', form: formGroup }"></app-form-control>
+							</ion-col>
+							<ion-col size="12" size-sm size-xl="4">
+								<app-form-control
+									[field]="{id: 'DocumentDate', label: 'Document date', type: 'datetime-local', form: formGroup}"
+									(change)="changeDate($event)"
+								></app-form-control>
+
+								<app-form-control
+									[field]="{id: 'PostingDate', label: 'Posting date', type: 'datetime-local', form: formGroup}"
+									(change)="changeDate($event)"
+								></app-form-control>
+
+								<app-form-control [field]="{id: 'DueDate', label: 'Due date', type: 'datetime-local', form: formGroup}" (change)="changeDate($event)">
+								</app-form-control>
+
+								<app-form-control [field]="{id: 'Remark', type: 'textarea', form: formGroup }" (change)="saveChange()"></app-form-control>
+							</ion-col>
+						</ion-row>
+					</ion-grid>
+				</div>
+			</div>
+		</div>
+	</div>
+	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+</ion-content>
