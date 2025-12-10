@@ -5,7 +5,6 @@
 	<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
 		<ion-accordion [value]="gr.Code" *ngFor="let gr of subGroup" class="ion-accordion-bg">
 			<div slot="header" class="bold header-ion-accordion clickable" ><ion-text color="primary">{{gr.Name}}</ion-text></div>
-
 			<div class="row" slot="content" class="ion-accordion-bg">
 				<ion-grid fixed style="padding:0px">
 					<ion-row>

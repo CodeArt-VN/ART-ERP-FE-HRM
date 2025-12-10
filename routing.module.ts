@@ -126,6 +126,8 @@ export const HRMRoutes: Routes = [
      { path: 'staff-agreement', loadChildren: () => import('./staff-agreement/staff-agreement.module').then(m => m.StaffAgreementPageModule), canActivate: [AuthGuard] },
     { path: 'staff-agreement/:id', loadChildren: () => import('./staff-agreement-detail/staff-agreement-detail.module').then(m => m.StaffAgreementDetailPageModule), canActivate: [AuthGuard] },
 
+    { path: 'cv-template', loadChildren: () => import('./cv-template/cv-template.module').then(m => m.CVTemplatePageModule), canActivate: [AuthGuard] },
+    { path: 'cv-template/:id', loadChildren: () => import('./cv-template-detail/cv-template-detail.module').then(m => m.CVTemplateDetailPageModule), canActivate: [AuthGuard] },
  
 ];
 

@@ -32,7 +32,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 	IDTimesheet;
 	cycle: any;
 	jobTitleList: any = [];
-	status:any = null;
+	status: any = null;
 	constructor(
 		public pageProvider: HRM_TimesheetRecordProvider,
 		public staffTimesheetRecordProvider: HRM_TimesheetRecordService,
@@ -58,7 +58,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 		this.jobTitleList = lib.cloneObject(this.env.jobTitleList);
 		Promise.all([this.timesheetCycleProvider.getAnItem(this.id)]).then((values) => {
 			this.cycle = values[0];
-			this.status = this.cycle?.Timesheets?.find(d=> d.IDTimesheet == parseInt(this.IDTimesheet))?.Status;
+			this.status = this.cycle?.Timesheets?.find((d) => d.IDTimesheet == parseInt(this.IDTimesheet))?.Status;
 			super.preLoadData(event);
 		});
 	}
@@ -107,6 +107,21 @@ export class TimesheetRecordDetailPage extends PageBase {
 		this.submitAttempt = true;
 		this.env
 			.showLoading('Please wait for a few moments', this.staffTimesheetRecordProvider.exportTimesheetRecordSummary(recordQuery))
+			.then((response: any) => {
+				this.downloadURLContent(response);
+				this.submitAttempt = false;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+			});
+	}
+
+	exportStaffInsurance(type = null): Promise<void> {
+		let recordQuery = { IDTimesheet: this.IDTimesheet, Lang: this.env.language.current, IDTimesheetCycle: this.id };
+		if (this.submitAttempt) return;
+		this.submitAttempt = true;
+		this.env
+			.showLoading('Please wait for a few moments', this.staffTimesheetRecordProvider.exportStaffInsurance(recordQuery))
 			.then((response: any) => {
 				this.downloadURLContent(response);
 				this.submitAttempt = false;

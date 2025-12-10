@@ -24,15 +24,15 @@
 			<datatable-column class="col-id" name="#" property="Id" [navLink]="pageConfig.pageName"></datatable-column>
 			<datatable-column class="col-name" name="Staff" property="_Staff">
 				<ng-template let-i="row" datatable-cell-template>
-					<div (click)="nav('staff/'+i.Id,'forward')" class="col-name cell">
+					<div (click)="nav('staff-agreement/'+i.Id,'forward')" class="col-name cell">
 						<ion-avatar class="avatar" slot="start">
 							<ion-img #img [src]="i.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
 						</ion-avatar>
 						<div>
-							<span class="bold">{{i.FullName}}</span>
-							<small *ngIf="i.Code" class="no-warp"> {{i.Code}}</small>
+							<span class="bold">{{i._Staff.FullName}}</span>
+							<small *ngIf="i._Staff.Code" class="no-warp"> {{i._Staff.Code}}</small>
 							<br />
-							{{i.Email}}
+							{{i._Staff.Email}}
 						</div>
 					</div>
 				</ng-template>

@@ -6,39 +6,45 @@ import { EnvService } from 'src/app/services/core/env.service';
 import {
 	BRA_BranchProvider,
 	CRM_ContactProvider,
+	HRM_PolicyPaidTimeOffGrantsByLengthOfServicesProvider,
 	HRM_StaffAgreementProvider,
 	HRM_StaffProvider,
+	HRM_UDFProvider,
 	SYS_ConfigProvider,
 	WMS_ItemProvider,
 } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl, FormArray, FormGroup } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
+import { ApiSetting } from 'src/app/services/static/api-setting';
 
-@Component({ 
-		selector: 'app-staff-agreement-detail', 
-		templateUrl: './staff-agreement-detail.page.html', 
-		styleUrls: ['./staff-agreement-detail.page.scss'], 
-		standalone: false })
+@Component({
+	selector: 'app-staff-agreement-detail',
+	templateUrl: './staff-agreement-detail.page.html',
+	styleUrls: ['./staff-agreement-detail.page.scss'],
+	standalone: false,
+})
 export class StaffAgreementDetailPage extends PageBase {
-	checkingCanEdit = false;
 	statusList = [];
-	statusLineList = [];
-	contentTypeList = [];
-	branchList;
-	markAsPristine = false;
-	_currentVendor;
-	_isVendorSearch = false;
-	_vendorDataSource = this.buildSelectDataSource((term) => {
-		return this.contactProvider.search({ SkipAddress: true, IsVendor: true, SortBy: ['Id_desc'], Take: 20, Skip: 0, Term: term });
-	});
-
+	typeList = [
+		{ Code: 'Benefit', Name: 'Benefit', disable: true },
+		{ Code: 'Insurance', Name: 'Insurance' },
+	];
+	_hrmInsuranceType = [];
+	calculationMethodTypeList = [];
+	changeTypeList = [
+		{ Code: 'Increase', Name: 'Increase' },
+		{ Code: 'Decrease', Name: 'Decrease' },
+		{ Code: 'Override', Name: 'Override' },
+	];
 	_staffDataSource = this.buildSelectDataSource((term) => {
 		return this.staffProvider.search({ Take: 20, Skip: 0, Term: term });
 	});
+	UDFList = [];
 
 	constructor(
 		public pageProvider: HRM_StaffAgreementProvider,
+		public udfProvider: HRM_UDFProvider,
 		public contactProvider: CRM_ContactProvider,
 		public branchProvider: BRA_BranchProvider,
 		public itemProvider: WMS_ItemProvider,
@@ -81,40 +87,29 @@ export class StaffAgreementDetailPage extends PageBase {
 		});
 	}
 	preLoadData(event) {
-		Promise.all([
-			this.env.getStatus('PurchaseRequest')
-		]).then((values: any) => {
+		Promise.all([this.env.getStatus('PurchaseRequest'), this.env.getType('HRMInsuranceType'), this.env.getType('CalculationMethodType')]).then((values: any) => {
 			if (values[0]) this.statusList = values[0];
+			this._hrmInsuranceType = values[1];
+			this.calculationMethodTypeList = values[2];
 			super.preLoadData(event);
 		});
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		this.pageConfig.canEdit = this.checkingCanEdit;
 		this.buildFormGroup();
-		if (!this.item.Id) {
-			this.item.IDStaff = this.env.user.StaffID;
-			this.item._Staff = { Id: this.env.user.StaffID, FullName: this.env.user.FullName };
-		}
-		
+
 		super.loadedData(event);
 
 		if (this.item._Staff) {
 			this._staffDataSource.selected.push(lib.cloneObject(this.item._Staff));
 		}
 
-		this._staffDataSource.initSearch();
-
 		if (!this.item.Id) {
 			this.formGroup.get('Status').markAsDirty();
-			this.formGroup.get('IDStaff').markAsDirty();
 		}
-		// if (this.formGroup.get('Id').value && this.formGroup.get('Status').value != 'Draft' && this.formGroup.get('Status').value != 'Unapproved') {
-		// 	this.formGroup.disable();
-		// 	this.pageConfig.canEdit = false;
-		// }
-
-
+		this._staffDataSource.initSearch();
+		this.setLines();
+		if (this.item?.Status != 'Draft') this.formGroup.disable();
 	}
 
 	removeItem(Ids) {
@@ -133,45 +128,29 @@ export class StaffAgreementDetailPage extends PageBase {
 
 	setLines() {
 		this.formGroup.controls.Lines = new FormArray([]);
-		if (this.item?._Items?.length) {
-			const sortedLines = this.item._Items?.slice().sort((a, b) => a.Sort - b.Sort);
-			sortedLines.forEach((i) => {
+		if (this.item?.Lines?.length) {
+			this.item?.Lines.forEach((i) => {
 				this.addItemLine(i);
 			});
 		}
-
-		let groups = <FormArray>this.formGroup.controls.Lines;
-		groups.value.sort((a, b) => a.Sort - b.Sort);
-		groups.controls.sort((a, b) => a.value['Sort'] - b.value['Sort']);
-		this.formGroup.controls.Lines.patchValue(groups.value);
 	}
 
 	addItemLine(line) {
 		let groups = <FormArray>this.formGroup.controls.Lines;
 		let group = this.formBuilder.group({
-			_IDItemDataSource: this.buildSelectDataSource((term) => {
-				return this.itemProvider.search({
-					SortBy: ['Id_desc'],
-					Take: 20,
-					Skip: 0,
-					Term: term,
-				});
-			}),
 			Id: [line?.Id],
+			AgreementID: [line ? line.AgreementID : this.id],
 			Name: [line?.Name],
 			Code: [line?.Code],
-			IDItem: [line?.IDItem, Validators.required],
-			Sort: [line?.Sort],
-			IsChecked: [false],
-			IsDisabled: [line?.IsDisabled],
+			Type: [line?.Type],
+			SubType: [line?.SubType],
+			ChangeType: [line?.ChangeType, Validators.required],
+			OldValue: [line?.OldValue ?? 0],
+			NewValue: [line?.NewValue ?? 0],
+			CoOldValue: [line?.CoOldValue ?? 0],
+			CoNewValue: [line?.CoNewValue ?? 0],
+			CalculationType: [line?.CalculationType, Validators.required],
 		});
-		let _item = {
-			Id: line?.IDItem,
-			Code: line?.Code,
-			Name: line?.Name,
-		};
-		if (line) group.get('_IDItemDataSource').value.selected.push(_item);
-		group.get('_IDItemDataSource').value.initSearch();
 		groups.push(group);
 	}
 
@@ -206,11 +185,125 @@ export class StaffAgreementDetailPage extends PageBase {
 		this.item = savedItem;
 		this.loadedData();
 	}
-	
+
 	segmentView = 's1';
 	segmentChanged(ev: any) {
 		this.segmentView = ev.detail.value;
 	}
 
-	
+	typeChange(g: any) {
+		switch (g.controls.Type.value) {
+			case 'Insurance':
+				g.controls.SubType.setValidators(Validators.required);
+				g.controls.SubType.updateValueAndValidity();
+				if (g.controls.Code.value) {
+					g.controls.Code.setValue(null);
+					g.controls.Code.markAsDirty();
+					g.controls.Code.setValidators([]);
+					g.controls.Code.updateValueAndValidity();
+				}
+				break;
+
+			case 'Benefit':
+				g.controls.SubType.setValidators([]);
+				g.controls.SubType.updateValueAndValidity();
+				g.controls.Code.setValidators(Validators.required);
+				g.controls.Code.updateValueAndValidity();
+				if (g.controls.SubType.value) {
+					g.controls.SubType.setValue(null);
+					g.controls.SubType.markAsDirty();
+				}
+				if (g.controls.CoNewValue.value > 0) {
+					g.controls.CoNewValue.setValue(0);
+					g.controls.CoNewValue.markAsDirty();
+				}
+				this.udfProvider.read({ Group: 'Benefits' }).then((value: any) => {
+					this.UDFList = value.data;
+				});
+				break;
+		}
+	}
+
+	submit(): void {
+		let text = 'Gửi Duyệt';
+		let message = 'Sau khi gửi duyệt, bạn không thể chỉnh sửa đối tượng được nữa. Bạn có chắc muốn gửi duyệt tất cả đối tượng chưa duyệt?';
+		this.changeStatus(text, message, 'Submitted');
+	}
+
+	approve(): void {
+		let text = 'Duyệt';
+		let message = 'Bạn có chắc chắn duyệt các đối tượng này?';
+		this.changeStatus(text, message, 'Approved');
+	}
+
+	disapprove(): void {
+		let text = 'Không Duyệt';
+		let message = 'Bạn có chắc chắn không duyệt các đối tượng này?';
+		this.changeStatus(text, message, 'Disapproved');
+	}
+
+	cancel(): void {
+		let text = 'Huỷ';
+		let message = 'Bạn có chắc chắn huỷ các đối tượng này?';
+		this.changeStatus(text, message, 'Rejected');
+	}
+
+	changeStatus(text, message, Status) {
+		this.alertCtrl
+			.create({
+				header: text,
+				//subHeader: '---',
+				message: message,
+				buttons: [
+					{
+						text: 'Hủy',
+						role: 'cancel',
+						handler: () => {
+							//console.log('Không xóa');
+						},
+					},
+					{
+						text: 'Xác nhận',
+						cssClass: 'danger-btn',
+						handler: () => {
+							let publishEventCode = this.pageConfig.pageName;
+							let apiPath = {
+								method: 'POST',
+								url: function () {
+									return ApiSetting.apiDomain('HRM/StaffAgreement/ChangeStatus/');
+								},
+							};
+
+							if (this.submitAttempt == false) {
+								this.submitAttempt = true;
+								let postDTO = {
+									Ids: [this.id],
+									Status: Status,
+								};
+								this.pageProvider.commonService
+									.connect(apiPath.method, apiPath.url(), postDTO)
+									.toPromise()
+									.then((savedItem: any) => {
+										if (publishEventCode) {
+											this.env.publishEvent({
+												Code: publishEventCode,
+											});
+										}
+										this.env.showMessage('Saving completed!', 'success');
+										this.submitAttempt = false;
+										this.refresh(null);
+									})
+									.catch((err) => {
+										this.submitAttempt = false;
+										//console.log(err);
+									});
+							}
+						},
+					},
+				],
+			})
+			.then((alert) => {
+				alert.present();
+			});
+	}
 }
