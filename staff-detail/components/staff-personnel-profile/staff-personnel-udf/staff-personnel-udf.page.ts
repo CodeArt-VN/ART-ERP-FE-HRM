@@ -39,10 +39,8 @@ export class StaffPersonnelUDFComponent extends PageBase {
 		this.query.Group = this.group;
 		this.query.IsDisabled = false;
 		Promise.all([this.env.getType(this.group, true)]).then((values: any) => {
-			console.log(values);
 			if (values && values[0]) {
 				this.subGroupList = values[0];
-				console.log('Staff personel udf : ', this.subGroupList);
 			}
 			super.preLoadData(event);
 		});
@@ -94,7 +92,6 @@ export class StaffPersonnelUDFComponent extends PageBase {
 			})
 			.finally(() => {
 				super.loadedData(event);
-				console.log('Staff personel udf loaded : ', this.subGroupList);
 			});
 	}
 	openedFields;
