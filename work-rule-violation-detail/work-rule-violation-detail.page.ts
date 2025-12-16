@@ -64,7 +64,7 @@ export class WorkRuleViolationDetailPage extends PageBase {
 		});
 	}
 	_staffDataSource = this.buildSelectDataSource((term) => {
-		return this.staffProvider.search({ Take: 20, Skip: 0, Term: term });
+		return this.staffProvider.search({ Take: 20, Skip: 0, Keyword: term  });
 	});
 
 	preLoadData(event?: any) {

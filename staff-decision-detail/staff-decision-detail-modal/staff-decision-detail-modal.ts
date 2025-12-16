@@ -51,7 +51,7 @@ export class StaffDecisionDetailModal extends PageBase {
 			DecisionValue: [''],
 		});
 		this._staffDataSource = this.buildSelectDataSource((term) => {
-			return this.staffProvider.search({ Take: 20, Skip: 0, Term: term });
+			return this.staffProvider.search({ Take: 20, Skip: 0, Keyword: term  });
 		});
 	}
 
