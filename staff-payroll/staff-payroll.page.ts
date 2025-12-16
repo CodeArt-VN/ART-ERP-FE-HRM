@@ -4,8 +4,9 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { Location } from '@angular/common';
 import { FormBuilder } from '@angular/forms';
-import { HRM_PayrollTemplateProvider, HRM_StaffPayrollProvider, SYS_ConfigProvider } from 'src/app/services/static/services.service';
+import { HRM_StaffPayrollProvider } from 'src/app/services/static/services.service';
 import { lib } from 'src/app/services/static/global-functions';
+import { SYS_ConfigService } from 'src/app/services/custom/system-config.service';
 @Component({
 	selector: 'app-staff-payroll',
 	templateUrl: 'staff-payroll.page.html',
@@ -17,7 +18,7 @@ export class StaffPayrollPage extends PageBase {
 	constructor(
 		public pageProvider: HRM_StaffPayrollProvider,
 		public modalController: ModalController,
-		public sysConfigProvider: SYS_ConfigProvider,
+		public sysConfigService: SYS_ConfigService,
 		public formBuilder: FormBuilder,
 		public popoverCtrl: PopoverController,
 		public alertCtrl: AlertController,
@@ -32,17 +33,16 @@ export class StaffPayrollPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		let sysConfigQuery = ['StaffPayrollUsedApprovalModule'];
 		this.query.SortBy = 'Id_desc';
 
-		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.sysConfigProvider.read({ Code_in: sysConfigQuery, IDBranch: this.env.selectedBranch })]).then((res:any) => {
+		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.sysConfigService.getConfig(this.env.selectedBranch, ['StaffPayrollUsedApprovalModule'])]).then((res:any) => {
 			this.statusList = res[0];
-			res[1]['data'].forEach((e) => {
-				if ((e.Value == null || e.Value == 'null') && e._InheritedConfig) {
-					e.Value = e._InheritedConfig.Value;
-				}
-				this.pageConfig[e.Code] = JSON.parse(e.Value);
-			});
+			if(res[1]){
+				this.pageConfig = {
+					...this.pageConfig,
+					...res[1]
+				};
+			}
 			super.preLoadData(event);
 		});
 	}
