@@ -81,7 +81,7 @@ export class PTOsEnrollmentDetailPage extends PageBase {
 			Take: 20,
 			Skip: 0,
 			IDDepartment: this.env.selectedBranchAndChildren,
-			Term: term,
+			Keyword: term 
 		});
 	});
 

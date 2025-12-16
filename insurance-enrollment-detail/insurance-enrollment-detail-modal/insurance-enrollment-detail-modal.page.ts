@@ -19,7 +19,7 @@ export class InsuranceEnrollmentDetailModalPage extends PageBase {
 	typeList = [];
 	Items;
 	staffDataSource = this.buildSelectDataSource((term) => {
-		return this.staffProvider.search({ Take: 20, Skip: 0, Term: term });
+		return this.staffProvider.search({ Take: 20, Skip: 0, Keyword: term });
 	});
 	constructor(
 		// public pageProvider: HRM_PolBenefitProvider,
