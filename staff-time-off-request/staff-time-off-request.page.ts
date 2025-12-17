@@ -4,9 +4,9 @@ import { NavController, ModalController, AlertController, LoadingController, Pop
 import { SortConfig } from 'src/app/interfaces/options-interface';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_StaffTimeOffRequestProvider, SYS_ConfigProvider } from 'src/app/services/static/services.service';
-import { lib } from 'src/app/services/static/global-functions';
+import { BRA_BranchProvider, HRM_StaffTimeOffRequestProvider } from 'src/app/services/static/services.service';
 import { environment } from 'src/environments/environment';
+import { SYS_ConfigService } from 'src/app/services/custom/system-config.service';
 
 @Component({
 	selector: 'app-staff-time-off-request',
@@ -17,7 +17,7 @@ import { environment } from 'src/environments/environment';
 export class StaffTimeOffRequestPage extends PageBase {
 	constructor(
 		public pageProvider: HRM_StaffTimeOffRequestProvider,
-		public sysConfigProvider: SYS_ConfigProvider,
+		public sysConfigService: SYS_ConfigService,
 		public branchProvider: BRA_BranchProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
@@ -32,18 +32,16 @@ export class StaffTimeOffRequestPage extends PageBase {
 	statusList = [];
 
 	preLoadData(event?: any): void {
-		let sysConfigQuery = ['TimeOffUsedApprovalModule'];
 		let sorted: SortConfig[] = [{ Dimension: 'Id', Order: 'DESC' }];
 		this.pageConfig.sort = sorted;
-		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.sysConfigProvider.read({ Code_in: sysConfigQuery, IDBranch: this.env.selectedBranch })]).then((values: any) => {
+		Promise.all([this.env.getStatus('StandardApprovalStatus'), this.sysConfigService.getConfig(this.env.selectedBranch, ['TimeOffUsedApprovalModule'])]).then((values: any) => {
 			this.statusList = values[0];
-			values[1]['data'].forEach((e) => {
-				if ((e.Value == null || e.Value == 'null') && e._InheritedConfig) {
-					e.Value = e._InheritedConfig.Value;
-				}
-				this.pageConfig[e.Code] = JSON.parse(e.Value);
-			});
-
+			if(values[1]){
+				this.pageConfig = {
+					...this.pageConfig,
+					...values[1]
+				};
+			}
 			super.preLoadData();
 		});
 	}
