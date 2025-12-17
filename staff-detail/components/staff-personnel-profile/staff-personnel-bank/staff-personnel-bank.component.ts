@@ -53,6 +53,7 @@ export class StaffPersonnelBankComponent extends PageBase {
 	}
 
 	preLoadData(event = null) {
+		this.pageConfig.pageName = 'staff-personnel-bank';
 		this.query.IDStaff = this.idStaff;
 		Promise.all([this.env.getType('BankType'), this.env.getType('BankBranchType')])
 			.then((values) => {

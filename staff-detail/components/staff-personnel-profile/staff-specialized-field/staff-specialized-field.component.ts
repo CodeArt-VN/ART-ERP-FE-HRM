@@ -49,6 +49,7 @@ export class StaffSpecializedFieldComponent extends PageBase {
 	}
 
 	preLoadData(event = null) {
+		this.pageConfig.pageName = 'staff-specialized-field';
 		this.query.IDStaff = this.IDStaff;
 		Promise.all([this.env.getType('SpecializedField')]).then((values) => {
 			this.specializedFieldList = values[0];

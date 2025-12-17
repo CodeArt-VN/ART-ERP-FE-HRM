@@ -48,6 +48,7 @@ export class StaffAnotherSkillComponent extends PageBase {
 	}
 
 	preLoadData(event = null) {
+		this.pageConfig.pageName = 'staff-another-skill';
 		this.query.IDStaff = this.IDStaff;
 		super.preLoadData(event);
 	}

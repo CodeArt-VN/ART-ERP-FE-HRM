@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { NavController, LoadingController, AlertController, ModalController, PopoverController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
@@ -6,7 +6,6 @@ import { EnvService } from 'src/app/services/core/env.service';
 import {
 	BRA_BranchProvider,
 	CRM_ContactProvider,
-	HRM_PolicyPaidTimeOffGrantsByLengthOfServicesProvider,
 	HRM_StaffAgreementProvider,
 	HRM_StaffProvider,
 	HRM_UDFProvider,

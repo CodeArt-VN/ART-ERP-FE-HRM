@@ -70,6 +70,7 @@ export class StaffPersonnelFamilyComponent extends PageBase {
 	}
 
 	preLoadData(event = null) {
+		this.pageConfig.pageName = 'staff-personnel-family';
 		this.query.IDStaff = this.idStaff;
 		Promise.all([this.countryProvider.read(), this.env.getType('RelativeType'), this.env.getType('PassportType')])
 			.then((values) => {

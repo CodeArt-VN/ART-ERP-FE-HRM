@@ -57,6 +57,7 @@ export class StaffWorkExperienceComponent extends PageBase {
 	}
 
 	preLoadData(event = null) {
+		this.pageConfig.pageName = 'staff-working-experience';
 		this.query.IDStaff = this.IDStaff;
 		this.jobTitleList = [...this.env.jobTitleList];
 		super.preLoadData(event);

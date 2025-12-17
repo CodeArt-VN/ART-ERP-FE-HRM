@@ -61,6 +61,7 @@ export class StaffPersonnelIdentityCardAndPITComponent extends PageBase {
 	}
 
 	preLoadData(event = null) {
+		this.pageConfig.pageName = 'staff-personnel-identity-card-and-PIT';
 		super.preLoadData;
 		this.query.IDStaff = this.idStaff;
 		this.query.IsDisabled = 'skipped';

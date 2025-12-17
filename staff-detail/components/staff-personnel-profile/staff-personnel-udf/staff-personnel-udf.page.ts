@@ -36,6 +36,7 @@ export class StaffPersonnelUDFComponent extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
+		this.pageConfig.pageName = 'staff-personnel-udf';
 		this.query.Group = this.group;
 		this.query.IsDisabled = false;
 		Promise.all([this.env.getType(this.group, true)]).then((values: any) => {

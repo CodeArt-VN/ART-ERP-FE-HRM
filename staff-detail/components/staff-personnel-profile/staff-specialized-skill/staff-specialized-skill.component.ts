@@ -52,6 +52,7 @@ export class StaffSpecializedSkillComponent extends PageBase {
 	}
 
 	preLoadData(event = null) {
+		this.pageConfig.pageName = 'staff-specialized-skill';
 		this.query.IDStaff = this.IDStaff;
 		super.preLoadData(event);
 	}
