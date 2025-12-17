@@ -124,23 +124,7 @@
 						<app-form-control [field]="{ id: 'Name', label: 'Display name', type: 'text', form: formGroup }" (change)="saveChange()"></app-form-control>
 						<app-form-control [field]="{ id: 'Ethnic', label: 'Ethnic', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
 						<app-form-control [field]="{ id: 'MaritalStatus', label: 'Marital status', type: 'text', form: formGroup }" (change)="saveChange()"> </app-form-control>
-						<div class="c-control">
-							<input (change)="saveChange()" id="Gender1" type="radio" [value]="true" formControlName="Gender" class="c-checkbox" />
-							<label class="c-label radio" for="Gender1">
-								<span>{{ 'Male' | translate }}</span>
-							</label>
-
-							<input (change)="saveChange()" id="Gender2" type="radio" [value]="false" formControlName="Gender" class="c-checkbox" />
-							<label class="c-label radio" for="Gender2">
-								<span>{{ 'Female' | translate }}</span>
-								<span
-									*ngIf="!formGroup.controls.Gender.valid && !formGroup.controls.Gender.pending && (formGroup.controls.Gender.dirty || submitAttempt)"
-									ion-text
-									color="danger"
-									>(*)</span
-								>
-							</label>
-						</div>
+						<app-form-control [field]="{ id: 'Gender', type: 'radio', form: formGroup, dataSource: [{ Code: true, Name: 'Male' }, { Code: false, Name: 'Female' }]}"(change)="saveChange()"></app-form-control>
 					</ion-col>
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control [field]="{ id: 'DOB', label: 'Date of birth', type: 'datetime-local', form: formGroup }" (change)="saveChange()"></app-form-control>
