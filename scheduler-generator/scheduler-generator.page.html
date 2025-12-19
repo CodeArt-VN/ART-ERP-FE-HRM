@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header collapse="fade">
 	<ion-toolbar class="no-padding">
 		<ion-buttons slot="start">
 			<ion-button color="dark" class="ion-hide-sm-down"> {{'Shift allocation' | translate}} </ion-button>
@@ -19,7 +19,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+<ion-content appScrollbarTheme class="ion-padding">
 	<div class="main-view">
 		
 		<ion-segment (ionChange)="segmentChanged($event)" [value]="segmentView">
@@ -231,16 +231,25 @@
 						</div>
 					</ion-col>
 				</ion-row>
-				<ion-row *ngIf="pageConfig.canEdit">
-					<ion-col>
-						<div class="c-control ion-text-right">
-							<label class="c-label" for=""></label>
-							<ion-button (click)="massShiftAssignment()">{{'Save' | translate}}</ion-button>
-						</div>
-					</ion-col>
-				</ion-row>
 			</ion-grid>
 		</form>
 
 	</div>
 </ion-content>
+<ion-footer collapse="fade">
+	<ion-toolbar>
+		<div slot="start">
+			
+        </div>
+		
+		<div slot="end">
+			<ion-button [strong]="true" *ngIf="pageConfig.canEdit" (click)="massShiftAssignment()">
+				{{'Save' | translate}}
+			</ion-button>
+            <ion-button fill="outline" color="warning" (click)="closeModal()" >
+                {{'Cancel' | translate}}
+            </ion-button>
+        </div>
+		
+	</ion-toolbar>
+</ion-footer>

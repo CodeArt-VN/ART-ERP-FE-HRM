@@ -106,7 +106,7 @@ export class UDFPage extends PageBase {
 				item: i,
 				UDFList: this.items,
 			},
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 		return await modal.present();
 	}

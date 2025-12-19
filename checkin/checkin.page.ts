@@ -100,7 +100,7 @@ export class CheckinPage extends PageBase {
 	async scanQRCode() {
 		const modal = await this.modalController.create({
 			component: ScanCheckinModalPage,
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 
 		await modal.present();

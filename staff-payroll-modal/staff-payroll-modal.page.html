@@ -1,8 +1,8 @@
-<ion-header>
+<ion-header collapse="fade">
 	<ion-toolbar class="no-padding">
 		<ion-title>{{'Payroll' | translate}}</ion-title>
 		<ion-buttons slot="end">
-			<ion-button title="{{'Close' | translate}}" (click)="popoverCtrl.dismiss(null)">
+			<ion-button title="{{'Close' | translate}}" (click)="closeModal()">
 				<ion-icon slot="icon-only" name="close"></ion-icon>
 			</ion-button>
 		</ion-buttons>
@@ -10,7 +10,7 @@
 </ion-header>
 
 <div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
-<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+<ion-content appScrollbarTheme class="ion-padding">
 	<ion-grid fixed>
 		<form [formGroup]="formGroup">
 			<ion-row class="hr-group">
@@ -24,8 +24,19 @@
 		</form>
 	</ion-grid>
 </ion-content>
-<ion-footer>
+<ion-footer collapse="fade">
 	<ion-toolbar>
-		<ion-button size="medium" slot="end" (click)="saveChange()">{{'Submit' | translate}}</ion-button>
+		<div slot="start">
+        </div>
+		
+		<div slot="end">
+			<ion-button [strong]="true" (click)="saveChange()">
+				{{'Submit' | translate}}
+			</ion-button>
+            <ion-button fill="outline" color="warning" (click)="closeModal()" >
+                {{'Cancel' | translate}}
+            </ion-button>
+        </div>
+
 	</ion-toolbar>
 </ion-footer>

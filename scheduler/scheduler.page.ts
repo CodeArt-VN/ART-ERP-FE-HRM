@@ -1248,7 +1248,7 @@ export class SchedulerPage extends PageBase {
 		const modal = await this.modalController.create({
 			component: SchedulerGeneratorPage,
 			componentProps: cData,
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 		console.log(cData);
 		await modal.present();
@@ -1271,7 +1271,7 @@ export class SchedulerPage extends PageBase {
 		const modal = await this.modalController.create({
 			component: LogGeneratorPage,
 			componentProps: cData,
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 
 		await modal.present();
