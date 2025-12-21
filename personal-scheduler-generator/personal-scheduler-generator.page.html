@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header collapse="fade">
 	<ion-toolbar class="no-padding">
 		<ion-buttons slot="start">
 			<ion-button color="dark" class="ion-hide-sm-down"> {{'Daily working schedule' | translate}} </ion-button>
@@ -19,7 +19,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+<ion-content appScrollbarTheme class="ion-padding">
 	<form [formGroup]="formGroup">
 		<ion-grid fixed>
 			<ion-row>
@@ -182,14 +182,23 @@
 					<app-form-control [field]="{id:'Remark',label:'Reason',type:'textarea',form:formGroup}"></app-form-control>
 				</ion-col>
 			</ion-row>
-			<ion-row *ngIf="!formGroup.controls.TimeOffType.value && (canBook|| canCreateCheckinLog)">
-				<ion-col>
-					<div class="c-control ion-text-right">
-						<label class="c-label" for=""></label>
-						<ion-button [disabled]="!formGroup.dirty && !formGroup.valid" (click)="massShiftAssignment()">{{'Save options' | translate}}</ion-button>
-					</div>
-				</ion-col>
-			</ion-row>
 		</ion-grid>
 	</form>
 </ion-content>
+<ion-footer collapse="fade">
+	<ion-toolbar>
+		<div slot="start">
+
+        </div>
+		
+		<div slot="end">
+			<ion-button [strong]="true" *ngIf="!formGroup.controls.TimeOffType.value && (canBook|| canCreateCheckinLog)" [disabled]="!formGroup.dirty && !formGroup.valid" (click)="massShiftAssignment()">
+				{{'Save options' | translate}}
+			</ion-button>
+            <ion-button fill="outline" color="warning" (click)="closeModal()" >
+                {{'Cancel' | translate}}
+            </ion-button>
+        </div>
+		
+	</ion-toolbar>
+</ion-footer>

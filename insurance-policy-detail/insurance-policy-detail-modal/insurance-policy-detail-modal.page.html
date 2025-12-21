@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header collapse="fade">
 	<ion-toolbar>
 		<!-- <ion-title>{{'Cancellation reason' | translate}}</ion-title> -->
 		<ion-buttons slot="primary">
@@ -43,8 +43,19 @@
 		</ion-grid>
 	</div>
 </ion-content>
-<ion-footer>
+<ion-footer collapse="fade">
 	<ion-toolbar>
-		<ion-button size="medium" slot="end" (click)="submitModal()">{{'Save' | translate}}</ion-button>
+		<div slot="start">
+			
+        </div>
+		
+		<div slot="end">
+			<ion-button [strong]="true" (click)="submitModal()">
+				{{'Save' | translate}}
+			</ion-button>
+            <ion-button fill="outline" color="warning" (click)="closeModal()" >
+                {{'Cancel' | translate}}
+            </ion-button>
+        </div>
 	</ion-toolbar>
 </ion-footer>

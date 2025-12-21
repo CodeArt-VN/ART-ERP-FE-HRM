@@ -397,7 +397,7 @@ export class CheckinLogComponent extends PageBase {
 		const modal = await this.modalController.create({
 			component: LogGeneratorPage,
 			componentProps: cData,
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 
 		await modal.present();

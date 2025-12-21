@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header collapse="fade">
 	<ion-toolbar>
 		<ion-title>{{'Overtime request' | translate}}</ion-title>
 
@@ -9,7 +9,7 @@
 		</ion-buttons>
 	</ion-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content appScrollbarTheme>
 	<!-- <app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title> -->
 	<div id="detail-page" style="position: absolute"></div>
 	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
@@ -166,11 +166,27 @@
 	</div>
 	<!-- <app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message> -->
 </ion-content>
-<ion-footer>
+<ion-footer collapse="fade">
 	<ion-toolbar>
-		<ion-button slot="end" *ngIf="!item?.Id && (pageConfig.canEdit || pageConfig.canAdd)" (click)="saveConfig()">{{'Add' | translate}}</ion-button>
-		<ion-button slot="end" *ngIf="item?.Id && pageConfig.canEdit" (click)="saveConfig()" [disabled]="!formGroup.dirty">{{'Save' | translate}}</ion-button>
-		<ion-button slot="end" *ngIf="item?.Id && pageConfig.canEdit" (click)="refresh()" color="warning">{{'Change cancel' | translate}}</ion-button>
-		<ion-button slot="end" *ngIf="item?.Id && pageConfig.canEdit && pageConfig.canDelete" (click)="delete()" color="danger">{{'Delete' | translate}}</ion-button>
+		<div slot="start">
+			
+        </div>
+		<div slot="end">
+			<ion-button [strong]="true" *ngIf="!item?.Id && (pageConfig.canEdit || pageConfig.canAdd)" (click)="saveConfig()">
+				{{'Add' | translate}}
+			</ion-button>
+			<ion-button [strong]="true" *ngIf="item?.Id && pageConfig.canEdit" (click)="saveConfig()" [disabled]="!formGroup.dirty">
+				{{'Save' | translate}}
+			</ion-button>
+			<ion-button fill="outline" *ngIf="item?.Id && pageConfig.canEdit" (click)="refresh()" color="warning">
+				{{'Change cancel' | translate}}
+			</ion-button>
+			<ion-button fill="outline" *ngIf="item?.Id && pageConfig.canEdit && pageConfig.canDelete" (click)="delete()" color="danger">
+				{{'Delete' | translate}}
+			</ion-button>
+            <ion-button fill="outline" color="warning" (click)="closeModal()" >
+                {{'Cancel' | translate}}
+            </ion-button>
+        </div>
 	</ion-toolbar>
 </ion-footer>

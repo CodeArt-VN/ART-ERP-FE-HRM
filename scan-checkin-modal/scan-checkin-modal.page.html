@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header collapse="fade">
 	<ion-toolbar class="no-padding">
 		<ion-title>{{'Scan checkin'}}</ion-title>
 		<ion-buttons slot="end">
@@ -28,8 +28,21 @@
 		</ion-radio-group>
 	</div>
 </ion-content>
-<ion-footer>
+<ion-footer collapse="fade">
 	<ion-toolbar>
-		<ion-button [disabled]="activeGate.Id == undefined || activeGate.Code == 'SCAN_QR'" size="medium" slot="end" (click)="checkin()">{{'Check in' | translate}}</ion-button>
+		<div slot="start">
+			
+        </div>
+		
+		<div slot="end">
+			<ion-button [strong]="true" [disabled]="activeGate.Id == undefined || activeGate.Code == 'SCAN_QR'" (click)="checkin()">
+				{{'Check in' | translate}}
+			</ion-button>
+
+            <ion-button fill="outline" color="warning" (click)="closeModal()" >
+                {{'Cancel' | translate}}
+            </ion-button>
+        </div>
+		
 	</ion-toolbar>
 </ion-footer>

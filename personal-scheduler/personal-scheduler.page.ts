@@ -618,7 +618,7 @@ export class PersonalSchedulerPage extends PageBase {
 		const modal = await this.modalController.create({
 			component: PersonalSchedulerGeneratorPage,
 			componentProps: cData,
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 
 		await modal.present();
@@ -675,7 +675,7 @@ export class PersonalSchedulerPage extends PageBase {
 				componentProps: {
 					myIP: this.myIP,
 				},
-				cssClass: 'my-custom-class',
+				cssClass: 'modal90vh',
 			});
 
 			await modal.present();

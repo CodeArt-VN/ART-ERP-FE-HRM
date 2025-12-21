@@ -92,7 +92,7 @@ export class TimesheetRecordPage extends PageBase {
 				item: itemClone,
 				id: i.Id,
 			},
-			cssClass: 'my-custom-class',
+			cssClass: 'modal90vh',
 		});
 
 		await modal.present();
