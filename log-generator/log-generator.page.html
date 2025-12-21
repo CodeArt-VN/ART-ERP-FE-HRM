@@ -253,17 +253,11 @@
 </ion-content>
 <ion-footer collapse="fade">
 	<ion-toolbar>
-		<div slot="start">
-        </div>
-		
+		<div slot="start"></div>
+
 		<div slot="end">
-			<ion-button [strong]="true" (click)="massShiftAssignment()">
-				{{'Save' | translate}}
-			</ion-button>
-            <ion-button fill="outline" color="warning" (click)="closeModal()" >
-                {{'Cancel' | translate}}
-            </ion-button>
-        </div>
-		
+			<ion-button fill="outline" color="warning" (click)="closeModal()"> {{'Cancel' | translate}} </ion-button>
+			<ion-button [strong]="true" (click)="massShiftAssignment()"> {{'Save' | translate}} </ion-button>
+		</div>
 	</ion-toolbar>
 </ion-footer>

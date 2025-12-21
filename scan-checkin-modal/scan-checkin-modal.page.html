@@ -14,7 +14,7 @@
 		<app-page-message [itemsLength]="(items?.length>0 || canScanQRCode )? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 		<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 		<ion-radio-group *ngIf="items && items.length>0" [(ngModel)]="selectedGateId" (ionChange)="onGateSelectionChanged()">
-			<ion-item *ngFor="let i of items"  button lines="full" (click)="changeGate(i)">
+			<ion-item *ngFor="let i of items" button lines="full" (click)="changeGate(i)">
 				<ion-label class="ion-text-wrap">
 					<ion-text [color]="i.Color">
 						<h3>{{i.Name}}</h3>
@@ -30,19 +30,11 @@
 </ion-content>
 <ion-footer collapse="fade">
 	<ion-toolbar>
-		<div slot="start">
-			
-        </div>
-		
-		<div slot="end">
-			<ion-button [strong]="true" [disabled]="activeGate.Id == undefined || activeGate.Code == 'SCAN_QR'" (click)="checkin()">
-				{{'Check in' | translate}}
-			</ion-button>
+		<div slot="start"></div>
 
-            <ion-button fill="outline" color="warning" (click)="closeModal()" >
-                {{'Cancel' | translate}}
-            </ion-button>
-        </div>
-		
+		<div slot="end">
+			<ion-button fill="outline" color="warning" (click)="closeModal()"> {{'Cancel' | translate}} </ion-button>
+			<ion-button [strong]="true" [disabled]="activeGate.Id == undefined || activeGate.Code == 'SCAN_QR'" (click)="checkin()"> {{'Check in' | translate}} </ion-button>
+		</div>
 	</ion-toolbar>
 </ion-footer>

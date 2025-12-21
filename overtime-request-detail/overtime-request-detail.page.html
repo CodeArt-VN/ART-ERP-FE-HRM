@@ -169,24 +169,15 @@
 <ion-footer collapse="fade">
 	<ion-toolbar>
 		<div slot="start">
-			
-        </div>
+			<ion-button fill="outline" *ngIf="item.Id && pageConfig.canDelete" (click)="delete()" color="danger"> {{'Delete' | translate}} </ion-button>
+		</div>
+
 		<div slot="end">
-			<ion-button [strong]="true" *ngIf="!item?.Id && (pageConfig.canEdit || pageConfig.canAdd)" (click)="saveConfig()">
-				{{'Add' | translate}}
+			<ion-button fill="outline" *ngIf="!item.Id" color="warning" (click)="closeModal()"> {{'Cancel' | translate}} </ion-button>
+			<ion-button fill="outline" *ngIf="item.Id && pageConfig.canEdit" (click)="refresh()" color="warning" [disabled]="!formGroup.dirty">
+				{{'Discard changes' | translate}}
 			</ion-button>
-			<ion-button [strong]="true" *ngIf="item?.Id && pageConfig.canEdit" (click)="saveConfig()" [disabled]="!formGroup.dirty">
-				{{'Save' | translate}}
-			</ion-button>
-			<ion-button fill="outline" *ngIf="item?.Id && pageConfig.canEdit" (click)="refresh()" color="warning">
-				{{'Change cancel' | translate}}
-			</ion-button>
-			<ion-button fill="outline" *ngIf="item?.Id && pageConfig.canEdit && pageConfig.canDelete" (click)="delete()" color="danger">
-				{{'Delete' | translate}}
-			</ion-button>
-            <ion-button fill="outline" color="warning" (click)="closeModal()" >
-                {{'Cancel' | translate}}
-            </ion-button>
-        </div>
+			<ion-button [strong]="true" *ngIf="(pageConfig.canAdd || pageConfig.canEdit)" (click)="saveChange()" [disabled]="!formGroup.dirty"> {{'Save' | translate}} </ion-button>
+		</div>
 	</ion-toolbar>
 </ion-footer>

@@ -33,9 +33,7 @@
 					<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 						<app-form-control [field]="{id: 'RateCo', label: 'Rate co', type: 'number', form: formGroup}"> </app-form-control>
 						<app-form-control [field]="{id: 'RateEm', label: 'Rate em', type: 'number', form: formGroup}"> </app-form-control>
-						<app-form-control
-							[field]="{id: 'IsManagerCanCreateInsurance', label: 'Is manager can create insurance', type: 'checkbox', form: formGroup}"
-						>
+						<app-form-control [field]="{id: 'IsManagerCanCreateInsurance', label: 'Is manager can create insurance', type: 'checkbox', form: formGroup}">
 						</app-form-control>
 					</ion-col>
 				</ion-row>
@@ -45,17 +43,11 @@
 </ion-content>
 <ion-footer collapse="fade">
 	<ion-toolbar>
-		<div slot="start">
-			
-        </div>
-		
+		<div slot="start"></div>
+
 		<div slot="end">
-			<ion-button [strong]="true" (click)="submitModal()">
-				{{'Save' | translate}}
-			</ion-button>
-            <ion-button fill="outline" color="warning" (click)="closeModal()" >
-                {{'Cancel' | translate}}
-            </ion-button>
-        </div>
+			<ion-button fill="outline" color="warning" (click)="closeModal()"> {{'Cancel' | translate}} </ion-button>
+			<ion-button [strong]="true" (click)="submitModal()"> {{'Save' | translate}} </ion-button>
+		</div>
 	</ion-toolbar>
 </ion-footer>

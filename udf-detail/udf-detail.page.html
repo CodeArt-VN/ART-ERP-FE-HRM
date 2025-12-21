@@ -27,8 +27,10 @@
 						(change)="saveChange2()"
 						[field]="{id:'SubGroup', type: 'ng-select',dataSource:subGroupList, bindLabel:'Name',bindValue:'Code', form : formGroup,appendTo: '#detail-page' }"
 					></app-form-control>
-					<app-form-control *ngIf="formGroup.get('IsSystem').value == true"
-					[field]="{id:'SubGroup', label: 'Sub group', type : 'text', form: formGroup}"></app-form-control>
+					<app-form-control
+						*ngIf="formGroup.get('IsSystem').value == true"
+						[field]="{id:'SubGroup', label: 'Sub group', type : 'text', form: formGroup}"
+					></app-form-control>
 				</ion-col>
 				<ion-col>
 					<app-form-control
@@ -62,25 +64,17 @@
 <ion-footer collapse="fade">
 	<ion-toolbar>
 		<div slot="start">
-        </div>
-		
+			<ion-button fill="outline" *ngIf="item.Id && pageConfig.canDelete" (click)="delete()" color="danger"> {{'Delete' | translate}} </ion-button>
+		</div>
+
 		<div slot="end">
-			<ion-button [strong]="true" *ngIf="!item?.Id && (pageConfig.canEdit || pageConfig.canAdd)" (click)="saveChange2()">
-				{{'Add' | translate}}
+			<ion-button fill="outline" *ngIf="!item.Id" color="warning" (click)="closeModal()"> {{'Cancel' | translate}} </ion-button>
+			<ion-button fill="outline" *ngIf="item.Id && pageConfig.canEdit" (click)="refresh()" color="warning" [disabled]="!formGroup.dirty">
+				{{'Discard changes' | translate}}
 			</ion-button>
-			<ion-button [strong]="true" *ngIf="item?.Id && pageConfig.canEdit" (click)="saveChange2()" [disabled]="!formGroup.dirty">
+			<ion-button [strong]="true" *ngIf="(pageConfig.canAdd || pageConfig.canEdit)" (click)="saveChange2()" [disabled]="!formGroup.dirty">
 				{{'Save' | translate}}
 			</ion-button>
-			<ion-button fill="outline" *ngIf="item?.Id" (click)="refresh()" color="warning">
-				{{'Change cancel' | translate}}
-			</ion-button>
-			<ion-button fill="outline" *ngIf="item?.Id && pageConfig.canDelete" (click)="delete()" color="danger">
-				{{'Delete' | translate}}
-			</ion-button>
-            <ion-button fill="outline" color="warning" (click)="closeModal()" >
-                {{'Cancel' | translate}}
-            </ion-button>
-        </div>
-		
+		</div>
 	</ion-toolbar>
 </ion-footer>

@@ -21,7 +21,6 @@
 
 <ion-content appScrollbarTheme class="ion-padding">
 	<div class="main-view">
-		
 		<ion-segment (ionChange)="segmentChanged($event)" [value]="segmentView">
 			<ion-segment-button value="Shift">
 				<ion-label>{{'Scheduler' | translate}}</ion-label>
@@ -233,23 +232,15 @@
 				</ion-row>
 			</ion-grid>
 		</form>
-
 	</div>
 </ion-content>
 <ion-footer collapse="fade">
 	<ion-toolbar>
-		<div slot="start">
-			
-        </div>
-		
+		<div slot="start"></div>
+
 		<div slot="end">
-			<ion-button [strong]="true" *ngIf="pageConfig.canEdit" (click)="massShiftAssignment()">
-				{{'Save' | translate}}
-			</ion-button>
-            <ion-button fill="outline" color="warning" (click)="closeModal()" >
-                {{'Cancel' | translate}}
-            </ion-button>
-        </div>
-		
+			<ion-button fill="outline" color="warning" (click)="closeModal()"> {{'Cancel' | translate}} </ion-button>
+			<ion-button [strong]="true" *ngIf="pageConfig.canEdit" (click)="massShiftAssignment()"> {{'Save' | translate}} </ion-button>
+		</div>
 	</ion-toolbar>
 </ion-footer>

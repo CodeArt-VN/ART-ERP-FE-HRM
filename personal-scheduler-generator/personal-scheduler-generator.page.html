@@ -187,18 +187,18 @@
 </ion-content>
 <ion-footer collapse="fade">
 	<ion-toolbar>
-		<div slot="start">
+		<div slot="start"></div>
 
-        </div>
-		
 		<div slot="end">
-			<ion-button [strong]="true" *ngIf="!formGroup.controls.TimeOffType.value && (canBook|| canCreateCheckinLog)" [disabled]="!formGroup.dirty && !formGroup.valid" (click)="massShiftAssignment()">
+			<ion-button fill="outline" color="warning" (click)="closeModal()"> {{'Cancel' | translate}} </ion-button>
+			<ion-button
+				[strong]="true"
+				*ngIf="!formGroup.controls.TimeOffType.value && (canBook|| canCreateCheckinLog)"
+				[disabled]="!formGroup.dirty && !formGroup.valid"
+				(click)="massShiftAssignment()"
+			>
 				{{'Save options' | translate}}
 			</ion-button>
-            <ion-button fill="outline" color="warning" (click)="closeModal()" >
-                {{'Cancel' | translate}}
-            </ion-button>
-        </div>
-		
+		</div>
 	</ion-toolbar>
 </ion-footer>
