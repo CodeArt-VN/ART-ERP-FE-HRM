@@ -26,16 +26,16 @@
 	>
 		<datatable-column [checkbox]="true" name=""></datatable-column>
 
-		<datatable-column class="col-name flex-break" name="Full name" property="Staff">
+		<datatable-column class="col-name flex-break" name="Full name" property="_Staff.FullName">
 			<ng-template let-i="row" datatable-cell-template>
 				<ion-avatar class="avatar" slot="start">
-					<ion-img #img [src]="i.Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
+					<ion-img #img [src]="i._Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
 				</ion-avatar>
 				<div>
-					<span class="bold">{{i.Staff.FullName}}</span>
-					<small *ngIf="i.Staff.Code" class="no-warp"> {{i.Code}}</small>
+					<span class="bold">{{i._Staff.FullName}}</span>
+					<small *ngIf="i._Staff.Code" class="no-warp"> {{i.Code}}</small>
 					<br />
-					{{i.Staff.Email}}
+					{{i._Staff.Email}}
 				</div>
 			</ng-template>
 		</datatable-column>

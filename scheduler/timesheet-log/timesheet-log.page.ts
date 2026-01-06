@@ -31,7 +31,7 @@ export class TimesheetLogPage extends PageBase {
 	preLoadData(event?: any): void {
 		this.pageConfig.pageTitle = 'Timesheet log';
 		super.preLoadData(event);
-	}
+	}	
 
 	loadData(event?: any): void {
 		this.query.IDStaff = JSON.stringify(this.idStaffList);
@@ -41,8 +41,8 @@ export class TimesheetLogPage extends PageBase {
 
 	loadedData(event) {
 		this.items.forEach((i) => {
-			i.Staff.Avatar = i.Staff.Code ? environment.staffAvatarsServer + i.Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
-			i.Staff.Email = i.Staff.Email ? i.Staff.Email.replace(environment.loginEmail, '') : '';
+			i._Staff.Avatar = i._Staff.Code ? environment.staffAvatarsServer + i._Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
+			i._Staff.Email = i._Staff.Email ? i._Staff.Email.replace(environment.loginEmail, '') : '';
 		});
 		super.loadedData(event);
 	}
