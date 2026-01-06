@@ -126,6 +126,9 @@ export const HRMRoutes: Routes = [
      { path: 'staff-agreement', loadChildren: () => import('./staff-agreement/staff-agreement.module').then(m => m.StaffAgreementPageModule), canActivate: [AuthGuard] },
     { path: 'staff-agreement/:id', loadChildren: () => import('./staff-agreement-detail/staff-agreement-detail.module').then(m => m.StaffAgreementDetailPageModule), canActivate: [AuthGuard] },
 
-  
+
+
+      { path: 'hrm-config', loadChildren: () => import('../ADMIN/config/config.module').then(m => m.ConfigPageModule), canActivate: [AuthGuard] },
+ 
 ];
 

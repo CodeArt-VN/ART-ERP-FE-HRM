@@ -3,10 +3,11 @@ import { NavController, LoadingController, AlertController, ModalController, Nav
 import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_ShiftProvider, WMS_ZoneProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, HRM_ShiftProvider, HRM_TimesheetLogProvider, WMS_ZoneProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { CommonService } from 'src/app/services/core/common.service';
 import { lib } from 'src/app/services/static/global-functions';
+import { SYS_ConfigService } from 'src/app/services/custom/system-config.service';
 
 @Component({
 	selector: 'app-personal-scheduler-generator',
@@ -38,7 +39,8 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 	constructor(
 		public pageProvider: HRM_ShiftProvider,
 		public shiftProvider: HRM_ShiftProvider,
-
+		public sysConfigProvider: SYS_ConfigService,
+		public timesheetLogProvider: HRM_TimesheetLogProvider,
 		public modalController: ModalController,
 		public alertCtrl: AlertController,
 		public navParams: NavParams,
@@ -65,20 +67,19 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 			IsBookBreakfastCatering: [false],
 			IsBookDinnerCatering: [false],
 			// bổ sung checkin
-			TimeSpan: ['',Validators.required],
-			IDOffice: ['',Validators.required],
-			IDGate: ['',Validators.required],
-			Remark: ['',Validators.required],
+			TimeSpan: ['', Validators.required],
+			IDOffice: ['', Validators.required],
+			IDGate: ['', Validators.required],
+			Remark: ['', Validators.required],
 			IPAddress: [''],
 		});
 	}
 
 	canBook = false;
 	canCreateCheckinLog = false;
+	maxAttendanceSupplementPerMonth = 0;
+	_usedAttendanceSupplementThisMonth = 0;
 	preLoadData(event?: any): void {
-		// this.staffList = JSON.parse(JSON.stringify(this.navParams.data.staffList));
-		// this.shiftList = this.navParams.data.shiftList;
-		// this.timeoffTypeList = this.navParams.data.timeoffTypeList;
 		this.gateList = this.navParams.data.gateList;
 		this.officeList = this.navParams.data.officeList;
 		this.checkingLogList = this.navParams.data.CheckingLog || [];
@@ -89,8 +90,6 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 		this.formGroup.controls.ShiftStart.setValue(this.navParams.data.ShiftStart);
 		this.formGroup.controls.ShiftEnd.setValue(this.navParams.data.ShiftEnd);
 
-		//this.formGroup.controls.IDStaff.setValue(this.navParams.data.IDStaff);
-
 		if (this.navParams.data.IDShift) {
 			this.formGroup.controls.IDShift.setValue(this.navParams.data.IDShift);
 		}
@@ -100,16 +99,32 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 		this.formGroup.controls.IsBookDinnerCatering.setValue(this.navParams.data.IsBookDinnerCatering);
 
 		this.formGroup.controls.TimeOffType.setValue(this.navParams.data.TimeOffType);
-		if(this.navParams.data.PointObject){
+		if (this.navParams.data.PointObject) {
 			this.pointObject = this.navParams.data.PointObject;
 		}
-		//this.formGroup.controls.Id.setValue(this.navParams.data.Id);
-		//this.formGroup.controls.IDStaff.disable();`
-		//this.formGroup.controls.IDShift.disable();
 		if (this.formGroup.controls.IDOffice.value) {
 			this.changeOffice();
 		}
-		super.loadedData();
+
+		const now = new Date(this.navParams.data.FromDate);
+		const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+		const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+		const logQuery = {
+			LogTimeFrom: lib.dateFormat(firstDayOfMonth),
+			LogTimeTo: lib.dateFormat(lastDayOfMonth),
+			IDStaff: this.navParams.data.Staffs[0],
+			SeftClaim: true,
+		};
+		Promise.all([this.sysConfigProvider.getConfig(this.env.selectedBranch, ['HRMMaxAttendanceSupplementPerMonth']), this.timesheetLogProvider.read(logQuery)]).then(
+			(value: any) => {
+				this._usedAttendanceSupplementThisMonth = value[1].count;
+				this.maxAttendanceSupplementPerMonth = parseInt(value[0]['HRMMaxAttendanceSupplementPerMonth'] || '0');
+				if (!(this._usedAttendanceSupplementThisMonth < this.maxAttendanceSupplementPerMonth)) {
+					this.canCreateCheckinLog = false;
+				}
+				super.loadedData();
+			}
+		);
 
 		let d1 = lib.dateFormat(this.navParams.data.FromDate);
 		let d2 = lib.dateFormat(new Date());
@@ -119,7 +134,6 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 			this.formGroup.controls.IsBookDinnerCatering.disable();
 			this.canBook = false;
 			this.canCreateCheckinLog = true;
-
 		} else {
 			this.formGroup.controls.Id.enable();
 			this.formGroup.controls.IsBookLunchCatering.enable();

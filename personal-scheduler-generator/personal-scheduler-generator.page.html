@@ -101,6 +101,12 @@
 					<div class="c-control" *ngIf="!canBook">
 						<label class="c-label checkbox">{{'Note: only able to register at least 01 day in advance' | translate}}</label>
 					</div>
+
+					<div class="c-control">
+						<label class="c-label checkbox"
+							>{{'SUPPLEMENTARY_IN_MONTH' | translate}} {{ _usedAttendanceSupplementThisMonth + '/' + maxAttendanceSupplementPerMonth}}</label
+						>
+					</div>
 				</ion-col>
 				<ion-row *ngIf="pointObject">
 					<ion-col size="12" size-sm="12" size-md="12">
