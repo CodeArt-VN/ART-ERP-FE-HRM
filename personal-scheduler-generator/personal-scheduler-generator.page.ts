@@ -114,6 +114,7 @@ export class PersonalSchedulerGeneratorPage extends PageBase {
 			LogTimeTo: lib.dateFormat(lastDayOfMonth),
 			IDStaff: this.navParams.data.Staffs[0],
 			SeftClaim: true,
+			IsValidLog: true,
 		};
 		Promise.all([this.sysConfigProvider.getConfig(this.env.selectedBranch, ['HRMMaxAttendanceSupplementPerMonth']), this.timesheetLogProvider.read(logQuery)]).then(
 			(value: any) => {

@@ -31,7 +31,7 @@ export class TimesheetLogPage extends PageBase {
 	preLoadData(event?: any): void {
 		this.pageConfig.pageTitle = 'Timesheet log';
 		super.preLoadData(event);
-	}	
+	}
 
 	loadData(event?: any): void {
 		this.query.IDStaff = JSON.stringify(this.idStaffList);
@@ -51,5 +51,19 @@ export class TimesheetLogPage extends PageBase {
 		this.pageConfig.ShowApprove = true;
 		if (this.selectedItems.some((s) => !s.IsValidLog)) this.pageConfig.ShowDisapprove = false;
 		if (this.selectedItems.some((s) => s.IsValidLog)) this.pageConfig.ShowApprove = false;
+	}
+
+	onDatatableFilter(e) {
+		if (e?.query?.IsValidLog !== undefined && e.query.IsValidLog !== null) {
+			if (e.query.IsValidLog === 'Valid') {
+				e.query.IsValidLog = true;
+			} else if (e.query.IsValidLog === 'Invalid') {
+				e.query.IsValidLog = false;
+			}
+			else {
+				delete e.query.IsValidLog;
+			}
+		}
+		super.onDatatableFilter(e);
 	}
 }
