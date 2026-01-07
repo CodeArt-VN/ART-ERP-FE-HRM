@@ -90,7 +90,7 @@ export class PersonalSchedulerPage extends PageBase {
 	preLoadData(event?: any): void {
 		Promise.all([
 			this.env.getType('ShiftType'),
-			this.shiftProvider.read(),
+			this.shiftProvider.read({ Skip: 0, Take: 5000, AllParent: true }),
 			this.leaveTypeProvider.read(),
 			this.officeProvider.read(),
 			this.gateProvider.read(),

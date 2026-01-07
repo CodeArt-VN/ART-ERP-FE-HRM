@@ -41,8 +41,8 @@ export class TimesheetLogPage extends PageBase {
 
 	loadedData(event) {
 		this.items.forEach((i) => {
-			i.Staff.Avatar = i.Staff.Code ? environment.staffAvatarsServer + i.Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
-			i.Staff.Email = i.Staff.Email ? i.Staff.Email.replace(environment.loginEmail, '') : '';
+			i._Staff.Avatar = i._Staff.Code ? environment.staffAvatarsServer + i._Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
+			i._Staff.Email = i._Staff.Email ? i._Staff.Email.replace(environment.loginEmail, '') : '';
 		});
 		super.loadedData(event);
 	}
@@ -51,5 +51,19 @@ export class TimesheetLogPage extends PageBase {
 		this.pageConfig.ShowApprove = true;
 		if (this.selectedItems.some((s) => !s.IsValidLog)) this.pageConfig.ShowDisapprove = false;
 		if (this.selectedItems.some((s) => s.IsValidLog)) this.pageConfig.ShowApprove = false;
+	}
+
+	onDatatableFilter(e) {
+		if (e?.query?.IsValidLog !== undefined && e.query.IsValidLog !== null) {
+			if (e.query.IsValidLog === 'Valid') {
+				e.query.IsValidLog = true;
+			} else if (e.query.IsValidLog === 'Invalid') {
+				e.query.IsValidLog = false;
+			}
+			else {
+				delete e.query.IsValidLog;
+			}
+		}
+		super.onDatatableFilter(e);
 	}
 }
