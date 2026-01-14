@@ -63,4 +63,26 @@ export class StaffTimeOffRequestPage extends PageBase {
 		}
 		super.loadedData(event);
 	}
+
+	submitForApproval() {
+		let ids = this.selectedItems.map((i) => i.Id);
+		if (!this.pageConfig.canSubmit || !this.pageConfig.ShowSubmit || this.submitAttempt) return;
+
+		this.env
+			.actionConfirm('submit', ids.length, this.item?.Name, this.pageConfig.pageTitle, () =>
+				this.pageProvider.commonService.connect('POST', 'HRM/StaffTimeOffRequest/Submit', { Ids: ids }).toPromise()
+			)
+			.then((_) => {
+				this.env.publishEvent({
+					Code: this.pageConfig.pageName,
+				});
+				this.env.showMessage('Submit successfully!', 'success');
+				this.submitAttempt = false;
+				this.refresh();
+			})
+			.catch((err: any) => {
+				if (err != 'User abort action') this.env.showMessage('Cannot submit, please try again', 'danger');
+				console.log(err);
+			});
+	}
 }
