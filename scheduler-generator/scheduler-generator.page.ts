@@ -98,7 +98,7 @@ export class SchedulerGeneratorPage extends PageBase {
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		super.loadedData();
-		if(!this.item.Id) this.formGroup.controls.Type.markAsDirty();
+		if(!this.item?.Id) this.formGroup.controls.Type.markAsDirty();
 		if (!this.pageConfig.canEditPassDay) {
 			let d1 = lib.dateFormat(this.navParams.data.FromDate);
 			let d2 = lib.dateFormat(this.navParams.data.currentDate);
