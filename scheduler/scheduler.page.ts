@@ -841,8 +841,8 @@ export class SchedulerPage extends PageBase {
 		droppable: true,
 	};
 
-	async eventResize(info) {
-		if (!(await this.canEditAfterCheckin(info.event))) {
+	eventResize(info) {
+		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditAfterCheckin) {
 			info.revert();
 			return;
 		}
@@ -941,7 +941,7 @@ export class SchedulerPage extends PageBase {
 		const hasCheckin = await this.hasCheckinForEvent(event);
 		if (!hasCheckin) return true;
 		if (this.pageConfig.canEditAfterCheckin) return true;
-		this.env.showMessage('Khong duoc chinh ca sau khi da checkin', 'warning');
+		this.env.showMessage('Cannot edit after checking in', 'warning');
 		return false;
 	}
 
@@ -1089,8 +1089,8 @@ export class SchedulerPage extends PageBase {
 			});
 		}
 	}
-	async eventDrop(info) {
-		if (!(await this.canEditAfterCheckin(info.event))) {
+	eventDrop(info) {
+		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditAfterCheckin) {
 			info.revert();
 			return;
 		}
@@ -1108,7 +1108,7 @@ export class SchedulerPage extends PageBase {
 		});
 
 		if (overlappingEvent) {
-			if (!(await this.canEditAfterCheckin(overlappingEvent))) {
+			if (overlappingEvent.extendedProps?.HasCheckin && !this.pageConfig.canEditAfterCheckin) {
 				info.revert();
 				return;
 			}
