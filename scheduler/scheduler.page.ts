@@ -1061,7 +1061,7 @@ export class SchedulerPage extends PageBase {
 		if (!isNaN(staffId)) {
 			const clickedDate = lib.dateFormat(dateClickInfo.dateStr);
 			const hasExisting = this.fc?.getEvents()?.some((ev) => {
-				const evStaffId = ev?._def?.resourceIds?.[0];
+				const evStaffId = parseInt(ev?._def?.resourceIds?.[0]);
 				if (evStaffId !== staffId) return false;
 				const evDate = lib.dateFormat(ev.start);
 				return evDate === clickedDate;
