@@ -1056,12 +1056,22 @@ export class SchedulerPage extends PageBase {
 		if (!this.pageConfig.canEdit) {
 			return;
 		}
+		this.getCalendar();
 		const staffId = parseInt(dateClickInfo.resource?.id);
 		if (!isNaN(staffId)) {
-			const canEdit = await this.canEditShiftAfterCheckin({
-				extendedProps: { IDStaff: staffId, WorkingDate: dateClickInfo.dateStr },
+			const clickedDate = lib.dateFormat(dateClickInfo.dateStr);
+			const hasExisting = this.fc?.getEvents()?.some((ev) => {
+				const evStaffId = ev?._def?.resourceIds?.[0];
+				if (evStaffId !== staffId) return false;
+				const evDate = lib.dateFormat(ev.start);
+				return evDate === clickedDate;
 			});
-			if (!canEdit) return;
+			if (hasExisting) {
+				const canEdit = await this.canEditShiftAfterCheckin({
+					extendedProps: { IDStaff: staffId, WorkingDate: dateClickInfo.dateStr },
+				});
+				if (!canEdit) return;
+			}
 		}
 		this.massShiftAssignment({
 			FromDate: dateClickInfo.dateStr.substr(0, 10),
