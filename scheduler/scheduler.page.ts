@@ -325,7 +325,7 @@ export class SchedulerPage extends PageBase {
 			if (this.pageConfig.canEdit) {
 				htmlRemoveButton = `<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>`;
 			}
-			if (!this.pageConfig.canEditAfterCheckin && arg.event.extendedProps.HasCheckin) {
+			if (!this.pageConfig.canEditShiftAfterCheckin && arg.event.extendedProps.HasCheckin) {
 				htmlRemoveButton = '';
 			}
 			if (!this.pageConfig.canEditPassDay) {
@@ -360,7 +360,7 @@ export class SchedulerPage extends PageBase {
 		this.calendarOptions.eventResize = this.eventResize.bind(this);
 		this.calendarOptions.eventAllow = (_dropInfo, draggedEvent) => {
 			if (!draggedEvent?.extendedProps) return true;
-			if (draggedEvent.extendedProps.HasCheckin && !this.pageConfig.canEditAfterCheckin) return false;
+			if (draggedEvent.extendedProps.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) return false;
 			return true;
 		};
 		const finalizeRender = async () => {
@@ -842,7 +842,7 @@ export class SchedulerPage extends PageBase {
 	};
 
 	eventResize(info) {
-		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditAfterCheckin) {
+		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
 			info.revert();
 			return;
 		}
@@ -929,7 +929,7 @@ export class SchedulerPage extends PageBase {
 		this.items.forEach((e) => {
 			if (!e?.IDStaff || !e?.WorkingDate) return;
 			e.HasCheckin = this.checkinKeySet.has(`${e.IDStaff}|${lib.dateFormat(e.WorkingDate)}`);
-			if (e.HasCheckin && !this.pageConfig.canEditAfterCheckin) {
+			if (e.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
 				e.editable = false;
 				e.startEditable = false;
 				e.durationEditable = false;
@@ -937,10 +937,10 @@ export class SchedulerPage extends PageBase {
 			}
 		});
 	}
-	private async canEditAfterCheckin(event: any): Promise<boolean> {
+	private async canEditShiftAfterCheckin(event: any): Promise<boolean> {
 		const hasCheckin = await this.hasCheckinForEvent(event);
 		if (!hasCheckin) return true;
-		if (this.pageConfig.canEditAfterCheckin) return true;
+		if (this.pageConfig.canEditShiftAfterCheckin) return true;
 		this.env.showMessage('Cannot edit after checking in', 'warning');
 		return false;
 	}
@@ -1002,7 +1002,7 @@ export class SchedulerPage extends PageBase {
 			deleteBtn.onclick = async function (e) {
 				e.preventDefault();
 				e.stopPropagation();
-				if (!(await that.canEditAfterCheckin(arg.event))) {
+				if (!(await that.canEditShiftAfterCheckin(arg.event))) {
 					return;
 				}
 				that.env
@@ -1052,7 +1052,17 @@ export class SchedulerPage extends PageBase {
 			that.eventClick(arg);
 		};
 	}
-	dateClick(dateClickInfo) {
+	async dateClick(dateClickInfo) {
+		if (!this.pageConfig.canEdit) {
+			return;
+		}
+		const staffId = parseInt(dateClickInfo.resource?.id);
+		if (!isNaN(staffId)) {
+			const canEdit = await this.canEditShiftAfterCheckin({
+				extendedProps: { IDStaff: staffId, WorkingDate: dateClickInfo.dateStr },
+			});
+			if (!canEdit) return;
+		}
 		this.massShiftAssignment({
 			FromDate: dateClickInfo.dateStr.substr(0, 10),
 			ToDate: dateClickInfo.dateStr.substr(0, 10),
@@ -1067,7 +1077,7 @@ export class SchedulerPage extends PageBase {
 	}
 
 	async eventClick(arg) {
-		if (!(await this.canEditAfterCheckin(arg.event))) {
+		if (!(await this.canEditShiftAfterCheckin(arg.event))) {
 			return;
 		}
 		if (arg.event.extendedProps.ShiftType == 'OT') {
@@ -1090,7 +1100,7 @@ export class SchedulerPage extends PageBase {
 		}
 	}
 	eventDrop(info) {
-		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditAfterCheckin) {
+		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
 			info.revert();
 			return;
 		}
@@ -1108,7 +1118,7 @@ export class SchedulerPage extends PageBase {
 		});
 
 		if (overlappingEvent) {
-			if (overlappingEvent.extendedProps?.HasCheckin && !this.pageConfig.canEditAfterCheckin) {
+			if (overlappingEvent.extendedProps?.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
 				info.revert();
 				return;
 			}
