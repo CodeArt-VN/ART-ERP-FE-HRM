@@ -67,6 +67,9 @@ export class SchedulerPage extends PageBase {
 	cycle: any;
 	formGroupDate: any;
 	tooltipResource = '';
+	private checkinKeySet = new Set<string>();
+	private isCheckinMapLoaded = false;
+
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
@@ -322,6 +325,9 @@ export class SchedulerPage extends PageBase {
 			if (this.pageConfig.canEdit) {
 				htmlRemoveButton = `<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>`;
 			}
+			if (!this.pageConfig.canEditShiftAfterCheckin && arg.event.extendedProps.HasCheckin) {
+				htmlRemoveButton = '';
+			}
 			if (!this.pageConfig.canEditPassDay) {
 				let d1 = lib.dateFormat(arg.event.extendedProps.WorkingDate);
 				let d2 = lib.dateFormat(arg.event.extendedProps._CurrentDate);
@@ -352,6 +358,21 @@ export class SchedulerPage extends PageBase {
 		this.calendarOptions.eventChange = this.eventChange.bind(this);
 		this.calendarOptions.eventDrop = this.eventDrop.bind(this);
 		this.calendarOptions.eventResize = this.eventResize.bind(this);
+		this.calendarOptions.eventAllow = (_dropInfo, draggedEvent) => {
+			if (!draggedEvent?.extendedProps) return true;
+			if (draggedEvent.extendedProps.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) return false;
+			return true;
+		};
+		const finalizeRender = async () => {
+			await this.preloadCheckinMap();
+			this.applyCheckinFlagsToItems();
+			this.getCalendar();
+			this.patchItems();
+			this.fc?.removeAllEvents();
+			this.fc?.addEventSource(this.items);
+			this.fc?.updateSize();
+			super.loadedData(event, ignoredFromGroup);
+		};
 		this.overtimeRequestProvider
 			.read(this.query)
 			.then((values: any) => {
@@ -375,20 +396,10 @@ export class SchedulerPage extends PageBase {
 						});
 					});
 				});
-				this.getCalendar();
-				this.patchItems();
-				this.fc?.removeAllEvents();
-				this.fc?.addEventSource(this.items);
-
-				this.fc?.updateSize();
-				super.loadedData(event, ignoredFromGroup);
+				return finalizeRender();
 			})
 			.catch((err) => {
-				this.patchItems();
-				this.calendarOptions.events = this.items;
-				this.getCalendar();
-				this.fc?.updateSize();
-				super.loadedData(event, ignoredFromGroup);
+				return finalizeRender();
 			});
 	}
 
@@ -831,6 +842,10 @@ export class SchedulerPage extends PageBase {
 	};
 
 	eventResize(info) {
+		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
+			info.revert();
+			return;
+		}
 		const event = info.event; // Sự kiện sau khi được kéo dài
 		const newStart = event.start; // Thời gian bắt đầu mới
 		const newEnd = event.end; // Thời gian kết thúc mới
@@ -853,6 +868,81 @@ export class SchedulerPage extends PageBase {
 				console.error(err);
 				info.revert(); // Hoàn tác nếu có lỗi
 			});
+	}
+
+	private async hasCheckinForEvent(event: any): Promise<boolean> {
+		const props = event?.extendedProps || {};
+		const staffId = props.IDStaff;
+		const workingDate = lib.dateFormat(props.WorkingDate);
+		if (!staffId || !workingDate) return false;
+		if (this.isCheckinMapLoaded) {
+			return this.checkinKeySet.has(`${staffId}|${lib.dateFormat(workingDate)}`);
+		}
+
+		try {
+			const resp: any = await this.timesheetLogProvider.read({
+				LogTime: workingDate,
+				IDTimesheet: this.id,
+				IDOffice: JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id)),
+				IDStaff: JSON.stringify([staffId]),
+			});
+			const logs = Array.isArray(resp?.data) ? resp.data : [];
+			return logs.length > 0;
+		} catch (err) {
+			return false;
+		}
+	}
+	
+
+	private async preloadCheckinMap(): Promise<void> {
+		this.checkinKeySet = new Set<string>();
+		this.isCheckinMapLoaded = false;
+		this.getCalendar();
+		const fromDate = this.fc?.view?.activeStart;
+		const toDate = this.fc?.view?.activeEnd;
+		if (!fromDate || !toDate) return;
+
+		const staffIds = this.allResources?.map((m) => m.IDStaff).filter((m) => m);
+		if (!staffIds?.length) return;
+
+		try {
+			const resp: any = await this.timesheetLogProvider.read({
+				LogTimeFrom: lib.dateFormat(fromDate),
+				LogTimeTo: lib.dateFormat(toDate),
+				IDTimesheet: this.id,
+				IDOffice: JSON.stringify(this.officeList.filter((d) => d.isChecked).map((m) => m.Id)),
+				IDStaff: JSON.stringify(staffIds),
+				Take: 50000,
+			});
+			const logs = Array.isArray(resp?.data) ? resp.data : [];
+			logs.forEach((log) => {
+				if (!log?.IDStaff || !log?.LogTime) return;
+				this.checkinKeySet.add(`${log.IDStaff}|${lib.dateFormat(log.LogTime)}`);
+			});
+			this.isCheckinMapLoaded = true;
+		} catch (err) {
+			this.isCheckinMapLoaded = false;
+		}
+	}
+
+	private applyCheckinFlagsToItems(): void {
+		this.items.forEach((e) => {
+			if (!e?.IDStaff || !e?.WorkingDate) return;
+			e.HasCheckin = this.checkinKeySet.has(`${e.IDStaff}|${lib.dateFormat(e.WorkingDate)}`);
+			if (e.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
+				e.editable = false;
+				e.startEditable = false;
+				e.durationEditable = false;
+				e.resourceEditable = false;
+			}
+		});
+	}
+	private async canEditShiftAfterCheckin(event: any): Promise<boolean> {
+		const hasCheckin = await this.hasCheckinForEvent(event);
+		if (!hasCheckin) return true;
+		if (this.pageConfig.canEditShiftAfterCheckin) return true;
+		this.env.showMessage('Cannot edit after checking in', 'warning');
+		return false;
 	}
 
 	headerDidMount(arg) {
@@ -904,12 +994,17 @@ export class SchedulerPage extends PageBase {
 			};
 		}
 	}
+
 	eventDidMount(arg) {
 		let that = this;
-		if (arg.el.querySelector('.del-event-btn')) {
-			arg.el.querySelector('.del-event-btn').onclick = function (e) {
+		const deleteBtn = arg.el.querySelector('.del-event-btn');
+		if (deleteBtn) {
+			deleteBtn.onclick = async function (e) {
 				e.preventDefault();
 				e.stopPropagation();
+				if (!(await that.canEditShiftAfterCheckin(arg.event))) {
+					return;
+				}
 				that.env
 					.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
 					.then((_) => {
@@ -957,7 +1052,27 @@ export class SchedulerPage extends PageBase {
 			that.eventClick(arg);
 		};
 	}
-	dateClick(dateClickInfo) {
+	async dateClick(dateClickInfo) {
+		if (!this.pageConfig.canEdit) {
+			return;
+		}
+		this.getCalendar();
+		const staffId = parseInt(dateClickInfo.resource?.id);
+		if (!isNaN(staffId)) {
+			const clickedDate = lib.dateFormat(dateClickInfo.dateStr);
+			const hasExisting = this.fc?.getEvents()?.some((ev) => {
+				const evStaffId = parseInt(ev?._def?.resourceIds?.[0]);
+				if (evStaffId !== staffId) return false;
+				const evDate = lib.dateFormat(ev.start);
+				return evDate === clickedDate;
+			});
+			if (hasExisting) {
+				const canEdit = await this.canEditShiftAfterCheckin({
+					extendedProps: { IDStaff: staffId, WorkingDate: dateClickInfo.dateStr },
+				});
+				if (!canEdit) return;
+			}
+		}
 		this.massShiftAssignment({
 			FromDate: dateClickInfo.dateStr.substr(0, 10),
 			ToDate: dateClickInfo.dateStr.substr(0, 10),
@@ -971,7 +1086,10 @@ export class SchedulerPage extends PageBase {
 		});
 	}
 
-	eventClick(arg) {
+	async eventClick(arg) {
+		if (!(await this.canEditShiftAfterCheckin(arg.event))) {
+			return;
+		}
 		if (arg.event.extendedProps.ShiftType == 'OT') {
 			this.massOTAssignment(arg?.event?.extendedProps);
 		} else {
@@ -992,6 +1110,10 @@ export class SchedulerPage extends PageBase {
 		}
 	}
 	eventDrop(info) {
+		if (info.event?.extendedProps?.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
+			info.revert();
+			return;
+		}
 		const event = info.event; // The event after being dropped
 		const oldEvent = info.oldEvent; // The event's data before being dropped
 		const newStart = event.start;
@@ -1006,6 +1128,10 @@ export class SchedulerPage extends PageBase {
 		});
 
 		if (overlappingEvent) {
+			if (overlappingEvent.extendedProps?.HasCheckin && !this.pageConfig.canEditShiftAfterCheckin) {
+				info.revert();
+				return;
+			}
 			// Swap the data between the two events
 			const updatedEvent1 = {
 				Id: event.id,

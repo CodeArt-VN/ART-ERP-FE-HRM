@@ -216,7 +216,7 @@ export class PersonalSchedulerPage extends PageBase {
 						} else {
 							console.log(e);
 						}
-					} else if (shift && timesheet) {
+					} else if (shift) {
 						e.Color = shift.Color;
 						e.color = e.Color;
 						e.resourceId = e.IDStaff;
