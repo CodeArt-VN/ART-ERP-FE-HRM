@@ -83,7 +83,7 @@ export class UserDeviceDetailPage extends PageBase {
 							Take: 20,
 							Skip: 0,
 							IDDepartment: this.env.selectedBranchAndChildren,
-							Term: term,
+							Keyword: term,
 						})
 						.pipe(
 							catchError(() => of([])), // empty list on error
