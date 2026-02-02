@@ -207,7 +207,7 @@ export class CasualLabourRegisterPage extends PageBase {
 				distinctUntilChanged(),
 				tap(() => (this.staffListLoading = true)),
 				switchMap((term) =>
-					this.pageProvider.search({ Take: 20, Skip: 0, Term: term }).pipe(
+					this.pageProvider.search({ Take: 20, Skip: 0, Keyword: term }).pipe(
 						catchError(() => of([])), // empty list on error
 						tap(() => (this.staffListLoading = false))
 					)

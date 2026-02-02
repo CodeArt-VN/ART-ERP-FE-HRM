@@ -145,7 +145,7 @@ export class StaffTimeOffRequestDetailPage extends PageBase {
 			Take: 20,
 			Skip: 0,
 			IDDepartment: this.env.selectedBranchAndChildren,
-			Term: term,
+			Keyword: term,
 			Id_ne: staffId ? staffId : null,
 		});
 	});
