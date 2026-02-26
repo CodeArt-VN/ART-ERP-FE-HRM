@@ -11,9 +11,10 @@
 
 <ion-content appScrollbarTheme>
 	<div style="min-height: 0%">
-		<app-page-message [itemsLength]="(items?.length>0 || canScanQRCode )? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 		<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
-		<ion-radio-group *ngIf="items && items.length>0" [(ngModel)]="selectedGateId" (ionChange)="onGateSelectionChanged()">
+		@if((!hrmConfig.AllowCheckInWithoutShift && hasShift) || hrmConfig.AllowCheckInWithoutShift) {
+		<app-page-message [itemsLength]="(items?.length > 0 || canScanQRCode )? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+		<ion-radio-group *ngIf="items && items.length>0 && !pageConfig.showSpinner" [(ngModel)]="selectedGateId" (ionChange)="onGateSelectionChanged()">
 			<ion-item *ngFor="let i of items" button lines="full" (click)="changeGate(i)">
 				<ion-label class="ion-text-wrap">
 					<ion-text [color]="i.Color">
@@ -26,6 +27,13 @@
 				<ion-radio slot="start" [value]="i.Id"></ion-radio>
 			</ion-item>
 		</ion-radio-group>
+		}@else {
+		<div class="ion-padding">
+			<ion-text color="danger">
+				<h2>{{'You have not been assigned a shift.' | translate}}</h2>
+			</ion-text>
+		</div>
+		}
 	</div>
 </ion-content>
 <ion-footer collapse="fade">
