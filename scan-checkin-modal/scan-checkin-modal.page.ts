@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LoadingController, ModalController, NavController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
-import { HRM_TimesheetLogProvider, OST_OfficeGateProvider } from 'src/app/services/static/services.service';
+import { HRM_StaffScheduleProvider, HRM_TimesheetLogProvider, OST_OfficeGateProvider } from 'src/app/services/static/services.service';
 import { lib } from 'src/app/services/static/global-functions';
 import { ApiSetting } from 'src/app/services/static/api-setting';
 import { Capacitor } from '@capacitor/core';
@@ -12,6 +12,8 @@ import { Device } from '@capacitor/device';
 import { Geolocation } from '@capacitor/geolocation';
 import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
 import { HttpClient } from '@angular/common/http';
+import { SYS_ConfigService } from 'src/app/services/custom/system-config.service';
+import { withoutValidation } from 'ngx-mask';
 @Component({
 	selector: 'app-scan-checkin-modal',
 	templateUrl: './scan-checkin-modal.page.html',
@@ -25,10 +27,19 @@ export class ScanCheckinModalPage extends PageBase {
 	activeGate: any = {};
 	selectedGateId: number = null;
 	platform = Capacitor.getPlatform();
+	hasShift = false;
+	hrmConfig = {
+		AllowCheckInWithoutShift: false,
+		EnableLogRecording: false,
+	};
+
 	constructor(
 		public pageProvider: OST_OfficeGateProvider,
 		public scanner: BarcodeScannerService,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
+		public staffScheduleProvider: HRM_StaffScheduleProvider,
+		public sysConfigProvider: SYS_ConfigService,
+
 		public modalController: ModalController,
 		public loadingController: LoadingController,
 		public env: EnvService,
@@ -40,19 +51,41 @@ export class ScanCheckinModalPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		Promise.all([this.pageProvider.commonService.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null).toPromise(), this.pageProvider.read()]).then((resp: any) => {
+		Promise.all([
+			this.pageProvider.commonService.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null).toPromise(),
+			this.pageProvider.read(),
+			this.sysConfigProvider.getConfig(this.env.selectedBranch, Object.keys(this.hrmConfig)),
+		]).then((resp: any) => {
 			this.myIP = resp[0];
 			this.gateList = resp[1]['data'];
 			this.query.IPAddress = this.myIP;
+			for (let key of Object.keys(this.hrmConfig)) {
+				this.hrmConfig[key] = resp[2][key];
+			}
 			super.preLoadData(event);
 		});
 	}
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
-		if (this.platform !== 'web') {
-			this.canScanQRCode = true;
-			this.items.unshift({ Id: 0, Name: 'Scan QR Code', Code: 'SCAN_QR' });
+		if (!this.hrmConfig.AllowCheckInWithoutShift) {
+			
+			this.staffScheduleProvider
+				.read({
+					IDStaff: this.env.user.StaffID,
+					WorkingDate: lib.dateFormat(new Date(), 'yyyy-mm-dd'),
+				})
+				.then((resp: any) => {
+					if (resp?.data?.length > 0) {
+						this.hasShift = true;
+					}
+				})
+				.finally(() => super.loadedData(event, ignoredFromGroup));
+		} else {
+			super.loadedData(event, ignoredFromGroup);
 		}
-		super.loadedData(event, ignoredFromGroup);
+		if (this.platform !== 'web') {
+				this.canScanQRCode = true;
+				this.items.unshift({ Id: 0, Name: 'Scan QR Code', Code: 'SCAN_QR' });
+			}
 	}
 
 	changeGate(i) {
@@ -166,7 +199,11 @@ export class ScanCheckinModalPage extends PageBase {
 			GateCode: this.activeGate.Code,
 			Logtime: formattedDate,
 			IPAddress: this.myIP,
+			// WithoutShift:true
 		};
+		if (this.hrmConfig.AllowCheckInWithoutShift && !this.hrmConfig.EnableLogRecording && !this.hasShift) {
+			postDTO['WithoutShift'] = true;
+		}
 
 		this.timesheetLogProvider.save(postDTO).then((resp: any) => {
 			if (resp) {
