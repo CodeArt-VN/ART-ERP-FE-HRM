@@ -7,7 +7,7 @@
 	<app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title>
 
 	<div class="safe-max-width">
-		<app-data-table class="box-shadow responsive" [rows]="items" [trackBy]="'Id'" [(selectedRows)]="selectedItems"
+		<app-data-table class="box-shadow responsive padding-number-right" [rows]="items" [trackBy]="'Id'" [(selectedRows)]="selectedItems"
 			[showSpinner]="pageConfig.showSpinner" [showFilter]="pageConfig.isShowSearch" [(query)]="query"
 			(dataInfinite)="loadData($event)" (filter)="onDatatableFilter($event)" (sort)="onSort($event)"
 			(selectedRowsChange)="showCommandBySelectedRows($event)">

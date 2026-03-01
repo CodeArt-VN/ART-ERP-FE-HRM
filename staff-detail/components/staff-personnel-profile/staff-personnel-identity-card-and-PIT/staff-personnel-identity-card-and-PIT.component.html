@@ -1,6 +1,6 @@
 <ion-col size="12" size-sm size-xl="8">
 	<div class="table-contain">
-		<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive" [rows]="items" [(query)]="query" [showSpinner]="pageConfig.showSpinner">
+		<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive padding-number-right" [rows]="items" [(query)]="query" [showSpinner]="pageConfig.showSpinner">
 			<datatable-empty-message subMessage="Please click add new to start..." [showImg]="false" minHeight="125px">
 				<ng-template datatable-empty-message-template>
 					<ion-button (click)="addRow()" size="small" fill="outline" *ngIf="pageConfig.canEdit">
