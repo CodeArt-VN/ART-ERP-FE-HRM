@@ -4,7 +4,7 @@
 </ion-header>
 <ion-content slot="fixed" fullscreen="true" scrollY="false" appScrollbarTheme class="_left"
 	[ngClass]="{ withFeature: pageConfig.isShowFeature }">
-	<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive" [rows]="items" [(query)]="query"
+	<app-data-table *ngIf="!pageConfig.showSpinner" class="box-shadow responsive padding-number-right" [rows]="items" [(query)]="query"
 		[showSpinner]="pageConfig.showSpinner">
 		<datatable-empty-message [showImg]="false" minHeight="125px"> </datatable-empty-message>
 		<datatable-column class="col-id" name="#" property="Id"></datatable-column>

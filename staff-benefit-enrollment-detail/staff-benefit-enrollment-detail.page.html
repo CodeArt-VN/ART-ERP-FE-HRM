@@ -55,7 +55,7 @@
 			<div class="ion-padding" *ngIf="segmentView == 's1'">
 				<app-data-table
 					*ngIf="!pageConfig.showSpinner"
-					class="box-shadow responsive"
+					class="box-shadow responsive padding-number-right"
 					[rows]="item.StaffPolBenefitEnrollmentDetails ?? []"
 					[trackBy]="'Id'"
 					[(selectedRows)]="selectedItems"
