@@ -105,9 +105,11 @@ export class SchedulerPage extends PageBase {
 			singleDate: [today],
 		});
 
-		this.translate.get('The employee has been removed from the work schedule.').subscribe((text) => {
-			this.tooltipResource = text;
-		});
+		this.subscriptions.push(
+			this.translate.get('The employee has been removed from the work schedule.').subscribe((text) => {
+				this.tooltipResource = text;
+			})
+		);
 	}
 
 	async openCycleModal() {
@@ -164,8 +166,9 @@ export class SchedulerPage extends PageBase {
 
 	preLoadData(event?: any): void {
 		this.pageConfig.pageTitle = '';
-		this.route.queryParams.subscribe((params) => {
-			this.navigateObj = this.router.getCurrentNavigation()?.extras.state;
+		this.subscriptions.push(
+			this.route.queryParams.subscribe((params) => {
+				this.navigateObj = this.router.getCurrentNavigation()?.extras.state;
 			if (this.navigateObj) {
 				this.id = this.navigateObj?.id;
 				this.idCycle = this.navigateObj?.IDCycle;
@@ -190,7 +193,8 @@ export class SchedulerPage extends PageBase {
 						}
 					});
 			}
-		});
+			})
+		);
 
 		Promise.all([
 			this.officeProvider.read(),

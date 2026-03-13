@@ -87,35 +87,37 @@ export class StaffPolicyEnrollmentDetailPage extends PageBase {
 			this.HRMEffectiveTimeTypeList = values[1];
 		});
 
-		this.route.queryParams.subscribe(() => {
-			const navigation = this.router.getCurrentNavigation();
+		this.subscriptions.push(
+			this.route.queryParams.subscribe(() => {
+				const navigation = this.router.getCurrentNavigation();
 
-			if (navigation?.extras?.state?.StaffList) this.initStaffPolicyEnrollmentDetails = navigation.extras.state.StaffList;
-			if (navigation?.extras?.state?.PolicyId) this.initIdPolEnrollment = navigation.extras.state.PolicyId;
-			if (navigation?.extras?.state?.PolicyType) this.initTypePolEnrollment = navigation.extras.state.PolicyType;
-			if (!this.initTypePolEnrollment) {
-				Promise.all([this.polBenefitProvider.read(), this.polInsuranceProvider.read(), this.polEmployeeProvider.read(), this.polPaidTimeOffProvider.read()]).then(
-					(results: any[]) => {
-						let fakeId = 1;
-						const allData = [
-							...results[0].data.map((item) => ({ ...item, Type: 'PolBenefit', FakeId: fakeId++ })),
-							...results[1].data.map((item) => ({ ...item, Type: 'PolInsurance', FakeId: fakeId++ })),
-							...results[2].data.map((item) => ({ ...item, Type: 'PolEmployee', FakeId: fakeId++ })),
-							...results[3].data.map((item) => ({ ...item, Type: 'PolPaidTimeOff', FakeId: fakeId++ })),
-						];
-						this.polEnrollmentType = allData;
-						super.preLoadData(event);
-					}
-				);
-			} else {
-				this.getPolEnrollmentProvider()
-					.read()
-					.then((res: any) => {
-						this.polEnrollmentType = res.data.map((item) => ({ ...item, Type: this.initTypePolEnrollment }));
-						super.preLoadData(event);
-					});
-			}
-		});
+				if (navigation?.extras?.state?.StaffList) this.initStaffPolicyEnrollmentDetails = navigation.extras.state.StaffList;
+				if (navigation?.extras?.state?.PolicyId) this.initIdPolEnrollment = navigation.extras.state.PolicyId;
+				if (navigation?.extras?.state?.PolicyType) this.initTypePolEnrollment = navigation.extras.state.PolicyType;
+				if (!this.initTypePolEnrollment) {
+					Promise.all([this.polBenefitProvider.read(), this.polInsuranceProvider.read(), this.polEmployeeProvider.read(), this.polPaidTimeOffProvider.read()]).then(
+						(results: any[]) => {
+							let fakeId = 1;
+							const allData = [
+								...results[0].data.map((item) => ({ ...item, Type: 'PolBenefit', FakeId: fakeId++ })),
+								...results[1].data.map((item) => ({ ...item, Type: 'PolInsurance', FakeId: fakeId++ })),
+								...results[2].data.map((item) => ({ ...item, Type: 'PolEmployee', FakeId: fakeId++ })),
+								...results[3].data.map((item) => ({ ...item, Type: 'PolPaidTimeOff', FakeId: fakeId++ })),
+							];
+							this.polEnrollmentType = allData;
+							super.preLoadData(event);
+						}
+					);
+				} else {
+					this.getPolEnrollmentProvider()
+						.read()
+						.then((res: any) => {
+							this.polEnrollmentType = res.data.map((item) => ({ ...item, Type: this.initTypePolEnrollment }));
+							super.preLoadData(event);
+						});
+				}
+			})
+		);
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {

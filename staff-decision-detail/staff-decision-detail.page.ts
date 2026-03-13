@@ -107,13 +107,15 @@ export class StaffDecisionDetailPage extends PageBase {
 			this.HRMEffectiveTimeTypeList = res[4];
 			super.preLoadData(event);
 		});
-		this.route.queryParams.subscribe(() => {
-			const navigation = this.router.getCurrentNavigation();
-			if (navigation?.extras?.state?.StaffList) {
-				this.initStaffPolEmployeeDecisionDetails = navigation.extras.state.StaffList;
-				this.initIDPolEmployee = navigation.extras.state.IDPol;
-			}
-		});
+		this.subscriptions.push(
+			this.route.queryParams.subscribe(() => {
+				const navigation = this.router.getCurrentNavigation();
+				if (navigation?.extras?.state?.StaffList) {
+					this.initStaffPolEmployeeDecisionDetails = navigation.extras.state.StaffList;
+					this.initIDPolEmployee = navigation.extras.state.IDPol;
+				}
+			})
+		);
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {

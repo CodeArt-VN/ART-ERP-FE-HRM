@@ -80,13 +80,15 @@ export class InsuranceEnrollmentDetailPage extends PageBase {
 			super.preLoadData(event);
 		});
 
-		this.route.queryParams.subscribe(() => {
-			const navigation = this.router.getCurrentNavigation();
-			if (navigation?.extras?.state?.StaffList) {
-				this.initStaffPolInsuranceEnrollmentDetails = navigation.extras.state.StaffList;
-				this.initIDPolInsurance = navigation.extras.state.IDPol;
-			}
-		});
+		this.subscriptions.push(
+			this.route.queryParams.subscribe(() => {
+				const navigation = this.router.getCurrentNavigation();
+				if (navigation?.extras?.state?.StaffList) {
+					this.initStaffPolInsuranceEnrollmentDetails = navigation.extras.state.StaffList;
+					this.initIDPolInsurance = navigation.extras.state.IDPol;
+				}
+			})
+		);
 	}
 
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {

@@ -75,9 +75,11 @@ export class OvertimeRequestDetailPage extends PageBase {
 		Promise.all([this.timesheetProvider.read(queryTimesheet)]).then((values: any) => {
 			if (values && values[0]) this.timesheetList = values[0].data;
 			//if (this.navParams) {
-			this.route.params.subscribe((params) => {
-				this.id = params['id'];
-			});
+			this.subscriptions.push(
+				this.route.params.subscribe((params) => {
+					this.id = params['id'];
+				})
+			);
 			if (this.navParams.data) {
 				this.id = this.navParams.data.id;
 				//	console.log(this.navParams.data);
