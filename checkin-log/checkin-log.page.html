@@ -1,22 +1,6 @@
 <ion-header [translucent]="true">
-	<app-list-toolbar
-		[ShowFeature]="false"
-		[ShowArchive]="false"
-		[ShowSearch]="false"
-		[pageConfig]="pageConfig"
-		[selectedItems]="selectedItems"
-		[query]="query"
-		(add)="add()"
-		(refresh)="refresh()"
-		(export)="export()"
-		(import)="import($event)"
-		(help)="help()"
-		(unselect)="unselect()"
-		(archiveItems)="archiveItems()"
-		(deleteItems)="delete()"
-		(changeBranch)="changeBranch($event)"
-	>
-		<ng-container title>
+	<app-toolbar [page]="this" [ShowFeature]="false" [ShowArchive]="false" [ShowSearch]="false">
+		<ng-container startTitle>
 			<div class="ion-hide-sm-down" style="margin: 0">
 				<ng-select
 					class="c-input no-check-dirty"
@@ -40,26 +24,18 @@
 				</ng-select>
 			</div>
 		</ng-container>
-		<ng-container>
-			<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
-			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
-				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
-			</ion-button>
-			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
-				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
-			</ion-button>
-			<span class="split ion-hide-sm-down">|</span>
-			<!-- <ion-button *ngIf="id" (click)="massShiftAssignment()" title="{{'mass-shifft-assignment' | translate}}">
-				<ion-icon slot="icon-only" name="trail-sign-outline"></ion-icon>
-			</ion-button> -->
-			<!-- <ion-button *ngIf="id" (click)="showStaffPickerModal()" title="{{'show-staff-picker' | translate}}">
-				<ion-icon slot="icon-only" name="person-add-outline"></ion-icon>
-			</ion-button> -->
-			<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
-				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
-			</ion-button>
-		</ng-container>
-	</app-list-toolbar>
+		<ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button>
+		<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
+			<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+		</ion-button>
+		<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
+			<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+		</ion-button>
+		<span class="split ion-hide-sm-down">|</span>
+		<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
+			<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
+		</ion-button>
+	</app-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
