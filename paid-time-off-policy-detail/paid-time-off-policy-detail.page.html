@@ -1,12 +1,12 @@
 <ion-header [translucent]="true">
-	<app-detail-toolbar [page]="this">
+	<app-toolbar [page]="this">
 		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Calculation accrual leave monthly' | translate}}" (click)="calculationLeave('monthly')">
 			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
 		</ion-button>
 		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Calculation accrual leave yearly' | translate}}" (click)="calculationLeave('yearly')">
 			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
 		</ion-button>
-	</app-detail-toolbar>
+	</app-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
