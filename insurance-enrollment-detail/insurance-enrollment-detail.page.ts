@@ -188,7 +188,7 @@ export class InsuranceEnrollmentDetailPage extends PageBase {
 		}
 	}
 
-	async showModal(i) {
+	async showModal(i = null) {
 		if (!i) {
 			const modal1 = await this.modalController.create({
 				component: StaffPickerEnrollmentPage,

@@ -26,8 +26,6 @@ export class StaffDetailPage extends PageBase {
 	avatarURL = 'assets/imgs/avartar-empty.jpg';
 	@ViewChild('importfile') importfile: any;
 
-	hasBaseDropZoneOver = false;
-
 	activePage = 'page-1';
 	showLogout = false;
 
@@ -208,4 +206,10 @@ export class StaffDetailPage extends PageBase {
 
 		this.segmentView.Page = option.Code;
 	}
+
+	//TODO: Remove empty functions
+	changeLock() {}
+	changeRole(_s?: string) {}
+	jobTitleList = [];
+	noCheckDirty = false;
 }

@@ -27,7 +27,7 @@
 				</ion-col>
 				<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="4">
 					<app-form-control
-						[field]="{id:'IDDepartment', label: 'Department', type : 'ng-select-branch',dataSource: branchList, bindValue:'Id', bindLable:'Name', form: formGroup, appendTo:'#detail-page',
+						[field]="{id:'IDDepartment', label: 'Department', type : 'ng-select-branch',dataSource: branchList, bindValue:'Id', bindLabel:'Name', form: formGroup, appendTo:'#detail-page',
 						branchConfig:{selectedBranch:this.env.selectedBranch, showingType:'Department'}
 					}"
 					></app-form-control>
@@ -63,7 +63,7 @@
 											<ion-col size-xs="12" size-sm="6" size-md="12" size-lg="6" size-xl="6" *ngFor="let i of sub.Items">
 												<app-form-control
 													(change)="saveConfig()"
-													[field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: formGroup.get('EmployeePolicyConfig') }"
+													[field]="{ id: i.Code, type: i.ControlType, label: i.Name, form: $any(formGroup.get('EmployeePolicyConfig')) }"
 												></app-form-control>
 											</ion-col>
 										</ion-row>

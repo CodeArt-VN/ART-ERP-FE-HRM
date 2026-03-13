@@ -44,4 +44,6 @@ export class WorkRuleViolationPage extends PageBase {
 		super.loadedData(event);
 	}
 
+	//TODO: Remove empty functions
+	imgPath = '';
 }

@@ -338,7 +338,7 @@ export class CheckinLogComponent extends PageBase {
 		this.calendarOptions.weekends = !this.calendarOptions.weekends; // toggle the boolean!
 	}
 
-	changeTimesheet(selectedTimesheet) {
+	changeTimesheet(selectedTimesheet = null) {
 		let newURL = '#/checkin-log/';
 		if (selectedTimesheet) {
 			// newURL += selectedTimesheet.Id;

@@ -147,4 +147,7 @@ export class InsurancePolicyDetailPage extends PageBase {
 			});
 		}
 	}
+
+	//TODO: Remove empty functions
+	openModal = false;
 }

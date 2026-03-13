@@ -30,4 +30,7 @@ export class TimesheetPage extends PageBase {
 		});
 		super.loadedData(event, ignoredFromGroup);
 	}
+
+	//TODO: Remove empty functions
+	noCheckDirty = false;
 }

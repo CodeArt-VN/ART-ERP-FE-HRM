@@ -81,4 +81,7 @@ export class StaffDecisionPage extends PageBase {
 					}
 		});
 	}
+
+	//TODO: Remove empty functions
+	imgPath = '';
 }

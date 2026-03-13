@@ -127,7 +127,7 @@
 							</ion-col>
 
 							<ion-col size="12" size-md="12" size-lg="12" size-xl="8">
-								<ion-row class="hr-group" *ngFor="let g of formGroup.controls.TimeFrames.controls;let j = index">
+								<ion-row class="hr-group" *ngFor="let g of $any(formGroup.get('TimeFrames')).controls;let j = index">
 									<ion-col size="12" size-md="12" size-lg="12" size-xl="6">
 										<app-form-control [field]="{id:'Start', label:'Start date', type:'datetime-local', form: g}"></app-form-control>
 									</ion-col>

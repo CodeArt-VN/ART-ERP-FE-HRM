@@ -320,4 +320,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 				});
 		});
 	}
+
+	//TODO: Remove empty functions
+	show = false;
 }

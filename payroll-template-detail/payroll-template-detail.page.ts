@@ -304,4 +304,7 @@ export class PayrollTemplateDetailPage extends PageBase {
 			}
 		}
 	}
+
+	//TODO: Remove empty functions
+	show = false;
 }

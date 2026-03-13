@@ -313,4 +313,8 @@ export class BenefitPolicyDetailPage extends PageBase {
 		}
 		this.saveChange2();
 	}
+
+	//TODO: Remove empty functions
+	removeField(_g?: any, _idx?: number) {}
+	show = false;
 }

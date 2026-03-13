@@ -39,4 +39,8 @@ export class StaffPayslipPage extends PageBase {
 		super.loadedData(event);
 	}
 
+	//TODO: Remove empty functions
+	groupControl: any;
+	onGroupChange(_g?: any) {}
+	handleReorder(_e?: any) {}
 }

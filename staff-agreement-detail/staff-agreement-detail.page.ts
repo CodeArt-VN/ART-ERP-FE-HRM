@@ -135,7 +135,7 @@ export class StaffAgreementDetailPage extends PageBase {
 		}
 	}
 
-	addItemLine(line) {
+	addItemLine(line, markAsDirty = null) {
 		let groups = <FormArray>this.formGroup.controls.Lines;
 		let group = this.formBuilder.group({
 			Id: [line?.Id],
@@ -154,7 +154,7 @@ export class StaffAgreementDetailPage extends PageBase {
 		groups.push(group);
 	}
 
-	changeDate() {
+	changeDate(e = null) {
 		if (this.submitAttempt) return;
 		this.submitAttempt = true;
 
@@ -306,4 +306,8 @@ export class StaffAgreementDetailPage extends PageBase {
 				alert.present();
 			});
 	}
+
+	//TODO: Remove empty functions
+	toggleSelectAll() {}
+	isAllChecked = false;
 }

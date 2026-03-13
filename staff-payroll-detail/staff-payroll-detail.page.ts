@@ -192,4 +192,7 @@ export class StaffPayrollDetailPage extends PageBase {
 			})
 			.catch((err) => this.env.showErrorMessage(err));
 	}
+
+	//TODO: Remove empty functions
+	sendPayslip() {}
 }

@@ -341,7 +341,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 	}
 	isAllRowChecked = false;
 	selectedRows = [];
-	changeSelection(i, e = null) {
+	changeSelection(i, e = null, _flag = null) {
 		if (e && e.shiftKey) {
 			let from = this.staffList.indexOf(this.lastchecked);
 			let to = this.staffList.indexOf(i);
@@ -392,4 +392,7 @@ export class OvertimeRequestDetailPage extends PageBase {
 		// 	this.saveConfig();
 		// }
 	}
+
+	//TODO: Remove empty functions
+	imgPath = '';
 }

@@ -396,7 +396,7 @@ export class TimesheetCycleDetailComponent extends PageBase {
 		this.calendarOptions.weekends = !this.calendarOptions.weekends; // toggle the boolean!
 	}
 
-	changeTimesheet(selectedTimesheet) {
+	changeTimesheet(selectedTimesheet = null) {
 		if (selectedTimesheet) {
 			this.IDTimesheet = selectedTimesheet.Id;
 		} else {

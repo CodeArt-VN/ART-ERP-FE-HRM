@@ -257,7 +257,7 @@ export class StaffPage extends PageBase {
 		}
 	}
 
-	saveView() {
+	saveView(view = null) {
 		if (!this.editView._formGroup.valid) {
 			// let invalidControls = this.findInvalidControlsRecursive(this.editView._formGroup);
 			// const translationPromises = invalidControls.map((control) => this.env.translateResource(control));
@@ -475,4 +475,6 @@ export class StaffPage extends PageBase {
 		const { data } = await modal.onWillDismiss();
 	}
 
+	//TODO: Remove empty functions
+	noCheckDirty = false;
 }

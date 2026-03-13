@@ -290,7 +290,7 @@ export class StaffPayrollConfigPage extends PageBase {
 		this.saveChange2();
 	}
 
-	savedChange(savedItem = null, form = this.formGroup) {
+		savedChange(savedItem = null, form = this.formGroup) {
 		super.savedChange(savedItem);
 		let groups = this.formGroup.get('StaffPayrollConfig') as FormArray;
 		let idsBeforeSaving = new Set(groups.controls.map((g) => g.get('Id').value));
@@ -309,4 +309,7 @@ export class StaffPayrollConfigPage extends PageBase {
 			}
 		}
 	}
+
+	//TODO: Remove empty functions
+	show = false;
 }

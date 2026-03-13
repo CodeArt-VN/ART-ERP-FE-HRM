@@ -239,4 +239,7 @@ export class EmployeePolicyDetaillPage extends PageBase {
 		}
 		this.saveConfig();
 	}
+
+	//TODO: Remove empty functions
+	show = false;
 }

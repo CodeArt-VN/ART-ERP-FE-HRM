@@ -104,7 +104,7 @@
 																	></app-form-control>
 																	<app-form-control
 																		(change)="changeType($event,g)"
-																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:timesheetTemplateType,bindLable:'Name',bindValue:'Code',form : g ,appendTo:'#ng-select'}"
+																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:timesheetTemplateType,bindLabel:'Name',bindValue:'Code',form : g ,appendTo:'#ng-select'}"
 																	>
 																	</app-form-control>
 
@@ -171,7 +171,7 @@
 								</app-form-control>
 								<app-form-control
 									(change)="saveChange2()"
-									[field]="{id: 'Type', label: 'Type',dataSource:timesheetTemplateType,bindLable:'Name',bindValue:'Code', form: formGroup}"
+									[field]="{id: 'Type', label: 'Type',dataSource:timesheetTemplateType,bindLabel:'Name',bindValue:'Code', form: formGroup}"
 								>
 								</app-form-control>
 								<app-form-control (change)="saveChange2()" [field]="{id: 'NumberOfShiftPerDay', label: 'Number of shift per day', type: 'number', form: formGroup}">

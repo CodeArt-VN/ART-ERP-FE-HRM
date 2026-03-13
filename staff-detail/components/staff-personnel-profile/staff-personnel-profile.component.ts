@@ -33,6 +33,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 		this._item = value;
 	}
 	@Input() hideBorder;
+	@Input() pageConfig;
 	avatarURL = 'assets/imgs/avartar-empty.jpg';
 	hasBaseDropZoneOver = false;
 

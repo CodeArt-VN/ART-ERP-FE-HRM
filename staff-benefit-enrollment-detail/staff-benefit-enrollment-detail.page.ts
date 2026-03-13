@@ -233,7 +233,7 @@ export class StaffBenefitEnrollmentDetailPage extends PageBase {
 		this.showModal(this.selectedItems);
 	}
 
-	async showModal(line) {
+	async showModal(line = null) {
 		if (!line) {
 			const modal1 = await this.modalController.create({
 				component: StaffPickerEnrollmentPage,

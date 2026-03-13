@@ -79,7 +79,7 @@
 									<ion-label>{{'User define' | translate }}</ion-label>
 								</ion-list-header>
 								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
-									<ng-container *ngFor="let g of formGroup.controls.ArrayUDF.controls; let idx = index;">
+									<ng-container *ngFor="let g of $any(formGroup.get('ArrayUDF')).controls; let idx = index;">
 										<ion-accordion [value]="g.get('Id').value">
 											<ion-item class="clickable" slot="header" lines="full">
 												<!-- <ion-icon [name]="g.get('Icon').value" slot="start" [color]="g.get('Color').value || 'primary'"></ion-icon> -->

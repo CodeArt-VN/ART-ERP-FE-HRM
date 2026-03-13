@@ -9,16 +9,7 @@
 		>
 			<ion-icon slot="icon-only" [name]="userAccount.LockoutEnabled ? 'lock-closed' : 'lock-open'"></ion-icon>
 		</ion-button>
-		<ion-button
-			title="{{'Assign system admin role' | translate}}"
-			color="danger"
-			[disabled]="showLogout"
-			*ngIf="showRolesEdit && userAccount.Id"
-			[fill]="!checkRole('HOST')? 'outline' : 'solid'"
-			(click)="changeRole('HOST')"
-		>
-			<ion-icon slot="icon-only" name="star"></ion-icon>
-		</ion-button>
+		
 	</app-toolbar>
 </ion-header>
 
@@ -36,18 +27,13 @@
 				<ion-item class="img-holder">
 					<div
 						style="margin: 0 auto"
-						ng2FileDrop
-						class="avatar well my-drop-zone ion-padding"
-						[ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
-						(fileOver)="fileOverBase($event)"
-						(onFileDrop)="onFileSelected()"
-						[uploader]="uploader"
+						class="avatar ion-padding"
 					>
 						<img class="ion-margin" [src]="avatarURL" (error)="img.src = 'assets/avartar-empty.jpg'" #img />
 						<div>
 							<ion-button class="change-avatar" *ngIf="item.IsDisabled" color="danger" size="small"> {{'Resigned/ on pause' | translate}} </ion-button>
 						</div>
-						<input style="display: none" #importfile type="file" (change)="onFileSelected()" ng2FileSelect accept="image/*" [uploader]="uploader" />
+						<input style="display: none" #importfile type="file" accept="image/*" />
 
 						<ion-label>
 							<h1 class="bold">{{formGroup.get('FullName').value}}</h1>

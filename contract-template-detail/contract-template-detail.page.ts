@@ -279,5 +279,7 @@ export class ContractTemplateDetailPage extends PageBase {
 		this.templateBeforeChange = this.item.Template;
 		this.item.Template = this.formGroup.get('Template')?.value ?? '';
 	}
-	
+
+	//TODO: Remove empty functions
+	show = false;
 }
