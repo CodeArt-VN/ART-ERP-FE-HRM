@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<ion-toolbar class="no-padding">
 		<ion-title>{{'Calculation'}}</ion-title>
 		<ion-buttons slot="end">
@@ -9,7 +9,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding" fullscreen>
+<ion-content appScrollbarTheme class="ion-padding" [fullscreen]="true">
 	<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 	<ion-grid fixed>
 		<form [formGroup]="formGroup">

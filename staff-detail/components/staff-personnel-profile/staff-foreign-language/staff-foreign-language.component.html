@@ -47,7 +47,7 @@
 <ion-modal [isOpen]="isShowModal" (willDismiss)="dismissModal()">
 	<div id="ng-select-table" style="position: absolute; z-index: 30005"></div>
 	<ng-template>
-		<ion-header>
+		<ion-header [translucent]="true">
 			<ion-toolbar>
 				<ion-title>{{ 'Information' | translate }} </ion-title>
 				<ion-buttons slot="end">

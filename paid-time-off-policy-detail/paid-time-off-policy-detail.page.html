@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-detail-toolbar [page]="this">
 		<ion-button *ngIf="!pageConfig.showSpinner" title="{{'Calculation accrual leave monthly' | translate}}" (click)="calculationLeave('monthly')">
 			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
@@ -9,7 +9,7 @@
 	</app-detail-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
 	<div class="main-view" *ngIf="pageConfig.showSpinner==false">
 		<div class="row-full shadow full-screen">
 			<div class="ion-padding">

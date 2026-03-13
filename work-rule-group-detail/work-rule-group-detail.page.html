@@ -1,4 +1,4 @@
-<ion-header collapse="fade">
+<ion-header [translucent]="true" collapse="fade">
 	<ion-toolbar>
 		<ion-title>{{item.Name}}</ion-title>
 
@@ -9,7 +9,7 @@
 		</ion-buttons>
 	</ion-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
 	<form [formGroup]="formGroup">
 		<ion-grid fixed>
 			<ion-row>

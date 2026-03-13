@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this">
 		<ng-container startTitle>
 			<div class="ion-hide-sm-down" style="margin: 0">
@@ -166,7 +166,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
+<ion-content [fullscreen]="true" appScrollbarTheme class="_left" [ngClass]="{withFeature: pageConfig.isShowFeature}">
 	<div id="ng-select-main-page" style="position: absolute"></div>
 	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature no-print" vertical="top" horizontal="end" slot="fixed">
 		<div id="order-detail-page" style="position: absolute"></div>

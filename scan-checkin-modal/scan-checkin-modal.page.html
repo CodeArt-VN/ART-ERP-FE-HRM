@@ -1,4 +1,4 @@
-<ion-header collapse="fade">
+<ion-header [translucent]="true" collapse="fade">
 	<ion-toolbar class="no-padding">
 		<ion-title>{{'Scan checkin'}}</ion-title>
 		<ion-buttons slot="end">
@@ -9,7 +9,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme>
+<ion-content appScrollbarTheme [fullscreen]="true">
 	<div style="min-height: 0%">
 		<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
 		@if((!hrmConfig.AllowCheckInWithoutShift && hasShift) || hrmConfig.AllowCheckInWithoutShift) {

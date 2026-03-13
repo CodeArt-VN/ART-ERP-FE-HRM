@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this">
 
 	</app-toolbar>
@@ -25,7 +25,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+<ion-content [fullscreen]="true" appScrollbarTheme class="scrollx" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-fab *ngIf="pageConfig.isShowFeature" class="feature" vertical="top" [ngClass]="{'ion-hide-md-down': !pageConfig.isSubActive}" horizontal="end" slot="fixed">
 		<div class="ion-padding" *ngIf="editView">
 			<form [formGroup]="editView._formGroup">

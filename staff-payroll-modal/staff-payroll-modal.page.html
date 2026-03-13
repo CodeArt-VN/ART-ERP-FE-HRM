@@ -1,4 +1,4 @@
-<ion-header collapse="fade">
+<ion-header [translucent]="true" collapse="fade">
 	<ion-toolbar class="no-padding">
 		<ion-title>{{'Payroll' | translate}}</ion-title>
 		<ion-buttons slot="end">
@@ -10,7 +10,7 @@
 </ion-header>
 
 <div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content appScrollbarTheme class="ion-padding" [fullscreen]="true">
 	<ion-grid fixed>
 		<form [formGroup]="formGroup">
 			<ion-row class="hr-group">

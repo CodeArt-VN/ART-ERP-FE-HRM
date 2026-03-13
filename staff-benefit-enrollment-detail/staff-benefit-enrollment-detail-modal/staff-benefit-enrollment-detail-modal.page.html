@@ -1,4 +1,4 @@
-<ion-header collapse="fade">
+<ion-header [translucent]="true" collapse="fade">
 	<ion-toolbar>
 		<!-- <ion-title>{{'Cancellation reason' | translate}}</ion-title> -->
 		<ion-buttons slot="primary">
@@ -9,7 +9,7 @@
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding">
+<ion-content appScrollbarTheme class="ion-padding" [fullscreen]="true">
 	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">
 		<div id="ng-select-modal" style="position: absolute; z-index: 30005"></div>
 		<ion-grid fixed>

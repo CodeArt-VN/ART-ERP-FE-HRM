@@ -1,8 +1,8 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this"></app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding"  class="header-table" fullscreen>
+<ion-content appScrollbarTheme class="ion-padding header-table" [fullscreen]="true">
 	<div id="detail-page" style="position: absolute"></div>
 	<div class="safe-max-width">
 		<app-data-table

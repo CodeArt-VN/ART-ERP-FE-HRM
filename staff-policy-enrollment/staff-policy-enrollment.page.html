@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-toolbar [page]="this">
 		<ion-button class="clickable" title="{{'Add new' | translate}}" (click)="presentCopyPopover($event)">
 			<ion-icon name="add-circle-outline" color="success" slot="icon-only"></ion-icon>
@@ -19,7 +19,7 @@
 	</app-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
+<ion-content [fullscreen]="true" appScrollbarTheme class="left" [ngClass]="{withFeature: pageConfig.isShowFeature}" forceOverscroll="false">
 	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
 		<ion-refresher-content></ion-refresher-content>
 	</ion-refresher>

@@ -1,4 +1,4 @@
-<ion-header collapse="fade">
+<ion-header [translucent]="true" collapse="fade">
 	<ion-toolbar>
 		<ion-title>{{'Overtime request' | translate}}</ion-title>
 
@@ -9,7 +9,7 @@
 		</ion-buttons>
 	</ion-toolbar>
 </ion-header>
-<ion-content appScrollbarTheme>
+<ion-content [fullscreen]="true" appScrollbarTheme>
 	<!-- <app-page-title class="ion-padding safe-max-width" [pageConfig]="pageConfig"></app-page-title> -->
 	<div id="detail-page" style="position: absolute"></div>
 	<div class="main-view" *ngIf="item && pageConfig.showSpinner==false">

@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
 	<app-list-toolbar
 		pageTitle="{{'List' | translate}}"
 		[pageConfig]="pageConfig"
@@ -68,7 +68,7 @@
 	</section>
 </ion-header>
 
-<ion-content appScrollbarTheme class="header-table">
+<ion-content [fullscreen]="true" appScrollbarTheme class="header-table">
 	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 	<div *ngIf="items.length && pageConfig.showSpinner==false">
 		<section class="table">
