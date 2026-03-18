@@ -242,7 +242,7 @@ export class TimesheetRecordDetailPage extends PageBase {
 		await modal.present();
 		const { data } = await modal.onWillDismiss();
 		if (data) {
-			data.IDTimesheet = this.id;
+			data.IDTimesheet = this.IDTimesheet;
 			data.WaitReturn = true;
 			this.env
 				.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise())
