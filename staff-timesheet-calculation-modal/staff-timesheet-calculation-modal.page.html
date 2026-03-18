@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" collapse="fade">
 	<ion-toolbar class="no-padding">
 		<ion-title>{{'Calculation'}}</ion-title>
 		<ion-buttons slot="end">
@@ -36,8 +36,10 @@
 		</form>
 	</ion-grid>
 </ion-content>
-<ion-footer>
+<ion-footer [translucent]="true" collapse="fade">
 	<ion-toolbar>
-		<ion-button size="medium" slot="end" (click)="calculation()">{{'Calculation' | translate}}</ion-button>
+		<div slot="end">
+			<ion-button size="medium" (click)="calculation()">{{'Calculation' | translate}}</ion-button>
+		</div>
 	</ion-toolbar>
 </ion-footer>
