@@ -219,18 +219,18 @@ export class CheckinLogComponent extends PageBase {
 		// },
 		resourceAreaColumns: [
 			{
-				field: 'Code',
+				fields: ['Code'],
 				headerContent: 'Mã NV',
 				width: 100,
 			},
 			{
-				field: 'FullName',
+				fields: ['FullName'],
 				headerContent: 'Họ và tên',
 				width: 200,
 			},
 			{
 				//group: true,
-				field: 'JobTitle',
+				fields: ['JobTitle'],
 				headerContent: 'Chức danh',
 				width: 150,
 			},

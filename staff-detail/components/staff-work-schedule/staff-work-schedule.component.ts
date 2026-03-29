@@ -31,7 +31,7 @@ export class StaffWorkScheduleComponent extends PageBase {
 		super();
 		this.pageConfig.dividers = [
 			{
-				field: 'CreatedDate',
+				fields: ['CreatedDate'],
 				dividerFn: (record, recordIndex, records) => {
 					let a: any = recordIndex == 0 ? new Date('2000-01-01') : new Date(records[recordIndex - 1].CreatedDate);
 					let b: any = new Date(record.CreatedDate);

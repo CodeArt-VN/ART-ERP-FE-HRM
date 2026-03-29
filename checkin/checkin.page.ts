@@ -37,7 +37,7 @@ export class CheckinPage extends PageBase {
 
 		this.pageConfig.dividers = [
 			{
-				field: 'LogTime',
+				fields: ['LogTime'],
 				dividerFn: (record, recordIndex, records) => {
 					let a: any = recordIndex == 0 ? new Date('2000-01-01') : new Date(records[recordIndex - 1].LogTime);
 					let b: any = new Date(record.LogTime);

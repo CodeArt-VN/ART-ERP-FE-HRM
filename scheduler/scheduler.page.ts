@@ -796,14 +796,14 @@ export class SchedulerPage extends PageBase {
 		resourceAreaColumns: [
 			{
 				headerDidMount: this.headerDidMount.bind(this),
-				field: 'Code',
+				fields: ['Code'],
 				headerClassNames: 'Code',
 				headerContent: 'Mã NV',
 				width: 100,
 			},
 			{
 				headerDidMount: this.headerDidMount.bind(this),
-				field: 'FullName',
+				fields: ['FullName'],
 				headerClassNames: 'FullName',
 				headerContent: 'Họ và tên',
 				width: 200,
@@ -821,14 +821,14 @@ export class SchedulerPage extends PageBase {
 			{
 				//group: true,
 				headerDidMount: this.headerDidMount.bind(this),
-				field: 'JobTitle',
+				fields: ['JobTitle'],
 				headerClassNames: 'JobTitle',
 				headerContent: 'Chức danh',
 				width: 150,
 			},
 			{
 				headerDidMount: this.headerDidMount.bind(this),
-				field: 'LeaveDays',
+				fields: ['LeaveDays'],
 				headerContent: 'Ngày phép',
 				width: 80,
 			},

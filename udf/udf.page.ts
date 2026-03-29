@@ -47,7 +47,7 @@ export class UDFPage extends PageBase {
 		this.pageConfig.isFeatureAsMain = true;
 		this.pageConfig.dividers = [
 			{
-				field: 'Group',
+				fields: ['Group'],
 				dividerFn: (record, recordIndex, records) => {
 					let a: any = recordIndex == 0 ? '' : records[recordIndex - 1].Group;
 					let b: any = record.Group;
@@ -120,7 +120,7 @@ export class UDFPage extends PageBase {
 			delete this.query.Group;
 			this.pageConfig.dividers = [
 				{
-					field: 'Group',
+					fields: ['Group'],
 					dividerFn: (record, recordIndex, records) => {
 						let a: any = recordIndex == 0 ? '' : records[recordIndex - 1].Group;
 						let b: any = record.Group;
@@ -139,7 +139,7 @@ export class UDFPage extends PageBase {
 		} else {
 			this.pageConfig.dividers = [
 				{
-					field: 'SubGroup',
+					fields: ['SubGroup'],
 					dividerFn: (record, recordIndex, records) => {
 						let a: any = recordIndex == 0 ? '' : records[recordIndex - 1].SubGroup;
 						let b: any = record.SubGroup;
