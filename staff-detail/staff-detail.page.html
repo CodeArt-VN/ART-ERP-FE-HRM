@@ -95,7 +95,7 @@
 	</ion-fab>
 
 	<div class="safe-max-width">
-		<app-staff-personnel-profile [data]="item" [pageConfig]="pageConfig" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
+		<app-staff-personnel-profile [data]="item" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
 		</app-staff-personnel-profile>
 
 		<app-staff-job-information *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"></app-staff-job-information>
