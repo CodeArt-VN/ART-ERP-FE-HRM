@@ -162,9 +162,13 @@ export class StaffDetailPage extends PageBase {
 	}
 
 	loadedData(event) {
-		this.avatarURL = environment.staffAvatarsServer + this.item.Code + '.jpg?t=' + new Date().getTime();
-		super.loadedData();
-		this.getCompany(this.formGroup.controls.IDDepartment.value);
+		this.avatarURL = this.item?.Code
+			? environment.staffAvatarsServer + this.item.Code + '.jpg?t=' + new Date().getTime()
+			: 'assets/imgs/avartar-empty.jpg';
+		super.loadedData(event);
+		if (this.formGroup.controls.IDDepartment.value) {
+			this.getCompany(this.formGroup.controls.IDDepartment.value);
+		}
 	}
 
 	getCompany(id) {
