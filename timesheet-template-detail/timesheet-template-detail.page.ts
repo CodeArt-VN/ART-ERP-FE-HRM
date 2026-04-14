@@ -25,6 +25,11 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	private udfLookup = new Map<any, any>();
 	alwaysReturnProps = ['Id', 'IDBranch', 'IDTimesheetCycle', 'IDTimesheet'];
 
+	methodSummary = ['COUNT','COUNT_DISTINCT', 'SUM', 'MAX', 'MIN', 'AVG'].map((x) => ({
+		Code: x,
+		Name: x,
+	}));
+
 	constructor(
 		public pageProvider: HRM_TimesheetTemplateProvider,
 		public udfProvider: HRM_UDFProvider,
@@ -169,7 +174,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			IDUDF: [line?.IDUDF, Validators.required],
 			Type: [line?.Type ?? 'Auto', Validators.required],
 			UDFValue: [line?.UDFValue ?? udf?.DefaultValue],
-			SummaryFormula: [line?.SummaryFormula ?? line?.UDFValue ?? ''],
+			SummaryMethod: [line?.SummaryMethod ?? line?.UDFValue ?? ''],
 			IsSummary: [line?.IsSummary ?? isSummary],
 			Code: new FormControl({ value: line?.Code, disabled: true }),
 			Name: new FormControl({ value: line?.Name, disabled: true }),
@@ -178,8 +183,8 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			ControlType: new FormControl({ value: line?.ControlType ?? udf?.ControlType, disabled: true }),
 			IsHidden: [line?.IsHidden ?? false],
 			IsLock: [line?.IsLock ?? line?.IsLocked ?? false],
-			Sort: [line?.Sort ?? ((this.formGroup.get('Lines') as FormArray).length + 1)],
-			DefaultValue: new FormControl({ value: udf?.DefaultValue, disabled: true })
+			Sort: [line?.Sort ?? (this.formGroup.get('Lines') as FormArray).length + 1],
+			DefaultValue: new FormControl({ value: udf?.DefaultValue, disabled: true }),
 		});
 		if (!this.pageConfig.canEdit || line?.IsDisabled) group.disable();
 		this.changeType({ Code: group.controls.Type.value }, group, false);
@@ -189,7 +194,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			group.get('Sort')?.markAsDirty();
 			if (group.get('IDUDF')?.value) group.get('IDUDF')?.markAsDirty();
 			if (group.get('UDFValue')?.value) group.get('UDFValue')?.markAsDirty();
-			if (group.get('SummaryFormula')?.value) group.get('SummaryFormula')?.markAsDirty();
+			if (group.get('SummaryMethod')?.value) group.get('SummaryMethod')?.markAsDirty();
 			if (group.get('IsSummary')?.value) group.get('IsSummary')?.markAsDirty();
 		}
 
@@ -285,16 +290,18 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	}
 
 	getLinePreview(g: FormGroup): string {
-		if (g.get('IsSummary')?.value) {
-			return g.get('SummaryFormula')?.value || g.get('DefaultValue')?.value || '';
+		if (this.segmentView === 's2') {
+			return g.get('SummaryMethod')?.value ?? '';
 		}
 
-		const type = (g.get('Type')?.value || '').toString().toLowerCase();
-		if (type === 'formula' || !g.get('UDFValue')?.value) {
-			return g.get('DefaultValue')?.value || '';
+		const type = String(g.get('Type')?.value ?? '').toLowerCase();
+
+		if (type === 'auto') {
+			const udf = this.udfLookup.get(g.get('IDUDF')?.value);
+			return udf?.DefaultValue ?? '';
 		}
 
-		return g.get('UDFValue')?.value || '';
+		return g.get('DefaultValue')?.value ?? g.get('UDFValue')?.value ?? '';
 	}
 
 	trackLineBy = (_index: number, g: FormGroup) => this.getAccordionValue(g);

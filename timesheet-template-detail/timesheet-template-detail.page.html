@@ -78,7 +78,12 @@
 													<ion-reorder slot="end"></ion-reorder>
 												</ion-item>
 
-												<div *ngIf="isAccordionExpanded(getAccordionValue(g))" class="ion-padding" slot="content" [ngStyle]="{ 'background': 'var(--table-header-background)' }">
+												<div
+													*ngIf="isAccordionExpanded(getAccordionValue(g))"
+													class="ion-padding"
+													slot="content"
+													[ngStyle]="{ 'background': 'var(--table-header-background)' }"
+												>
 													<ion-grid fixed>
 														<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
 															<ion-row>
@@ -102,7 +107,18 @@
 																		(change)="saveChange2()"
 																	>
 																	</app-form-control>
-																	<app-form-control [field]="{id:'IsSummary', label: 'Summary', type : 'checkbox', form : g }" (change)="setSummaryItems(); saveChange2()">
+																	@if(g.get('IsSummary')?.value){
+																		<app-form-control
+																			[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
+																			(change)="saveChange2()"
+																		>
+																		</app-form-control>
+																	}
+
+																	<app-form-control
+																		[field]="{id:'IsSummary', label: 'Summary', type : 'checkbox', form : g }"
+																		(change)="setSummaryItems(); saveChange2()"
+																	>
 																	</app-form-control>
 																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange2()">
 																	</app-form-control>
@@ -165,13 +181,18 @@
 												</ion-label>
 											</ion-item>
 
-											<div *ngIf="isAccordionExpanded(getAccordionValue(g))" class="ion-padding" slot="content" [ngStyle]="{ 'background': 'var(--table-header-background)' }">
+											<div
+												*ngIf="isAccordionExpanded(getAccordionValue(g))"
+												class="ion-padding"
+												slot="content"
+												[ngStyle]="{ 'background': 'var(--table-header-background)' }"
+											>
 												<ion-grid fixed>
 													<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
 														<ion-row>
 															<ion-col size="12" size-xl="6">
 																<app-form-control
-																	[field]="{id:'SummaryFormula', label: 'Summary formula',  type : 'formula', dataSource: UDFList, form : g }"
+																	[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
 																	(change)="saveChange2()"
 																>
 																</app-form-control>
@@ -181,8 +202,7 @@
 																<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : g }"> </app-form-control>
 																<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
 																</app-form-control>
-																<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
-																</app-form-control>
+																<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }"> </app-form-control>
 															</ion-col>
 														</ion-row>
 													</form>
