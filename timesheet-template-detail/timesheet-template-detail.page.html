@@ -43,6 +43,12 @@
 						</ng-template>
 					</ion-popover>
 				</ion-buttons>
+				<ion-buttons slot="end" *ngIf="segmentView=='s2'">
+					<ion-button (click)="addSummaryLine()">
+						<ion-icon slot="start" name="duplicate-outline"></ion-icon>
+						{{'Add summary' | translate}}
+					</ion-button>
+				</ion-buttons>
 			</ion-toolbar>
 
 			<div *ngIf="segmentView == 's1'">
@@ -108,16 +114,16 @@
 																	>
 																	</app-form-control>
 																	@if(g.get('IsSummary')?.value){
-																		<app-form-control
-																			[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
-																			(change)="saveChange2()"
-																		>
-																		</app-form-control>
+																	<app-form-control
+																		[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
+																		(change)="saveChange2()"
+																	>
+																	</app-form-control>
 																	}
 
 																	<app-form-control
 																		[field]="{id:'IsSummary', label: 'Summary', type : 'checkbox', form : g }"
-																		(change)="setSummaryItems(); saveChange2()"
+																		(change)="onSummaryChange(g)"
 																	>
 																	</app-form-control>
 																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange2()">
@@ -164,52 +170,58 @@
 							<ion-list>
 								<ion-list-header lines="full" class="ion-no-padding">
 									<ion-label>{{'Summary field' | translate }}</ion-label>
+									<ion-button (click)="toggleSummaryReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
 								</ion-list-header>
 
 								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
-									<ng-container *ngFor="let g of summaryItems; let idx = index; trackBy: trackLineBy">
-										<ion-accordion [value]="getAccordionValue(g)">
-											<ion-item class="clickable" slot="header" [style.order]="g.get('Sort').value" lines="full">
-												<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
-													<span *ngIf="g.get('Id').value">{{idx+1}} - </span>
-													<span class="bold">
-														{{g.get('Name').value}}
-														<small label>
-															<ion-text color="primary">{{getLinePreview(g)}}</ion-text>
-														</small>
-													</span>
-												</ion-label>
-											</ion-item>
+									<ion-reorder-group [disabled]="isSummaryReorderDisabled" (ionItemReorder)="doSummaryReorder($event)">
+										<ng-container *ngFor="let g of summaryItems; let idx = index; trackBy: trackLineBy">
+											<ion-accordion [value]="getAccordionValue(g)">
+												<ion-item class="clickable" slot="header" [style.order]="g.get('SummarySort').value" lines="full">
+													<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
+														<span *ngIf="g.get('Id').value">{{idx+1}} - </span>
+														<span class="bold">
+															{{g.get('Name').value}}
+															<small label>
+																<ion-text color="primary">{{getLinePreview(g)}}</ion-text>
+															</small>
+														</span>
+													</ion-label>
 
-											<div
-												*ngIf="isAccordionExpanded(getAccordionValue(g))"
-												class="ion-padding"
-												slot="content"
-												[ngStyle]="{ 'background': 'var(--table-header-background)' }"
-											>
-												<ion-grid fixed>
-													<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
-														<ion-row>
-															<ion-col size="12" size-xl="6">
-																<app-form-control
-																	[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
-																	(change)="saveChange2()"
-																>
-																</app-form-control>
-															</ion-col>
-															<ion-col size="12" size-xl="6">
-																<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : g }"> </app-form-control>
-																<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : g }"> </app-form-control>
-																<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
-																</app-form-control>
-																<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }"> </app-form-control>
-															</ion-col>
-														</ion-row>
-													</form>
-												</ion-grid>
-											</div>
-										</ion-accordion>
-									</ng-container>
+													<ion-reorder slot="end"></ion-reorder>
+												</ion-item>
+
+												<div
+													*ngIf="isAccordionExpanded(getAccordionValue(g))"
+													class="ion-padding"
+													slot="content"
+													[ngStyle]="{ 'background': 'var(--table-header-background)' }"
+												>
+													<ion-grid fixed>
+														<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
+															<ion-row>
+																<ion-col size="12" size-xl="6">
+																	<app-form-control
+																		[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
+																		(change)="saveChange2()"
+																	>
+																	</app-form-control>
+																</ion-col>
+																<ion-col size="12" size-xl="6">
+																	<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : g }"> </app-form-control>
+																	<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : g }"> </app-form-control>
+																	<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
+																	</app-form-control>
+																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
+																	</app-form-control>
+																</ion-col>
+															</ion-row>
+														</form>
+													</ion-grid>
+												</div>
+											</ion-accordion>
+										</ng-container>
+									</ion-reorder-group>
 								</ion-accordion-group>
 							</ion-list>
 						</ion-col>

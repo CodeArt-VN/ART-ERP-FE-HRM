@@ -24,6 +24,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	summaryItems: any[] = [];
 	private udfLookup = new Map<any, any>();
 	alwaysReturnProps = ['Id', 'IDBranch', 'IDTimesheetCycle', 'IDTimesheet'];
+	isSummaryReorderDisabled = true;
 
 	methodSummary = ['COUNT','COUNT_DISTINCT', 'SUM', 'MAX', 'MIN', 'AVG'].map((x) => ({
 		Code: x,
@@ -184,6 +185,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			IsHidden: [line?.IsHidden ?? false],
 			IsLock: [line?.IsLock ?? line?.IsLocked ?? false],
 			Sort: [line?.Sort ?? (this.formGroup.get('Lines') as FormArray).length + 1],
+			SummarySort: [line?.SummarySort ?? null],
 			DefaultValue: new FormControl({ value: udf?.DefaultValue, disabled: true }),
 		});
 		if (!this.pageConfig.canEdit || line?.IsDisabled) group.disable();
@@ -196,6 +198,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			if (group.get('UDFValue')?.value) group.get('UDFValue')?.markAsDirty();
 			if (group.get('SummaryMethod')?.value) group.get('SummaryMethod')?.markAsDirty();
 			if (group.get('IsSummary')?.value) group.get('IsSummary')?.markAsDirty();
+			if (group.get('SummarySort')?.value) group.get('SummarySort')?.markAsDirty();
 		}
 
 		if (openField) {
@@ -307,8 +310,47 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	trackLineBy = (_index: number, g: FormGroup) => this.getAccordionValue(g);
 
 	setSummaryItems() {
-		let groups = <FormArray>this.formGroup.controls.Lines;
-		this.summaryItems = groups.controls.filter((g: FormGroup) => !!g.get('IsSummary')?.value);
+		const groups = <FormArray>this.formGroup.controls.Lines;
+		const summaryGroups = groups.controls.filter((g: FormGroup) => !!g.get('IsSummary')?.value) as FormGroup[];
+		let nextSummarySort = 1;
+
+		summaryGroups
+			.sort((a: FormGroup, b: FormGroup) => {
+				const aSort = Number(a.get('SummarySort')?.value ?? Number.MAX_SAFE_INTEGER);
+				const bSort = Number(b.get('SummarySort')?.value ?? Number.MAX_SAFE_INTEGER);
+				if (aSort !== bSort) return aSort - bSort;
+				return Number(a.get('Sort')?.value ?? 0) - Number(b.get('Sort')?.value ?? 0);
+			})
+			.forEach((g: FormGroup) => {
+				if (!g.get('SummarySort')?.value) {
+					g.get('SummarySort')?.setValue(nextSummarySort);
+				}
+				nextSummarySort++;
+			});
+
+		groups.controls
+			.filter((g: FormGroup) => !g.get('IsSummary')?.value && !!g.get('SummarySort')?.value)
+			.forEach((g: FormGroup) => g.get('SummarySort')?.setValue(null));
+
+		this.summaryItems = [...summaryGroups].sort(
+			(a: FormGroup, b: FormGroup) => Number(a.get('SummarySort')?.value ?? 0) - Number(b.get('SummarySort')?.value ?? 0)
+		);
+	}
+
+	onSummaryChange(g: FormGroup) {
+		if (g.get('IsSummary')?.value && !g.get('SummarySort')?.value) {
+			const maxSummarySort = this.summaryItems.reduce((max, item: FormGroup) => Math.max(max, Number(item.get('SummarySort')?.value ?? 0)), 0);
+			g.get('SummarySort')?.setValue(maxSummarySort + 1);
+			g.get('SummarySort')?.markAsDirty();
+		}
+
+		if (!g.get('IsSummary')?.value && g.get('SummarySort')?.value) {
+			g.get('SummarySort')?.setValue(null);
+			g.get('SummarySort')?.markAsDirty();
+		}
+
+		this.setSummaryItems();
+		this.saveChange2();
 	}
 
 	async addRecordLine() {
@@ -317,11 +359,67 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		this.addTimesheetTemplateDetail({ IDTimesheetTemplate: this.item?.Id ?? 0, Id: 0 }, true, false, true);
 	}
 
+	async addSummaryLine() {
+		this.isOpenPopover = false;
+		const groups = this.formGroup.get('Lines') as FormArray;
+		const candidates = groups.controls.filter((g: FormGroup) => !g.get('IsSummary')?.value && !!g.get('Name')?.value);
+
+		if (!candidates.length) {
+			this.env.showMessage('No available fields to add to summary', 'warning');
+			return;
+		}
+
+		const inputs = candidates.map((g: FormGroup) => ({
+			type: 'checkbox',
+			label: g.get('Name')?.value || g.get('Code')?.value,
+			value: this.getAccordionValue(g),
+			checked: false,
+		}));
+
+		try {
+			const selectedKeys: string[] = (await this.env.showPrompt(
+				'Select fields to add to summary',
+				null,
+				'Add summary',
+				'Add',
+				'Cancel',
+				inputs
+			)) as string[];
+
+			if (!selectedKeys?.length) return;
+
+			candidates
+				.filter((g: FormGroup) => selectedKeys.includes(this.getAccordionValue(g)))
+				.forEach((g: FormGroup, index: number) => {
+					g.get('IsSummary')?.setValue(true);
+					g.get('IsSummary')?.markAsDirty();
+					g.get('SummarySort')?.setValue(this.summaryItems.length + index + 1);
+					g.get('SummarySort')?.markAsDirty();
+
+					if (!g.get('SummaryMethod')?.value) {
+						g.get('SummaryMethod')?.setValue('COUNT');
+						g.get('SummaryMethod')?.markAsDirty();
+					}
+
+					this.openAccordion(this.getAccordionValue(g));
+				});
+
+			this.setSummaryItems();
+			this.segmentView = 's2';
+			this.saveChange2();
+		} catch (error) {}
+	}
+
 	public isDisabled = true;
 
 	toggleReorder() {
 		this.isDisabled = !this.isDisabled;
 	}
+
+	toggleSummaryReorder() {
+		this.isSummaryReorderDisabled = !this.isSummaryReorderDisabled;
+	}
+
 	doReorder(ev, groups) {
 		groups = ev.detail.complete(groups);
 		for (let i = 0; i < groups.length; i++) {
@@ -329,6 +427,17 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			g.controls.Sort.setValue(i + 1);
 			g.controls.Sort.markAsDirty();
 		}
+		this.saveChange2();
+	}
+
+	doSummaryReorder(ev) {
+		const reorderedSummary = ev.detail.complete([...this.summaryItems]);
+		reorderedSummary.forEach((g: FormGroup, index: number) => {
+			g.get('SummarySort')?.setValue(index + 1);
+			g.get('SummarySort')?.markAsDirty();
+		});
+
+		this.setSummaryItems();
 		this.saveChange2();
 	}
 
