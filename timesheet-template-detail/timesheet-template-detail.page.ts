@@ -4,7 +4,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
 import { HRM_TimesheetTemplateProvider, HRM_UDFProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { lib } from 'src/app/services/static/global-functions';
 
@@ -15,13 +15,22 @@ import { lib } from 'src/app/services/static/global-functions';
 	standalone: false,
 })
 export class TimesheetTemplateDetailPage extends PageBase {
-	UDFList: any = [];
-	UDFDataSource: any = [];
-	UDFGroups: any = [];
-	arrayUDFGroup: any = [];
-	statusList: any = [];
-	timesheetTemplateType = [];
+	UDFList: any[] = [];
+	UDFDataSource: any[] = [];
+	UDFGroups: any[] = [];
+	arrayUDFGroup: any[] = [];
+	statusList: any[] = [];
+	timesheetTemplateType: any[] = [];
+	summaryItems: any[] = [];
+	private udfLookup = new Map<any, any>();
 	alwaysReturnProps = ['Id', 'IDBranch', 'IDTimesheetCycle', 'IDTimesheet'];
+	isSummaryReorderDisabled = true;
+
+	methodSummary = ['COUNT','COUNT_DISTINCT', 'SUM', 'MAX', 'MIN', 'AVG'].map((x) => ({
+		Code: x,
+		Name: x,
+	}));
+
 	constructor(
 		public pageProvider: HRM_TimesheetTemplateProvider,
 		public udfProvider: HRM_UDFProvider,
@@ -67,18 +76,25 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
+		if (this.UDFDataSource.length && this.timesheetTemplateType.length) {
+			super.preLoadData(event);
+			return;
+		}
+
 		Promise.all([this.env.getType('UDFGroupsType', true), this.udfProvider.read({ Group: 'TimesheetRecordInformation' }), this.env.getType('PayrollTemplateType')]).then(
 			(values: any) => {
 				this.UDFGroups = values[0];
-				if (values[1]?.data?.length > 0) values[1].data = values[1].data.filter((u) => (!u.SubGroup || u.SubGroup == 'tbl_HRM_TimesheetRecord') && u.IsDisabled == false);
-				this.UDFList = values[1].data;
-				this.timesheetTemplateType = values[2];
-				const newItems: any[] = [];
-				const groupMap = new Map<string, string>(); // Group name -> UID
-				const subGroupMap = new Map<string, string>(); // `${Group}::${SubGroup}` -> UID
 
-				// Step 1: Create Group-level display entries
-				const groups = [...new Set(this.UDFList.map((u) => u.Group))];
+				const rawUdfList = (values[1]?.data || []).filter((u) => (!u.SubGroup || u.SubGroup == 'tbl_HRM_TimesheetRecord') && u.IsDisabled == false);
+				this.UDFList = [...rawUdfList];
+				this.udfLookup = new Map(this.UDFList.map((u) => [u.Id, u]));
+				this.timesheetTemplateType = values[2];
+
+				const newItems: any[] = [];
+				const groupMap = new Map<string, string>();
+				const subGroupMap = new Map<string, string>();
+				const treeSource = rawUdfList.map((u) => ({ ...u }));
+				const groups = [...new Set(treeSource.map((u) => u.Group))];
 
 				groups.forEach((groupName: any) => {
 					const groupId = lib.generateUID();
@@ -95,14 +111,14 @@ export class TimesheetTemplateDetailPage extends PageBase {
 					});
 				});
 
-				// Step 2: Create SubGroup-level display entries
-				const subGroups = [...new Set(values[1].data.map((u) => `${u.Group}::${u.SubGroup}`))];
+				const subGroups = [...new Set(treeSource.map((u) => `${u.Group}::${u.SubGroup}`))];
 
 				subGroups.forEach((key: any) => {
 					let [groupName, subGroupName] = key.split('::');
 					const subGroupId = lib.generateUID();
 					subGroupMap.set(key, subGroupId);
-					subGroupName == 'null' ? (subGroupName = 'No sub group') : true;
+					subGroupName = subGroupName == 'null' ? 'No sub group' : subGroupName;
+
 					newItems.push({
 						Id: subGroupId,
 						Code: subGroupName,
@@ -114,133 +130,138 @@ export class TimesheetTemplateDetailPage extends PageBase {
 					});
 				});
 
-				// Step 3: Update UDFList items to assign IDParent
-				values[1].data.forEach((u) => {
+				treeSource.forEach((u) => {
 					const subKey = `${u.Group}::${u.SubGroup}`;
 					u.IDParent = subGroupMap.get(subKey) || null;
 				});
 
-				// Step 4: Add all generated entries to UDFList
-				values[1].data.unshift(...newItems);
-				this.buildFlatTree(values[1].data, []).then((rs: any) => {
+				treeSource.unshift(...newItems);
+				this.buildFlatTree(treeSource, []).then((rs: any) => {
 					this.UDFDataSource = [...rs];
 					super.preLoadData(event);
 				});
 			}
 		);
 	}
+
 	loadedData(event) {
-		if (!this.item?.Id) this.segmentView = 's2';
+		if (!this.item?.Id) this.segmentView = 's3';
 		super.loadedData(event);
 		this.patchUDF();
 	}
-	openedFieldValues = [];
+
 	patchUDF() {
-		let groups = this.formGroup.get('Lines') as FormArray;
 		this.arrayUDFGroup = [];
+		let groups = this.formGroup.get('Lines') as FormArray;
 		groups.clear();
+
 		if (this.item?.Lines?.length > 0) {
 			this.item.Lines.forEach((item) => {
 				this.addTimesheetTemplateDetail(item);
 			});
 		}
+
+		this.setSummaryItems();
 	}
-	addTimesheetTemplateDetail(line, openField = false) {
-		let groups = <FormArray>this.formGroup.controls.Lines;
-		let udf = this.UDFDataSource.find((u) => u.Id == line.IDUDF);
-		let group = this.formBuilder.group({
-			IDTimesheetTemplate: [this.item.Id],
-			Id: [line?.Id],
+
+	addTimesheetTemplateDetail(line: any = {}, openField = false, isSummary = false, markAsDirty = false) {
+		const udf = this.udfLookup.get(line?.IDUDF);
+		const lineId = line?.Id ?? 0;
+		const accordionKey = (lineId || lib.generateUID()).toString();
+		const group = this.formBuilder.group({
+			IDTimesheetTemplate: [line?.IDTimesheetTemplate ?? this.item?.Id ?? 0],
+			Id: [lineId],
+			AccordionKey: [accordionKey],
 			IDUDF: [line?.IDUDF, Validators.required],
-			// Id: new FormControl({ value: field?.Id, disabled: true }),
-			Type: [line?.Type, Validators.required],
-			UDFValue: [line.UDFValue ?? udf?.DefaultValue],
-			Code: new FormControl({ value: line.Code, disabled: true }),
-			Name: new FormControl({ value: line.Name, disabled: true }),
-			Remark: [line.Remark],
-			DataType: new FormControl({ value: line.DataType, disabled: true }),
-			ControlType: new FormControl({ value: line.ControlType, disabled: true }),
-			IsHidden: [line.IsHidden],
-			IsLock: [line.IsLock],
-			Sort: [line.Sort],
+			Type: [line?.Type ?? 'Auto', Validators.required],
+			UDFValue: [line?.UDFValue ?? udf?.DefaultValue],
+			SummaryMethod: [line?.SummaryMethod ?? line?.UDFValue ?? ''],
+			IsSummary: [line?.IsSummary ?? isSummary],
+			Code: new FormControl({ value: line?.Code, disabled: true }),
+			Name: new FormControl({ value: line?.Name, disabled: true }),
+			Remark: [line?.Remark],
+			DataType: new FormControl({ value: line?.DataType ?? udf?.DataType, disabled: true }),
+			ControlType: new FormControl({ value: line?.ControlType ?? udf?.ControlType, disabled: true }),
+			IsHidden: [line?.IsHidden ?? false],
+			IsLock: [line?.IsLock ?? line?.IsLocked ?? false],
+			Sort: [line?.Sort ?? (this.formGroup.get('Lines') as FormArray).length + 1],
+			SummarySort: [line?.SummarySort ?? null],
 			DefaultValue: new FormControl({ value: udf?.DefaultValue, disabled: true }),
-			IsDisabled: new FormControl({
-				value: line.IsDisabled,
-				disabled: true,
-			}),
-			IsDeleted: new FormControl({
-				value: line.IsDeleted,
-				disabled: true,
-			}),
-			CreatedBy: new FormControl({
-				value: line.CreatedBy,
-				disabled: true,
-			}),
-			CreatedDate: new FormControl({
-				value: line.CreatedDate,
-				disabled: true,
-			}),
-			ModifiedBy: new FormControl({
-				value: line.ModifiedBy,
-				disabled: true,
-			}),
-			ModifiedDate: new FormControl({
-				value: line.ModifiedDate,
-				disabled: true,
-			}),
 		});
-		if (line.IsDisabled) group.disable();
-		this.changeType({ Code: line.Type }, group, false);
-		group.get('IDTimesheetTemplate').markAsDirty();
-		if (openField) {
-			this.openedFields.push(line?.Id.toString());
+		if (!this.pageConfig.canEdit || line?.IsDisabled) group.disable();
+		this.changeType({ Code: group.controls.Type.value }, group, false);
+		if (markAsDirty) {
+			group.get('IDTimesheetTemplate')?.markAsDirty();
+			group.get('Type')?.markAsDirty();
+			group.get('Sort')?.markAsDirty();
+			if (group.get('IDUDF')?.value) group.get('IDUDF')?.markAsDirty();
+			if (group.get('UDFValue')?.value) group.get('UDFValue')?.markAsDirty();
+			if (group.get('SummaryMethod')?.value) group.get('SummaryMethod')?.markAsDirty();
+			if (group.get('IsSummary')?.value) group.get('IsSummary')?.markAsDirty();
+			if (group.get('SummarySort')?.value) group.get('SummarySort')?.markAsDirty();
 		}
-		groups.push(group);
+
+		if (openField) {
+			this.openAccordion(accordionKey);
+		}
+
+		(<FormArray>this.formGroup.controls.Lines).push(group);
+		this.setSummaryItems();
 	}
 
-	changeUDF(e, fg) {
-		fg.get('DataType').setValue(e?.DataType);
-		fg.get('DefaultValue').setValue(e?.DefaultValue);
+	changeUDF(e, fg: FormGroup) {
+		fg.get('DataType')?.setValue(e?.DataType);
+		fg.get('DefaultValue')?.setValue(e?.DefaultValue);
+
 		if (fg.controls.Type.value != 'Formula') {
-			fg.get('ControlType').setValue(e?.ControlType);
+			fg.get('ControlType')?.setValue(e?.ControlType);
 		}
 
-		fg.get('Name').setValue(e?.Name);
-		fg.get('Code').setValue(e?.Code);
-		// fg.get('Name').markAsDirty();
-		// fg.get('Code').markAsDirty();
+		fg.get('Name')?.setValue(e?.Name);
+		fg.get('Code')?.setValue(e?.Code);
+
+		if (!fg.get('IsSummary')?.value && !fg.get('UDFValue')?.value) {
+			fg.get('UDFValue')?.setValue(e?.DefaultValue);
+		}
+
+		this.setSummaryItems();
 		this.saveChange2();
 	}
-	changeType(e, fg, markAsDirty = true) {
+
+	changeType(e, fg: FormGroup, markAsDirty = true) {
 		if (e?.Code == 'Formula') {
 			fg.controls.ControlType.setValue('formula');
 		} else {
-			let udf = this.UDFDataSource.find((u) => u.Id == fg.controls.IDUDF.value);
+			const udf = this.udfLookup.get(fg.controls.IDUDF.value);
 			fg.controls.ControlType.setValue(udf?.ControlType);
 		}
+
 		if (markAsDirty) this.saveChange2();
 	}
+
 	removeField(g, index) {
 		let groups = <FormArray>this.formGroup.controls.Lines;
+		const actualIndex = groups.controls.indexOf(g);
+
 		if (g.controls.Id.value) {
 			this.env
 				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
 				.then((_) => {
-					//groups.controls[index].get('IsDeleted').setValue(true);
-					groups.removeAt(index);
-					this.item.Lines.splice(index, 1);
-					let DeletedLines = this.formGroup.get('DeletedLines').value;
-					let deletedId = g.controls.Id.value;
-					DeletedLines.push(deletedId);
+					if (actualIndex > -1) groups.removeAt(actualIndex);
+					if (actualIndex > -1) this.item.Lines.splice(actualIndex, 1);
+					let deletedLines = this.formGroup.get('DeletedLines')?.value;
+					deletedLines.push(g.controls.Id.value);
 
-					this.formGroup.get('DeletedLines').setValue(DeletedLines);
-					this.formGroup.get('DeletedLines').markAsDirty();
-					//  groups.controls[index].markAsDirty();
-					// groups.controls[index].get('IsDeleted').markAsDirty()
+					this.formGroup.get('DeletedLines')?.setValue(deletedLines);
+					this.formGroup.get('DeletedLines')?.markAsDirty();
+					this.setSummaryItems();
 					this.saveChange2();
 				})
-				.catch((_) => {});
-		} else groups.removeAt(index);
+				.catch(() => {});
+		} else {
+			if (actualIndex > -1) groups.removeAt(actualIndex);
+			this.setSummaryItems();
+		}
 	}
 
 	segmentView = 's1';
@@ -248,20 +269,157 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		this.segmentView = ev.detail.value;
 	}
 
-	openedFields: any = [];
+	openedFields: string[] = [];
 	accordionGroupChange(e) {
-		this.openedFields = e.detail.value;
-		console.log(this.openedFields);
+		const value = e.detail.value;
+		this.openedFields = Array.isArray(value) ? value : value ? [value] : [];
+	}
+
+	openAccordion(id: string) {
+		if (!id) return;
+
+		const key = id.toString();
+		if (!this.openedFields.includes(key)) {
+			this.openedFields = [...this.openedFields, key];
+		}
+	}
+
+	getAccordionValue(g: FormGroup): string {
+		return (g.get('AccordionKey')?.value ?? g.get('Id')?.value ?? '').toString();
 	}
 
 	isAccordionExpanded(id: string): boolean {
 		return this.openedFields.includes(id?.toString());
 	}
+
+	getLinePreview(g: FormGroup): string {
+		if (this.segmentView === 's2') {
+			return g.get('SummaryMethod')?.value ?? '';
+		}
+
+		const type = String(g.get('Type')?.value ?? '').toLowerCase();
+
+		if (type === 'auto') {
+			const udf = this.udfLookup.get(g.get('IDUDF')?.value);
+			return udf?.DefaultValue ?? '';
+		}
+
+		return g.get('DefaultValue')?.value ?? g.get('UDFValue')?.value ?? '';
+	}
+
+	trackLineBy = (_index: number, g: FormGroup) => this.getAccordionValue(g);
+
+	setSummaryItems() {
+		const groups = <FormArray>this.formGroup.controls.Lines;
+		const summaryGroups = groups.controls.filter((g: FormGroup) => !!g.get('IsSummary')?.value) as FormGroup[];
+		let nextSummarySort = 1;
+
+		summaryGroups
+			.sort((a: FormGroup, b: FormGroup) => {
+				const aSort = Number(a.get('SummarySort')?.value ?? Number.MAX_SAFE_INTEGER);
+				const bSort = Number(b.get('SummarySort')?.value ?? Number.MAX_SAFE_INTEGER);
+				if (aSort !== bSort) return aSort - bSort;
+				return Number(a.get('Sort')?.value ?? 0) - Number(b.get('Sort')?.value ?? 0);
+			})
+			.forEach((g: FormGroup) => {
+				if (!g.get('SummarySort')?.value) {
+					g.get('SummarySort')?.setValue(nextSummarySort);
+				}
+				nextSummarySort++;
+			});
+
+		groups.controls
+			.filter((g: FormGroup) => !g.get('IsSummary')?.value && !!g.get('SummarySort')?.value)
+			.forEach((g: FormGroup) => g.get('SummarySort')?.setValue(null));
+
+		this.summaryItems = [...summaryGroups].sort(
+			(a: FormGroup, b: FormGroup) => Number(a.get('SummarySort')?.value ?? 0) - Number(b.get('SummarySort')?.value ?? 0)
+		);
+	}
+
+	onSummaryChange(g: FormGroup) {
+		if (g.get('IsSummary')?.value && !g.get('SummarySort')?.value) {
+			const maxSummarySort = this.summaryItems.reduce((max, item: FormGroup) => Math.max(max, Number(item.get('SummarySort')?.value ?? 0)), 0);
+			g.get('SummarySort')?.setValue(maxSummarySort + 1);
+			g.get('SummarySort')?.markAsDirty();
+		}
+
+		if (!g.get('IsSummary')?.value && g.get('SummarySort')?.value) {
+			g.get('SummarySort')?.setValue(null);
+			g.get('SummarySort')?.markAsDirty();
+		}
+
+		this.setSummaryItems();
+		this.saveChange2();
+	}
+
+	async addRecordLine() {
+		this.isOpenPopover = false;
+		this.segmentView = 's1';
+		this.addTimesheetTemplateDetail({ IDTimesheetTemplate: this.item?.Id ?? 0, Id: 0 }, true, false, true);
+	}
+
+	async addSummaryLine() {
+		this.isOpenPopover = false;
+		const groups = this.formGroup.get('Lines') as FormArray;
+		const candidates = groups.controls.filter((g: FormGroup) => !g.get('IsSummary')?.value && !!g.get('Name')?.value);
+
+		if (!candidates.length) {
+			this.env.showMessage('No available fields to add to summary', 'warning');
+			return;
+		}
+
+		const inputs = candidates.map((g: FormGroup) => ({
+			type: 'checkbox',
+			label: g.get('Name')?.value || g.get('Code')?.value,
+			value: this.getAccordionValue(g),
+			checked: false,
+		}));
+
+		try {
+			const selectedKeys: string[] = (await this.env.showPrompt(
+				'Select fields to add to summary',
+				null,
+				'Add summary',
+				'Add',
+				'Cancel',
+				inputs
+			)) as string[];
+
+			if (!selectedKeys?.length) return;
+
+			candidates
+				.filter((g: FormGroup) => selectedKeys.includes(this.getAccordionValue(g)))
+				.forEach((g: FormGroup, index: number) => {
+					g.get('IsSummary')?.setValue(true);
+					g.get('IsSummary')?.markAsDirty();
+					g.get('SummarySort')?.setValue(this.summaryItems.length + index + 1);
+					g.get('SummarySort')?.markAsDirty();
+
+					if (!g.get('SummaryMethod')?.value) {
+						g.get('SummaryMethod')?.setValue('COUNT');
+						g.get('SummaryMethod')?.markAsDirty();
+					}
+
+					this.openAccordion(this.getAccordionValue(g));
+				});
+
+			this.setSummaryItems();
+			this.segmentView = 's2';
+			this.saveChange2();
+		} catch (error) {}
+	}
+
 	public isDisabled = true;
 
 	toggleReorder() {
 		this.isDisabled = !this.isDisabled;
 	}
+
+	toggleSummaryReorder() {
+		this.isSummaryReorderDisabled = !this.isSummaryReorderDisabled;
+	}
+
 	doReorder(ev, groups) {
 		groups = ev.detail.complete(groups);
 		for (let i = 0; i < groups.length; i++) {
@@ -272,41 +430,58 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		this.saveChange2();
 	}
 
+	doSummaryReorder(ev) {
+		const reorderedSummary = ev.detail.complete([...this.summaryItems]);
+		reorderedSummary.forEach((g: FormGroup, index: number) => {
+			g.get('SummarySort')?.setValue(index + 1);
+			g.get('SummarySort')?.markAsDirty();
+		});
+
+		this.setSummaryItems();
+		this.saveChange2();
+	}
+
 	savedChange(savedItem = null, form = this.formGroup) {
 		super.savedChange(savedItem);
-		let groups = this.formGroup.get('Lines') as FormArray;
-		let idsBeforeSaving = new Set(groups.controls.map((g) => g.get('Id').value));
+		const groups = this.formGroup.get('Lines') as FormArray;
+		const idsBeforeSaving = new Set(groups.controls.map((g) => g.get('Id')?.value).filter((id) => !!id));
 		this.item = savedItem;
+		groups.controls.forEach((g: FormGroup) => {
+			if (!g.get('IDTimesheetTemplate')?.value && this.item?.Id) {
+				g.get('IDTimesheetTemplate')?.setValue(this.item.Id);
+			}
+		});
 
-		if (this.item.Lines?.length > 0) {
-			let newIds = new Set(this.item.Lines.map((i) => i.Id));
+		if (this.item?.Lines?.length > 0) {
+			const newIds = new Set(this.item.Lines.map((i) => i.Id));
 			const diff = [...newIds].filter((item) => !idsBeforeSaving.has(item));
+
 			if (diff?.length > 0) {
 				if (diff.length > 1) {
-					diff.forEach((d) => {
-						this.openedFields = [...this.openedFields, d.toString()];
-					});
+					diff.forEach((d) => this.openAccordion(d.toString()));
 					this.loadedData(null);
+					return;
 				}
-				groups.controls
-					.find((d) => !d.get('Id').value)
-					?.get('Id')
-					.setValue(diff[0]);
-				this.openedFields = [...this.openedFields, diff[0].toString()];
-				console.log(this.openedFields);
+
+				const pendingGroup = groups.controls.find((d) => !d.get('Id')?.value);
+				pendingGroup?.get('Id')?.setValue(diff[0]);
+				pendingGroup?.get('AccordionKey')?.setValue(diff[0].toString());
+				this.openAccordion(diff[0].toString());
 			}
 		}
+
+		this.setSummaryItems();
 	}
 
 	isOpenPopover = false;
 	@ViewChild('popover') popover!: HTMLIonPopoverElement;
 	presentCopyPopover(e) {
 		this.popover.event = e;
-		this.isOpenPopover = !this.isOpenPopover;
+		this.isOpenPopover = true;
 	}
 	addAllTimesheetTemplateDetail() {
-		if (!this.item.Id) return;
-		this.env.showPrompt('Do you want to add all timesheet template detail?', 'Add all timesheet template detail to this template.', 'Add').then((d) => {
+		if (!this.item?.Id) return;
+		this.env.showPrompt('Do you want to add all timesheet template detail?', 'Add all timesheet template detail to this template.', 'Add').then(() => {
 			this.env
 				.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'HRM/TimesheetTemplate/AddAllDetail/' + this.item.Id, {}).toPromise())
 				.then((res) => {
@@ -321,6 +496,5 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		});
 	}
 
-	//TODO: Remove empty functions
 	show = false;
 }
