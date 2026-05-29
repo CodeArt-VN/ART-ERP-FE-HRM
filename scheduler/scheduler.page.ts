@@ -275,7 +275,6 @@ export class SchedulerPage extends PageBase {
 			const activeStart = new Date(this.fc?.view?.activeStart);
 			if (this.segmentView == 's2') {
 				// Checkin không phân biệt phòng ban,EndDate nhận biết nv nghỉ / chuyển phòng ban
-				// checkin trong khoảng thời gian hiển thị / còn lịch làm việc
 				return activeStart <= endDate;
 			}
 			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
