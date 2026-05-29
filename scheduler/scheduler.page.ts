@@ -67,7 +67,6 @@ export class SchedulerPage extends PageBase {
 	cycle: any;
 	formGroupDate: any;
 	tooltipResource = '';
-	private checkinScheduleStaff = new Set<any>();
 	private checkinKeySet = new Set<string>();
 	private isCheckinMapLoaded = false;
 
@@ -277,7 +276,7 @@ export class SchedulerPage extends PageBase {
 			if (this.segmentView == 's2') {
 				// Checkin không phân biệt phòng ban,EndDate nhận biết nv nghỉ / chuyển phòng ban
 				// checkin trong khoảng thời gian hiển thị / còn lịch làm việc
-				return activeStart <= endDate || this.checkinScheduleStaff.has(resource.IDStaff);
+				return activeStart <= endDate;
 			}
 			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
 			if (!hasData && activeStart > endDate) {
@@ -425,24 +424,12 @@ export class SchedulerPage extends PageBase {
 		this.query.Take = 50000;
 
 		this.clearData();
-		this.checkinScheduleStaff = new Set<any>();
 		if (this.id) {
 			this.query.IDStaff = JSON.stringify(this.allResources.map((m) => m.IDStaff));
-			const scheduleQuery = {
-				WorkingDateFrom: this.query.LogTimeFrom,
-				WorkingDateTo: this.query.LogTimeTo,
-				IDTimesheet: this.id,
-				IDOffice: this.query.IDOffice,
-				IDStaff: this.query.IDStaff,
-				Take: 5000,
-			};
-			Promise.all([this.timesheetLogProvider.read(this.query), this.pageProvider.read(scheduleQuery).catch(() => ({ data: [] }))]).then(
-				(values: any[]) => {
-					this.items = values[0]?.data || [];
-					this.checkinScheduleStaff = new Set((values[1]?.data || []).map((item) => item.IDStaff));
-					this.loadedData(event);
-				}
-			);
+			this.timesheetLogProvider.read(this.query).then((result: any) => {
+				this.items = result.data;
+				this.loadedData(event);
+			});
 			// this.env.showLoading('Loading...', this.staffTimesheetEnrollmentProvider.read({ IDTimesheet: this.id })).then((resp) => {
 			// 	let resources = resp['data'];
 			// 	//resources.unshift({FullName: 'OPEN SHIFT', Code:'', Department: '', JobTitle: ''})
