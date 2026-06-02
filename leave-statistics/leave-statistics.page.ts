@@ -59,7 +59,7 @@ export class LeaveStatisticsPage extends PageBase {
 							this.pageConfig.isEndOfData = true;
 						}
 						if (result.data.length > 0) {
-							this.items = this.dataManagementService.mergeItems(this.items, result.data);
+							this.items = this.dataManagementService.appendPaginatedItems(this.items, result.data);
 						}
 
 						this.loadedData(event);
