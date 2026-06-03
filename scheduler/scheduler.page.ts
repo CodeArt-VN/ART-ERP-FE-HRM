@@ -272,8 +272,13 @@ export class SchedulerPage extends PageBase {
 			if (resource.EndDate == null) return true;
 			resource.isDeleted = true;
 			const endDate = new Date(resource.EndDate);
+			const activeStart = new Date(this.fc?.view?.activeStart);
+			if (this.segmentView == 's2') {
+				// Checkin không phân biệt phòng ban,EndDate nhận biết nv nghỉ / chuyển phòng ban
+				return activeStart <= endDate;
+			}
 			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
-			if (!hasData && new Date(this.fc?.view?.activeStart) > endDate) {
+			if (!hasData && activeStart > endDate) {
 				return hasData; // Chỉ giữ nếu còn dữ liệu2
 			}
 			return true; // Chưa xóa => giữ
