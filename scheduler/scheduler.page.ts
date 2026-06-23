@@ -826,14 +826,14 @@ export class SchedulerPage extends PageBase {
 			{
 				//group: true,
 				headerDidMount: this.headerDidMount.bind(this),
-				fields: ['JobTitle'],
+				field: 'JobTitle',
 				headerClassNames: 'JobTitle',
 				headerContent: 'Chức danh',
 				width: 150,
 			},
 			{
 				headerDidMount: this.headerDidMount.bind(this),
-				fields: ['LeaveDays'],
+				field: 'LeaveDays',
 				headerContent: 'Ngày phép',
 				width: 80,
 			},
