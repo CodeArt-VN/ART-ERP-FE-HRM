@@ -12,7 +12,9 @@
 <ion-content appScrollbarTheme [fullscreen]="true">
 	<div style="min-height: 0%">
 		<div id="ng-select-header" style="position: absolute; z-index: 30005"></div>
-		@if((!hrmConfig.AllowCheckInWithoutShift && hasShift) || hrmConfig.AllowCheckInWithoutShift) {
+		@if(!isCheckinDataLoaded) {
+		<app-page-message [itemsLength]="0" [showSpinner]="true"></app-page-message>
+		} @else if((!hrmConfig.AllowCheckInWithoutShift && hasShift) || hrmConfig.AllowCheckInWithoutShift) {
 		<app-page-message [itemsLength]="(items?.length > 0 || canScanQRCode )? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 		<ion-radio-group *ngIf="items && items.length>0 && !pageConfig.showSpinner" [(ngModel)]="selectedGateId" (ionChange)="onGateSelectionChanged()">
 			<ion-item *ngFor="let i of items" button lines="full" (click)="changeGate(i)">

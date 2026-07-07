@@ -13,7 +13,6 @@ import { Geolocation } from '@capacitor/geolocation';
 import { CateringVoucherModalPage } from '../catering-voucher-modal/catering-voucher-modal.page';
 import { HttpClient } from '@angular/common/http';
 import { SYS_ConfigService } from 'src/app/services/custom/system-config.service';
-import { withoutValidation } from 'ngx-mask';
 @Component({
 	selector: 'app-scan-checkin-modal',
 	templateUrl: './scan-checkin-modal.page.html',
@@ -28,9 +27,11 @@ export class ScanCheckinModalPage extends PageBase {
 	selectedGateId: number = null;
 	platform = Capacitor.getPlatform();
 	hasShift = false;
+	isCheckinDataLoaded = false;
 	hrmConfig = {
 		AllowCheckInWithoutShift: false,
 		EnableLogRecording: false,
+		AllowCheckInOutsideWorkingHours: false,
 	};
 
 	constructor(
@@ -66,8 +67,9 @@ export class ScanCheckinModalPage extends PageBase {
 		});
 	}
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
+		this.isCheckinDataLoaded = false;
+		this.hasShift = false;
 		if (!this.hrmConfig.AllowCheckInWithoutShift) {
-			
 			this.staffScheduleProvider
 				.read({
 					IDStaff: this.env.user.StaffID,
@@ -78,8 +80,12 @@ export class ScanCheckinModalPage extends PageBase {
 						this.hasShift = true;
 					}
 				})
-				.finally(() => super.loadedData(event, ignoredFromGroup));
+				.finally(() => {
+					this.isCheckinDataLoaded = true;
+					super.loadedData(event, ignoredFromGroup);
+				});
 		} else {
+			this.isCheckinDataLoaded = true;
 			super.loadedData(event, ignoredFromGroup);
 		}
 		if (this.platform !== 'web') {
@@ -197,16 +203,16 @@ export class ScanCheckinModalPage extends PageBase {
 		let postDTO = {
 			IDStaff: this.env.user.StaffID,
 			GateCode: this.activeGate.Code,
-			Logtime: formattedDate,
+			LogTime: formattedDate,
 			IPAddress: this.myIP,
-			// WithoutShift:true
 		};
-		if (this.hrmConfig.AllowCheckInWithoutShift && !this.hrmConfig.EnableLogRecording && !this.hasShift) {
-			postDTO['WithoutShift'] = true;
-		}
-
+		// if (this.hrmConfig.AllowCheckInWithoutShift && !this.hrmConfig.EnableLogRecording && !this.hasShift) {
+		// 	postDTO['WithoutShift'] = true;
+		// }
 		this.timesheetLogProvider.save(postDTO).then((resp: any) => {
-			if (resp) {
+			if (resp && resp != 'OK' && !resp.Id) {
+				this.showLogMessage(resp);
+			} else if (resp) {
 				this.env.showMessage('Check-in successful', 'success');
 				this.modalController.dismiss(true);
 			}
@@ -223,22 +229,50 @@ export class ScanCheckinModalPage extends PageBase {
 	}
 
 	showLogMessage(message) {
-		if (message.indexOf('Invalid IP') > -1) {
-			this.env.showMessage('IP is invalid. Please use companys wify when checking in', 'warning', null, 0, true);
-		} else if (message.indexOf('Invalid gate coordinate') > -1) {
-			this.env.showMessage('Check-in gates coordintates are invalid.', 'warning', null, 0, true);
-		} else if (message.indexOf('Invalid coordinate') > -1) {
-			this.env.showMessage('Cannot verify check-in location, please turn on GPS during chech-in', 'warning', null, 0, true);
-		} else if (message.indexOf('Invalid distance') > -1) {
-			this.env.showMessage('Please check in at specified location', 'warning', null, 0, true);
-		} else if (message.indexOf('Invalid LogTime') > -1) {
-			this.env.showMessage('Check-in time is invalid, please check-in at specfied time', 'warning', null, 0, true);
-		} else if (message.indexOf('No pre-ordered') > -1) {
-			this.env.showMessage('You have not register for meals. Please register at least 01 day in advance', 'warning', null, 0, true);
-		} else if (message.indexOf('Schedule not found') > -1) {
-			this.env.showMessage('You do not have working schedule', 'warning', null, 0, true);
-		} else if (message.indexOf('Catering voucher has been used') > -1) {
-			this.env.showMessage('Meal Check-in completed', 'warning', null, 0, true);
+		let messageKey = [
+			'Invalid IP',
+			'Invalid gate coordinate',
+			'Invalid coordinate',
+			'Invalid distance',
+			'Invalid LogTime',
+			'No pre-ordered',
+			'Schedule not found',
+			'Time attendance without assigned shift',
+			'Catering voucher has been used',
+			'Outside working hours',
+		].find((key) => message.indexOf(key) > -1);
+
+		switch (messageKey) {
+			case 'Invalid IP':
+				this.env.showMessage('IP is invalid. Please use companys wify when checking in', 'warning', null, 0, true);
+				break;
+			case 'Invalid gate coordinate':
+				this.env.showMessage('Check-in gates coordintates are invalid.', 'warning', null, 0, true);
+				break;
+			case 'Invalid coordinate':
+				this.env.showMessage('Cannot verify check-in location, please turn on GPS during chech-in', 'warning', null, 0, true);
+				break;
+			case 'Invalid distance':
+				this.env.showMessage('Please check in at specified location', 'warning', null, 0, true);
+				break;
+			case 'Invalid LogTime':
+				this.env.showMessage('Check-in time is invalid, please check-in at specfied time', 'warning', null, 0, true);
+				break;
+			case 'No pre-ordered':
+				this.env.showMessage('You have not register for meals. Please register at least 01 day in advance', 'warning', null, 0, true);
+				break;
+			case 'Schedule not found':
+				this.env.showMessage('You do not have working schedule', 'warning', null, 0, true);
+				break;
+			case 'Time attendance without assigned shift':
+				this.env.showMessage('You have not been assigned a shift.', 'warning', null, 0, true);
+				break;
+			case 'Catering voucher has been used':
+				this.env.showMessage('Meal Check-in completed', 'warning', null, 0, true);
+				break;
+			case 'Outside working hours':
+				this.env.showMessage('Check-in time is outside working hours', 'warning', null, 0, true);
+				break;
 		}
 	}
 }
