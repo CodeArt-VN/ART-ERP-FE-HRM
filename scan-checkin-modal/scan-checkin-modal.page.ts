@@ -51,6 +51,52 @@ export class ScanCheckinModalPage extends PageBase {
 		super();
 	}
 
+	private getLocalDateValue(date = new Date()): string {
+		return lib.dateFormat(date, 'yyyy-mm-dd');
+	}
+
+	private getPreviousLocalDateValue(date = new Date()): string {
+		const previousDate = new Date(date);
+		previousDate.setDate(previousDate.getDate() - 1);
+		return this.getLocalDateValue(previousDate);
+	}
+
+	private getScheduleWorkingDate(schedule: any): string {
+		return schedule?.WorkingDate ? lib.dateFormat(schedule.WorkingDate, 'yyyy-mm-dd') : '';
+	}
+
+	private getScheduleDateRange(schedule: any): { start: Date; end: Date } | null {
+		const startValue = schedule?.Start ?? schedule?.start;
+		const endValue = schedule?.End ?? schedule?.end;
+		if (!startValue || !endValue) return null;
+
+		const start = new Date(startValue);
+		const end = new Date(endValue);
+		if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+
+		return { start, end };
+	}
+
+	private isOvernightShiftEndingToday(schedule: any, today: string, range: { start: Date; end: Date }): boolean {
+		return schedule?.ShiftType === 'OvernightShift' && this.getLocalDateValue(range.end) === today;
+	}
+
+	private hasCheckinShift(schedules: any[], now = new Date()): boolean {
+		if (!schedules?.length) return false;
+
+		const today = this.getLocalDateValue(now);
+		if (schedules.some((schedule) => this.getScheduleWorkingDate(schedule) === today)) return true;
+
+		const previousDaySchedules = schedules.filter((schedule) => this.getScheduleWorkingDate(schedule) !== today);
+		if (!previousDaySchedules.length) return false;
+
+		return previousDaySchedules.some((schedule) => {
+			const range = this.getScheduleDateRange(schedule);
+			if (!range) return false;
+			return (range.start <= now && now <= range.end) || this.isOvernightShiftEndingToday(schedule, today, range);
+		});
+	}
+
 	preLoadData(event?: any): void {
 		Promise.all([
 			this.pageProvider.commonService.connect('GET', ApiSetting.apiDomain('Account/MyIP'), null).toPromise(),
@@ -70,15 +116,15 @@ export class ScanCheckinModalPage extends PageBase {
 		this.isCheckinDataLoaded = false;
 		this.hasShift = false;
 		if (!this.hrmConfig.AllowCheckInWithoutShift) {
+			const now = new Date();
 			this.staffScheduleProvider
 				.read({
 					IDStaff: this.env.user.StaffID,
-					WorkingDate: lib.dateFormat(new Date(), 'yyyy-mm-dd'),
+					WorkingDateFrom: this.getPreviousLocalDateValue(now),
+					WorkingDateTo: this.getLocalDateValue(now),
 				})
 				.then((resp: any) => {
-					if (resp?.data?.length > 0) {
-						this.hasShift = true;
-					}
+					this.hasShift = this.hasCheckinShift(resp?.data, now);
 				})
 				.finally(() => {
 					this.isCheckinDataLoaded = true;
