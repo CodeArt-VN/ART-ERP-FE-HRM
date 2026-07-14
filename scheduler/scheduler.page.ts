@@ -70,6 +70,61 @@ export class SchedulerPage extends PageBase {
 	private checkinKeySet = new Set<string>();
 	private isCheckinMapLoaded = false;
 
+	private getLocalDateValue(date = new Date()): string {
+		return lib.dateFormat(date, 'yyyy-mm-dd');
+	}
+
+	private getCurrentSchedulerDate(): Date {
+		const currentDate = new Date(this.fc?.view?.activeStart || new Date());
+		currentDate.setHours(0, 0, 0, 0);
+		return currentDate;
+	}
+
+	private isResourceActiveOnDate(resource: any, currentDate = this.getCurrentSchedulerDate()): boolean {
+		if (!resource) return false;
+		if (resource.StartDate) {
+			const startDate = new Date(resource.StartDate);
+			startDate.setHours(0, 0, 0, 0);
+			if (startDate > currentDate) return false;
+		}
+		if (resource.EndDate) {
+			const endDate = new Date(resource.EndDate);
+			endDate.setHours(0, 0, 0, 0);
+			if (endDate < currentDate) return false;
+		}
+		return true;
+	}
+
+	private syncInactiveStaffExportFilter(): void {
+		const filter = this.query?._AdvanceConfig?.Transform?.Filter;
+		const logicals = filter?.Logicals;
+		if (!Array.isArray(logicals)) return;
+
+		const autoFilterDimension = 'IDStaff';
+		const autoFilterOperator = 'NOT IN';
+		const currentDate = this.getCurrentSchedulerDate();
+		const inactiveStaffIds = this.allResources
+			.filter((resource) => !this.isResourceActiveOnDate(resource, currentDate))
+			.map((resource) => resource.IDStaff)
+			.filter((id, index, ids) => id && ids.indexOf(id) === index);
+
+		for (let i = logicals.length - 1; i >= 0; i--) {
+			const logical = logicals[i];
+			if (logical?.IsAutoInactiveStaffFilter) {
+				logicals.splice(i, 1);
+			}
+		}
+
+		if (inactiveStaffIds.length) {
+			logicals.push({
+				Dimension: autoFilterDimension,
+				Operator: autoFilterOperator,
+				Value: inactiveStaffIds.join(','),
+				IsAutoInactiveStaffFilter: true,
+			});
+		}
+	}
+
 	constructor(
 		public pageProvider: HRM_StaffScheduleProvider,
 		public timesheetLogProvider: HRM_TimesheetLogProvider,
@@ -99,8 +154,7 @@ export class SchedulerPage extends PageBase {
 		super();
 		// this.pageConfig.isShowFeature = true;
 		this.pageConfig.ShowSearch = false;
-		const today = new Date().toISOString().split('T')[0];
-		console.log('today', today);
+		const today = this.getLocalDateValue();
 		this.formGroupDate = this.formBuilder.group({
 			singleDate: [today],
 		});
@@ -282,6 +336,11 @@ export class SchedulerPage extends PageBase {
 				return hasData; // Chỉ giữ nếu còn dữ liệu2
 			}
 			return true; // Chưa xóa => giữ
+		});
+		const currentSchedulerDate = this.getCurrentSchedulerDate();
+		this.calendarOptions.resources = this.allResources.filter((resource) => {
+			resource.isDeleted = !this.isResourceActiveOnDate(resource, currentSchedulerDate);
+			return !resource.isDeleted;
 		});
 		this.calendarOptions.resourceLabelContent = (arg) => {
 			let imgpath = environment.staffAvatarsServer + arg.resource.extendedProps.Code + '.jpg';
@@ -691,7 +750,7 @@ export class SchedulerPage extends PageBase {
 		this.fc?.addEventSource(this.items);
 		if (this.cycle) {
 			this.fc?.gotoDate(this.cycle.Start);
-			this.formGroupDate.controls['singleDate'].setValue(new Date(this.cycle.Start).toISOString().split('T')[0]);
+			this.formGroupDate.controls['singleDate'].setValue(this.getLocalDateValue(new Date(this.cycle.Start)));
 			this.cycle = null;
 		}
 		this.fc?.updateSize();
@@ -1692,6 +1751,7 @@ export class SchedulerPage extends PageBase {
 				},
 			};
 		}
+		this.syncInactiveStaffExportFilter();
 		//this.refresh();
 		// this.pageProvider.read(this.query).then((resp) => {});
 	}
