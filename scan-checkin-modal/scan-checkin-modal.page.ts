@@ -78,7 +78,7 @@ export class ScanCheckinModalPage extends PageBase {
 	}
 
 	private isOvernightShiftEndingToday(schedule: any, today: string, range: { start: Date; end: Date }): boolean {
-		return schedule?.ShiftType === 'OvernightShift' && this.getLocalDateValue(range.end) === today;
+		return schedule?.IsOvernightShift && this.getLocalDateValue(range.end) === today;
 	}
 
 	private hasCheckinShift(schedules: any[], now = new Date()): boolean {
