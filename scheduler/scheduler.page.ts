@@ -74,23 +74,27 @@ export class SchedulerPage extends PageBase {
 		return lib.dateFormat(date, 'yyyy-mm-dd');
 	}
 
-	private getCurrentSchedulerDate(): Date {
-		const currentDate = new Date(this.fc?.view?.activeStart || new Date());
-		currentDate.setHours(0, 0, 0, 0);
-		return currentDate;
+	private getCurrentSchedulerRange(): { start: Date; end: Date } {
+		const start = new Date(this.fc?.view?.activeStart || new Date());
+		start.setHours(0, 0, 0, 0);
+
+		const end = this.fc?.view?.activeEnd ? new Date(this.fc.view.activeEnd.getTime() - 1) : new Date(start);
+		end.setHours(23, 59, 59, 999);
+
+		return { start, end };
 	}
 
-	private isResourceActiveOnDate(resource: any, currentDate = this.getCurrentSchedulerDate()): boolean {
+	private isResourceActiveInRange(resource: any, range = this.getCurrentSchedulerRange()): boolean {
 		if (!resource) return false;
 		if (resource.StartDate) {
 			const startDate = new Date(resource.StartDate);
 			startDate.setHours(0, 0, 0, 0);
-			if (startDate > currentDate) return false;
+			if (startDate > range.end) return false;
 		}
 		if (resource.EndDate) {
 			const endDate = new Date(resource.EndDate);
 			endDate.setHours(0, 0, 0, 0);
-			if (endDate < currentDate) return false;
+			if (endDate < range.start) return false;
 		}
 		return true;
 	}
@@ -102,9 +106,9 @@ export class SchedulerPage extends PageBase {
 
 		const autoFilterDimension = 'IDStaff';
 		const autoFilterOperator = 'NOT IN';
-		const currentDate = this.getCurrentSchedulerDate();
+		const currentRange = this.getCurrentSchedulerRange();
 		const inactiveStaffIds = this.allResources
-			.filter((resource) => !this.isResourceActiveOnDate(resource, currentDate))
+			.filter((resource) => !this.isResourceActiveInRange(resource, currentRange))
 			.map((resource) => resource.IDStaff)
 			.filter((id, index, ids) => id && ids.indexOf(id) === index);
 
@@ -337,10 +341,12 @@ export class SchedulerPage extends PageBase {
 			}
 			return true; // Chưa xóa => giữ
 		});
-		const currentSchedulerDate = this.getCurrentSchedulerDate();
+		const currentSchedulerRange = this.getCurrentSchedulerRange();
 		this.calendarOptions.resources = this.allResources.filter((resource) => {
-			resource.isDeleted = !this.isResourceActiveOnDate(resource, currentSchedulerDate);
-			return !resource.isDeleted;
+			const isActiveInRange = this.isResourceActiveInRange(resource, currentSchedulerRange);
+			const hasData = this.items.some((item) => item.IDStaff === resource.IDStaff);
+			resource.isDeleted = !isActiveInRange;
+			return isActiveInRange || hasData;
 		});
 		this.calendarOptions.resourceLabelContent = (arg) => {
 			let imgpath = environment.staffAvatarsServer + arg.resource.extendedProps.Code + '.jpg';
