@@ -33,8 +33,5 @@
 	</div>
 
 	<div class="ion-padding"></div>
-	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
-		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-	</ion-infinite-scroll>
-	<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
+<app-page-message [itemsLength]="item? 1: 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>

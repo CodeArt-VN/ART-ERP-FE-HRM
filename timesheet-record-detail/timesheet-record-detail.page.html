@@ -87,7 +87,7 @@
 		</ion-popover>
 	</app-toolbar>
 </ion-header>
-<ion-content [fullscreen]="true" appScrollbarTheme scroll-x="true">
+<ion-content [fullscreen]="true" appScrollbarTheme class="scrollx">
 	<ion-refresher [disabled]="!pageConfig.refresher" slot="fixed" (ionRefresh)="refresh($event)">
 		<ion-refresher-content></ion-refresher-content>
 	</ion-refresher>
@@ -149,7 +149,4 @@
 	</div>
 
 	<div class="ion-padding"></div>
-	<ion-infinite-scroll color="primary" threshold="30%" (ionInfinite)="loadData($event)" [disabled]="!pageConfig.infiniteScroll || pageConfig.isEndOfData">
-		<ion-infinite-scroll-content loadingSpinner="dots"></ion-infinite-scroll-content>
-	</ion-infinite-scroll>
 </ion-content>
