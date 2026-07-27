@@ -106,7 +106,7 @@ export class StaffAgreementPage extends PageBase {
 	}
 
 	submit(): void {
-		let text = 'Gửi Duyệt';
+		let text = 'Submit for approval';
 		let message = 'Sau khi gửi duyệt, bạn không thể chỉnh sửa đối tượng được nữa. Bạn có chắc muốn gửi duyệt tất cả đối tượng chưa duyệt?';
 		this.changeStatus(text, message, 'Submitted');
 	}

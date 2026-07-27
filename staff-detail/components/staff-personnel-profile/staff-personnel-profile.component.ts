@@ -522,7 +522,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 	}
 
 	async changeEmail() {
-		this.env.showPrompt('Thay đổi email nhân sự sẽ xóa đi tài khoản của nhân sự, bạn có muốn tiếp tục?', null, 'Xóa').then((_) => {
+		this.env.showPrompt('Changing the staff email will delete their account. Do you want to continue?', null, 'Delete').then((_) => {
 			this.env
 				.showLoading('Please wait for a few moments', this.commonService.connect('PUT', 'Account/DeleteAccount/' + this.userAccount.Id, {}).toPromise())
 				.then((_) => {

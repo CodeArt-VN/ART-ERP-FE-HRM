@@ -75,7 +75,7 @@ export class StaffAnotherSkillComponent extends PageBase {
 		Ids.push({
 			Id: row.Id,
 		});
-		this.env.showPrompt(null, 'Bạn có chắc muốn xóa không?').then((_) => {
+		this.env.showPrompt(null, 'Are you sure you want to delete?').then((_) => {
 			this.pageProvider.delete(Ids).then((resp) => {
 				this.items.splice(this.items.indexOf(row), 1);
 				this.env.showMessage('Delete successully!','success')
