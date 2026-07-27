@@ -245,7 +245,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 
 		if (g.controls.Id.value) {
 			this.env
-				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
+				.showPrompt('Are you sure you want to delete?', null, 'Delete')
 				.then((_) => {
 					if (actualIndex > -1) groups.removeAt(actualIndex);
 					if (actualIndex > -1) this.item.Lines.splice(actualIndex, 1);

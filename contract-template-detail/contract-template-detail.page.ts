@@ -213,7 +213,7 @@ export class ContractTemplateDetailPage extends PageBase {
 		let groups =  <FormArray>this.formGroup.controls.ArrayUDF;
 		if (g.controls.Id.value) {
 			this.env
-				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
+				.showPrompt('Are you sure you want to delete?', null, 'Delete')
 				.then((_) => {
 					let values: any = JSON.parse(this.item.Config);
 					const indexToRemove = values.findIndex((item) => item.IDUDF === g.controls.IDUDF.value);

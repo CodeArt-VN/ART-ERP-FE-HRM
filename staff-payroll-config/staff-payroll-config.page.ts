@@ -242,7 +242,7 @@ export class StaffPayrollConfigPage extends PageBase {
 		let groups = <FormArray>this.formGroup.controls.StaffPayrollConfig;
 		if (g.controls.Id.value) {
 			this.env
-				.showPrompt('Bạn có chắc muốn xóa không?', null, 'Xóa')
+				.showPrompt('Are you sure you want to delete?', null, 'Delete')
 				.then((_) => {
 					//groups.controls[index].get('IsDeleted').setValue(true);
 					groups.removeAt(index);
