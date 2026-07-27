@@ -528,7 +528,7 @@ export class SchedulerPage extends PageBase {
 				e.preventDefault();
 				e.stopPropagation();
 				that.env
-					.showPrompt('Bạn có chắc muốn xóa không?', null, 'Checkin logs')
+					.showPrompt('Are you sure you want to delete?', null, 'Checkin logs')
 					.then((_) => {
 						that.submitAttempt = true;
 						that.timesheetLogProvider
@@ -1047,7 +1047,7 @@ export class SchedulerPage extends PageBase {
 				e.preventDefault();
 				e.stopPropagation();
 				that.env
-					.showPrompt('Bạn có chắc muốn xóa nhân sự này?', null, 'Phân ca')
+					.showPrompt('Are you sure you want to delete this staff member?', null, 'Shift assignment')
 					.then((_) => {
 						that.submitAttempt = true;
 						console.log(arg);
@@ -1080,7 +1080,7 @@ export class SchedulerPage extends PageBase {
 					return;
 				}
 				that.env
-					.showPrompt('Bạn có chắc muốn xóa ca này?', null, 'Phân ca')
+					.showPrompt('Are you sure you want to delete this shift?', null, 'Shift assignment')
 					.then((_) => {
 						that.submitAttempt = true;
 						if (arg.event.extendedProps.ShiftType == 'OT') {
@@ -1364,11 +1364,11 @@ export class SchedulerPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								code: '{{value}} error(s) during import: {{value1}}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
-							'Bạn có muốn xem lại các mục bị lỗi?',
-							'Có lỗi import dữ liệu'
+							'Do you want to review the items with errors?',
+							'Data import error'
 						)
 						.then((_) => {
 							this.downloadURLContent(resp.FileUrl);
@@ -1571,11 +1571,11 @@ export class SchedulerPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: 'Có {{value}} lỗi khi import: {{value1}}',
+								code: '{{value}} error(s) during import: {{value1}}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
-							'Bạn có muốn xem lại các mục bị lỗi?',
-							'Có lỗi import dữ liệu'
+							'Do you want to review the items with errors?',
+							'Data import error'
 						)
 						.then((_) => {
 							this.downloadURLContent(resp.FileUrl);
