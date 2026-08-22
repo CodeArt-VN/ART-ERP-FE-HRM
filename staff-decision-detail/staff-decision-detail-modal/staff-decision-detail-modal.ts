@@ -122,7 +122,7 @@ export class StaffDecisionDetailModal extends PageBase {
 			const translationPromises = invalidControls.map((control) => this.env.translateResource(control));
 			Promise.all(translationPromises).then((values) => {
 				let invalidControls = values;
-				this.env.showMessage('Please recheck control(s): {{value}}', 'warning', invalidControls.join(' | '));
+				this.env.showMessage('Please recheck control(s): {value}', 'warning', invalidControls.join(' | '));
 			});
 			return;
 		} else {
@@ -163,7 +163,7 @@ export class StaffDecisionDetailModal extends PageBase {
 			const translationPromises = invalidControls.map((control) => this.env.translateResource(control));
 			Promise.all(translationPromises).then((values) => {
 				let invalidControls = values;
-				this.env.showMessage('Please recheck control(s): {{value}}', 'warning', invalidControls.join(' | '));
+				this.env.showMessage('Please recheck control(s): {value}', 'warning', invalidControls.join(' | '));
 			});
 			return;
 		} 

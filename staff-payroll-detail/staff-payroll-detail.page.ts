@@ -108,7 +108,7 @@ export class StaffPayrollDetailPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: '{{value}} error(s) during import: {{value1}}',
+								code: '{value} error(s) during import: {value1}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
 							'Do you want to review the items with errors?',
@@ -149,7 +149,7 @@ export class StaffPayrollDetailPage extends PageBase {
 					this.env
 						.showPrompt(
 							{
-								code: '{{value}} error(s) during import: {{value1}}',
+								code: '{value} error(s) during import: {value1}',
 								value: { value: resp.ErrorList.length, value1: message },
 							},
 							'Do you want to review the items with errors?',

@@ -115,12 +115,10 @@
 							<ng-container *ngSwitchCase="'IDJobTitle'">
 								<app-branch-breadcrumbs
 									[maxItems]="3"
-									[itemsBeforeCollapse]="0"
-									[itemsAfterCollapse]="1"
 									[Id]="i.IDJobTitle"
 									[Items]="env.jobTitleList"
 									[ngClass]="{'no-check-dirty': noCheckDirty}"
-									class="c-input disable breadcrumbs"
+									
 								>
 								</app-branch-breadcrumbs>
 							</ng-container>

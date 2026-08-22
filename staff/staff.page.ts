@@ -263,7 +263,7 @@ export class StaffPage extends PageBase {
 			// const translationPromises = invalidControls.map((control) => this.env.translateResource(control));
 			// Promise.all(translationPromises).then((values) => {
 			// 	let invalidControls = values;
-			// 	this.env.showMessage('Please recheck control(s): {{value}}', 'warning', invalidControls.join(' | '));
+			// 	this.env.showMessage('Please recheck control(s): {value}', 'warning', invalidControls.join(' | '));
 			// });
 			// return;
 			this.env.showMessage('Please recheck information highlighted in red above', 'warning');

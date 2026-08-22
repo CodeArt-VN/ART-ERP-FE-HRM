@@ -471,7 +471,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 							this.item.Email = userAccount.Email;
 						}
 
-						this.env.showMessage('Account created {{value}}', 'success', userAccount.Email);
+						this.env.showMessage('Account created {value}', 'success', userAccount.Email);
 						if (loading) loading.dismiss();
 						this.changePasswordForm.markAsPristine();
 						this.cdr.detectChanges();
@@ -486,7 +486,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 	}
 
 	async resetPassword() {
-		this.env.showMessage('Account created {{value}}', 'success', this.userAccount.Email);
+		this.env.showMessage('Account created {value}', 'success', this.userAccount.Email);
 		return;
 		if (!this.changePasswordForm.valid) {
 			this.env.showMessage('Please recheck information highlighted in red above', 'danger');
