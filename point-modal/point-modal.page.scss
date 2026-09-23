@@ -8,8 +8,10 @@ $point-surface: var(--table-row-background, var(--ion-card-background, transpare
 	background: var(--ion-background-color, #fff);
 }
 
-:host-context(ion-modal.modal-auto-height) {
-	height: auto;
+@media only screen and (min-width: 500px) and (min-height: 600px) {
+	:host-context(ion-modal.modal-auto-height) {
+		height: auto;
+	}
 }
 
 .point-header {
