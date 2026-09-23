@@ -456,7 +456,7 @@ export class TimesheetCycleDetailComponent extends PageBase {
 				cData: cData,
 				IDCycle: this._idCycle,
 			},
-			cssClass: 'modal-hrm-point modal-auto-height',
+			cssClass: 'modal-auto-height modal-w540',
 		});
 		await modal.present();
 	}

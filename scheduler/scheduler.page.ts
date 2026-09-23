@@ -1441,6 +1441,7 @@ export class SchedulerPage extends PageBase {
 		const modal = await this.modalController.create({
 			component: SchedulerGeneratorPage,
 			componentProps: cData,
+			cssClass: 'modal-auto-height',
 		});
 		console.log(cData);
 		await modal.present();
@@ -1463,6 +1464,7 @@ export class SchedulerPage extends PageBase {
 		const modal = await this.modalController.create({
 			component: LogGeneratorPage,
 			componentProps: cData,
+			cssClass: 'modal-auto-height',
 		});
 
 		await modal.present();
@@ -1519,7 +1521,7 @@ export class SchedulerPage extends PageBase {
 				IDCycle: this.idCycle,
 				IDTimesheet: this.id,
 			},
-			cssClass: 'modal-hrm-point modal-auto-height',
+			cssClass: 'modal-auto-height modal-w540',
 		});
 		await modal.present();
 	}
