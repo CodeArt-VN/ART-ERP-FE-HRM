@@ -91,9 +91,11 @@
 					</div>
 
 					<div class="c-control" *ngIf="formGroup.controls.Id.value">
-						<label class="c-label">{{'Log time' | translate}}</label>
-						<input formControlName="FromDate" class="c-input" type="date" style="width: calc(100% - 130px)" />
-						<input formControlName="TimeSpan" class="c-input" type="time" style="width: 120px; margin-left: 10px" />
+						<label class="c-label" for="FromDate">{{'Log time' | translate}}</label>
+						<div class="log-time-row">
+							<input id="FromDate" formControlName="FromDate" class="c-input" type="date" />
+							<input id="TimeSpan" formControlName="TimeSpan" class="c-input" type="time" />
+						</div>
 					</div>
 
 					<div class="c-control" *ngIf="!formGroup.controls.Id.value">

@@ -18,6 +18,7 @@ import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { lib } from 'src/app/services/static/global-functions';
 import { LogGeneratorPage } from '../../log-generator/log-generator.page';
 import { TimesheetLogPage } from '../timesheet-log/timesheet-log.page';
+import { buildCheckinLogEventHtml } from '../scheduler-display.util';
 
 @Component({
 	selector: 'app-checkin-log-component',
@@ -104,6 +105,8 @@ export class CheckinLogComponent extends PageBase {
 	loadedData(event?: any, ignoredFromGroup?: boolean): void {
 		const currentViewDate = this.pickedDate ? new Date(this.pickedDate) : new Date(this.fc?.view?.activeStart);
 		this.items.forEach((e) => {
+			e.id = e.Id;
+			e.resourceId = e.IDStaff;
 			e.start = e.LogTime;
 			e.allDay = true;
 			// let shift = this.shiftList.find(d => d.Id == e.IDShift);
@@ -261,36 +264,36 @@ export class CheckinLogComponent extends PageBase {
 	};
 
 	eventContent(arg) {
-		let html = '';
-		let ltime = lib.dateFormat(arg.event.extendedProps.LogTime, 'hh:MM');
-		let gate = this.gateList.find((d) => d.Id == arg.event.extendedProps.IDGate);
-		if (this.pageConfig.canEdit) {
-			html = `<b>${ltime}</b> <small>${gate?.Name}</small><ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
-		} else {
-			html = `<b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small>`;
-		}
-		return { html: html };
+		const gate = this.gateList.find((d) => d.Id == arg.event.extendedProps.IDGate);
+		return {
+			html: buildCheckinLogEventHtml({
+				logTimeText: lib.dateFormat(arg.event.extendedProps.LogTime, 'hh:MM'),
+				gateName: gate?.Name,
+				canDelete: !!(this.pageConfig.canEditCheckinLog || this.pageConfig.canEdit),
+			}),
+		};
 	}
 	eventDidMount(arg) {
-		let that = this;
-		arg.el.querySelector('ion-icon').onclick = function (e) {
+		const deleteBtn = arg.el.querySelector('.del-event-btn');
+		if (!deleteBtn) return;
+		deleteBtn.onclick = (e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			that.env
+			this.env
 				.showPrompt('Are you sure you want to delete?', null, 'Checkin logs')
 				.then((_) => {
-					that.submitAttempt = true;
-					that.pageProvider
+					this.submitAttempt = true;
+					this.pageProvider
 						.delete([{ Id: parseInt(arg.event.id) }])
-						.then((savedItem: any) => {
+						.then(() => {
 							arg.event.remove();
-							that.submitAttempt = false;
+							this.submitAttempt = false;
 						})
-						.catch((err) => {
-							that.submitAttempt = false;
+						.catch(() => {
+							this.submitAttempt = false;
 						});
 				})
-				.catch((e) => {});
+				.catch(() => {});
 		};
 	}
 

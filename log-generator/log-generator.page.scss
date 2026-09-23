@@ -29,3 +29,25 @@
 .full-screen {
 	min-height: calc(100vh - 97px);
 }
+
+.log-time-row {
+	display: flex;
+	flex-wrap: nowrap;
+	align-items: center;
+	gap: 10px;
+
+	.c-input {
+		display: block;
+		min-width: 0;
+	}
+
+	input[type='date'] {
+		flex: 1 1 auto;
+		width: auto;
+	}
+
+	input[type='time'] {
+		flex: 0 0 8.5rem;
+		width: 8.5rem;
+	}
+}

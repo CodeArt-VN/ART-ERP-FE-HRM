@@ -26,25 +26,34 @@
 	>
 		<datatable-column [checkbox]="true" name=""></datatable-column>
 
-		<datatable-column class="col-name flex-break" name="Full name" property="_Staff.FullName">
+		<datatable-column class="col-name" name="Full name" property="_Staff.FullName" [width]="staffColumnWidth">
 			<ng-template let-i="row" datatable-cell-template>
 				<ion-avatar class="avatar" slot="start">
 					<ion-img #img [src]="i._Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
 				</ion-avatar>
-				<div>
+				<div class="staff-text">
 					<span class="bold">{{i._Staff.FullName}}</span>
-					<small *ngIf="i._Staff.Code" class="no-warp"> {{i.Code}}</small>
-					<br />
-					{{i._Staff.Email}}
+					<small *ngIf="i._Staff.Code" class="no-warp">{{i._Staff.Code}}</small>
+					<app-branch-breadcrumbs
+						*ngIf="jobTitleId(i._Staff) as id"
+						[maxItems]="3"
+						[Id]="id"
+						[Items]="env.jobTitleList"
+					></app-branch-breadcrumbs>
 				</div>
 			</ng-template>
 		</datatable-column>
-		<datatable-column class="col-code" format="yyyy-MM-dd hh:mm:ss" name="Log time" property="LogTime" filterControlType="date"> </datatable-column>
-		<datatable-column class="col-remark" name="Remark" property="Remark"> </datatable-column>
-		<datatable-column class="col-status" name="Status" property="IsValidLog">
+		<datatable-column class="col-remark" name="Log time" property="LogTime" filterControlType="date" [minWidth]="remarkMinWidth" [maxWidth]="remarkMaxWidth">
 			<ng-template let-i="row" datatable-cell-template>
-				<ion-text *ngIf="i.IsValidLog" color="success">{{'Valid'|translate}}</ion-text>
-				<ion-text *ngIf="!i.IsValidLog" color="danger">{{'InValid'|translate}}</ion-text>
+				<div class="log-note">
+					<span class="log-time">{{ i.LogTime | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+					<span class="log-remark" *ngIf="i.Remark">{{ i.Remark }}</span>
+				</div>
+			</ng-template>
+		</datatable-column>
+		<datatable-column class="col-status" name="Status" property="IsValidLog" [width]="statusColumnWidth">
+			<ng-template let-i="row" datatable-cell-template>
+				<ion-badge [color]="statusBadge(i.IsValidLog).color">{{ statusBadge(i.IsValidLog).label | translate }}</ion-badge>
 			</ng-template>
 		</datatable-column>
 	</app-data-table>

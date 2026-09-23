@@ -8,7 +8,7 @@ import { TimesheetCycleDetailPage } from './timesheet-cycle-detail.page';
 
 import { FullCalendarModule } from '@fullcalendar/angular'; // must go before plugins
 
-import { PointModalPage } from '../point-modal/point-modal.page';
+import { PointModalPageModule } from '../point-modal/point-modal.module';
 import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 
 const routes: Routes = [
@@ -19,7 +19,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, FullCalendarModule, RouterModule.forChild(routes)],
-	declarations: [TimesheetCycleDetailPage, PointModalPage,StaffPayrollModalPage],
+	imports: [CommonModule, FormsModule, IonicModule, ReactiveFormsModule, ShareModule, FullCalendarModule, PointModalPageModule, RouterModule.forChild(routes)],
+	declarations: [TimesheetCycleDetailPage, StaffPayrollModalPage],
 })
 export class TimesheetCycleDetailPageModule {}

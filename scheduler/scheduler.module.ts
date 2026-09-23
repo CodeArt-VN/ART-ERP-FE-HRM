@@ -11,7 +11,8 @@ import { FullCalendarModule } from '@fullcalendar/angular'; // must go before pl
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
 import { CheckinLogPageModule } from '../checkin-log/checkin-log.module';
-import { LogGeneratorPage } from '../log-generator/log-generator.page';
+import { LogGeneratorPageModule } from '../log-generator/log-generator.module';
+import { PointModalPageModule } from '../point-modal/point-modal.module';
 import { CheckinLogComponent } from './checkin-log/checkin-log.page';
 import { TimesheetCycleDetailComponent } from './timesheet-cycle/timesheet-cycle-detail.page';
 import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-modal/timesheet-cycle-select-modal.page';
@@ -26,9 +27,11 @@ import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculati
 		PriceReportComponentsModule,
 		ShareModule,
 		FullCalendarModule,
+		LogGeneratorPageModule,
+		PointModalPageModule,
 		// CheckinLogPageModule,
 		RouterModule.forChild([{ path: '', component: SchedulerPage }]),
 	],
-	declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage,CheckinLogComponent,TimesheetCycleDetailComponent,TimesheetCycleSelectModalComponent,StaffTimesheetCalculationModalPage],
+	declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage, CheckinLogComponent, TimesheetCycleDetailComponent, TimesheetCycleSelectModalComponent, StaffTimesheetCalculationModalPage],
 })
 export class SchedulerPageModule {}

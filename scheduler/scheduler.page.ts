@@ -23,7 +23,6 @@ import { FullCalendarComponent } from '@fullcalendar/angular'; // useful for typ
 import { StaffPickerPage } from '../staff-picker/staff-picker.page';
 import { SchedulerGeneratorPage } from '../scheduler-generator/scheduler-generator.page';
 import { lib } from 'src/app/services/static/global-functions';
-import { environment } from 'src/environments/environment';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import interactionPlugin from '@fullcalendar/interaction';
 
@@ -35,12 +34,14 @@ import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-mod
 import { PopoverPage } from '../../SYS/popover/popover.page';
 import { LogGeneratorPage } from '../log-generator/log-generator.page';
 import { PointModalPage } from '../point-modal/point-modal.page';
+import { resolveTimesheetPointCard } from '../point-modal/point-modal.staff';
 import { TimesheetLogPage } from './timesheet-log/timesheet-log.page';
 import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
 import { FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { el, ew } from '@fullcalendar/core/internal-common';
+import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, canShowStaffUnenrollButton, eventInkVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor } from './scheduler-display.util';
 
 @Component({
 	selector: 'app-scheduler',
@@ -349,25 +350,12 @@ export class SchedulerPage extends PageBase {
 			return isActiveInRange || hasData;
 		});
 		this.calendarOptions.resourceLabelContent = (arg) => {
-			let imgpath = environment.staffAvatarsServer + arg.resource.extendedProps.Code + '.jpg';
-			let html = '';
-			if (!arg.resource.extendedProps.isDeleted) {
-				html = `
-						<div class="staff-resource">
-							<span class="name">
-								<span class="code">${arg.resource.extendedProps.Code} </span>
-							</span>
-							<ion-icon color="danger" class="del-event-btn" name="trash-outline"></ion-icon>
-						</div>`;
-			} else {
-				html = `
-						<div class="staff-resource">
-							<span class="name">
-								<span class="code">${arg.resource.extendedProps.Code} </span>
-							</span>
-						</div>`;
-			}
-			return { html: html };
+			return {
+				html: buildStaffResourceLabelHtml({
+					code: arg.resource.extendedProps.Code,
+					showDelete: canShowStaffUnenrollButton(this.segmentView, arg.resource.extendedProps.isDeleted, this.pageConfig.canEdit),
+				}),
+			};
 		};
 		// this.loadingController.dismiss();
 	}
@@ -409,7 +397,15 @@ export class SchedulerPage extends PageBase {
 					htmlRemoveButton = '';
 				}
 			}
-			let html = `<ion-text class="click-event-btn clickable"><b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small> ${htmlRemoveButton} </ion-text>`;
+			const textColor = arg.event.textColor || lib.getCssVariableValue('--ion-color-primary-contrast');
+			let html = buildSchedulerShiftEventHtml({
+				title: arg.event.title,
+				shiftStart: arg.event.extendedProps.ShiftStart,
+				shiftEnd: arg.event.extendedProps.ShiftEnd,
+				textColor,
+				showDelete: !!htmlRemoveButton,
+				isNightShift: isNightShift(arg.event.extendedProps.Type || arg.event.extendedProps.ShiftType, arg.event.extendedProps.IsOvernightShift),
+			});
 			if (arg.event.extendedProps.IsBookBreakfastCatering || arg.event.extendedProps.IsBookLunchCatering || arg.event.extendedProps.IsBookDinnerCatering) {
 				let booked = arg.event.extendedProps.IsBookBreakfastCatering ? 'B' : '';
 				booked += arg.event.extendedProps.IsBookLunchCatering ? 'L' : '';
@@ -418,7 +414,8 @@ export class SchedulerPage extends PageBase {
 			}
 			if (arg.event.extendedProps.TimeOffType) {
 				if (!this.pageConfig.canEditLeaveDay) htmlRemoveButton = '';
-				html = `<ion-text class="click-event-btn clickable"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text>  ${htmlRemoveButton}`;
+				const ink = String(textColor || '').startsWith('var(') ? `--event-ink:${textColor}` : `color:${textColor}`;
+				html = `<ion-text class="click-event-btn clickable" style="${ink}"><b>${arg.event.extendedProps.TimeOffType}</b></ion-text>  ${htmlRemoveButton}`;
 			}
 
 			return {
@@ -426,6 +423,7 @@ export class SchedulerPage extends PageBase {
 			};
 		};
 		this.calendarOptions.eventDidMount = this.eventDidMount.bind(this);
+		this.calendarOptions.eventTextColor = lib.getCssVariableValue('--ion-color-primary-contrast');
 		this.calendarOptions.select = this.select.bind(this);
 		this.calendarOptions.dateClick = this.dateClick.bind(this); // bind is important!
 		this.calendarOptions.eventClick = null; //this.eventClick.bind(this),
@@ -454,6 +452,7 @@ export class SchedulerPage extends PageBase {
 				console.log(values?.data);
 				values?.data?.forEach((e) => {
 					e.PolRates.forEach((i) => {
+						const otColor = ionicColorToken(this.OTStatusList.find((d) => d.Code == e.Status)?.Color);
 						this.items.push({
 							id: lib.generateUID(),
 							IDTimeSheet: this.id,
@@ -464,7 +463,8 @@ export class SchedulerPage extends PageBase {
 							start: i.Start,
 							IDStaff: i.IDStaff,
 							TimeOffType: null,
-							color: lib.getCssVariableValue('--ion-color-' + this.OTStatusList.find((d) => d.Code == e.Status)?.Color.toLowerCase()),
+							color: tintEventColor(lib.getCssVariableValue('--ion-color-' + otColor)),
+							textColor: eventInkVar(otColor),
 							ShiftStart: lib.dateFormat(i.Start, 'hh:MM'),
 							ShiftEnd: lib.dateFormat(i.End, 'hh:MM'),
 						});
@@ -512,36 +512,37 @@ export class SchedulerPage extends PageBase {
 			return { html: html };
 		};
 		this.calendarOptions.eventContent = (arg) => {
-			let html = '';
-			let ltime = lib.dateFormat(arg.event.extendedProps.LogTime, 'hh:MM');
-			let gate = this.gateList.find((d) => d.Id == arg.event.extendedProps.IDGate);
-			if (this.pageConfig.canEdit) {
-				html = `<b>${ltime}</b> <small>${gate?.Name}</small><ion-icon class="del-event-btn" name="trash-outline"></ion-icon>`;
-			} else {
-				html = `<b>${arg.event.title}</b> <small>${arg.event.extendedProps.ShiftStart}-${arg.event.extendedProps.ShiftEnd}</small>`;
-			}
-			return { html: html };
+			const gate = this.gateList.find((d) => d.Id == arg.event.extendedProps.IDGate);
+			return {
+				html: buildCheckinLogEventHtml({
+					logTimeText: lib.dateFormat(arg.event.extendedProps.LogTime, 'hh:MM'),
+					gateName: gate?.Name,
+					canDelete: !!(this.pageConfig.canEditCheckinLog || this.pageConfig.canEdit),
+					color: arg.event.extendedProps.Color,
+				}),
+			};
 		};
 		this.calendarOptions.eventDidMount = (arg) => {
-			let that = this;
-			arg.el.querySelector('ion-icon').onclick = function (e) {
+			const deleteBtn = arg.el.querySelector('.del-event-btn');
+			if (!deleteBtn) return;
+			deleteBtn.onclick = (e) => {
 				e.preventDefault();
 				e.stopPropagation();
-				that.env
+				this.env
 					.showPrompt('Are you sure you want to delete?', null, 'Checkin logs')
 					.then((_) => {
-						that.submitAttempt = true;
-						that.timesheetLogProvider
+						this.submitAttempt = true;
+						this.timesheetLogProvider
 							.delete([{ Id: parseInt(arg.event.id) }])
-							.then((savedItem: any) => {
+							.then(() => {
 								arg.event.remove();
-								that.submitAttempt = false;
+								this.submitAttempt = false;
 							})
-							.catch((err) => {
-								that.submitAttempt = false;
+							.catch(() => {
+								this.submitAttempt = false;
 							});
 					})
-					.catch((e) => {});
+					.catch(() => {});
 			};
 		};
 
@@ -583,17 +584,15 @@ export class SchedulerPage extends PageBase {
 		};
 
 		this.items.forEach((e) => {
+			e.id = e.Id;
+			e.resourceId = e.IDStaff;
 			e.start = e.LogTime;
-			e.color = lib.getCssVariableValue('--ion-color-success');
-			e.textColor = lib.getCssVariableValue('--ion-color-success-contrast');
-			if (!e.IsValidLog && !e.SeftClaim) {
-				e.color = lib.getCssVariableValue('--ion-color-danger');
-				e.textColor = lib.getCssVariableValue('--ion-color-danger-contrast');
-			}
-			if (!e.IsValidLog && e.SeftClaim) {
-				e.color = lib.getCssVariableValue('--ion-color-warning');
-				e.textColor = lib.getCssVariableValue('--ion-color-warning-contrast');
-			}
+			let token = 'success';
+			if (!e.IsValidLog && !e.SeftClaim) token = 'danger';
+			if (!e.IsValidLog && e.SeftClaim) token = 'warning';
+			e.Color = token;
+			e.color = tintEventColor(lib.getCssVariableValue('--ion-color-' + token));
+			e.textColor = eventInkVar(token);
 
 			e.allDay = true;
 		});
@@ -652,7 +651,7 @@ export class SchedulerPage extends PageBase {
 			};
 		};
 		this.calendarOptions.eventClick = (arg) => {
-			if (arg.event.extendedProps.TimeOffType) {
+			if (!shouldShowTimesheetPointModal(arg.event.extendedProps)) {
 				return;
 			}
 			this.showPointModal(arg);
@@ -706,11 +705,14 @@ export class SchedulerPage extends PageBase {
 
 					if (e.TimeOffType) {
 						let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-						e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+						e.Color = ionicColorToken(toType?.Color);
 						e.Icon = 'alert-circle-outline';
 						e.Title = `${e.TimeOffType}`;
 						e.Badge = `${point}`;
-						e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+						e.textColor = `var(--ion-color-${e.Color})`;
+						const card = resolveTimesheetPointCard(e, this.timesheetList, this.timeoffTypeList);
+						if (card.timesheet) e.Timesheet = card.timesheet;
+						e.Shift = card.shift;
 					}
 				} else {
 					e.Color = 'medium';
@@ -723,28 +725,28 @@ export class SchedulerPage extends PageBase {
 				e.StdTimeIn = lib.dateFormat(e.StdTimeIn, 'hh:MM dd/mm/yyyy');
 				e.StdTimeOut = lib.dateFormat(e.StdTimeOut, 'hh:MM dd/mm/yyyy');
 				e.WorkingDate = lib.dateFormat(e.WorkingDate, 'dd/mm/yyyy');
-				e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
-				e.color = lib.getCssVariableValue('--ion-color-' + e.Color) + '22';
+				e.textColor = `var(--ion-color-${e.Color})`;
+				e.html = buildTimesheetChipHtml(e.Color, e.Icon, e.Title, e.Badge);
+				e.color = tintEventColor(lib.getCssVariableValue('--ion-color-' + e.Color));
 			} else if (e.TimeOffType) {
 				let point = 0;
 				if (e.Point) point = Math.round(e.Point * 100) / 100;
 				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
 				if (toType) {
-					// e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
-					// e.Title = e.TimeOffType;
-					// e.Badge = '';
-					// e.html = `<span class="v-align-middle">${e.Title}</span>`;
-					// e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
+					const colorName = ionicColorToken(toType.Color);
 					e.start = e.WorkingDate;
 					e.resourceId = e.IDStaff;
-					e.Color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+					e.Color = colorName;
 					e.Icon = 'alert-circle-outline';
 					e.Title = `${e.TimeOffType}`;
 					e.Badge = `${point}`;
 					e.WorkingDate = lib.dateFormat(e.WorkingDate, 'dd/mm/yyyy');
-					e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
-					e.html = `<ion-icon color="${e.Color}" name="${e.Icon}"></ion-icon> <span class="v-align-middle">${e.Title}</span><ion-badge color="${e.Color}" class="float-right">${e.Badge}</ion-badge>`;
-					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
+					const card = resolveTimesheetPointCard(e, this.timesheetList, this.timeoffTypeList);
+					e.Timesheet = card.timesheet;
+					e.Shift = card.shift;
+					e.textColor = `var(--ion-color-${colorName})`;
+					e.html = buildTimesheetChipHtml(colorName, e.Icon, e.Title, e.Badge);
+					e.color = tintEventColor(lib.getCssVariableValue('--ion-color-' + colorName));
 				} else {
 					console.log(e);
 				}
@@ -773,31 +775,22 @@ export class SchedulerPage extends PageBase {
 
 	patchItems() {
 		this.items.forEach((e) => {
-			let shift = this.shiftList.find((d) => d.Id == e.IDShift);
+			const shift = this.shiftList.find((d) => d.Id == e.IDShift);
+			let token = '';
 			if (shift) {
-				e.color = shift.color;
-				e.textColor = lib.getCssVariableValue('--ion-color-' + shift.color + '-contrast'); // shift.TextColor;
-
-				if (e.TimeOffType) {
-					let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
-					e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
-				}
-
 				e.ShiftStart = shift.Start;
 				e.ShiftEnd = shift.End;
-			} else {
-				return;
+				e.Type = shift.Type;
+				e.IsOvernightShift = !!(e.IsOvernightShift || shift.IsOvernightShift);
+				token = shift.Color ? ionicColorToken(shift.Color) : 'primary';
 			}
 			if (e.TimeOffType) {
-				let toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
-				if (toType) {
-					e.color = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase());
-					e.textColor = lib.getCssVariableValue('--ion-color-' + toType.Color?.toLowerCase() + '-contrast');
-				} else {
-					console.log(e);
-				}
+				const toType = this.timeoffTypeList.find((d) => d.Code == e.TimeOffType);
+				token = ionicColorToken(toType?.Color);
 			}
+			if (!token) return;
+			e.color = tintEventColor(lib.getCssVariableValue('--ion-color-' + token));
+			e.textColor = eventInkVar(token);
 		});
 	}
 
@@ -1042,7 +1035,7 @@ export class SchedulerPage extends PageBase {
 			arg.el.style.color = lib.getCssVariableValue('--ion-color-danger');
 		}
 		let that = this;
-		if (arg.el.querySelector('.del-event-btn')) {
+		if (this.pageConfig.canEdit && arg.el.querySelector('.del-event-btn')) {
 			arg.el.querySelector('.del-event-btn').onclick = function (e) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -1054,7 +1047,7 @@ export class SchedulerPage extends PageBase {
 
 						that.staffTimesheetEnrollmentProvider
 							.save({
-								DeletedID: parseInt(arg.resource._resource.extendedProps.Id),
+								DeletedID: parseInt(arg.resource.extendedProps.Id),
 							})
 							.then((savedItem: any) => {
 								arg.resource.remove();
@@ -1448,7 +1441,6 @@ export class SchedulerPage extends PageBase {
 		const modal = await this.modalController.create({
 			component: SchedulerGeneratorPage,
 			componentProps: cData,
-			cssClass: 'modal90vh',
 		});
 		console.log(cData);
 		await modal.present();
@@ -1471,7 +1463,6 @@ export class SchedulerPage extends PageBase {
 		const modal = await this.modalController.create({
 			component: LogGeneratorPage,
 			componentProps: cData,
-			cssClass: 'modal90vh',
 		});
 
 		await modal.present();
@@ -1528,7 +1519,7 @@ export class SchedulerPage extends PageBase {
 				IDCycle: this.idCycle,
 				IDTimesheet: this.id,
 			},
-			cssClass: 'modal-hrm-point',
+			cssClass: 'modal-hrm-point modal-auto-height',
 		});
 		await modal.present();
 	}

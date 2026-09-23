@@ -5,6 +5,7 @@ import { PageBase } from 'src/app/page-base';
 import { HRM_TimesheetLogProvider } from 'src/app/services/static/services.service';
 import { Location } from '@angular/common';
 import { environment } from 'src/environments/environment';
+import { timesheetLogJobTitleId, timesheetLogRemarkColumn, timesheetLogStaffColumn, timesheetLogStatusBadge, timesheetLogStatusColumn } from './timesheet-log.columns';
 
 @Component({
 	selector: 'app-timesheet-log',
@@ -14,6 +15,12 @@ import { environment } from 'src/environments/environment';
 })
 export class TimesheetLogPage extends PageBase {
 	idStaffList: any = [];
+	staffColumnWidth = timesheetLogStaffColumn.width;
+	jobTitleId = timesheetLogJobTitleId;
+	remarkMinWidth = timesheetLogRemarkColumn.minWidth;
+	remarkMaxWidth = timesheetLogRemarkColumn.maxWidth;
+	statusColumnWidth = timesheetLogStatusColumn.width;
+	statusBadge = timesheetLogStatusBadge;
 
 	constructor(
 		public pageProvider: HRM_TimesheetLogProvider,
@@ -42,7 +49,6 @@ export class TimesheetLogPage extends PageBase {
 	loadedData(event) {
 		this.items.forEach((i) => {
 			i._Staff.Avatar = i._Staff.Code ? environment.staffAvatarsServer + i._Staff.Code + '.jpg' : 'assets/avartar-empty.jpg';
-			i._Staff.Email = i._Staff.Email ? i._Staff.Email.replace(environment.loginEmail, '') : '';
 		});
 		super.loadedData(event);
 	}

@@ -17,10 +17,7 @@
 			</ion-button>
 		</ion-buttons>
 	</ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true" appScrollbarTheme class="ion-padding">
-	<div class="main-view">
+	<ion-toolbar class="no-padding">
 		<ion-segment (ionChange)="segmentChanged($event)" [value]="segmentView">
 			<ion-segment-button value="Shift">
 				<ion-label>{{'Scheduler' | translate}}</ion-label>
@@ -29,6 +26,14 @@
 				<ion-label>{{'Time off' | translate}}</ion-label>
 			</ion-segment-button>
 		</ion-segment>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" appScrollbarTheme>
+	<div class="main-view">
+		<div class="ion-padding">
+		</div>
+		
 
 		<form [formGroup]="formGroup">
 			<ion-grid fixed>

@@ -1,185 +1,116 @@
-<ion-header [translucent]="true" *ngIf="item">
-	<ion-toolbar class="no-padding" [color]="item.Color">
-		<ion-buttons slot="start">
-			<ion-button>
-				<ion-icon slot="start" [name]="item.Icon"></ion-icon>
-				{{item.FullName}}
-			</ion-button>
-		</ion-buttons>
-		<ion-buttons slot="end">
-			<ion-button title="{{'Close' | translate}}" (click)="closeModal()">
-				<ion-icon slot="icon-only" name="close"></ion-icon>
-			</ion-button>
-		</ion-buttons>
-	</ion-toolbar>
-
-	<ion-toolbar class="no-padding" [color]="item.Color">
-		<ion-title> <span style="font-size: 2.5rem" [innerHtml]="item.Title"></span></ion-title>
-	</ion-toolbar>
-	<ion-toolbar class="no-padding" [color]="item.Color">
-		<br />
+<ion-header class="point-header" *ngIf="item">
+	<div class="point-stripe" [style.background]="accentColor"></div>
+	<ion-toolbar class="point-toolbar">
+		<div class="point-head">
+			<div class="point-head-top">
+				<div class="point-who">
+					<div class="point-name" *ngIf="staffName">{{ staffName }}</div>
+					<div class="point-meta">
+						<span class="point-chip" *ngIf="item.WorkingDate">{{ item.WorkingDate }}</span>
+						<span class="point-chip" *ngIf="staffCode">{{ staffCode }}</span>
+						<span class="point-chip" *ngIf="staffJob">{{ staffJob }}</span>
+					</div>
+				</div>
+				<ion-button fill="clear" color="medium" class="point-close" [title]="'Close' | translate" (click)="closeModal()">
+					<ion-icon slot="icon-only" name="close-outline"></ion-icon>
+				</ion-button>
+			</div>
+			<div class="point-time-row">
+				<ion-icon class="point-lead" [name]="item.Icon" [style.color]="accentColor"></ion-icon>
+				<div class="point-time" [innerHtml]="item.Title"></div>
+			</div>
+		</div>
 	</ion-toolbar>
 </ion-header>
 
-<ion-content appScrollbarTheme class="ion-padding" [fullscreen]="true">
-	<ion-grid fixed>
-		<ion-row>
-			<ion-col size="12" size-sm="12" size-md="12">
-				<ion-list-header class="ion-no-padding">
-					<ion-label color="primary">{{'Shifts allocation' | translate}}</ion-label>
-				</ion-list-header>
-			</ion-col>
-			<ion-col size="12" size-sm="12" size-md="6">
-				<div class="c-control">
-					<label class="c-label">{{'Timesheet' | translate}}</label>
-					<span class="c-input">{{item.Timesheet.Name}}</span>
+<ion-content appScrollbarTheme>
+	<div class="point-body" *ngIf="item">
+		<section class="point-section">
+			<h3>{{ 'Shifts allocation' | translate }}</h3>
+			<div class="field-grid">
+				<div class="field">
+					<span class="label">{{ 'Timesheet' | translate }}</span>
+					<span class="value">{{ item.Timesheet?.Name }}</span>
 				</div>
-			</ion-col>
-			<ion-col size="12" size-sm="12" size-md="6">
-				<div class="c-control">
-					<label class="c-label">{{'Shift allocation' | translate}}</label>
-					<span class="c-input">
-						<ion-text [color]="item.Shift.Color">{{item.Shift.Name}}&nbsp;</ion-text>
-						<small>{{item.Shift.Start}}→{{item.Shift.End}}</small>
+				<div class="field">
+					<span class="label">{{ 'Shift allocation' | translate }}</span>
+					<span class="value">
+						<ion-text [color]="item.Shift?.Color">{{ item.Shift?.Name }}</ion-text>
+						<small *ngIf="item.Shift?.Start && item.Shift?.End">{{ item.Shift.Start }}→{{ item.Shift.End }}</small>
+						<small class="shift-detail" *ngIf="item.Shift?.Detail">{{ item.Shift.Detail }}</small>
 					</span>
 				</div>
-			</ion-col>
+			</div>
+		</section>
 
-			<!-- <ion-col size="12" size-sm="12" size-md="12">
-				<ion-button fill="clear" size="medium" (click)="isShowCreateCheckin = !isShowCreateCheckin;">
+		<section class="point-section" *ngIf="!pageConfig.showSpinner">
+			<h3>{{ 'Record working hours' | translate }}</h3>
+			<div class="log-empty" *ngIf="!TimesheetLogList.length && !isShowCreateCheckin">
+				<span class="log-none">{{ 'Không có' | translate }}</span>
+				<ion-button *ngIf="canCreateCheckinLog" size="small" (click)="isShowCreateCheckin = true" class="ion-no-margin">
 					<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+					{{ 'Add checkin log' | translate }}
 				</ion-button>
-			</ion-col> -->
-
-			<!-- Ghi nhận giờ làm việc -->
-			<ng-container *ngIf="!pageConfig.showSpinner">
-				<ion-col size="12" size-sm="12" size-md="12">
-					<ion-list-header class="ion-no-padding">
-						<ion-label color="primary">{{'Record working hours' | translate}}</ion-label>
-					</ion-list-header>
-				</ion-col>
-				<ion-col size="12" size-sm="12" size-md="12">
-					<app-data-table class="box-shadow responsive" [rows]="TimesheetLogList" [trackBy]="'Id'" [showSpinner]="pageConfig.showSpinner">
-						<datatable-empty-message subMessage="Please click add new to start..." [showImg]="false" minHeight="125px">
-							<ng-template datatable-empty-message-template>
-								<div *ngIf="!isShowCreateCheckin && canCreateCheckinLog">
-									<ion-button size="small" (click)="isShowCreateCheckin = true" class="ion-no-margin">
-										<ion-icon slot="start" name="add-circle-outline"></ion-icon>
-										{{ 'Add checkin log' | translate }}
-									</ion-button>
-								</div>
-							</ng-template>
-						</datatable-empty-message>
-
-						<datatable-column class="col-name" name="Log" format="dd/MM/yyyy HH:mm" property="LogTime">
-							<ng-template let-i="row" datatable-cell-template>
-								<ion-text *ngIf="!i.IsValidLog" color="danger">{{ i.LogTime | date: 'dd/MM/yyyy HH:mm'}} <ion-icon name="alert-circle-outline"></ion-icon></ion-text>
-								<ion-text *ngIf="i.IsValidLog">{{ i.LogTime | date: 'dd/MM/yyyy HH:mm'}}</ion-text>
-							</ng-template>
-						</datatable-column>
-					</app-data-table>
-					<div>
-						<div class="row" *ngIf="canCreateCheckinLog && !isShowCreateCheckin && TimesheetLogList.length > 0">
-							<div class="cell">
-								<ion-button fill="clear" size="small" (click)="isShowCreateCheckin = true">
-									<ion-icon slot="start" name="add-circle-outline"></ion-icon>
-									{{'Add checkin log' | translate}}
-								</ion-button>
-							</div>
-						</div>
-					</div>
-				</ion-col>
-				<ion-col size="12" size-sm="12" size-md="12" *ngIf="canCreateCheckinLog && isShowCreateCheckin">
-					<app-form-control
-						(change)="changeOffice()"
-						[field]="{id:'IDOffice',label:'Location',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:officeList,form:formGroup}"
-					></app-form-control>
-					<app-form-control
-						(change)="changeGate($event)"
-						[field]="{id:'IDGate',label:'Check -in gate',type:'ng-select', bindLabel:'Name', bindValue:'Id',dataSource:gateViewList,form:formGroup}"
-					></app-form-control>
-					<app-form-control [field]="{id:'TimeSpan',label:'Log time',type:'time',form:formGroup}"></app-form-control>
-					<ion-row *ngIf="canCreateCheckinLog && isShowCreateCheckin">
-						<ion-col>
-							<div class="c-control ion-text-right">
-								<label class="c-label" for=""></label>
-								<ion-button [disabled]="!formGroup.dirty && !formGroup.valid" (click)="submitCheckin()">{{'Save options' | translate}}</ion-button>
-							</div>
-						</ion-col>
-					</ion-row>
-				</ion-col>
-			</ng-container>
-			<!-- 			
-			<ion-col size="12" size-sm="12" size-md="12">
-				<ion-list-header class="ion-no-padding">
-					<ion-label color="primary">{{'Record working hours' | translate}}</ion-label>
-				</ion-list-header>
-			</ion-col>
-			<ion-col size="12" size-sm="12" size-md="6">
-				<div class="c-control">
-					<label class="c-label">{{'Working day' | translate}}</label>
-					<span class="c-input">{{item.WorkingDate}}</span>
+			</div>
+			<div class="log-list" *ngIf="TimesheetLogList.length">
+				<div class="log-row" *ngFor="let i of TimesheetLogList; trackBy: trackLog">
+					<ion-text *ngIf="!i.IsValidLog" color="danger">
+						{{ i.LogTime | date: 'dd/MM/yyyy HH:mm' }}
+						<ion-icon name="alert-circle-outline"></ion-icon>
+					</ion-text>
+					<ion-text *ngIf="i.IsValidLog">{{ i.LogTime | date: 'dd/MM/yyyy HH:mm' }}</ion-text>
 				</div>
-				<div class="c-control">
-					<label class="c-label">{{'Number of Recorded logs' | translate}}</label>
-					<b class="c-input"><ion-text [color]="item.Color">{{item.LogCount}}</ion-text></b>
+			</div>
+			<div class="point-add" *ngIf="canCreateCheckinLog && !isShowCreateCheckin && TimesheetLogList.length > 0">
+				<ion-button fill="clear" size="small" (click)="isShowCreateCheckin = true">
+					<ion-icon slot="start" name="add-circle-outline"></ion-icon>
+					{{ 'Add checkin log' | translate }}
+				</ion-button>
+			</div>
+			<div class="point-checkin" *ngIf="canCreateCheckinLog && isShowCreateCheckin">
+				<app-form-control
+					(change)="changeOffice()"
+					[field]="{ id: 'IDOffice', label: 'Location', type: 'ng-select', bindLabel: 'Name', bindValue: 'Id', dataSource: officeList, form: formGroup }"
+				></app-form-control>
+				<app-form-control
+					(change)="changeGate($event)"
+					[field]="{ id: 'IDGate', label: 'Check -in gate', type: 'ng-select', bindLabel: 'Name', bindValue: 'Id', dataSource: gateViewList, form: formGroup }"
+				></app-form-control>
+				<app-form-control [field]="{ id: 'TimeSpan', label: 'Log time', type: 'time', form: formGroup }"></app-form-control>
+				<div class="point-checkin-actions">
+					<ion-button fill="clear" (click)="isShowCreateCheckin = false">{{ 'Close' | translate }}</ion-button>
+					<ion-button [disabled]="!formGroup.dirty && !formGroup.valid" (click)="submitCheckin()">{{ 'Save options' | translate }}</ion-button>
 				</div>
-			</ion-col>
-			<ion-col size="12" size-sm="12" size-md="6">
-				<div class="c-control">
-					<label class="c-label">{{'Check-in time' | translate}}</label>
-					<span class="c-input"
-						>{{item.Checkin}}
-						<small *ngIf="item.ChecinLate">{{'Late check-in' | translate}}: {{item.ChecinLate}} {{'Minutes' | translate}}</small>
+			</div>
+		</section>
+
+		<section class="point-section">
+			<h3>{{ 'Timesheet calculation' | translate }}</h3>
+			<div class="field-grid">
+				<div class="field" *ngIf="calcFields.showWindow">
+					<span class="label">{{ 'Working hours counting start' | translate }}</span>
+					<span class="value">{{ item.StdTimeIn }}</span>
+				</div>
+				<div class="field" *ngIf="calcFields.showWindow">
+					<span class="label">{{ 'Working hours counting end' | translate }}</span>
+					<span class="value">{{ item.StdTimeOut }}</span>
+				</div>
+				<div class="field">
+					<span class="label">{{ 'Break-time' | translate }}</span>
+					<span class="value">{{ calcFields.breaks }} <small *ngIf="calcFields.breaks !== '' && calcFields.breaks != null">{{ 'Minutes' | translate }}</small></span>
+				</div>
+				<div class="field">
+					<span class="label">{{ 'Working time' | translate }}</span>
+					<span class="value">{{ calcFields.minutes }} <small *ngIf="calcFields.minutes !== '' && calcFields.minutes != null">{{ 'Minutes' | translate }}</small></span>
+				</div>
+				<div class="field point">
+					<span class="label">{{ 'Timesheet calculation' | translate }}</span>
+					<span class="value">
+						<ion-text [color]="item.Color">{{ pointLabel }}</ion-text>
+						<small *ngIf="item.Point">{{ 'Work day' | translate }}</small>
 					</span>
 				</div>
-				<div class="c-control">
-					<label class="c-label">{{'Check-out time' | translate}}</label>
-					<span class="c-input"
-						>{{item.Checkout}}
-						<small *ngIf="item.CheckoutEarly">{{'Check - out early' | translate}}: {{item.CheckoutEarly}} {{'Minutes' | translate}}</small>
-					</span>
-				</div>
-			</ion-col> -->
-
-			<!-- ------------------------- -->
-
-			<ion-col size="12" size-sm="12" size-md="12">
-				<ion-list-header class="ion-no-padding">
-					<ion-label color="primary">{{'Timesheet calculation' | translate}}</ion-label>
-				</ion-list-header>
-			</ion-col>
-			<ion-col size="12" size-sm="12" size-md="6">
-				<div class="c-control">
-					<label class="c-label">{{'Working hours counting start' | translate}}</label>
-					<span class="c-input">{{item.StdTimeIn}}</span>
-				</div>
-				<div class="c-control">
-					<label class="c-label">{{'Working hours counting end' | translate}}</label>
-					<span class="c-input">{{item.StdTimeOut}}</span>
-				</div>
-			</ion-col>
-			<ion-col size="12" size-sm="12" size-md="6">
-				<div class="c-control">
-					<label class="c-label">{{'Break-time' | translate}}</label>
-					<span class="c-input">{{item.Breaks}} <small *ngIf="item.Breaks">{{'Minutes' | translate}}</small></span>
-				</div>
-
-				<div class="c-control">
-					<label class="c-label">{{'Working time' | translate}}</label>
-					<span class="c-input">{{item.MinutesOfWorked}} <small *ngIf="item.MinutesOfWorked">{{'Minutes' | translate}}</small></span>
-				</div>
-			</ion-col>
-
-			<ion-col size="12" size-sm="12" size-md="12">
-				<div class="c-control">
-					<label class="c-label">{{'Timesheet calculation' | translate}}</label>
-					<b class="c-input">{{item.Point}} <small *ngIf="item.Point">{{'Work day' | translate}}</small></b>
-				</div>
-			</ion-col>
-		</ion-row>
-		<ion-row>
-			<ion-col> </ion-col>
-		</ion-row>
-	</ion-grid>
+			</div>
+		</section>
+	</div>
 </ion-content>
