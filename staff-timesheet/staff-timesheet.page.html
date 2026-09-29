@@ -1,0 +1,130 @@
+<ion-header [translucent]="true">
+	<app-toolbar [page]="this" [showTitle]="false">
+		<ng-container startTitle>
+			<div class="ion-hide-sm-down staff-timesheet-selectors" style="margin: 0; display: flex; gap: 8px; align-items: center">
+				<ng-select
+					class="c-input no-check-dirty"
+					appendTo="#ng-select-holder"
+					[clearable]="false"
+					(change)="changeCycle()"
+					[(ngModel)]="selectedCycle"
+					[items]="cycleList"
+					bindLabel="Name"
+					bindValue=""
+					placeholder="{{'Select timesheet cycle' | translate}}"
+				>
+					<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+						<div *ngIf="i">
+							<span [ngOptionHighlight]="search">{{i.Name}}</span>
+							<small *ngIf="i.Start"> ({{i.Start | date:'dd/MM/yyyy'}} - {{i.End | date:'dd/MM/yyyy'}})</small>
+						</div>
+					</ng-template>
+				</ng-select>
+
+				<ng-select
+					class="c-input no-check-dirty"
+					appendTo="#ng-select-holder"
+					[clearable]="false"
+					(change)="changeTimesheet()"
+					[(ngModel)]="selectedTimesheet"
+					[items]="timesheetOptions"
+					bindLabel="Name"
+					bindValue=""
+					placeholder="{{'Select timesheet' | translate}}"
+				>
+					<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+						<div *ngIf="i">
+							<span [ngOptionHighlight]="search">{{i.Name}}</span>
+						</div>
+					</ng-template>
+				</ng-select>
+			</div>
+		</ng-container>
+
+		<ng-container title>
+			<ion-segment (ionChange)="segmentChanged($event)" [value]="segmentView">
+				<ion-segment-button value="summary">
+					<ion-label>{{'Summary timesheet' | translate}}</ion-label>
+				</ion-segment-button>
+				<ion-segment-button value="detail">
+					<ion-label>{{'Detail timesheet' | translate}}</ion-label>
+				</ion-segment-button>
+			</ion-segment>
+
+		</ng-container>
+
+		<ion-button *ngIf="selectedTimesheet?.IDDetail" (click)="openCycleConfig()" title="{{'UDF columns' | translate}}">
+			<ion-icon slot="icon-only" name="cog-outline"></ion-icon>
+		</ion-button>
+		<ion-button *ngIf="selectedTimesheet?.IDDetail" title="{{'Calculation timesheet' | translate}}" (click)="calculateTimesheet()">
+			<ion-icon slot="icon-only" name="calculator-outline"></ion-icon>
+		</ion-button>
+	</app-toolbar>
+
+	<ion-toolbar *ngIf="selectedCycle" style="--padding-start: 4px">
+		<ion-segment (ionChange)="segmentChanged($event)" [value]="segmentView">
+			<ion-segment-button value="summary">
+				<ion-label>{{'Summary timesheet' | translate}}</ion-label>
+			</ion-segment-button>
+			<ion-segment-button value="detail">
+				<ion-label>{{'Detail timesheet' | translate}}</ion-label>
+			</ion-segment-button>
+		</ion-segment>
+		<ion-buttons slot="end">
+			<ion-button *ngIf="segmentView === 'summary' && selectedTimesheet" (click)="exportSummary()" title="{{ 'Export summary timesheet' | translate }}">
+				<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+			</ion-button>
+			<ion-button *ngIf="segmentView === 'detail' && selectedTimesheet" (click)="exportDetail()" title="{{ 'Export detail timesheet' | translate }}">
+				<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" appScrollbarTheme class="scrollx">
+	<div id="ng-select-holder" style="position: absolute"></div>
+
+	<app-data-table
+		class="box-shadow"
+		[rows]="items"
+		[trackBy]="'Id'"
+		[isQueryLocalOnly]="segmentView === 'summary'"
+		[(selectedRows)]="selectedItems"
+		[showSpinner]="pageConfig.showSpinner"
+		[showFilter]="pageConfig.isShowSearch"
+		[(query)]="query"
+		(dataInfinite)="loadData($event)"
+		(filter)="onDatatableFilter($event)"
+		(sort)="onSort($event)"
+		(selectedRowsChange)="showCommandBySelectedRows($event)"
+	>
+		<datatable-empty-message subMessage="Please select timesheet cycle and timesheet, then calculate if needed...">
+			<ng-template datatable-empty-message-template>
+				<div>
+					<ion-button size="small" (click)="calculateTimesheet()" *ngIf="selectedTimesheet">
+						<ion-icon slot="start" name="calculator-outline"></ion-icon>
+						{{ 'Calculation timesheet' | translate }}
+					</ion-button>
+				</div>
+			</ng-template>
+		</datatable-empty-message>
+		<datatable-column class="col-name bold" name="Code" property="_Staff.Code" [width]="150" [sticky]="true"></datatable-column>
+		<datatable-column class="col-name bold" name="Full name" property="_Staff.FullName" [width]="staffColumnWidth"></datatable-column>
+		<ng-container *ngFor="let c of columns">
+			<datatable-column [minWidth]="150" [maxWidth]="200" [class]="isNumericColumn(c) ? 'col-number' : 'col-remark'" [name]="c.Name" property="_ListUDFValue">
+				<ng-template let-i="row" datatable-cell-template>
+					<ng-container *ngIf="isDateColumn(c); else dateTimeOrOther"> {{ formatDate(i._ListUDFValue?.[c.Code] ?? c.UDFValue) }} </ng-container>
+					<ng-template #dateTimeOrOther>
+						<ng-container *ngIf="isDateTimeColumn(c); else numberOrText"> {{ formatDateTime(i._ListUDFValue?.[c.Code] ?? c.UDFValue) }} </ng-container>
+						<ng-template #numberOrText>
+							<ng-container *ngIf="isNumericColumn(c); else textTemplate"> {{ formatNumber(i._ListUDFValue?.[c.Code] ?? c.UDFValue) }} </ng-container>
+							<ng-template #textTemplate> {{ i._ListUDFValue?.[c.Code] ?? c.UDFValue }} </ng-template>
+						</ng-template>
+					</ng-template>
+				</ng-template>
+			</datatable-column>
+		</ng-container>
+	</app-data-table>
+
+	<div class="ion-padding"></div>
+</ion-content>

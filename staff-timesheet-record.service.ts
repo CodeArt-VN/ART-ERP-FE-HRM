@@ -33,7 +33,7 @@ export class HRM_TimesheetRecordService extends HRM_TimesheetRecordProvider {
 			getExport: {
 				method: 'DOWNLOAD',
 				url: function () {
-					return 'HRM/TimesheetRecord/ExportRecord';
+					return 'HRM/TimesheetRecord/ExportTimesheetRecordDetail';
 				},
 			},
 		};
@@ -50,6 +50,18 @@ export class HRM_TimesheetRecordService extends HRM_TimesheetRecordProvider {
 			},
 		};
 		return this.commonService.export(apiPath, query);
+	}
+
+	getTimesheetRecordColumns(query) {
+		return this.commonService.connect('GET', 'HRM/TimesheetRecord/Columns', query).toPromise();
+	}
+
+	getTimesheetRecordDetail(query) {
+		return this.commonService.connect('GET', 'HRM/TimesheetRecord/Detail', query).toPromise();
+	}
+
+	getTimesheetRecordSummary(query) {
+		return this.commonService.connect('GET', 'HRM/TimesheetRecord/Summary', query).toPromise();
 	}
 
 

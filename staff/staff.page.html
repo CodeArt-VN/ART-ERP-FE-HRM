@@ -114,11 +114,8 @@
 							<ng-container *ngSwitchCase="'ModifiedDate'"> {{i.CreatedDate | date:'dd/MM/yyyy HH:mm'}} </ng-container>
 							<ng-container *ngSwitchCase="'IDJobTitle'">
 								<app-branch-breadcrumbs
-									[maxItems]="3"
 									[Id]="i.IDJobTitle"
 									[Items]="env.jobTitleList"
-									[ngClass]="{'no-check-dirty': noCheckDirty}"
-									
 								>
 								</app-branch-breadcrumbs>
 							</ng-container>

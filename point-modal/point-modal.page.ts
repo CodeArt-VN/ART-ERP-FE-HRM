@@ -5,7 +5,7 @@ import { EnvService } from 'src/app/services/core/env.service';
 import { HRM_ShiftProvider, HRM_TimesheetCycleProvider, HRM_TimesheetLogProvider, OST_OfficeGateProvider, OST_OfficeProvider } from 'src/app/services/static/services.service';
 import { FormBuilder, Validators } from '@angular/forms';
 import { lib } from 'src/app/services/static/global-functions';
-import { formatWorkdayPoint, pointModalAccent, pointModalCalcFields, resolvePointModalStaff } from './point-modal.staff';
+import { formatWorkdayPoint, pointModalAccent, pointModalCalcFields, pointModalLogRange, resolvePointModalStaff } from './point-modal.staff';
 
 @Component({
 	selector: 'app-point-modal',
@@ -59,11 +59,8 @@ export class PointModalPage extends PageBase {
 		this.staffJob = staff.job;
 		this.staffCode = staff.code;
 
-		// Tạo dto với LogTimeFrom và LogTimeTo
-		const workingDate = this.item.WorkingDate; // dạng dd/MM/yyyy
-		const [day, month, year] = workingDate.split('/');
-		const logTimeFrom = `${year}-${month}-${day}T00:00:00`;
-		const logTimeTo = `${year}-${month}-${day}T23:59:59`;
+		const logRange = pointModalLogRange(this.item.WorkingDate, this.item);
+		const workingDay = logRange.from.split('T')[0];
 
 		// let d1 = lib.dateFormat(this.navParams.data.FromDate);
 		// let d2 = lib.dateFormat(new Date());
@@ -75,8 +72,8 @@ export class PointModalPage extends PageBase {
 			this.officeProvider.read(),
 			this.gateProvider.read(),
 			// this.pageProvider.commonService.connect('GET', 'HRM/TimesheetCycle/GetTimesheetLog', dto).toPromise(),
-			this.timesheetLogProvider.read({ LogTimeFrom: logTimeFrom, LogTimeTo: logTimeTo, IDStaff: this.item.IDStaff }),
-			this.timesheetCycleProvider.read({ DateStart: logTimeFrom.split('T')[0], DateEnd: logTimeTo.split('T')[0] }),
+			this.timesheetLogProvider.read({ LogTimeFrom: logRange.from, LogTimeTo: logRange.to, IDStaff: this.item.IDStaff }),
+			this.timesheetCycleProvider.read({ DateStart: workingDay, DateEnd: workingDay }),
 		]).then((values: any) => {
 			this.officeList = values[0]['data'];
 			this.gateList = values[1]['data'];

@@ -48,6 +48,60 @@ export function pointModalCalcFields(hasLogs: boolean, item?: { Breaks?: unknown
 	};
 }
 
+export function pointModalIncludesNextDayLogs(item?: {
+	Type?: string | null;
+	ShiftType?: string | null;
+	IsOvernightShift?: boolean;
+	ShiftStart?: string | null;
+	ShiftEnd?: string | null;
+	Shift?: { Type?: string | null; IsOvernightShift?: boolean; Start?: string | null; End?: string | null } | null;
+} | null): boolean {
+	const overnight = !!(item?.IsOvernightShift || item?.Shift?.IsOvernightShift);
+	const type = String(item?.Type || item?.ShiftType || item?.Shift?.Type || '').trim().toLowerCase();
+	if (overnight || type === 'nightshift' || type === 'overnightshift' || type === 'ca đêm') return true;
+	const start = clockToMinutes(item?.ShiftStart || item?.Shift?.Start);
+	const end = clockToMinutes(item?.ShiftEnd || item?.Shift?.End);
+	return start != null && end != null && start > end;
+}
+
+export function pointModalLogRange(
+	workingDate: string | null | undefined,
+	item?: Parameters<typeof pointModalIncludesNextDayLogs>[0]
+): { from: string; to: string } {
+	const start = parseWorkingDate(workingDate);
+	if (!start) return { from: '', to: '' };
+	const end = new Date(start.getTime());
+	if (pointModalIncludesNextDayLogs(item)) end.setDate(end.getDate() + 1);
+	return { from: `${formatDay(start)}T00:00:00`, to: `${formatDay(end)}T23:59:59` };
+}
+
+function parseWorkingDate(workingDate: string | null | undefined): Date | null {
+	const parts = String(workingDate || '').split('/');
+	if (parts.length !== 3) return null;
+	const day = Number(parts[0]);
+	const month = Number(parts[1]);
+	const year = Number(parts[2]);
+	if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) return null;
+	const date = new Date(year, month - 1, day);
+	if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+	return date;
+}
+
+function formatDay(date: Date): string {
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function clockToMinutes(value: string | null | undefined): number | null {
+	const match = String(value || '').trim().match(/^(\d{1,2}):(\d{2})/);
+	if (!match) return null;
+	const hour = Number(match[1]);
+	const minute = Number(match[2]);
+	if (hour > 23 || minute > 59) return null;
+	return hour * 60 + minute;
+}
+
 export function resolvePointModalStaff(item: any, event: any): { name: string; job: string; code: string } {
 	let resource: any;
 	try {

@@ -57,7 +57,25 @@
 					</ion-segment-button>
 				</ion-segment>
 				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
-					<ion-button *ngIf="formGroup.get('StaffPayrollConfig').valid" (click)="addPayrollTemplateDetail({Id:0},true)">
+					<ion-button
+						*ngIf="pageConfig.canEdit && (item?.Status == 'Draft' || item?.Status == 'Unapproved')"
+						color="warning"
+						(click)="resetFromTemplate()"
+						title="{{'Reset from template' | translate}}"
+					>
+						<ion-icon slot="start" name="refresh-circle-outline"></ion-icon>
+						{{'Reset template' | translate}}
+					</ion-button>
+					<ion-button
+						*ngIf="item?.Status == 'Approved' || item?.Status == 'Closed' || item?.Status == 'Submitted'"
+						color="tertiary"
+						(click)="reopenPayroll()"
+						title="{{'Reopen' | translate}}"
+					>
+						<ion-icon slot="start" name="lock-open-outline"></ion-icon>
+						{{'Reopen' | translate}}
+					</ion-button>
+					<ion-button *ngIf="pageConfig.canEdit && formGroup.get('StaffPayrollConfig').valid" (click)="addPayrollTemplateDetail({Id:0},true)">
 						<ion-icon slot="start" name="add"></ion-icon>
 						{{'Add' | translate}}
 					</ion-button>

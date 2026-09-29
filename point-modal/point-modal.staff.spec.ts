@@ -1,4 +1,4 @@
-import { formatWorkdayPoint, pointModalAccent, pointModalCalcFields, resolvePointModalStaff, resolveTimesheetPointCard } from './point-modal.staff';
+import { formatWorkdayPoint, pointModalAccent, pointModalCalcFields, pointModalLogRange, resolvePointModalStaff, resolveTimesheetPointCard } from './point-modal.staff';
 
 describe('resolvePointModalStaff', () => {
 	it('uses the calendar resource when the event has no staff name', () => {
@@ -81,6 +81,28 @@ describe('pointModalCalcFields', () => {
 			breaks: 60,
 			minutes: 480,
 		});
+	});
+});
+
+describe('pointModalLogRange', () => {
+	it('keeps a day shift inside the working date', () => {
+		expect(pointModalLogRange('25/08/2026', { Type: 'DayShift', ShiftStart: '10:00', ShiftEnd: '18:00' })).toEqual({
+			from: '2026-08-25T00:00:00',
+			to: '2026-08-25T23:59:59',
+		});
+	});
+
+	it('includes the next day for a night shift and for an overnight shift', () => {
+		expect(pointModalLogRange('25/08/2026', { Type: 'NightShift', ShiftStart: '22:00', ShiftEnd: '06:00' })).toEqual({
+			from: '2026-08-25T00:00:00',
+			to: '2026-08-26T23:59:59',
+		});
+		expect(pointModalLogRange('31/08/2026', { IsOvernightShift: true, Type: 'Shift12Hours' }).to).toBe('2026-09-01T23:59:59');
+		expect(pointModalLogRange('31/12/2026', { ShiftStart: '20:00', ShiftEnd: '05:00' }).to).toBe('2027-01-01T23:59:59');
+	});
+
+	it('returns an empty range when the working date is not dd/MM/yyyy', () => {
+		expect(pointModalLogRange('2026-08-25', { Type: 'NightShift' })).toEqual({ from: '', to: '' });
 	});
 });
 

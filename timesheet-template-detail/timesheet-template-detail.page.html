@@ -1,5 +1,22 @@
 <ion-header [translucent]="true">
-	<app-toolbar [page]="this"></app-toolbar>
+	<app-toolbar [page]="this">
+		<ion-button
+			*ngIf="isCycleConfigMode && pageConfig.canEdit"
+			color="warning"
+			(click)="resetCycleConfig()"
+			title="{{'Reset from template' | translate}}"
+		>
+			<ion-icon slot="icon-only" name="refresh-circle-outline"></ion-icon>
+		</ion-button>
+		<ion-button
+			*ngIf="isCycleConfigMode && !pageConfig.canEdit"
+			color="tertiary"
+			(click)="reopenCycleConfig()"
+			title="{{'Reopen' | translate}}"
+		>
+			<ion-icon slot="icon-only" name="lock-open-outline"></ion-icon>
+		</ion-button>
+	</app-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" appScrollbarTheme class="header-table">
@@ -10,17 +27,17 @@
 			<ion-toolbar color="primary">
 				<ion-segment scrollable="true" (ionChange)="segmentChanged($event)" [value]="segmentView">
 					<ion-segment-button value="s1">
-						<ion-label>{{'Timesheet' | translate}}</ion-label>
+						<ion-label>{{'Detail timesheet' | translate}}</ion-label>
 					</ion-segment-button>
 					<ion-segment-button value="s2">
-						<ion-label>{{'Summary' | translate}}</ion-label>
+						<ion-label>{{'Summary timesheet' | translate}}</ion-label>
 					</ion-segment-button>
-					<ion-segment-button value="s3">
+					<ion-segment-button value="s3" *ngIf="!isCycleConfigMode">
 						<ion-label>{{'Other information' | translate}}</ion-label>
 					</ion-segment-button>
 				</ion-segment>
 
-				<ion-buttons slot="end" *ngIf="segmentView=='s1'">
+				<ion-buttons slot="end" *ngIf="segmentView=='s1' && pageConfig.canEdit">
 					<ion-button (click)="presentCopyPopover($event)">
 						<ion-icon slot="start" name="add"></ion-icon>
 						{{'Add' | translate}}
@@ -34,7 +51,13 @@
 										<ion-label>{{'Add' | translate}}</ion-label>
 									</ion-item>
 
-									<ion-item title="{{'Add all' | translate}}" [button]="true" [detail]="false" (click)="addAllTimesheetTemplateDetail()" *ngIf="item?.Id">
+									<ion-item
+										title="{{'Add all' | translate}}"
+										[button]="true"
+										[detail]="false"
+										(click)="addAllTimesheetTemplateDetail()"
+										*ngIf="item?.Id && !isCycleConfigMode"
+									>
 										<ion-icon name="clipboard-list" color="success" slot="start"></ion-icon>
 										<ion-label>{{'Add all' | translate}}</ion-label>
 									</ion-item>
@@ -43,193 +66,205 @@
 						</ng-template>
 					</ion-popover>
 				</ion-buttons>
-				<ion-buttons slot="end" *ngIf="segmentView=='s2'">
+				<ion-buttons slot="end" *ngIf="segmentView=='s2' && pageConfig.canEdit">
 					<ion-button (click)="addSummaryLine()">
-						<ion-icon slot="start" name="duplicate-outline"></ion-icon>
-						{{'Add summary' | translate}}
+						<ion-icon slot="start" name="add"></ion-icon>
+						{{'Add' | translate}}
 					</ion-button>
 				</ion-buttons>
 			</ion-toolbar>
 
 			<div *ngIf="segmentView == 's1'">
 				<div id="ng-select" style="position: absolute; z-index: 30005"></div>
-				<ion-grid fixed>
-					<ion-row>
-						<ion-col size="12">
-							<ion-list>
-								<ion-list-header lines="full" class="ion-no-padding">
-									<ion-label>{{'Data field' | translate }}</ion-label>
-									<ion-button (click)="toggleReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
-								</ion-list-header>
+				<div class="template-lines-panel">
+					<ion-list>
+						<ion-list-header lines="full" class="ion-no-padding">
+							<ion-label>{{'Data field' | translate }}</ion-label>
+							<ion-button (click)="toggleReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
+						</ion-list-header>
 
-								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
-									<ion-reorder-group [disabled]="isDisabled" (ionItemReorder)="doReorder($event, formGroup.get('Lines')['controls'])">
-										<ng-container *ngFor="let g of formGroup.get('Lines')['controls']; let idx = index; trackBy: trackLineBy">
-											<ion-accordion [value]="getAccordionValue(g)">
-												<ion-item class="clickable" slot="header" [style.order]="g.get('Sort').value" lines="full">
-													<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
-														<span *ngIf="g.get('Id').value">{{idx+1}} - </span>
-														<span class="bold">
-															{{g.get('Name').value}}
-															<small label>
-																<ion-text color="primary">{{getLinePreview(g)}}</ion-text>
-															</small>
-														</span>
-													</ion-label>
+						<ion-reorder-group [disabled]="isDisabled" (ionItemReorder)="doReorder($event, formGroup.get('Lines')['controls'])">
+							<ng-container *ngFor="let g of formGroup.get('Lines')['controls']; let idx = index; trackBy: trackLineBy">
+								<div class="template-line" [style.order]="g.get('Sort').value">
+									<ion-item class="clickable" button detail="false" (click)="toggleAccordion(g)" lines="full">
+										<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
+											<span *ngIf="g.get('Id').value">{{idx+1}} - </span>
+											<span class="bold">
+												{{g.get('Name').value}}
+												<small label>
+													<ion-text color="primary">{{getLinePreview(g)}}</ion-text>
+												</small>
+											</span>
+										</ion-label>
 
-													<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
-														<ion-icon slot="icon-only" name="trash"></ion-icon>
-													</ion-button>
+										<ion-button color="danger" (click)="$event.stopPropagation();removeField(g,idx)" fill="clear" slot="end">
+											<ion-icon slot="icon-only" name="trash"></ion-icon>
+										</ion-button>
 
-													<ion-reorder slot="end"></ion-reorder>
-												</ion-item>
+										<ion-reorder slot="end"></ion-reorder>
+									</ion-item>
 
-												<div
-													*ngIf="isAccordionExpanded(getAccordionValue(g))"
-													class="ion-padding"
-													slot="content"
-													[ngStyle]="{ 'background': 'var(--table-header-background)' }"
-												>
-													<ion-grid fixed>
-														<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
-															<ion-row>
-																<ion-col size="12" size-xl="6">
-																	<app-form-control
-																		(change)="changeUDF($event,g)"
-																		[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFDataSource,bindLabel:'Name',bindValue:'Id',
-																		form : g,appendTo:'#ng-select', treeConfig: {searchFnDefault: true,isTree: true, isCollapsed: true,rootCollapsed:false}}"
-																	></app-form-control>
-																	<app-form-control
-																		(change)="changeType($event,g)"
-																		[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:timesheetTemplateType,bindLabel:'Name',bindValue:'Code',form : g ,appendTo:'#ng-select'}"
-																	>
-																	</app-form-control>
-
-																	<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }" (change)="saveChange2()">
-																	</app-form-control>
-																	<app-form-control
-																		*ngIf="g.get('Type').value != 'Auto'"
-																		[field]="{id:'UDFValue', label: 'Value',  type : g.get('ControlType').value,dataSource:UDFList, form : g } "
-																		(change)="saveChange2()"
-																	>
-																	</app-form-control>
-																	@if(g.get('IsSummary')?.value){
-																	<app-form-control
-																		[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
-																		(change)="saveChange2()"
-																	>
-																	</app-form-control>
-																	}
-
-																	<app-form-control
-																		[field]="{id:'IsSummary', label: 'Summary', type : 'checkbox', form : g }"
-																		(change)="onSummaryChange(g)"
-																	>
-																	</app-form-control>
-																	<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange2()">
-																	</app-form-control>
-																	<app-form-control
-																		[field]="{id:'IsHidden', label: 'Hidden', type : 'checkbox', form : g }"
-																		(change)="saveChange2()"
-																	>
-																	</app-form-control>
-																</ion-col>
-																<ion-col size="12" size-xl="6">
-																	<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : g }"> </app-form-control>
-																	<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : g }"> </app-form-control>
-																	<app-form-control [field]="{id:'ControlType', label: 'Control type', type : 'span-text',form : g }">
-																	</app-form-control>
-																	<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
-																	</app-form-control>
-																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
-																	</app-form-control>
-																	<app-form-control
-																		[field]="{id:'Remark', type : 'textarea', label: 'Remark', form : g }"
-																		(change)="saveChange2()"
-																	></app-form-control>
-																</ion-col>
-															</ion-row>
-														</form>
-													</ion-grid>
+									<div
+										*ngIf="isAccordionExpanded(getAccordionValue(g))"
+										class="ion-padding template-line-editor"
+										[style.background]="'var(--table-header-background)'"
+									>
+										<form [formGroup]="g" (click)="$event.stopPropagation()" [class.transition]="show">
+											<div class="template-line-toolbar">
+												<div class="toolbar-field toolbar-udf">
+													<app-form-control
+														(change)="changeUDF($event,g)"
+														[field]="{id:'IDUDF', label: 'UDF', type : 'ng-select', dataSource:UDFDataSource,bindLabel:'Name',bindValue:'Id',
+														form : g,appendTo:'#ng-select', treeConfig: {searchFnDefault: true,isTree: true, isCollapsed: true,rootCollapsed:false}}"
+													></app-form-control>
 												</div>
-											</ion-accordion>
-										</ng-container>
-									</ion-reorder-group>
-								</ion-accordion-group>
-							</ion-list>
-						</ion-col>
-					</ion-row>
-				</ion-grid>
+												<div class="toolbar-field toolbar-type">
+													<app-form-control
+														(change)="changeType($event,g)"
+														[field]="{id:'Type', label: 'Type', type : 'ng-select',dataSource:timesheetTemplateType,bindLabel:'Name',bindValue:'Code',form : g ,appendTo:'#ng-select'}"
+													>
+													</app-form-control>
+												</div>
+												<div class="toolbar-field toolbar-sort">
+													<app-form-control [field]="{id:'Sort', label: 'Sort', type : 'number', form : g }" (change)="saveChange2()">
+													</app-form-control>
+												</div>
+												@if(g.get('IsSummary')?.value){
+												<div class="toolbar-field toolbar-method">
+													<app-form-control
+														[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
+														(change)="saveChange2()"
+													>
+													</app-form-control>
+												</div>
+												}
+											</div>
+
+											<div class="template-line-meta" *ngIf="g.get('Name')?.value || g.get('Code')?.value">
+												<span class="meta-name" *ngIf="g.get('Name')?.value">{{ g.get('Name')?.value }}</span>
+												<span class="meta-sep" *ngIf="g.get('Code')?.value">·</span>
+												<span class="meta-code" *ngIf="g.get('Code')?.value">{{ g.get('Code')?.value }}</span>
+												<span class="meta-sep" *ngIf="g.get('ControlType')?.value">·</span>
+												<span class="meta-muted" *ngIf="g.get('ControlType')?.value">{{ g.get('ControlType')?.value }}</span>
+												<span class="meta-sep" *ngIf="g.get('DataType')?.value">·</span>
+												<span class="meta-muted" *ngIf="g.get('DataType')?.value">{{ g.get('DataType')?.value }}</span>
+											</div>
+
+											<div class="template-line-flags">
+												<app-form-control
+													[field]="{id:'IsSummary', label: 'Show on timesheet overview', type : 'checkbox', form : g }"
+													(change)="onSummaryChange(g)"
+												>
+												</app-form-control>
+												<app-form-control [field]="{id:'IsLock', label: 'Lock', type : 'checkbox', form : g }" (change)="saveChange2()">
+												</app-form-control>
+												<app-form-control
+													[field]="{id:'IsHidden', label: 'Hidden', type : 'checkbox', form : g }"
+													(change)="saveChange2()"
+												>
+												</app-form-control>
+											</div>
+
+											<div class="template-line-body" *ngIf="g.get('Type').value != 'Auto'">
+												<app-form-control
+													class="template-value-field"
+													[field]="{id:'UDFValue', label: g.get('Type').value == 'Formula' ? 'Formula' : 'Value', type : g.get('ControlType').value, dataSource:UDFList, form : g }"
+													(change)="saveChange2()"
+												>
+												</app-form-control>
+											</div>
+
+											<div
+												class="template-line-body"
+												*ngIf="g.get('Type').value == 'Auto' || (g.get('DefaultValue')?.value && g.get('Type').value != 'Formula')"
+											>
+												<app-form-control
+													class="template-value-field"
+													[field]="{id:'DefaultValue', label: 'Default value', type: 'textarea', form: g }"
+												>
+												</app-form-control>
+											</div>
+
+											<div class="template-line-remark">
+												<app-form-control
+													[field]="{id:'Remark', type : 'textarea', label: 'Remark', form : g }"
+													(change)="saveChange2()"
+												></app-form-control>
+											</div>
+										</form>
+									</div>
+								</div>
+							</ng-container>
+						</ion-reorder-group>
+					</ion-list>
+				</div>
 			</div>
 
 			<div *ngIf="segmentView == 's2'">
 				<div id="ng-select-summary" style="position: absolute; z-index: 30005"></div>
-				<ion-grid fixed>
-					<ion-row>
-						<ion-col size="12">
-							<ion-list>
-								<ion-list-header lines="full" class="ion-no-padding">
-									<ion-label>{{'Summary field' | translate }}</ion-label>
-									<ion-button (click)="toggleSummaryReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
-								</ion-list-header>
+				<div class="template-lines-panel">
+					<ion-list>
+						<ion-list-header lines="full" class="ion-no-padding">
+							<ion-label>{{'Summary field' | translate }}</ion-label>
+							<ion-button (click)="toggleSummaryReorder()" fill="outline">{{'Sort' | translate }}</ion-button>
+						</ion-list-header>
 
-								<ion-accordion-group [multiple]="true" [value]="openedFields" (ionChange)="accordionGroupChange($event)">
-									<ion-reorder-group [disabled]="isSummaryReorderDisabled" (ionItemReorder)="doSummaryReorder($event)">
-										<ng-container *ngFor="let g of summaryItems; let idx = index; trackBy: trackLineBy">
-											<ion-accordion [value]="getAccordionValue(g)">
-												<ion-item class="clickable" slot="header" [style.order]="g.get('SummarySort').value" lines="full">
-													<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
-														<span *ngIf="g.get('Id').value">{{idx+1}} - </span>
-														<span class="bold">
-															{{g.get('Name').value}}
-															<small label>
-																<ion-text color="primary">{{getLinePreview(g)}}</ion-text>
-															</small>
-														</span>
-													</ion-label>
+						<ion-reorder-group [disabled]="isSummaryReorderDisabled" (ionItemReorder)="doSummaryReorder($event)">
+							<ng-container *ngFor="let g of summaryItems; let idx = index; trackBy: trackLineBy">
+								<div class="template-line" [style.order]="g.get('SummarySort').value">
+									<ion-item class="clickable" button detail="false" (click)="toggleAccordion(g)" lines="full">
+										<ion-label style="margin-right: 0" class="ion-text-wrap clickable">
+											<span *ngIf="g.get('Id').value">{{idx+1}} - </span>
+											<span class="bold">
+												{{g.get('Name').value}}
+												<small label>
+													<ion-text color="primary">{{getLinePreview(g)}}</ion-text>
+												</small>
+											</span>
+										</ion-label>
 
-													<ion-reorder slot="end"></ion-reorder>
-												</ion-item>
+										<ion-reorder slot="end"></ion-reorder>
+									</ion-item>
 
-												<div
-													*ngIf="isAccordionExpanded(getAccordionValue(g))"
-													class="ion-padding"
-													slot="content"
-													[ngStyle]="{ 'background': 'var(--table-header-background)' }"
-												>
-													<ion-grid fixed>
-														<form [formGroup]="g" (click)="$event.stopPropagation()" [ngClass]="{'transition':show}">
-															<ion-row>
-																<ion-col size="12" size-xl="6">
-																	<app-form-control
-																		[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
-																		(change)="saveChange2()"
-																	>
-																	</app-form-control>
-																</ion-col>
-																<ion-col size="12" size-xl="6">
-																	<app-form-control [field]="{id:'Name', label: 'Name', type : 'span-text', form : g }"> </app-form-control>
-																	<app-form-control [field]="{id:'Code', label: 'Code', type : 'text', form : g }"> </app-form-control>
-																	<app-form-control [field]="{id:'DefaultValue', label: 'Default value',  type : 'span-text',form : g }">
-																	</app-form-control>
-																	<app-form-control [field]="{id:'DataType', label: 'Data type',  type : 'span-text',form : g }">
-																	</app-form-control>
-																</ion-col>
-															</ion-row>
-														</form>
-													</ion-grid>
+									<div
+										*ngIf="isAccordionExpanded(getAccordionValue(g))"
+										class="ion-padding template-line-editor"
+										[style.background]="'var(--table-header-background)'"
+									>
+										<form [formGroup]="g" (click)="$event.stopPropagation()" [class.transition]="show">
+											<div class="template-line-toolbar">
+												<div class="toolbar-field toolbar-method">
+													<app-form-control
+														[field]="{id:'SummaryMethod', label: 'Method',  type : 'ng-select', dataSource: methodSummary, form : g }"
+														(change)="saveChange2()"
+													>
+													</app-form-control>
 												</div>
-											</ion-accordion>
-										</ng-container>
-									</ion-reorder-group>
-								</ion-accordion-group>
-							</ion-list>
-						</ion-col>
-					</ion-row>
-				</ion-grid>
+											</div>
+											<div class="template-line-meta" *ngIf="g.get('Name')?.value || g.get('Code')?.value">
+												<span class="meta-name" *ngIf="g.get('Name')?.value">{{ g.get('Name')?.value }}</span>
+												<span class="meta-sep" *ngIf="g.get('Code')?.value">·</span>
+												<span class="meta-code" *ngIf="g.get('Code')?.value">{{ g.get('Code')?.value }}</span>
+												<span class="meta-sep" *ngIf="g.get('DataType')?.value">·</span>
+												<span class="meta-muted" *ngIf="g.get('DataType')?.value">{{ g.get('DataType')?.value }}</span>
+											</div>
+											<div class="template-line-body" *ngIf="g.get('DefaultValue')?.value">
+												<app-form-control
+													class="template-value-field"
+													[field]="{id:'DefaultValue', label: 'Default value', type: 'textarea', form: g }"
+												>
+												</app-form-control>
+											</div>
+										</form>
+									</div>
+								</div>
+							</ng-container>
+						</ion-reorder-group>
+					</ion-list>
+				</div>
 			</div>
 
-			<div *ngIf="segmentView == 's3'">
+			<div *ngIf="segmentView == 's3' && !isCycleConfigMode">
 				<div class="ion-padding">
 					<ion-grid fixed>
 						<ion-row class="hr-group">
@@ -295,4 +330,5 @@
 			</div>
 		</div>
 	</div>
+	<app-page-message [itemsLength]="item ? 1 : 0" [showSpinner]="pageConfig.showSpinner"></app-page-message>
 </ion-content>

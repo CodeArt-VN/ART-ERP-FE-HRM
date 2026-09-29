@@ -1,5 +1,5 @@
 <ion-header [translucent]="true">
-	<app-toolbar [page]="this">
+	<app-toolbar [page]="this" class="no-padding">
 		<ion-button endSlot title="{{'Close' | translate}}" color="secondary" (click)="closeModal()">
 			<ion-icon slot="icon-only" name="close"></ion-icon>
 		</ion-button>
@@ -12,7 +12,7 @@
 	</ion-refresher>
 
 	<app-data-table
-		class="box-shadow responsive"
+		class="box-shadow"
 		[rows]="items"
 		[trackBy]="'Id'"
 		[(selectedRows)]="selectedItems"
@@ -32,14 +32,12 @@
 					<ion-img #img [src]="i._Staff.Avatar" (ionError)="img.src = 'assets/avartar-empty.jpg'"></ion-img>
 				</ion-avatar>
 				<div class="staff-text">
-					<span class="bold">{{i._Staff.FullName}}</span>
-					<small *ngIf="i._Staff.Code" class="no-warp">{{i._Staff.Code}}</small>
-					<app-branch-breadcrumbs
-						*ngIf="jobTitleId(i._Staff) as id"
-						[maxItems]="3"
-						[Id]="id"
-						[Items]="env.jobTitleList"
-					></app-branch-breadcrumbs>
+					<span>
+						<small *ngIf="i._Staff.Code"> <ion-text color="primary"> {{i._Staff.Code}} </ion-text> </small>
+						<span class="bold">{{i._Staff.FullName}}</span>
+					</span>
+
+					<small> <app-branch-breadcrumbs *ngIf="jobTitleId(i._Staff) as id" [Id]="id" [Items]="env.jobTitleList"></app-branch-breadcrumbs></small>
 				</div>
 			</ng-template>
 		</datatable-column>

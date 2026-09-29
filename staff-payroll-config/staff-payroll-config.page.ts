@@ -5,7 +5,6 @@ import { PageBase } from 'src/app/page-base';
 import {
 	HRM_PayrollTemplateProvider,
 	HRM_StaffPayrollConfigProvider,
-	HRM_StaffPayrollProvider,
 	HRM_TimesheetCycleProvider,
 	HRM_TimesheetProvider,
 	HRM_UDFProvider,
@@ -13,6 +12,7 @@ import {
 import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { HRM_StaffPayrollService } from '../hrm-staff-payroll.service';
 
 @Component({
 	selector: 'app-staff-payroll-config',
@@ -33,7 +33,7 @@ export class StaffPayrollConfigPage extends PageBase {
 	trackingIDPolSalary;
 	alwaysReturnProps = ['Id', 'IDBranch', 'IDTimesheetCycle', 'IDTimesheet'];
 	constructor(
-		public pageProvider: HRM_StaffPayrollProvider,
+		public pageProvider: HRM_StaffPayrollService,
 		public payrollTemplateProvider: HRM_PayrollTemplateProvider,
 		public timesheetProvider: HRM_TimesheetProvider,
 		public timesheetCycleProvider: HRM_TimesheetCycleProvider,
@@ -96,7 +96,7 @@ export class StaffPayrollConfigPage extends PageBase {
 		});
 	}
 	loadedData(event) {
-		if (['Submitted', 'Approved', 'Cancelled'].includes(this.item.Status)) {
+		if (['Submitted', 'Approved', 'Cancelled', 'Closed'].includes(this.item.Status)) {
 			this.pageConfig.canEdit = false;
 		}
 		this.patchUDF();
@@ -280,6 +280,37 @@ export class StaffPayrollConfigPage extends PageBase {
 	toggleReorder() {
 		this.isDisabled = !this.isDisabled;
 	}
+
+	resetFromTemplate() {
+		this.env
+			.showPrompt(
+				'Reset will reload columns from the current payroll template. Existing values stay in UDF slots. Continue?',
+				null,
+				'Reset from template'
+			)
+			.then(() => {
+				this.pageProvider.resetConfig(this.item.Id).then((res: any) => {
+					this.item = res;
+					this.patchUDF();
+					this.pageConfig.canEdit = !['Submitted', 'Approved', 'Cancelled', 'Closed'].includes(this.item.Status);
+					this.env.showMessage('Reset completed', 'success');
+				});
+			})
+			.catch(() => {});
+	}
+
+	reopenPayroll() {
+		this.env
+			.showPrompt('Reopen this payroll to edit values on the frozen column set?', null, 'Reopen')
+			.then(() => {
+				this.pageProvider.reopen([this.item.Id]).then(() => {
+					this.refresh();
+					this.env.showMessage('Reopened', 'success');
+				});
+			})
+			.catch(() => {});
+	}
+
 	doReorder(ev, groups) {
 		groups = ev.detail.complete(groups);
 		for (let i = 0; i < groups.length; i++) {

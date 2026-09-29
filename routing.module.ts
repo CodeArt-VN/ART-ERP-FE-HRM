@@ -105,12 +105,15 @@ export const HRMRoutes: Routes = [
     { path: 'staff-payslip/:id', loadChildren: () => import('./staff-payslip-detail/staff-payslip-detail.module').then(m => m.StaffPayslipDetailPageModule), canActivate: [AuthGuard] },
 
     { path: 'timesheet-template', loadChildren: () => import('./timesheet-template/timesheet-template.module').then(m => m.TimesheetTemplatePageModule), canActivate: [AuthGuard] },
-    { path: 'timesheet-template/:id', loadChildren: () => import('./timesheet-template-detail/timesheet-template-detail.module').then(m => m.TimesheetTemplateDetailPageModule), canActivate: [AuthGuard] },
+    { path: 'timesheet-template/cycle-config/:idTimesheetCycleDetail', loadChildren: () => import('./timesheet-template-detail/timesheet-template-detail-routing.module').then(m => m.TimesheetTemplateDetailPageRoutingModule), canActivate: [AuthGuard] },
+    { path: 'timesheet-template/:id', loadChildren: () => import('./timesheet-template-detail/timesheet-template-detail-routing.module').then(m => m.TimesheetTemplateDetailPageRoutingModule), canActivate: [AuthGuard] },
 
     { path: 'timesheet-log', loadChildren: () => import('./scheduler/timesheet-log/timesheet-log.module').then(m => m.TimesheetLogPageModule), canActivate: [AuthGuard] },
 
     { path: 'timesheet-record', loadChildren: () => import('./timesheet-record/timesheet-record.module').then(m => m.TimesheetRecordPageModule), canActivate: [AuthGuard] },
     { path: 'timesheet-record/:id/:idtimesheet', loadChildren: () => import('./timesheet-record-detail/timesheet-record-detail.module').then(m => m.TimesheetRecordDetailPageModule), canActivate: [AuthGuard] },
+
+    { path: 'staff-timesheet', loadChildren: () => import('./staff-timesheet/staff-timesheet.module').then(m => m.StaffTimesheetPageModule), canActivate: [AuthGuard] },
 
     { path: 'leave-type', loadChildren: () => import('./leave-type/leave-type.module').then(m => m.LeaveTypePageModule), canActivate: [AuthGuard] },
     { path: 'leave-type/:id', loadChildren: () => import('./leave-type-detail/leave-type-detail.module').then(m => m.LeaveTypeDetailPageModule), canActivate: [AuthGuard] },

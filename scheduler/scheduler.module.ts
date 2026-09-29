@@ -16,7 +16,7 @@ import { PointModalPageModule } from '../point-modal/point-modal.module';
 import { CheckinLogComponent } from './checkin-log/checkin-log.page';
 import { TimesheetCycleDetailComponent } from './timesheet-cycle/timesheet-cycle-detail.page';
 import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-modal/timesheet-cycle-select-modal.page';
-import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
+import { StaffTimesheetCalculationModalPageModule } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.module';
 
 @NgModule({
 	imports: [
@@ -29,9 +29,10 @@ import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculati
 		FullCalendarModule,
 		LogGeneratorPageModule,
 		PointModalPageModule,
+		StaffTimesheetCalculationModalPageModule,
 		// CheckinLogPageModule,
 		RouterModule.forChild([{ path: '', component: SchedulerPage }]),
 	],
-	declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage, CheckinLogComponent, TimesheetCycleDetailComponent, TimesheetCycleSelectModalComponent, StaffTimesheetCalculationModalPage],
+	declarations: [SchedulerPage, StaffPickerPage, SchedulerGeneratorPage, CheckinLogComponent, TimesheetCycleDetailComponent, TimesheetCycleSelectModalComponent],
 })
 export class SchedulerPageModule {}

@@ -2,13 +2,131 @@
 	width: 30px;
 }
 
-.ion-accordion-bg{
+.full-screen {
+	min-height: calc(100vh - 97px);
+}
+
+.ion-accordion-bg {
 	background-color: transparent;
 }
-.header-ion-accordion{
+
+.header-ion-accordion {
 	padding: 8px 0 8px 5px;
 	border-bottom: solid 1px var(--menu-right-border-color);
-    margin-bottom: 16px;
+	margin-bottom: 16px;
+}
+
+.template-lines-panel {
+	display: block;
+	width: 100%;
+	padding: 0 8px 16px;
+}
+
+ion-reorder-group {
+	display: block;
+	width: 100%;
+}
+
+.template-line {
+	display: block;
+	width: 100%;
+}
+
+.template-line-editor {
+	form {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.template-line-toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 12px;
+		align-items: flex-end;
+
+		.toolbar-field {
+			flex: 1 1 140px;
+			min-width: 120px;
+		}
+
+		.toolbar-udf {
+			flex: 2 1 220px;
+		}
+
+		.toolbar-type {
+			flex: 1 1 140px;
+			max-width: 200px;
+		}
+
+		.toolbar-sort {
+			flex: 0 1 100px;
+			max-width: 120px;
+		}
+
+		.toolbar-method {
+			flex: 1 1 140px;
+			max-width: 180px;
+		}
+	}
+
+	.template-line-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 4px 6px;
+		padding: 2px 2px 0;
+		font-size: 0.8rem;
+		line-height: 1.35;
+		color: var(--ion-color-medium, #92949c);
+
+		.meta-name {
+			font-weight: 600;
+			color: var(--ion-text-color, #222);
+		}
+
+		.meta-code {
+			font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+			color: var(--ion-color-primary, #3880ff);
+		}
+
+		.meta-sep {
+			opacity: 0.55;
+		}
+
+		.meta-muted {
+			opacity: 0.9;
+		}
+	}
+
+	.template-line-flags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px 16px;
+		align-items: center;
+		padding: 4px 0 2px;
+	}
+
+	.template-line-body {
+		.template-value-field {
+			display: block;
+			width: 100%;
+		}
+	}
+
+	.template-line-remark {
+		max-width: 100%;
+	}
+
+	textarea.c-input,
+	textarea {
+		min-height: 8.5rem;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+		font-size: 0.85rem;
+		line-height: 1.45;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
 }
 
 ::ng-deep {
@@ -22,5 +140,18 @@
 		left: unset !important;
 		right: 0 !important;
 		top: -30px !important;
+	}
+
+	.template-line-editor {
+		.template-line-toolbar .c-control,
+		.template-line-flags .c-control,
+		.template-line-remark .c-control {
+			margin-bottom: 0;
+		}
+
+		.editor-container > div[id] {
+			height: 16rem !important;
+			min-height: 16rem;
+		}
 	}
 }

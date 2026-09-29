@@ -417,4 +417,19 @@ export class TimesheetCycleDetailPage extends PageBase {
 		});
 		await modal.present();
 	}
+
+	async openCycleConfig() {
+		const detail = (this.item?.TimesheetDetails || []).find((d) => d.IDTimesheet == this.IDTimesheet);
+		if (!detail) {
+			this.env.showMessage('Timesheet is not attached to this cycle', 'warning');
+			return;
+		}
+		this.navCtrl.navigateForward('/timesheet-template/cycle-config/' + detail.Id, {
+			queryParams: {
+				name: this.selectedTimesheet?.Name || detail.TimesheetName,
+				status: detail.Status,
+				back: 'timesheet-cycle/' + this.id,
+			},
+		});
+	}
 }

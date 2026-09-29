@@ -1,5 +1,5 @@
 <ion-header [translucent]="true">
-	<app-toolbar [page]="this">
+	<app-toolbar [page]="this" [CenterTitle]="true">
 		<ng-container startTitle>
 			<div class="ion-hide-sm-down" style="margin: 0">
 				<ng-select
@@ -23,7 +23,21 @@
 					</ng-template>
 				</ng-select>
 			</div>
+		
 		</ng-container>
+
+		
+		<ion-segment segment class="ion-hide-sm-down" (ionChange)="segmentChanged($event)" [value]="segmentView">
+			<ion-segment-button value="s1">
+				<ion-label>{{'Scheduler' | translate}}</ion-label>
+			</ion-segment-button>
+			<ion-segment-button value="s2">
+				<ion-label>{{'Checkin log' | translate}}</ion-label>
+			</ion-segment-button>
+			<ion-segment-button value="s3">
+				<ion-label>{{'Timesheet cycle' | translate}}</ion-label>
+			</ion-segment-button>
+		</ion-segment>
 
 		<ng-container *ngIf="segmentView == 's1'">
 			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
@@ -151,7 +165,7 @@
 			</ion-button> -->
 		</ng-container>
 	</app-toolbar>
-	<ion-toolbar *ngIf="id" style="--padding-start: 4px">
+	<ion-toolbar *ngIf="id" style="--padding-start: 4px" class="ion-hide-md-up">
 		<ion-segment  (ionChange)="segmentChanged($event)" [value]="segmentView">
 			<ion-segment-button value="s1">
 				<ion-label>{{'Scheduler' | translate}}</ion-label>

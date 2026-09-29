@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { NavController, ModalController, AlertController, LoadingController, PopoverController } from '@ionic/angular';
 import { EnvService } from 'src/app/services/core/env.service';
 import { PageBase } from 'src/app/page-base';
@@ -7,6 +7,8 @@ import { Location } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { lib } from 'src/app/services/static/global-functions';
+import { buildResetTemplatePromptInputs, resolveResetTemplateId } from './timesheet-template-detail.cycle';
+import { HRM_TimesheetCycleService } from '../hrm-timesheet-cycle.service';
 
 @Component({
 	selector: 'app-timesheet-template-detail',
@@ -15,6 +17,11 @@ import { lib } from 'src/app/services/static/global-functions';
 	standalone: false,
 })
 export class TimesheetTemplateDetailPage extends PageBase {
+	/** When set, this page edits cycle snapshot columns (same UI as template). */
+	@Input() idTimesheetCycleDetail: number = null;
+	@Input() timesheetName = '';
+	@Input() cycleStatus = 'Draft';
+
 	UDFList: any[] = [];
 	UDFDataSource: any[] = [];
 	UDFGroups: any[] = [];
@@ -25,14 +32,22 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	private udfLookup = new Map<any, any>();
 	alwaysReturnProps = ['Id', 'IDBranch', 'IDTimesheetCycle', 'IDTimesheet'];
 	isSummaryReorderDisabled = true;
+	cycleConfigDirty = false;
+	/** Linked timesheet's template — used as default when resetting cycle columns only. */
+	cycleIDTimesheetTemplate: number = null;
 
-	methodSummary = ['COUNT','COUNT_DISTINCT', 'SUM', 'MAX', 'MIN', 'AVG'].map((x) => ({
+	methodSummary = ['COUNT', 'COUNT_DISTINCT', 'SUM', 'MAX', 'MIN', 'AVG'].map((x) => ({
 		Code: x,
 		Name: x,
 	}));
 
+	get isCycleConfigMode(): boolean {
+		return !!this.idTimesheetCycleDetail;
+	}
+
 	constructor(
 		public pageProvider: HRM_TimesheetTemplateProvider,
+		public timesheetCycleProvider: HRM_TimesheetCycleService,
 		public udfProvider: HRM_UDFProvider,
 		public modalController: ModalController,
 		public formBuilder: FormBuilder,
@@ -47,7 +62,16 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	) {
 		super();
 		this.pageConfig.isDetailPage = true;
-		this.id = this.route.snapshot.paramMap.get('id');
+		const cycleDetailId = this.route.snapshot.paramMap.get('idTimesheetCycleDetail');
+		if (cycleDetailId) {
+			this.idTimesheetCycleDetail = parseInt(cycleDetailId, 10);
+			this.timesheetName = this.route.snapshot.queryParamMap.get('name') || '';
+			this.cycleStatus = this.route.snapshot.queryParamMap.get('status') || 'Draft';
+			this.pageConfig.pageName = this.route.snapshot.queryParamMap.get('back') || 'staff-timesheet';
+			this.pageConfig.pageTitle = this.timesheetName || 'UDF columns';
+		} else {
+			this.id = this.route.snapshot.paramMap.get('id');
+		}
 		this.formGroup = formBuilder.group({
 			IDBranch: [this.env.selectedBranch],
 			Id: new FormControl({ value: '', disabled: true }),
@@ -76,8 +100,17 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	}
 
 	preLoadData(event?: any): void {
-		if (this.UDFDataSource.length && this.timesheetTemplateType.length) {
+		this.pageConfig.showSpinner = true;
+		const afterUdfReady = () => {
+			if (this.isCycleConfigMode) {
+				this.loadCycleConfig(event);
+				return;
+			}
 			super.preLoadData(event);
+		};
+
+		if (this.UDFDataSource.length && this.timesheetTemplateType.length) {
+			afterUdfReady();
 			return;
 		}
 
@@ -138,14 +171,63 @@ export class TimesheetTemplateDetailPage extends PageBase {
 				treeSource.unshift(...newItems);
 				this.buildFlatTree(treeSource, []).then((rs: any) => {
 					this.UDFDataSource = [...rs];
-					super.preLoadData(event);
+					afterUdfReady();
 				});
 			}
-		);
+		).catch((err) => {
+			console.log(err);
+			this.pageConfig.showSpinner = false;
+			this.env.showMessage('Cannot load UDF columns', 'danger');
+			event?.target?.complete?.();
+		});
+	}
+
+	loadCycleConfig(event?: any) {
+		this.pageConfig.pageTitle = this.timesheetName || 'UDF columns';
+		this.pageConfig.showSpinner = true;
+		this.segmentView = 's1';
+		this.timesheetCycleProvider
+			.getConfig(this.idTimesheetCycleDetail)
+			.then((cfg: any) => {
+				this.cycleStatus = cfg?.Status || this.cycleStatus;
+				this.pageConfig.canEdit = !!cfg?.CanEdit;
+				this.cycleIDTimesheetTemplate = cfg?.IDTimesheetTemplate ? Number(cfg.IDTimesheetTemplate) : null;
+				if (!Number.isFinite(this.cycleIDTimesheetTemplate) || this.cycleIDTimesheetTemplate <= 0) {
+					this.cycleIDTimesheetTemplate = null;
+				}
+				this.item = {
+					Id: cfg?.Id || this.idTimesheetCycleDetail,
+					Name: this.timesheetName || cfg?.TimesheetName || '',
+					Code: '',
+					Remark: '',
+					Status: this.cycleStatus,
+					Type: 'Cycle',
+					CheckInPolicy: '-',
+					NumberOfShiftPerDay: 1,
+					WorkingHoursPerDay: 8,
+					Lines: cfg?.Lines || [],
+				};
+				this.id = this.item.Id;
+				this.formGroup.controls.Type.clearValidators();
+				this.formGroup.controls.CheckInPolicy.clearValidators();
+				this.formGroup.controls.NumberOfShiftPerDay.clearValidators();
+				this.formGroup.controls.WorkingHoursPerDay.clearValidators();
+				this.formGroup.controls.Type.updateValueAndValidity({ emitEvent: false });
+				this.formGroup.controls.CheckInPolicy.updateValueAndValidity({ emitEvent: false });
+				this.formGroup.controls.NumberOfShiftPerDay.updateValueAndValidity({ emitEvent: false });
+				this.formGroup.controls.WorkingHoursPerDay.updateValueAndValidity({ emitEvent: false });
+				this.loadedData(event);
+			})
+			.catch((err) => {
+				console.log(err);
+				this.pageConfig.showSpinner = false;
+				this.env.showMessage(err?.error?.Message || 'Cannot load UDF columns', 'danger');
+				event?.target?.complete?.();
+			});
 	}
 
 	loadedData(event) {
-		if (!this.item?.Id) this.segmentView = 's3';
+		if (!this.isCycleConfigMode && !this.item?.Id) this.segmentView = 's3';
 		super.loadedData(event);
 		this.patchUDF();
 	}
@@ -182,6 +264,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 			Remark: [line?.Remark],
 			DataType: new FormControl({ value: line?.DataType ?? udf?.DataType, disabled: true }),
 			ControlType: new FormControl({ value: line?.ControlType ?? udf?.ControlType, disabled: true }),
+			UDFSlot: new FormControl({ value: line?.UDFSlot ?? udf?.UDF, disabled: true }),
 			IsHidden: [line?.IsHidden ?? false],
 			IsLock: [line?.IsLock ?? line?.IsLocked ?? false],
 			Sort: [line?.Sort ?? (this.formGroup.get('Lines') as FormArray).length + 1],
@@ -212,6 +295,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	changeUDF(e, fg: FormGroup) {
 		fg.get('DataType')?.setValue(e?.DataType);
 		fg.get('DefaultValue')?.setValue(e?.DefaultValue);
+		fg.get('UDFSlot')?.setValue(e?.UDF);
 
 		if (fg.controls.Type.value != 'Formula') {
 			fg.get('ControlType')?.setValue(e?.ControlType);
@@ -273,6 +357,16 @@ export class TimesheetTemplateDetailPage extends PageBase {
 	accordionGroupChange(e) {
 		const value = e.detail.value;
 		this.openedFields = Array.isArray(value) ? value : value ? [value] : [];
+	}
+
+	toggleAccordion(g: FormGroup) {
+		const key = this.getAccordionValue(g);
+		if (!key) return;
+		if (this.openedFields.includes(key)) {
+			this.openedFields = this.openedFields.filter((k) => k !== key);
+			return;
+		}
+		this.openedFields = [...this.openedFields, key];
 	}
 
 	openAccordion(id: string) {
@@ -377,14 +471,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		}));
 
 		try {
-			const selectedKeys: string[] = (await this.env.showPrompt(
-				'Select fields to add to summary',
-				null,
-				'Add summary',
-				'Add',
-				'Cancel',
-				inputs
-			)) as string[];
+			const selectedKeys: string[] = (await this.env.showPrompt('Select fields to add to summary', null, 'Add', 'Add', 'Cancel', inputs)) as string[];
 
 			if (!selectedKeys?.length) return;
 
@@ -441,6 +528,141 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		this.saveChange2();
 	}
 
+	saveChange2(form = this.formGroup, publishEventCode = this.pageConfig.pageName, provider = this.pageProvider) {
+		if (this.isCycleConfigMode) {
+			return this.saveCycleConfig();
+		}
+		return super.saveChange2(form, publishEventCode, provider);
+	}
+
+	private mapCycleLines() {
+		const groups = this.formGroup.get('Lines') as FormArray;
+		return groups.controls.map((g: FormGroup) => {
+			const raw = g.getRawValue();
+			const udf = this.udfLookup.get(raw.IDUDF);
+			return {
+				Id: raw.Id || 0,
+				IDUDF: raw.IDUDF,
+				Code: raw.Code || '',
+				Name: raw.Name || '',
+				Type: raw.Type || '',
+				UDFSlot: raw.UDFSlot || udf?.UDF || '',
+				DataType: raw.DataType || udf?.DataType || '',
+				ControlType: raw.ControlType || udf?.ControlType || '',
+				UDFValue: raw.UDFValue ?? '',
+				Remark: raw.Remark || '',
+				Sort: raw.Sort,
+				SummarySort: raw.SummarySort,
+				SummaryMethod: raw.SummaryMethod || '',
+				IsSummary: !!raw.IsSummary,
+				IsLocked: !!raw.IsLock,
+				IsHidden: !!raw.IsHidden,
+			};
+		});
+	}
+
+	saveCycleConfig() {
+		if (!this.pageConfig.canEdit || this.submitAttempt) {
+			return Promise.reject('cannot save');
+		}
+		this.submitAttempt = true;
+		return this.timesheetCycleProvider
+			.saveConfig(this.idTimesheetCycleDetail, {
+				Lines: this.mapCycleLines(),
+				DeletedIds: this.formGroup.get('DeletedLines')?.value || [],
+			})
+			.then((cfg: any) => {
+				this.cycleConfigDirty = true;
+				this.submitAttempt = false;
+				this.formGroup.get('DeletedLines')?.setValue([]);
+				this.item = {
+					...this.item,
+					Lines: cfg?.Lines || [],
+					Status: cfg?.Status || this.cycleStatus,
+				};
+				this.pageConfig.canEdit = !!cfg?.CanEdit;
+				this.patchUDF();
+				this.env.showMessage('Saving completed!', 'success');
+				return cfg;
+			})
+			.catch((err) => {
+				this.submitAttempt = false;
+				this.env.showMessage(err?.error?.Message || 'Cannot save, please try again', 'danger');
+				throw err;
+			});
+	}
+
+	async resetCycleConfig() {
+		try {
+			const resp: any = await this.pageProvider.read({ Take: 200, SortBy: 'Name' });
+			const templates = resp?.data || [];
+			const inputs = buildResetTemplatePromptInputs(
+				templates,
+				this.cycleIDTimesheetTemplate,
+				' (' + (await this.env.translateResource('current')) + ')'
+			);
+			if (!inputs.length) {
+				this.env.showMessage('No timesheet template available', 'warning');
+				return;
+			}
+
+			const selected = await this.env.showPrompt(
+				'Select a timesheet template to reload columns for this cycle only. Values in UDF slots are kept. The timesheet link is not changed.',
+				null,
+				'Reset from template',
+				'Reset',
+				'Cancel',
+				inputs
+			);
+
+			const idTemplate = resolveResetTemplateId(selected, inputs);
+			if (!idTemplate) {
+				this.env.showMessage('Please select a timesheet template', 'warning');
+				return;
+			}
+
+			await this.env.showLoading(
+				'Please wait for a few moments',
+				this.timesheetCycleProvider.resetConfig(this.idTimesheetCycleDetail, idTemplate)
+			);
+			this.cycleConfigDirty = true;
+			this.formGroup.get('DeletedLines')?.setValue([]);
+			this.openedFields = [];
+			this.env.showMessage('Reset completed', 'success');
+			// Full reload so accordion / form lines match the new snapshot.
+			this.loadCycleConfig();
+		} catch (err) {
+			if (err === false || err === 'User abort action') return;
+			console.log(err);
+			this.env.showMessage(err?.error?.Message || err?.message || 'Cannot save, please try again', 'danger');
+		}
+	}
+
+	reopenCycleConfig() {
+		this.env
+			.showPrompt('Reopen this timesheet in the cycle to edit the frozen column set?', null, 'Reopen')
+			.then(() => {
+				this.timesheetCycleProvider.reopen([this.idTimesheetCycleDetail]).then(() => {
+					this.cycleConfigDirty = true;
+					this.cycleStatus = 'Draft';
+					this.pageConfig.canEdit = true;
+					this.item.Status = 'Draft';
+					(this.formGroup.get('Lines') as FormArray).controls.forEach((c) => c.enable());
+					this.env.showMessage('Reopened', 'success');
+				});
+			})
+			.catch(() => {});
+	}
+
+	async closeCycleConfigModal() {
+		// Kept for PageBase compatibility; full-page mode uses ion-back-button.
+		if (this.isCycleConfigMode) {
+			this.navCtrl.navigateBack('/' + (this.pageConfig.pageName || 'staff-timesheet'));
+			return;
+		}
+		await this.modalController.dismiss({ saved: this.cycleConfigDirty });
+	}
+
 	savedChange(savedItem = null, form = this.formGroup) {
 		super.savedChange(savedItem);
 		const groups = this.formGroup.get('Lines') as FormArray;
@@ -480,7 +702,7 @@ export class TimesheetTemplateDetailPage extends PageBase {
 		this.isOpenPopover = true;
 	}
 	addAllTimesheetTemplateDetail() {
-		if (!this.item?.Id) return;
+		if (this.isCycleConfigMode || !this.item?.Id) return;
 		this.env.showPrompt('Do you want to add all timesheet template detail?', 'Add all timesheet template detail to this template.', 'Add').then(() => {
 			this.env
 				.showLoading('Please wait for a few moments', this.pageProvider.commonService.connect('GET', 'HRM/TimesheetTemplate/AddAllDetail/' + this.item.Id, {}).toPromise())

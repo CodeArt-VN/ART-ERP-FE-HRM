@@ -24,47 +24,12 @@
 
 			<datatable-column class="col-name" name="Name" property="Name">
 				<ng-template let-i="row" datatable-cell-template>
-					<div [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
-						<div>{{i.Name}}</div>
+					<div>
+						<a class="bold" [routerLink]="['/'+pageConfig.pageName+'/'+i.Id]">
+							<ion-text color="dark">{{ i.Name }}</ion-text>
+						</a>
+						<app-branch-breadcrumbs class="medium" [Id]="i.IDBranch" [Items]="env.jobTitleList"> </app-branch-breadcrumbs>
 					</div>
-				</ng-template>
-			</datatable-column>
-			
-			<datatable-column class="col-code" name="Type" property="Type">
-			</datatable-column>
-			<datatable-column class="col-custom" name="CheckInPolicy" property="CheckInPolicy">
-				<ng-template let-i="row" datatable-cell-template>
-					<span class="sp-custom">{{'CheckInPolicy' | translate}}:</span>
-					<span>{{i.CheckInPolicy}}</span>
-				</ng-template>
-			</datatable-column>
-
-			<datatable-column class="col-custom-number" name="Number of Daily working shift" property="NumberOfShiftPerDay">
-				<ng-template let-i="row" datatable-cell-template>
-					<span class="sp-custom">{{'Number of Daily working shift' | translate}}:</span>
-					<span>{{i.NumberOfShiftPerDay}}</span>
-				</ng-template>
-			</datatable-column>
-			<datatable-column class="col-custom-number" name="Working hours per day" property="WorkingHoursPerDay">
-				<ng-template let-i="row" datatable-cell-template>
-					<span class="sp-custom">{{'Working hours per day' | translate}}:</span>
-					<span>{{i.WorkingHoursPerDay}}</span>
-				</ng-template>
-			</datatable-column>
-
-
-			<datatable-column class="col-name" name="Unit" property="IDBranch">
-				<ng-template let-i="row" datatable-cell-template>
-					<app-branch-breadcrumbs
-						[maxItems]="3"
-						[itemsBeforeCollapse]="0"
-						[itemsAfterCollapse]="2"
-						[Id]="i.IDBranch"
-						[Items]="env.jobTitleList"
-						[ngClass]="{'no-check-dirty': noCheckDirty}"
-						class="c-input disable breadcrumbs"
-					>
-					</app-branch-breadcrumbs>
 				</ng-template>
 			</datatable-column>
 		</app-data-table>
