@@ -30,6 +30,9 @@
 										>
 									</label>
 									<input class="c-input" id="Name" (change)="saveChange();" formControlName="Name" type="text" />
+									<small *ngIf="formGroup.controls.Name.errors?.timeOffCode" ion-text color="danger">
+										{{ 'Shift code is reserved for a time-off type ({value})' | translate:{ value: formGroup.controls.Name.value } }}
+									</small>
 								</div>
 								<div class="c-control">
 									<label class="c-label" for="Type">{{'Shift type' | translate}}</label>
@@ -54,12 +57,21 @@
 										</ng-template>
 									</ng-select>
 								</div>
-								<!-- <div class="c-control">
-                                    <label class="c-label" for="Code">Code
-                                        <span *ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)" ion-text color="danger">(*)</span>
-                                    </label>
-                                    <input class="c-input" id="Code" (change)="saveChange();" formControlName="Code" type="text">
-                                </div> -->
+								<div class="c-control">
+									<label class="c-label" for="Code"
+										>{{'Code' | translate}}
+										<span
+											*ngIf="!formGroup.controls.Code.valid && !formGroup.controls.Code.pending && (formGroup.controls.Code.dirty || submitAttempt)"
+											ion-text
+											color="danger"
+											>(*)</span
+										>
+									</label>
+									<input class="c-input" id="Code" (change)="saveChange();" formControlName="Code" type="text" />
+									<small *ngIf="formGroup.controls.Code.errors?.timeOffCode" ion-text color="danger">
+										{{ 'Shift code is reserved for a time-off type ({value})' | translate:{ value: formGroup.controls.Code.value } }}
+									</small>
+								</div>
 
 								<!-- <div class="c-control">
                                     <label class="c-label" for="IDTimeSheet">IDTimeSheet

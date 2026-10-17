@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
-	<app-toolbar [page]="this" [CenterTitle]="true">
+	<app-toolbar [page]="this" >
 		<ng-container startTitle>
-			<div class="ion-hide-sm-down" style="margin: 0">
+			<div style="margin: 0">
 				<ng-select
 					class="c-input no-check-dirty"
 					appendTo="#ng-select-holder"
@@ -27,7 +27,7 @@
 		</ng-container>
 
 		
-		<ion-segment segment class="ion-hide-sm-down" (ionChange)="segmentChanged($event)" [value]="segmentView">
+		<ion-segment segment class="segment-hide-down" (ionChange)="segmentChanged($event)" [value]="segmentView">
 			<ion-segment-button value="s1">
 				<ion-label>{{'Scheduler' | translate}}</ion-label>
 			</ion-segment-button>
@@ -39,22 +39,20 @@
 			</ion-segment-button>
 		</ion-segment>
 
-		<ng-container *ngIf="segmentView == 's1'">
-			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
-			<!-- <ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
-				<ion-icon name="calendar-outline"></ion-icon>
-				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
-			</ion-chip> -->
-
-			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
-
-
-			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
+		<ng-container *ngIf="id">
+			<ion-button (click)="fcPrev()" title="{{'Previous week' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
 			</ion-button>
-			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
+			<ion-button (click)="openJumpDate($event)" title="{{'Select date' | translate}}">
+				<ion-icon slot="icon-only" name="calendar-outline"></ion-icon>
+			</ion-button>
+			<ion-button (click)="fcNext()" title="{{'Next week' | translate}}">
 				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
 			</ion-button>
+		</ng-container>
+
+		<ng-container *ngIf="segmentView == 's1'">
+			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
 			<span class="split ion-hide-sm-down">|</span>
 
 			<ion-button *ngIf="id" (click)="calculationTimeOff()" title="{{'Calculation time off' | translate}}">
@@ -100,20 +98,7 @@
 			</ion-popover>
 		</ng-container>
 
-		<ng-container *ngIf="segmentView == 's2'">
-			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
-			<!-- <ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
-				<ion-icon name="calendar-outline"></ion-icon>
-				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
-			</ion-chip> -->
-			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
-			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
-				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
-			</ion-button>
-			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
-				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
-			</ion-button>
-
+		<ng-container *ngIf="segmentView == 's2' && 0">
 			<ion-button *ngIf="id" (click)="openCheckinLogListModal()" title="{{'Open timesheet log' | translate}}">
 				{{'Open timesheet log' |translate}}
 			</ion-button>
@@ -124,19 +109,7 @@
 			</ion-button>
 		</ng-container>
 
-		<ng-container *ngIf="segmentView == 's3'">
-			<!-- <ion-button *ngIf="id" (click)="fcToday()" title="{{'Move to current date' | translate}}"> {{'Today' | translate}} </ion-button> -->
-			<!-- <ion-chip outline="true" color="primary" (click)="presentPickDatePopover($event)">
-				<ion-icon name="calendar-outline"></ion-icon>
-				<ion-label *ngIf="pickedDate" color="medium">{{pickedDate | date:'dd/MM/yyyy'}}</ion-label>
-			</ion-chip> -->
-			<app-input-control [field]="{id:'singleDate', type : 'date', form : formGroupDate, }" (change)="savePickDate()"></app-input-control>
-			<ion-button *ngIf="id" (click)="fcPrev()" title="{{'Previous day' | translate}}">
-				<ion-icon slot="icon-only" name="chevron-back"></ion-icon>
-			</ion-button>
-			<ion-button *ngIf="id" (click)="fcNext()" title="{{'Next day' | translate}}">
-				<ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
-			</ion-button>
+		<ng-container *ngIf="segmentView == 's3' && 0">
 			<span class="split ion-hide-sm-down">|</span>
 
 			<ion-button (click)="calculateTimesheet()" title="{{'Calculate timesheet' | translate}}">
@@ -164,8 +137,20 @@
 				<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
 			</ion-button> -->
 		</ng-container>
+
+		<span class="split ion-hide-sm-down">|</span>
 	</app-toolbar>
-	<ion-toolbar *ngIf="id" style="--padding-start: 4px" class="ion-hide-md-up">
+	<ion-popover class="scheduler-jump-date" [isOpen]="isOpenJumpDate" [event]="jumpDateEvent" (didDismiss)="isOpenJumpDate = false">
+		<ng-template>
+			<ion-datetime
+				presentation="date"
+				[firstDayOfWeek]="1"
+				[value]="jumpDate"
+				(ionChange)="jumpToDate($event)"
+			></ion-datetime>
+		</ng-template>
+	</ion-popover>
+	<ion-toolbar *ngIf="id" style="--padding-start: 4px" class="segment-hide-up">
 		<ion-segment  (ionChange)="segmentChanged($event)" [value]="segmentView">
 			<ion-segment-button value="s1">
 				<ion-label>{{'Scheduler' | translate}}</ion-label>
@@ -217,8 +202,11 @@
 			</ion-item>
 		</ion-list>
 		<ion-list>
-			<ion-list-header lines="full">
+			<ion-list-header class="filter-reset-header" lines="full">
 				<ion-label color="dark">{{'Shift' | translate}}</ion-label>
+				<ion-button fill="clear" size="small" (click)="resetFilter(shiftList)" title="{{'Unselect all' | translate}}">
+					<ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+				</ion-button>
 			</ion-list-header>
 			<ion-item lines="full" *ngFor="let i of shiftList">
 				<ion-checkbox slot="start" [(ngModel)]="i.isChecked" (ionChange)="changeFilter()"></ion-checkbox>
@@ -234,8 +222,11 @@
 		</ion-list>
 
 		<ion-list>
-			<ion-list-header lines="full">
+			<ion-list-header class="filter-reset-header" lines="full">
 				<ion-label color="dark">{{'Location' | translate}}</ion-label>
+				<ion-button fill="clear" size="small" (click)="resetFilter(officeList)" title="{{'Unselect all' | translate}}">
+					<ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+				</ion-button>
 			</ion-list-header>
 			<ion-item lines="full" *ngFor="let i of officeList">
 				<ion-checkbox slot="start" [(ngModel)]="i.isChecked" (ionChange)="changeFilter()"></ion-checkbox>

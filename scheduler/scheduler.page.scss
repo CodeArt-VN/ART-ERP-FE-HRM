@@ -6,6 +6,16 @@ app-page-message {
 	background: var(--feature-background-top);
 }
 
+ion-list-header.filter-reset-header::part(inner) {
+	width: 100%;
+	align-items: center;
+}
+
+ion-list-header.filter-reset-header ion-button {
+	margin-left: auto;
+	margin-right: 0;
+}
+
 ion-content {
 	--background: var(--feature-background-top) !important;
 }
@@ -21,5 +31,22 @@ ion-content {
 ::ng-deep {
 	.ng-dropdown-panel.c-input {
 		min-width: min-content !important;
+	}
+}
+
+::ng-deep ion-popover.scheduler-jump-date {
+	--width: 348px;
+	--max-height: 440px;
+}
+
+@media (max-width: 1289.98px) {
+	.segment-hide-down {
+		display: none !important;
+	}
+}
+
+@media (min-width: 1290px) {
+	.segment-hide-up {
+		display: none !important;
 	}
 }

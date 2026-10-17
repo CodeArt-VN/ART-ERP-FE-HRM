@@ -31,17 +31,16 @@ import { AdvanceFilterModalComponent } from 'src/app/modals/advance-filter-modal
 import { CheckinLogComponent } from './checkin-log/checkin-log.page';
 import { TimesheetCycleDetailComponent } from './timesheet-cycle/timesheet-cycle-detail.page';
 import { TimesheetCycleSelectModalComponent } from './timesheet-cycle-select-modal/timesheet-cycle-select-modal.page';
-import { PopoverPage } from '../../SYS/popover/popover.page';
 import { LogGeneratorPage } from '../log-generator/log-generator.page';
 import { PointModalPage } from '../point-modal/point-modal.page';
 import { resolveTimesheetPointCard } from '../point-modal/point-modal.staff';
 import { TimesheetLogPage } from './timesheet-log/timesheet-log.page';
 import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
 import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
-import { FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { el, ew } from '@fullcalendar/core/internal-common';
-import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, canShowStaffUnenrollButton, eventInkVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor } from './scheduler-display.util';
+import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, canShowStaffUnenrollButton, eventInkVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor, visibleCalendarStartDate, restoreCheckedById, clearChecked } from './scheduler-display.util';
+import { officesForAssignment, readTimesheetOption } from '../timesheet-detail/timesheet-detail.option';
 
 @Component({
 	selector: 'app-scheduler',
@@ -66,14 +65,12 @@ export class SchedulerPage extends PageBase {
 	allResources = [];
 	gateList = [];
 	cycle: any;
-	formGroupDate: any;
 	tooltipResource = '';
+	isOpenJumpDate = false;
+	jumpDateEvent?: Event;
+	jumpDate = '';
 	private checkinKeySet = new Set<string>();
 	private isCheckinMapLoaded = false;
-
-	private getLocalDateValue(date = new Date()): string {
-		return lib.dateFormat(date, 'yyyy-mm-dd');
-	}
 
 	private getCurrentSchedulerRange(): { start: Date; end: Date } {
 		const start = new Date(this.fc?.view?.activeStart || new Date());
@@ -153,16 +150,14 @@ export class SchedulerPage extends PageBase {
 		public route: ActivatedRoute,
 		public router: Router,
 		public navCtrl: NavController,
-		public formBuilder: FormBuilder,
 		public translate: TranslateService
 	) {
 		super();
-		// this.pageConfig.isShowFeature = true;
+		this.pageConfig.isShowFeature = true;
 		this.pageConfig.ShowSearch = false;
-		const today = this.getLocalDateValue();
-		this.formGroupDate = this.formBuilder.group({
-			singleDate: [today],
-		});
+		// this.pageConfig.ShowExport = false;
+		// this.pageConfig.ShowImport = false;
+		this.pageConfig.ShowArchive = false;
 
 		this.subscriptions.push(
 			this.translate.get('The employee has been removed from the work schedule.').subscribe((text) => {
@@ -288,8 +283,10 @@ export class SchedulerPage extends PageBase {
 	loadData(event?: any) {
 		//const loading = this.showLoading();
 		let option = this.selectedTimesheet?.Option ? JSON.parse(this.selectedTimesheet.Option) : null;
+		const previousShifts = this.shiftList;
 		this.shiftProvider.read({ Skip: 0, Take: 5000, AllParent: true, Id: option?.ShiftList ?? 0 }).then((value: any) => {
-			this.shiftList = value['data'];
+			this.shiftList = value['data'] || [];
+			restoreCheckedById(this.shiftList, previousShifts);
 			this.shiftList.forEach((s) => {
 				let shiftType = this.shifTypeList.find((d) => d.Code == s.Type);
 				if (shiftType) {
@@ -758,19 +755,26 @@ export class SchedulerPage extends PageBase {
 		this.fc?.addEventSource(this.items);
 		if (this.cycle) {
 			this.fc?.gotoDate(this.cycle.Start);
-			this.formGroupDate.controls['singleDate'].setValue(this.getLocalDateValue(new Date(this.cycle.Start)));
 			this.cycle = null;
 		}
 		this.fc?.updateSize();
 		super.loadedData(event, ignoredFromGroup);
 	}
 
-	savePickDate() {
-		if (this.formGroupDate.value.singleDate) {
-			this.pickedDate = this.formGroupDate.value.singleDate;
-			this.fc?.gotoDate(this.pickedDate);
-			this.loadData();
-		}
+	openJumpDate(ev: Event) {
+		this.getCalendar();
+		this.jumpDate = visibleCalendarStartDate(this.fc?.view?.activeStart);
+		this.jumpDateEvent = ev;
+		this.isOpenJumpDate = true;
+	}
+
+	jumpToDate(ev: CustomEvent) {
+		const value = ev?.detail?.value;
+		this.isOpenJumpDate = false;
+		if (!value) return;
+		this.getCalendar();
+		this.fc?.gotoDate(visibleCalendarStartDate(value));
+		this.loadData();
 	}
 
 	patchItems() {
@@ -1165,6 +1169,7 @@ export class SchedulerPage extends PageBase {
 				ToDate: arg.event.startStr.substr(0, 10),
 				DaysOfWeek: [arg.event.start.getDay()],
 				IDShift: arg.event.extendedProps.IDShift,
+				IDOffice: arg.event.extendedProps.IDOffice,
 				TimeOffType: arg.event.extendedProps.TimeOffType,
 				Staffs: [parseInt(arg.event.extendedProps.IDStaff)],
 				Id: arg.event.id,
@@ -1305,7 +1310,19 @@ export class SchedulerPage extends PageBase {
 		history.pushState({}, null, newURL);
 	}
 
+	private suppressFilterChange = false;
+
 	changeFilter() {
+		if (this.suppressFilterChange) return;
+		this.refresh();
+	}
+
+	resetFilter(list: { isChecked?: boolean }[] | null | undefined) {
+		if (!clearChecked(list)) return;
+		this.suppressFilterChange = true;
+		setTimeout(() => {
+			this.suppressFilterChange = false;
+		});
 		this.refresh();
 	}
 
@@ -1437,6 +1454,7 @@ export class SchedulerPage extends PageBase {
 		cData.staffList = this.calendarOptions.resources;
 		cData.shiftList = this.shiftList;
 		cData.timeoffTypeList = this.timeoffTypeList;
+		cData.officeList = officesForAssignment(this.officeList, readTimesheetOption(this.selectedTimesheet?.Option).IDOffice, cData.IDOffice);
 		cData.currentDate = this.items[0]?._CurrentDate;
 		const modal = await this.modalController.create({
 			component: SchedulerGeneratorPage,
@@ -1652,43 +1670,6 @@ export class SchedulerPage extends PageBase {
 		this.isOpenPopover = !this.isOpenPopover;
 	}
 
-	pickedDate;
-	isOpenPickDatePopover = false;
-	@ViewChild('pickDatePopover') pickDatePopover!: HTMLIonPopoverElement;
-
-	async presentPickDatePopover(ev: any) {
-		let popover = await this.popoverCtrl.create({
-			component: PopoverPage,
-			componentProps: {
-				popConfig: {
-					type: 'PopSingleDate',
-					isShowIonDateTime: true,
-					// singleDateLabel: 'Ngày',
-					submitButtonLabel: 'Chọn',
-				},
-				popData: {
-					singleDate: this.pickedDate,
-				},
-			},
-			event: ev,
-			cssClass: 'delivery-review-filter',
-			translucent: true,
-		});
-		popover.onDidDismiss().then((result: any) => {
-			console.log(result);
-			if (result.data) {
-				this.pickedDate = result.data.singleDate;
-				this.fc?.gotoDate(this.pickedDate);
-				this.isOpenPickDatePopover = false;
-				// this.fc.view.activeEnd = this.dateEnd;
-				this.loadData();
-			}
-		});
-		this.pickDatePopover = popover;
-		return await popover.present();
-	}
-
-	dismissDatePicker(isApply) {}
 	//scheduler
 	getAdvaneFilterConfig() {
 		let start = new Date(this.fc?.view.activeStart);

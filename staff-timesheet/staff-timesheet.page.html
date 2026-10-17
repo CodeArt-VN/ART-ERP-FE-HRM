@@ -1,9 +1,9 @@
 <ion-header [translucent]="true">
 	<app-toolbar [page]="this" [showTitle]="false">
 		<ng-container startTitle>
-			<div class="ion-hide-sm-down staff-timesheet-selectors" style="margin: 0; display: flex; gap: 8px; align-items: center">
+			<div class="ion-hide-sm-down staff-timesheet-selectors">
 				<ng-select
-					class="c-input no-check-dirty"
+					class="c-input no-check-dirty header-fit"
 					appendTo="#ng-select-holder"
 					[clearable]="false"
 					(change)="changeCycle()"
@@ -22,7 +22,7 @@
 				</ng-select>
 
 				<ng-select
-					class="c-input no-check-dirty"
+					class="c-input no-check-dirty header-fit"
 					appendTo="#ng-select-holder"
 					[clearable]="false"
 					(change)="changeTimesheet()"

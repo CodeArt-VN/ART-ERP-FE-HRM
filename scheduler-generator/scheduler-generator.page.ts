@@ -26,6 +26,7 @@ export class SchedulerGeneratorPage extends PageBase {
 
 	shiftList = [];
 	staffList = [];
+	officeList = [];
 	timeoffTypeList = [];
 	segmentView = 'Shift';
 	constructor(
@@ -55,6 +56,7 @@ export class SchedulerGeneratorPage extends PageBase {
 			Start: [''],
 			End: [''],
 			IDShift: [''],
+			IDOffice: [null],
 			IsOpenShift: [false],
 			IsAllStaff: [true],
 			Id: [0],
@@ -70,6 +72,7 @@ export class SchedulerGeneratorPage extends PageBase {
 	preLoadData(event?: any): void {
 		this.staffList = JSON.parse(JSON.stringify(this.navParams.data.staffList));
 		this.shiftList = this.navParams.data.shiftList;
+		this.officeList = this.navParams.data.officeList || [];
 		this.timeoffTypeList = this.navParams.data.timeoffTypeList;
 		if (this.navParams.data.Id) {
 			this.formGroup.controls.Id.setValue(this.navParams.data.Id);
@@ -81,6 +84,9 @@ export class SchedulerGeneratorPage extends PageBase {
 		}
 		if (this.navParams.data.IDShift) {
 			this.formGroup.controls.IDShift.setValue(this.navParams.data.IDShift);
+		}
+		if (this.navParams.data.IDOffice) {
+			this.formGroup.controls.IDOffice.setValue(this.navParams.data.IDOffice);
 		}
 
 		if (this.navParams.data.Staffs) {
@@ -129,6 +135,7 @@ export class SchedulerGeneratorPage extends PageBase {
 			this.env.showMessage('Please recheck information highlighted in red above', 'warning');
 		} else {
 			let submitItem = this.formGroup.value; //this.getDirtyValues(this.formGroup);
+			if (submitItem.IDOffice === '' || submitItem.IDOffice == null) submitItem.IDOffice = null;
 
 			this.modalController.dismiss(submitItem);
 		}
@@ -168,6 +175,8 @@ export class SchedulerGeneratorPage extends PageBase {
 			this.formGroup.controls.Type.markAsDirty();
 			this.formGroup.controls.IDShift.setValue(null);
 			this.formGroup.controls.IDShift.markAsPristine();
+			this.formGroup.controls.IDOffice.setValue(null);
+			this.formGroup.controls.IDOffice.markAsPristine();
 		}
 	}
 }

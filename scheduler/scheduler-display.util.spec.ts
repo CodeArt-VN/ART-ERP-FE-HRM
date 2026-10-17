@@ -1,4 +1,50 @@
-import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, canShowStaffUnenrollButton, eventInkVar, ionContrastCssVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor } from './scheduler-display.util';
+import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, canShowStaffUnenrollButton, eventInkVar, ionContrastCssVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor, visibleCalendarStartDate, restoreCheckedById, clearChecked } from './scheduler-display.util';
+
+describe('visibleCalendarStartDate', () => {
+	it('preselects the first day the calendar is showing', () => {
+		expect(visibleCalendarStartDate(new Date(2026, 8, 28, 0, 0, 0))).toBe('2026-09-28');
+		expect(visibleCalendarStartDate(new Date(2026, 8, 28, 23, 59, 59))).toBe('2026-09-28');
+	});
+
+	it('falls back when the calendar view is not ready', () => {
+		expect(visibleCalendarStartDate(null, new Date(2026, 8, 30))).toBe('2026-09-30');
+		expect(visibleCalendarStartDate('not-a-date', new Date(2026, 8, 1))).toBe('2026-09-01');
+	});
+});
+
+describe('clearChecked', () => {
+	it('clears every selected shift or location and reports that something changed', () => {
+		const items = [{ Id: 1, isChecked: true }, { Id: 2, isChecked: false }, { Id: 3, isChecked: true }];
+		expect(clearChecked(items)).toBe(true);
+		expect(items.map((item) => item.isChecked)).toEqual([false, false, false]);
+	});
+
+	it('does nothing when the list is already clear', () => {
+		const items = [{ isChecked: false }];
+		expect(clearChecked(items)).toBe(false);
+		expect(clearChecked(null)).toBe(false);
+	});
+});
+
+describe('restoreCheckedById', () => {
+	it('keeps ticks that were on before the shift list is reloaded', () => {
+		const next: { Id: number; Name: string; isChecked?: boolean }[] = [
+			{ Id: 1, Name: 'Ca sáng' },
+			{ Id: 2, Name: 'Ca chiều' },
+		];
+		restoreCheckedById(next, [
+			{ Id: 1, isChecked: true },
+			{ Id: 2, isChecked: false },
+		]);
+		expect(next.map((item) => item.isChecked)).toEqual([true, false]);
+	});
+
+	it('leaves every item unticked when nothing was selected', () => {
+		const next: { Id: number; isChecked?: boolean }[] = [{ Id: 3 }];
+		restoreCheckedById(next, null);
+		expect(next[0].isChecked).toBe(false);
+	});
+});
 
 describe('ionicColorToken', () => {
 	it('keeps an Ionic color name and rejects a resolved CSS color', () => {

@@ -4,7 +4,8 @@ import { PageBase } from 'src/app/page-base';
 import { ActivatedRoute } from '@angular/router';
 import { EnvService } from 'src/app/services/core/env.service';
 import { HRM_ShiftProvider } from 'src/app/services/static/services.service';
-import { FormBuilder, Validators, FormControl } from '@angular/forms';
+import { AbstractControl, FormBuilder, ValidationErrors, ValidatorFn, Validators, FormControl } from '@angular/forms';
+import { conflictingShiftLabel, isReservedShiftCode } from './shift-code.rules';
 
 @Component({
 	selector: 'app-shift-detail',
@@ -47,11 +48,26 @@ export class ShiftDetailPage extends PageBase {
 		});
 	}
 
+	timeOffCodes: string[] = [];
+
 	preLoadData(event?: any): void {
-		this.env.getType('ShiftType').then((data) => {
-			this.ShiftTypeList = data;
+		Promise.all([this.env.getType('ShiftType'), this.env.getType('TimeOffType', true)]).then((values: any[]) => {
+			this.ShiftTypeList = values[0];
+			this.timeOffCodes = (values[1] || []).map((d) => d?.Code).filter((code) => !!code);
+			this.applyTimeOffCodeValidator();
 			super.preLoadData(event);
 		});
+	}
+
+	applyTimeOffCodeValidator() {
+		const reserved: ValidatorFn = (control: AbstractControl): ValidationErrors | null =>
+			isReservedShiftCode(control.value, this.timeOffCodes) ? { timeOffCode: true } : null;
+		const code = this.formGroup.get('Code');
+		const name = this.formGroup.get('Name');
+		code?.setValidators(reserved);
+		name?.setValidators([Validators.required, reserved]);
+		code?.updateValueAndValidity({ emitEvent: false });
+		name?.updateValueAndValidity({ emitEvent: false });
 	}
 
 	ShiftTypeList;
@@ -73,6 +89,12 @@ export class ShiftDetailPage extends PageBase {
 	}
 
 	async saveChange() {
+		const conflict = conflictingShiftLabel(this.formGroup.controls.Code.value, this.formGroup.controls.Name.value, this.timeOffCodes);
+		if (conflict) {
+			this.applyTimeOffCodeValidator();
+			this.env.showMessage('Shift code is reserved for a time-off type ({value})', 'warning', conflict);
+			return;
+		}
 		super.saveChange2();
 	}
 }

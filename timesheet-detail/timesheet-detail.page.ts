@@ -4,7 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { AlertController, LoadingController, PopoverController, ModalController, NavController } from '@ionic/angular';
 import { PageBase } from 'src/app/page-base';
 import { EnvService } from 'src/app/services/core/env.service';
-import { BRA_BranchProvider, HRM_ShiftProvider, HRM_TimesheetProvider, HRM_TimesheetTemplateProvider } from 'src/app/services/static/services.service';
+import { BRA_BranchProvider, HRM_ShiftProvider, HRM_TimesheetProvider, HRM_TimesheetTemplateProvider, OST_OfficeProvider } from 'src/app/services/static/services.service';
+import { readTimesheetOption, writeTimesheetOption } from './timesheet-detail.option';
 
 @Component({
 	selector: 'app-timesheet-detail',
@@ -16,10 +17,12 @@ export class TimesheetDetailPage extends PageBase {
 	dataIDBranchList = [];
 	timesheetTemplateList = [];
 	shiftList = [];
+	officeList = [];
 	constructor(
 		public pageProvider: HRM_TimesheetProvider,
 		public timesheetTemplateProvider: HRM_TimesheetTemplateProvider,
 		public shiftProvider: HRM_ShiftProvider,
+		public officeProvider: OST_OfficeProvider,
 		public branchProvicer: BRA_BranchProvider,
 		public modalController: ModalController,
 		public popoverCtrl: PopoverController,
@@ -56,6 +59,7 @@ export class TimesheetDetailPage extends PageBase {
 
 			Option: [''],
 			ShiftList: [''],
+			IDOffice: [null],
 		});
 	}
 
@@ -65,7 +69,8 @@ export class TimesheetDetailPage extends PageBase {
 	}
 
 	saveChange(publishEventCode?: any): Promise<unknown> {
-		this.formGroup.get('Option').setValue(JSON.stringify({ ShiftList: this.formGroup.get('ShiftList').value }));
+		const current = this.formGroup.get('Option').value || this.item?.Option;
+		this.formGroup.get('Option').setValue(writeTimesheetOption(current, this.formGroup.get('ShiftList').value, this.formGroup.get('IDOffice').value));
 		this.formGroup.get('Option').markAsDirty();
 		return super.saveChange2();
 	}
@@ -73,15 +78,20 @@ export class TimesheetDetailPage extends PageBase {
 	timesheetTypeList;
 	CheckInOutPolicyList;
 	preLoadData(event?: any): void {
-		Promise.all([this.timesheetTemplateProvider.read(), this.shiftProvider.read(), this.env.getType('TimesheetType'), this.env.getType('CheckInOutPolicy')]).then(
-			(values: any) => {
-				this.timesheetTemplateList = values[0]?.data;
-				this.shiftList = values[1]?.data;
-				this.timesheetTypeList = values[2];
-				this.CheckInOutPolicyList = values[3];
-				super.preLoadData(event);
-			}
-		);
+		Promise.all([
+			this.timesheetTemplateProvider.read(),
+			this.shiftProvider.read(),
+			this.env.getType('TimesheetType'),
+			this.env.getType('CheckInOutPolicy'),
+			this.officeProvider.read(),
+		]).then((values: any) => {
+			this.timesheetTemplateList = values[0]?.data;
+			this.shiftList = values[1]?.data;
+			this.timesheetTypeList = values[2];
+			this.CheckInOutPolicyList = values[3];
+			this.officeList = values[4]?.data || [];
+			super.preLoadData(event);
+		});
 	}
 	loadedData(event) {
 		// this.dataIDBranchList = this.env.branchList;
@@ -93,9 +103,10 @@ export class TimesheetDetailPage extends PageBase {
 
 		// 	});
 		// });
-		if(this.item?.Id){
-			let option = this.item.Option ? JSON.parse(this.item.Option) : null;
-			this.formGroup.get('ShiftList').setValue(option?.ShiftList);
+		if (this.item?.Id) {
+			const option = readTimesheetOption(this.item.Option);
+			this.formGroup.get('ShiftList').setValue(option.ShiftList);
+			this.formGroup.get('IDOffice').setValue(option.IDOffice);
 		}
 		super.loadedData();
 	}

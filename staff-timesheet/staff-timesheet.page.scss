@@ -35,8 +35,43 @@
 }
 
 .staff-timesheet-selectors {
-	ng-select {
-		min-width: 180px;
-		max-width: 280px;
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	width: max-content;
+	max-width: 100%;
+	// Menu toggle is 45px and overlays the toolbar's 40px start padding.
+	margin-left: 12px;
+}
+
+:host ::ng-deep .staff-timesheet-selectors ng-select.header-fit {
+	flex: 0 0 auto;
+	width: max-content;
+	max-width: 100%;
+
+	.ng-select-container {
+		width: max-content;
+		max-width: 100%;
 	}
+
+	.ng-value-container {
+		flex: 0 0 auto;
+		width: max-content;
+		max-width: 100%;
+	}
+
+	.ng-value-container,
+	.ng-value {
+		overflow: visible;
+	}
+
+	.ng-value,
+	.ng-placeholder {
+		white-space: nowrap;
+	}
+}
+
+::ng-deep .ng-dropdown-panel.header-fit {
+	width: max-content !important;
+	min-width: max-content !important;
 }

@@ -72,6 +72,37 @@ export function isNightShift(shiftType?: string | null, isOvernightShift?: boole
 	return t === 'nightshift' || t === 'overnightshift' || t === 'ca đêm';
 }
 
+/** Clear every tick. Returns whether anything was selected. */
+export function clearChecked(items: { isChecked?: boolean }[] | null | undefined): boolean {
+	let changed = false;
+	(items || []).forEach((item) => {
+		if (!item?.isChecked) return;
+		item.isChecked = false;
+		changed = true;
+	});
+	return changed;
+}
+
+/** Keep checkbox ticks when a filter list is replaced by a fresh API payload. */
+export function restoreCheckedById(
+	nextItems: { Id?: any; isChecked?: boolean }[] | null | undefined,
+	previousItems: { Id?: any; isChecked?: boolean }[] | null | undefined,
+): void {
+	const checked = new Set((previousItems || []).filter((item) => item?.isChecked).map((item) => item.Id));
+	(nextItems || []).forEach((item) => {
+		if (item) item.isChecked = checked.has(item.Id);
+	});
+}
+
+/** yyyy-mm-dd of the first day the scheduler view is showing. */
+export function visibleCalendarStartDate(activeStart?: Date | string | null, fallback: Date = new Date()): string {
+	const parsed = activeStart ? new Date(activeStart) : new Date(fallback);
+	const value = Number.isNaN(parsed.getTime()) ? new Date(fallback) : parsed;
+	const month = String(value.getMonth() + 1).padStart(2, '0');
+	const day = String(value.getDate()).padStart(2, '0');
+	return `${value.getFullYear()}-${month}-${day}`;
+}
+
 export function buildSchedulerShiftEventHtml(opts: {
 	title?: string | null;
 	shiftStart?: string | null;

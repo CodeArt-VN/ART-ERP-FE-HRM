@@ -105,6 +105,26 @@
 						</div>
 
 						<div class="c-control" *ngIf="segmentView == 'Shift'">
+							<label class="c-label" for="IDOffice">{{'Workplace' | translate}}</label>
+							<ng-select
+								class="c-input"
+								labelForId="IDOffice"
+								formControlName="IDOffice"
+								[items]="officeList"
+								bindLabel="Name"
+								bindValue="Id"
+								[clearable]="true"
+								placeholder="{{'Workplace' | translate}}"
+							>
+								<ng-template ng-option-tmp let-i="item" let-search="searchTerm">
+									<div *ngIf="i">
+										<div [ngOptionHighlight]="search">{{i.Name}}</div>
+									</div>
+								</ng-template>
+							</ng-select>
+						</div>
+
+						<div class="c-control" *ngIf="segmentView == 'Shift'">
 							<label class="c-label" for="IDShift"
 								>{{'Select shift' | translate}}
 								<span

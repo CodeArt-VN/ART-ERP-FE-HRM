@@ -38,6 +38,11 @@
 								</app-form-control>
 								<app-form-control
 									(change)="saveChange()"
+									[field]="{id:'IDOffice', label:'Workplace', type:'ng-select', dataSource:officeList,bindLabel:'Name',bindValue:'Id',form:formGroup, appendTo:'#detail-page',multiple:true,clearable:true}"
+								>
+								</app-form-control>
+								<app-form-control
+									(change)="saveChange()"
 									[field]="{id:'NumberOfShiftPerDay', label:'Number of Daily working shift', type:'number', form:formGroup}"
 								></app-form-control>
 								<app-form-control
