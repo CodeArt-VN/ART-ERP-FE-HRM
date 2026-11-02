@@ -9,7 +9,6 @@
 		>
 			<ion-icon slot="icon-only" [name]="userAccount.LockoutEnabled ? 'lock-closed' : 'lock-open'"></ion-icon>
 		</ion-button>
-		
 	</app-toolbar>
 </ion-header>
 
@@ -25,10 +24,7 @@
 		<div *ngIf="pageConfig.showSpinner==false">
 			<ion-list lines="full">
 				<ion-item class="img-holder">
-					<div
-						style="margin: 0 auto"
-						class="avatar ion-padding"
-					>
+					<div style="margin: 0 auto" class="avatar ion-padding">
 						<img class="ion-margin" [src]="avatarURL" (error)="img.src = 'assets/avartar-empty.jpg'" #img />
 						<div>
 							<ion-button class="change-avatar" *ngIf="item.IsDisabled" color="danger" size="small"> {{'Resigned/ on pause' | translate}} </ion-button>
@@ -62,9 +58,6 @@
 
 						<div class="c-control">
 							<app-branch-breadcrumbs
-								[maxItems]="2"
-								[itemsBeforeCollapse]="1"
-								[itemsAfterCollapse]="1"
 								[Id]="formGroup.get('IDJobTitle').value"
 								[Items]="env.jobTitleList"
 								[ngClass]="{'no-check-dirty': noCheckDirty}"
@@ -95,8 +88,7 @@
 	</ion-fab>
 
 	<div class="safe-max-width">
-		<app-staff-personnel-profile [data]="item" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false">
-		</app-staff-personnel-profile>
+		<app-staff-personnel-profile [data]="item" *ngIf="segmentView.Page == 'personnel-profile' && pageConfig.showSpinner == false"> </app-staff-personnel-profile>
 
 		<app-staff-job-information *ngIf="segmentView.Page == 'job-information' && pageConfig.showSpinner == false"></app-staff-job-information>
 

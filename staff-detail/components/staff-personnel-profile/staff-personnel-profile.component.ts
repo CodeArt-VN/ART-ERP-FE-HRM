@@ -163,7 +163,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			});
 
 		this.departmentList = [...this.env.branchList];
-		this.jobTitleList = [...this.env.jobTitleList];
+		this.refreshJobTitleList();
 	}
 	loadData(event) {
 		this.item = this._item;
@@ -385,12 +385,7 @@ export class StaffPersonnelProfileComponent extends PageBase {
 	}
 
 	changeDepartment(markAsDirty = false) {
-		let selectedDepartment = this.formGroup.controls.IDDepartment.value;
-		this.env.getJobTitle(selectedDepartment, true).then((result) => {
-			this.jobTitleList = [...result];
-			//  this.formGroup.get('IDJobTitle').setValue(''); //  có department không có JobTitle
-			//   this.getCompany(selectedDepartment);
-		});
+		this.refreshJobTitleList();
 
 		this.env.getType('WorkAreaType').then((result) => {
 			this.workAreaList = [...result];
@@ -400,6 +395,16 @@ export class StaffPersonnelProfileComponent extends PageBase {
 			this.formGroup.get('IDJobTitle').markAsDirty();
 			this.saveChange();
 		}
+	}
+
+	/** Full org tree for the job-title picker. Levels are rebuilt from IDParent so every ancestor stays visible. */
+	refreshJobTitleList() {
+		this.jobTitleList = (this.env.jobTitleList || []).map((item) => {
+			const copy = { ...item };
+			delete copy.levels;
+			delete copy.level;
+			return copy;
+		});
 	}
 
 	markNestedNode(ls, Id) {

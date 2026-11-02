@@ -47,12 +47,17 @@
 							[field]="{
 								id: 'IDJobTitle',
 								label: 'Job title',
-								dataSource: jobTitleList,
+								dataSource: formGroup.get('IDDepartment').value ? jobTitleList : [],
 								bindLabel: 'Name',
 								bindValue: 'Id',
 								type: 'ng-select-branch',
 								form: formGroup,
-								placeholder: 'Select unit',
+								placeholder: 'Select job title',
+								branchConfig: {
+									selectedBranch: formGroup.get('IDDepartment').value,
+									showingType: 'TitlePosition',
+									showingKeepDisabled: true,
+								},
 							}"
 							(controlChange)="saveChange()"
 						>
