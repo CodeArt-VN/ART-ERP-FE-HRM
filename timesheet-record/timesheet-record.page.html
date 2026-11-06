@@ -73,27 +73,3 @@
 		</app-data-table>
 	</div>
 </ion-content>
-<!-- 
-<ion-content [fullscreen]="true" appScrollbarTheme class="header-table">
-	<app-page-message [itemsLength]="items.length" [showSpinner]="pageConfig.showSpinner"></app-page-message>
-	<div *ngIf="items.length && pageConfig.showSpinner==false">
-		<section class="table">
-			
-			<div *ngFor="let i of items; let j = index;" class="row" [ngClass]="{odd: j % 2 != 0}" [ngClass]="{selected: i.checked}">
-				<div class="col-checkbox cell">
-					<input (click)="changeSelection(i, $event)" class="c-checkbox" [(ngModel)]="i.checked" type="checkbox" />
-				</div>
-				<div class="col-checkbox cell" (click)="showModal(i)">
-					<ion-icon color="danger" class="min-btn" name="pencil-outline"></ion-icon>
-				</div>
-				<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-id cell">{{i.Id}}</div>
-				<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-date cell">{{i.Start}}</div>
-				<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-date cell">{{i.End}}</div>
-				<div (click)="nav('timesheet-cycle/'+i.Id,'forward')" class="col-name cell">{{i.Name}}</div>
-				<div class="col-remark cell">
-					<a (click)="nav('timesheet-cycle/'+i.Id+'/'+t.Id,'forward')" *ngFor="let t of i.TimesheetList">{{t.Name}}</a>
-				</div>
-			</div>
-		</section>
-	</div>
-</ion-content> -->
