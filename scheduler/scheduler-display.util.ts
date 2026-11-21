@@ -103,6 +103,32 @@ export function visibleCalendarStartDate(activeStart?: Date | string | null, fal
 	return `${value.getFullYear()}-${month}-${day}`;
 }
 
+function toLocalYmd(date: Date): string {
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/**
+ * Inclusive yyyy-mm-dd range for FullCalendar activeStart/activeEnd.
+ * activeEnd is exclusive — last visible day is activeEnd - 1ms.
+ */
+export function calendarViewDateRange(
+	activeStart?: Date | string | null,
+	activeEnd?: Date | string | null
+): { fromDate: string; toDate: string } | null {
+	if (!activeStart) return null;
+	const start = new Date(activeStart);
+	if (Number.isNaN(start.getTime())) return null;
+	start.setHours(0, 0, 0, 0);
+
+	const end = activeEnd ? new Date(new Date(activeEnd).getTime() - 1) : new Date(start);
+	if (Number.isNaN(end.getTime())) return null;
+	end.setHours(0, 0, 0, 0);
+
+	return { fromDate: toLocalYmd(start), toDate: toLocalYmd(end) };
+}
+
 export function buildSchedulerShiftEventHtml(opts: {
 	title?: string | null;
 	shiftStart?: string | null;

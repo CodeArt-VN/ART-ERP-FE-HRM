@@ -2,6 +2,9 @@ import {
 	buildDetailColumns,
 	buildSummaryColumns,
 	buildSummaryColumnsFromHeaders,
+	buildTimesheetCalculationByCyclePayload,
+	buildTimesheetCalculationByDatePayload,
+	buildTimesheetCalculationPromptMessage,
 	buildTimesheetRecordColumnsQuery,
 	buildTimesheetRecordDetailExportQuery,
 	buildTimesheetRecordSummaryExportQuery,
@@ -81,6 +84,45 @@ describe('buildTimesheetRecordSummaryExportQuery', () => {
 			unknown
 		>;
 		expect(Object.keys(q).filter((k) => k.toLowerCase() === 'idtimesheetcycle')).toEqual(['IDTimesheetCycle']);
+	});
+});
+
+describe('buildTimesheetCalculationByCyclePayload', () => {
+	it('sends both ids so BE resolves the full cycle range', () => {
+		expect(buildTimesheetCalculationByCyclePayload({ IDTimesheet: 12, IDTimesheetCycle: 99 })).toEqual({
+			IDTimesheet: 12,
+			IDTimesheetCycle: 99,
+			WaitReturn: true,
+		});
+		expect(buildTimesheetCalculationByCyclePayload({ IDTimesheet: 12 })).toBeNull();
+	});
+});
+
+describe('buildTimesheetCalculationByDatePayload', () => {
+	it('sends timesheet id with inclusive week dates', () => {
+		expect(
+			buildTimesheetCalculationByDatePayload({
+				IDTimesheet: 12,
+				FromDate: '2026-11-17',
+				ToDate: '2026-11-23',
+			})
+		).toEqual({
+			IDTimesheet: 12,
+			FromDate: '2026-11-17',
+			ToDate: '2026-11-23',
+			WaitReturn: true,
+		});
+		expect(buildTimesheetCalculationByDatePayload({ IDTimesheet: 12, FromDate: '2026-11-17' })).toBeNull();
+	});
+});
+
+describe('buildTimesheetCalculationPromptMessage', () => {
+	it('keeps MessageFormat params flat (not nested under value)', () => {
+		expect(buildTimesheetCalculationPromptMessage('2026-11-01', '2026-11-30')).toEqual({
+			code: 'Calculate timesheet from {value} to {value1}?',
+			value: '2026-11-01',
+			value1: '2026-11-30',
+		});
 	});
 });
 

@@ -36,10 +36,10 @@ import { PointModalPage } from '../point-modal/point-modal.page';
 import { resolveTimesheetPointCard } from '../point-modal/point-modal.staff';
 import { TimesheetLogPage } from './timesheet-log/timesheet-log.page';
 import { StaffPayrollModalPage } from '../staff-payroll-modal/staff-payroll-modal.page';
-import { StaffTimesheetCalculationModalPage } from '../staff-timesheet-calculation-modal/staff-timesheet-calculation-modal.page';
 import { TranslateService } from '@ngx-translate/core';
 import { el, ew } from '@fullcalendar/core/internal-common';
-import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, canShowStaffUnenrollButton, eventInkVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor, visibleCalendarStartDate, restoreCheckedById, clearChecked } from './scheduler-display.util';
+import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, calendarViewDateRange, canShowStaffUnenrollButton, eventInkVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor, visibleCalendarStartDate, restoreCheckedById, clearChecked } from './scheduler-display.util';
+import { buildTimesheetCalculationByDatePayload, buildTimesheetCalculationPromptMessage } from '../staff-timesheet/staff-timesheet.columns';
 import { officesForAssignment, readTimesheetOption } from '../timesheet-detail/timesheet-detail.option';
 
 @Component({
@@ -1827,27 +1827,29 @@ export class SchedulerPage extends PageBase {
 	}
 
 	async calculateTimesheet() {
-		console.log('To Date', this.fc?.view.activeEnd);
-		const modal = await this.popoverCtrl.create({
-			component: StaffTimesheetCalculationModalPage,
-			componentProps: {
-				formDate: lib.dateFormat(this.fc?.view.activeStart, 'yyyy-mm-dd'),
-				toDate: lib.dateFormat(this.fc?.view.activeEnd, 'yyyy-mm-dd'),
-			},
-			cssClass: 'w300',
-			translucent: true,
+		const range = calendarViewDateRange(this.fc?.view?.activeStart, this.fc?.view?.activeEnd);
+		const data = buildTimesheetCalculationByDatePayload({
+			IDTimesheet: this.id,
+			FromDate: range?.fromDate,
+			ToDate: range?.toDate,
 		});
-		await modal.present();
-		const { data } = await modal.onWillDismiss();
-		if (data) {
-			data.IDTimesheet = this.id;
-			data.WaitReturn = true;
-			this.env
-				.showLoading('Loading...', this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise())
-				.then((resp) => {
-					this.refresh();
-				})
-				.catch((err) => this.env.showErrorMessage(err));
+		if (!data) {
+			this.env.showMessage('Please select working schedule to begin', 'warning');
+			return;
 		}
+
+		try {
+			await this.env.showPrompt(buildTimesheetCalculationPromptMessage(data.FromDate, data.ToDate), null, 'Calculation timesheet');
+		} catch {
+			return;
+		}
+
+		this.env
+			.showLoading(
+				'Loading...',
+				this.pageProvider.commonService.connect('POST', 'HRM/TimesheetCycle/CalculationTimesheet', data).toPromise()
+			)
+			.then(() => this.refresh())
+			.catch((err) => this.env.showErrorMessage(err));
 	}
 }

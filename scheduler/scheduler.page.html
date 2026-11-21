@@ -109,33 +109,11 @@
 			</ion-button>
 		</ng-container>
 
-		<ng-container *ngIf="segmentView == 's3' && 0">
+		<ng-container *ngIf="segmentView == 's3'">
 			<span class="split ion-hide-sm-down">|</span>
-
-			<ion-button (click)="calculateTimesheet()" title="{{'Calculate timesheet' | translate}}">
+			<ion-button *ngIf="id" (click)="calculateTimesheet()" title="{{'Calculate timesheet' | translate}}">
 				<ion-icon name="calculator-outline" slot="icon-only"></ion-icon>
 			</ion-button>
-
-			<!-- <ion-button (click)="openModalPayroll()" title="{{'Staff payroll' | translate}}">
-				<ion-icon name="calculator-outline" slot="icon-only"></ion-icon>
-			</ion-button> -->
-
-			<ion-button (click)="showFilter()" title="{{'Filter' | translate}}">
-				<ion-icon slot="icon-only" [name]="pageConfig.isShowFeature? 'funnel':'funnel-outline' "></ion-icon>
-			</ion-button>
-			<!-- <ion-button (click)="refresh()" title="{{'Refresh' | translate}}">
-				<ion-icon slot="icon-only" name="reload-outline"></ion-icon>
-			</ion-button> -->
-
-			<!-- <ion-button (click)="openCycleModal()" title="{{'Open cycle modal' | translate}}">
-				<ion-icon slot="icon-only" name="ellipse-outline"></ion-icon>
-			</ion-button> -->
-
-			<span class="split ion-hide-sm-down" *ngIf=" pageConfig.canExport && pageConfig.canImport">|</span>
-<!-- 
-			<ion-button class="ion-hide-sm-down" *ngIf="pageConfig.canExport" (click)="export()" title="{{'Export' | translate}}">
-				<ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
-			</ion-button> -->
 		</ng-container>
 
 		<span class="split ion-hide-sm-down">|</span>

@@ -1,4 +1,4 @@
-import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, canShowStaffUnenrollButton, eventInkVar, ionContrastCssVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor, visibleCalendarStartDate, restoreCheckedById, clearChecked } from './scheduler-display.util';
+import { buildCheckinLogEventHtml, buildStaffResourceLabelHtml, buildTimesheetChipHtml, calendarViewDateRange, canShowStaffUnenrollButton, eventInkVar, ionContrastCssVar, ionicColorToken, isNightShift, buildSchedulerShiftEventHtml, shouldShowTimesheetPointModal, tintEventColor, visibleCalendarStartDate, restoreCheckedById, clearChecked } from './scheduler-display.util';
 
 describe('visibleCalendarStartDate', () => {
 	it('preselects the first day the calendar is showing', () => {
@@ -9,6 +9,21 @@ describe('visibleCalendarStartDate', () => {
 	it('falls back when the calendar view is not ready', () => {
 		expect(visibleCalendarStartDate(null, new Date(2026, 8, 30))).toBe('2026-09-30');
 		expect(visibleCalendarStartDate('not-a-date', new Date(2026, 8, 1))).toBe('2026-09-01');
+	});
+});
+
+describe('calendarViewDateRange', () => {
+	it('uses inclusive last day because FullCalendar activeEnd is exclusive', () => {
+		const start = new Date(2026, 10, 17, 0, 0, 0);
+		const exclusiveEnd = new Date(2026, 10, 24, 0, 0, 0);
+		expect(calendarViewDateRange(start, exclusiveEnd)).toEqual({
+			fromDate: '2026-11-17',
+			toDate: '2026-11-23',
+		});
+	});
+
+	it('returns null when the view start is missing', () => {
+		expect(calendarViewDateRange(null, new Date(2026, 10, 24))).toBeNull();
 	});
 });
 

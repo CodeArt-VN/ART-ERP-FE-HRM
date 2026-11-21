@@ -12,6 +12,8 @@ import { HRM_TimesheetRecordService } from '../staff-timesheet-record.service';
 import {
 	buildDetailColumns,
 	buildSummaryColumnsFromHeaders,
+	buildTimesheetCalculationByCyclePayload,
+	buildTimesheetCalculationPromptMessage,
 	buildTimesheetRecordColumnsQuery,
 	buildTimesheetRecordDetailExportQuery,
 	buildTimesheetRecordSummaryExportQuery,
@@ -293,30 +295,27 @@ export class StaffTimesheetPage extends PageBase {
 	}
 
 	async calculateTimesheet() {
-		if (!this.selectedCycle || !this.selectedTimesheet?.IDTimesheet) {
+		const data = buildTimesheetCalculationByCyclePayload({
+			IDTimesheet: this.selectedTimesheet?.IDTimesheet,
+			IDTimesheetCycle: this.selectedCycle?.Id,
+		});
+		if (!data) {
 			this.env.showMessage('Please select timesheet cycle and timesheet', 'warning');
 			return;
 		}
 
 		const fromDate = lib.dateFormat(this.selectedCycle.Start, 'yyyy-mm-dd');
 		const toDate = lib.dateFormat(this.selectedCycle.End, 'yyyy-mm-dd');
-
-		try {
-			await this.env.showPrompt(
-				{ code: 'Calculate timesheet from {value} to {value1}?', value: { value: fromDate, value1: toDate } },
-				null,
-				'Calculation timesheet'
-			);
-		} catch {
+		if (!fromDate || !toDate) {
+			this.env.showMessage('Please select timesheet cycle and timesheet', 'warning');
 			return;
 		}
 
-		const data: any = {
-			FromDate: fromDate,
-			ToDate: toDate,
-			IDTimesheet: this.selectedTimesheet.IDTimesheet,
-			WaitReturn: true,
-		};
+		try {
+			await this.env.showPrompt(buildTimesheetCalculationPromptMessage(fromDate, toDate), null, 'Calculation timesheet');
+		} catch {
+			return;
+		}
 
 		this.env
 			.showLoading(

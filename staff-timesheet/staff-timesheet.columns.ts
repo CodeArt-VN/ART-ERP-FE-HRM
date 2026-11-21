@@ -48,6 +48,39 @@ export function buildTimesheetRecordSummaryExportQuery(input: {
 	return lang ? { ...base, Lang: lang } : { ...base };
 }
 
+/** Full-cycle calculation: BE resolves Start/End from IDTimesheetCycle. */
+export function buildTimesheetCalculationByCyclePayload(input: {
+	IDTimesheet?: number | null;
+	IDTimesheetCycle?: number | null;
+} | null | undefined): { IDTimesheet: number; IDTimesheetCycle: number; WaitReturn: true } | null {
+	const base = buildTimesheetRecordColumnsQuery(input);
+	if (!base) return null;
+	return { ...base, WaitReturn: true };
+}
+
+/** Week / date-range calculation for scheduler UI. */
+export function buildTimesheetCalculationByDatePayload(input: {
+	IDTimesheet?: number | null;
+	FromDate?: string | null;
+	ToDate?: string | null;
+} | null | undefined): { IDTimesheet: number; FromDate: string; ToDate: string; WaitReturn: true } | null {
+	const idTimesheet = Number(input?.IDTimesheet);
+	const fromDate = String(input?.FromDate || '').trim();
+	const toDate = String(input?.ToDate || '').trim();
+	if (!Number.isFinite(idTimesheet) || idTimesheet <= 0) return null;
+	if (!fromDate || !toDate) return null;
+	return { IDTimesheet: idTimesheet, FromDate: fromDate, ToDate: toDate, WaitReturn: true };
+}
+
+/** MessageFormat params for Calculate timesheet from {value} to {value1}? — flat, not nested. */
+export function buildTimesheetCalculationPromptMessage(fromDate: string, toDate: string) {
+	return {
+		code: 'Calculate timesheet from {value} to {value1}?',
+		value: fromDate,
+		value1: toDate,
+	};
+}
+
 /** Detail export: cycle + working-date range; do not emit IDTimeSheetCycle duplicate. */
 export function buildTimesheetRecordDetailExportQuery(input: {
 	IDTimesheet?: number | null;
